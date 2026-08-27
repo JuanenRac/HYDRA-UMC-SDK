@@ -41,11 +41,11 @@ Raises `ContractValidationError` (a `ValueError` subclass) on the first rule vio
 | Contract | Required fields | Extra rules |
 |---|---|---|
 | `DeviceDescriptor` | `schema_version`, `node_id`, `profile`, `hostname`, `machine`, `operating_system`, `kernel`, `interfaces` | `interfaces` must be an array of non-empty strings. |
-| `HealthReport` | `schema_version`, `state`, `timestamp_utc`, `checks` | `state` must be one of `READY`/`DEGRADED`/`INHIBITED`/`FAULT`/`SAFE_STOP`. `checks` must be an object. |
-| `SafetyState` | `schema_version`, `state`, `source`, `timestamp_utc` | `state` must be one of `READY`/`INHIBITED`/`FAULT`/`SAFE_STOP` (no `DEGRADED` - narrower than `HealthReport`'s own enum). |
+| `HealthReport` | `schema_version`, `state`, `timestamp_utc`, `checks` | `state` must be one of `READY`/`DEGRADED`/`INHIBITED`/`FAULT`/`SAFE_STOP`. `timestamp_utc` must be a valid RFC 3339 date-time. `checks` must be an object. |
+| `SafetyState` | `schema_version`, `state`, `source`, `timestamp_utc` | `state` must be one of `READY`/`INHIBITED`/`FAULT`/`SAFE_STOP` (no `DEGRADED` - narrower than `HealthReport`'s own enum). `timestamp_utc` must be a valid RFC 3339 date-time. |
 | `UpdateManifest` | `schema_version`, `project`, `version`, `artifact_url`, `sha256` | `sha256` must be a 64-character lowercase/uppercase hex digest. `artifact_url` must start with `https://`. |
-| `EventEnvelope` | `schema_version`, `event_id`, `type`, `source`, `timestamp_utc`, `sequence` | `sequence` must be a non-negative integer. |
-| `ServerDiscovery` | `schema_version`, `product`, `remoteApiVersion`, `appVersion`, `hostname`, `controllerCount`, `robotCount`, `uptimeSeconds` | `remoteApiVersion` must be an integer >= 1; `controllerCount`/`robotCount`/`uptimeSeconds` must each be an integer >= 0. |
+| `EventEnvelope` | `schema_version`, `event_id`, `type`, `source`, `timestamp_utc`, `sequence` | `timestamp_utc` must be a valid RFC 3339 date-time. `sequence` must be a non-negative JSON integer (not a boolean). |
+| `ServerDiscovery` | `schema_version`, `product`, `remoteApiVersion`, `appVersion`, `hostname`, `controllerCount`, `robotCount`, `uptimeSeconds` | `remoteApiVersion` must be a JSON integer >= 1; `controllerCount`/`robotCount`/`uptimeSeconds` must each be JSON integers >= 0 (not booleans). |
 
 Every other required field not listed with an "extra rule" above just needs to be a non-empty string.
 

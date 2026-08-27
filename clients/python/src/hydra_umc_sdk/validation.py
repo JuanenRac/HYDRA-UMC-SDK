@@ -13,9 +13,12 @@ portable validation path before generated clients are introduced.
 from __future__ import annotations
 
 import argparse
+from datetime import datetime
 import json
+import re
 import sys
 from typing import Any
+from urllib.parse import urlparse
 
 
 class ContractValidationError(ValueError):
@@ -34,11 +37,33 @@ ENUMS = {
     "HealthReport": {"READY", "DEGRADED", "INHIBITED", "FAULT", "SAFE_STOP"},
     "SafetyState": {"READY", "INHIBITED", "FAULT", "SAFE_STOP"},
 }
+RFC3339_DATE_TIME = re.compile(
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$"
+)
 
 
 def _require_string(payload: dict[str, Any], name: str) -> None:
     if not isinstance(payload.get(name), str) or not payload[name]:
         raise ContractValidationError(f"{name} must be a non-empty string")
+
+
+def _require_date_time(payload: dict[str, Any], name: str) -> None:
+    """Require the RFC 3339 date-time form used by JSON Schema v1."""
+    _require_string(payload, name)
+    value = payload[name]
+    if not RFC3339_DATE_TIME.fullmatch(value):
+        raise ContractValidationError(f"{name} must be an RFC 3339 date-time")
+    try:
+        datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ContractValidationError(f"{name} must be a valid RFC 3339 date-time") from exc
+
+
+def _require_integer(payload: dict[str, Any], name: str, minimum: int) -> None:
+    """Require a JSON integer, deliberately excluding Python booleans."""
+    value = payload[name]
+    if type(value) is not int or value < minimum:
+        raise ContractValidationError(f"{name} must be an integer >= {minimum}")
 
 
 def validate(contract: str, payload: dict[str, Any]) -> None:
@@ -55,6 +80,8 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
     for field in REQUIRED[contract]:
         if field not in {"interfaces", "checks", "sequence", "remoteApiVersion", "controllerCount", "robotCount", "uptimeSeconds"}:
             _require_string(payload, field)
+    if contract in {"HealthReport", "SafetyState", "EventEnvelope"}:
+        _require_date_time(payload, "timestamp_utc")
     if contract == "DeviceDescriptor" and not isinstance(payload["interfaces"], list):
         raise ContractValidationError("interfaces must be an array")
     if contract == "DeviceDescriptor" and not all(isinstance(item, str) and item for item in payload["interfaces"]):
@@ -65,15 +92,16 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
         raise ContractValidationError(f"unsupported {contract} state: {payload['state']}")
     if contract == "UpdateManifest" and (len(payload["sha256"]) != 64 or any(c not in "0123456789abcdef" for c in payload["sha256"].lower())):
         raise ContractValidationError("sha256 must be a 64-character hexadecimal digest")
-    if contract == "UpdateManifest" and not payload["artifact_url"].startswith("https://"):
-        raise ContractValidationError("artifact_url must use https")
-    if contract == "EventEnvelope" and (not isinstance(payload["sequence"], int) or payload["sequence"] < 0):
-        raise ContractValidationError("sequence must be a non-negative integer")
+    if contract == "UpdateManifest":
+        parsed_artifact_url = urlparse(payload["artifact_url"])
+        if parsed_artifact_url.scheme != "https" or not parsed_artifact_url.hostname:
+            raise ContractValidationError("artifact_url must be an https URL with a hostname")
+    if contract == "EventEnvelope":
+        _require_integer(payload, "sequence", 0)
     if contract == "ServerDiscovery":
         for field in ("remoteApiVersion", "controllerCount", "robotCount", "uptimeSeconds"):
             minimum = 1 if field == "remoteApiVersion" else 0
-            if not isinstance(payload[field], int) or payload[field] < minimum:
-                raise ContractValidationError(f"{field} must be an integer >= {minimum}")
+            _require_integer(payload, field, minimum)
 
 
 def main(argv: list[str] | None = None) -> int:

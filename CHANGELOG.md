@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- UpdateManifest validation now requires an HTTPS artifact URL with a real
+  hostname, rejecting malformed strings such as `https:///artifact.deb`.
+
+- The dependency-free Python validator now rejects invalid RFC 3339
+  `timestamp_utc` values and JSON booleans supplied where the `EventEnvelope`
+  sequence or `ServerDiscovery` numeric counters require integers. Python
+  treats `bool` as an `int` subclass, which previously let invalid contract
+  payloads pass reference validation.
+
 ## Documentation
 
 ### Added
