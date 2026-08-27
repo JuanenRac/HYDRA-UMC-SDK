@@ -33,7 +33,9 @@ The implemented contracts are published under `contracts/json-schema/v1/`.
 Their v1 required fields are intentionally small, and `additionalProperties`
 is enabled so producers can add compatible fields without breaking older
 consumers. The Python reference validator implements the required v1 subset;
-the JSON Schema files remain the normative source.
+the JSON Schema files remain the normative source. See
+[PYTHON_CLIENT.md](PYTHON_CLIENT.md) for the validator's full function/CLI
+reference, including the exact required-fields table per contract.
 
 ## Event envelope
 
