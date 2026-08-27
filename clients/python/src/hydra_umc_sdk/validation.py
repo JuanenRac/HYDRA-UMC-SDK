@@ -28,6 +28,7 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "SafetyState": ("schema_version", "state", "source", "timestamp_utc"),
     "UpdateManifest": ("schema_version", "project", "version", "artifact_url", "sha256"),
     "EventEnvelope": ("schema_version", "event_id", "type", "source", "timestamp_utc", "sequence"),
+    "ServerDiscovery": ("schema_version", "product", "remoteApiVersion", "appVersion", "hostname", "controllerCount", "robotCount", "uptimeSeconds"),
 }
 ENUMS = {
     "HealthReport": {"READY", "DEGRADED", "INHIBITED", "FAULT", "SAFE_STOP"},
@@ -52,7 +53,7 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
     if payload.get("schema_version") != "1.0":
         raise ContractValidationError("schema_version must be '1.0'")
     for field in REQUIRED[contract]:
-        if field not in {"interfaces", "checks", "sequence"}:
+        if field not in {"interfaces", "checks", "sequence", "remoteApiVersion", "controllerCount", "robotCount", "uptimeSeconds"}:
             _require_string(payload, field)
     if contract == "DeviceDescriptor" and not isinstance(payload["interfaces"], list):
         raise ContractValidationError("interfaces must be an array")
@@ -68,6 +69,11 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
         raise ContractValidationError("artifact_url must use https")
     if contract == "EventEnvelope" and (not isinstance(payload["sequence"], int) or payload["sequence"] < 0):
         raise ContractValidationError("sequence must be a non-negative integer")
+    if contract == "ServerDiscovery":
+        for field in ("remoteApiVersion", "controllerCount", "robotCount", "uptimeSeconds"):
+            minimum = 1 if field == "remoteApiVersion" else 0
+            if not isinstance(payload[field], int) or payload[field] < minimum:
+                raise ContractValidationError(f"{field} must be an integer >= {minimum}")
 
 
 def main(argv: list[str] | None = None) -> int:

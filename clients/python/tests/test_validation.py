@@ -49,6 +49,13 @@ class ValidationTests(unittest.TestCase):
         with self.assertRaises(ContractValidationError):
             validate("UpdateManifest", {"schema_version":"1.0","project":"os","version":"0.0.2","artifact_url":"http://example.invalid/a","sha256":"a" * 64})
 
+    def test_accepts_server_discovery(self):
+        validate("ServerDiscovery", self.fixture("server-discovery.valid.json"))
+
+    def test_rejects_invalid_server_discovery_version(self):
+        with self.assertRaises(ContractValidationError):
+            validate("ServerDiscovery", {"schema_version":"1.0","product":"server","remoteApiVersion":0,"appVersion":"0.0.1","hostname":"host","controllerCount":0,"robotCount":0,"uptimeSeconds":0})
+
 
 if __name__ == "__main__":
     unittest.main()

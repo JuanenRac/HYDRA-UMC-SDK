@@ -25,10 +25,11 @@ according to its use case.
 | `ToolDescriptor` | URTC adapter | Server, Smart Rack, Studio |
 | `TelemetrySample` | Collector/adapters | DataLake, Reports, Anomaly Detector |
 | `UpdateManifest` | Updater registry | OS agent, updater client |
+| `ServerDiscovery` | Server `GET /api/hydra-info` | Studio, Suite, mobile clients, Updater |
 
 ## Implemented JSON Schema v1
 
-The first four contracts are published under `contracts/json-schema/v1/`.
+The implemented contracts are published under `contracts/json-schema/v1/`.
 Their v1 required fields are intentionally small, and `additionalProperties`
 is enabled so producers can add compatible fields without breaking older
 consumers. The Python reference validator implements the required v1 subset;
@@ -46,3 +47,11 @@ idempotency key, target, and deadline.
 Use SemVer. Additive fields are optional in a minor version; renaming or
 removing fields requires a major version. Consumers ignore unknown fields and
 producers document the minimum supported SDK version.
+
+## Server discovery
+
+`ServerDiscovery` formalizes the additive v1 `schema_version` field and the
+existing camelCase HTTP response fields from `GET /api/hydra-info`. Its
+`remoteApiVersion` remains the Server transport version; it is not the SDK
+schema version. Consumers must reject a missing or unsupported
+`schema_version` before using discovery metadata.

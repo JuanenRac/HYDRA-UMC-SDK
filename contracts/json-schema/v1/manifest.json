@@ -1,10 +1,34 @@
-{
+﻿{
   "schema_version": "1.0",
   "contracts": [
-    {"file":"device-descriptor.schema.json","sha256":"57317c59d2950b2bb964963d310e1302b4eb0d0efcf6981c51fa4339707523c3"},
-    {"file":"event-envelope.schema.json","sha256":"16ed230b5967b48a5a42597956687d419bcdefd013719e8c3a725a47d24aceeb"},
-    {"file":"health-report.schema.json","sha256":"8c2278b6d803314f9273ad61de564597d706b3795578045a47c44fcfe4748a5c"},
-    {"file":"safety-state.schema.json","sha256":"2db5c302cf5c8be0631879bc844ace2d3d2796336c736df6500e553e6cbdaf84"},
-    {"file":"update-manifest.schema.json","sha256":"909e5835668429a17466224d03c2583aa21e30bd438b2197782f51c017c92c3e"}
+    {
+      "file": "device-descriptor.schema.json",
+      "sha256": "57317c59d2950b2bb964963d310e1302b4eb0d0efcf6981c51fa4339707523c3"
+    },
+    {
+      "file": "event-envelope.schema.json",
+      "sha256": "16ed230b5967b48a5a42597956687d419bcdefd013719e8c3a725a47d24aceeb"
+    },
+    {
+      "file": "health-report.schema.json",
+      "sha256": "8c2278b6d803314f9273ad61de564597d706b3795578045a47c44fcfe4748a5c"
+    },
+    {
+      "file": "project-manifest.schema.json",
+      "sha256": "d972eb7e042632e49072b863dc23e40d6ceb3ea9f2c55fc6c7936a8e6e7661cc"
+    },
+    {
+      "file": "safety-state.schema.json",
+      "sha256": "2db5c302cf5c8be0631879bc844ace2d3d2796336c736df6500e553e6cbdaf84"
+    },
+    {
+      "file": "server-discovery.schema.json",
+      "sha256": "79ff726a0425e6a74bfc39f3bf870177be072eb93a66e99bae752c9f9312a76f"
+    },
+    {
+      "file": "update-manifest.schema.json",
+      "sha256": "909e5835668429a17466224d03c2583aa21e30bd438b2197782f51c017c92c3e"
+    }
   ]
 }
+
