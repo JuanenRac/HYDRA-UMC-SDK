@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "ecosystem": "HYDRA-UMC",
+  "name": "HYDRA-UMC-SDK",
+  "version": "0.0.3",
+  "role": "library",
+  "stack": "python",
+  "technologies": [
+    "Python",
+    "TypeScript",
+    "Go",
+    "Rust",
+    "Protobuf",
+    "JSON Schema",
+    "OpenAPI"
+  ],
+  "deployment_target": "user-pc",
+  "maturity": "functional",
+  "family": "Platform Foundation & Contracts",
+  "parent": "HYDRA-UMC-OS",
+  "build": "Functional JSON Schema v1 contracts, Python reference validator and conformance fixtures.",
+  "notes": "The common contract and conformance boundary for services, UIs, CM5 adapters and URTC. Version 0.0.3 provides v1 JSON Schema, Python validation and conformance fixtures; package publication and further clients remain release gates.",
+  "native_version": {
+    "file": "CHANGELOG.md",
+    "pattern": "(\\d+)\\.(\\d+)\\.(\\d+)"
+  }
+}

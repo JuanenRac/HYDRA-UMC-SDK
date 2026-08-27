@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/hydra-umc-sdk/contracts/v1/safety-state.schema.json",
+  "title": "SafetyState", "type": "object",
+  "required": ["schema_version", "state", "source", "timestamp_utc"],
+  "properties": {
+    "schema_version": {"const": "1.0"}, "state": {"enum": ["READY", "INHIBITED", "FAULT", "SAFE_STOP"]},
+    "source": {"type": "string", "minLength": 1}, "timestamp_utc": {"type": "string", "format": "date-time"}
+  }, "additionalProperties": true
+}

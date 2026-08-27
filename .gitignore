@@ -1,0 +1,11 @@
+build/
+dist/
+coverage/
+.env
+secrets/
+node_modules/
+target/
+__pycache__/
+.pytest_cache/
+# HYDRA-UMC shared secret protection
+!.env.example

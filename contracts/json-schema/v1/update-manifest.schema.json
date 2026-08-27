@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/hydra-umc-sdk/contracts/v1/update-manifest.schema.json",
+  "title": "UpdateManifest", "type": "object",
+  "required": ["schema_version", "project", "version", "artifact_url", "sha256"],
+  "properties": {
+    "schema_version": {"const": "1.0"}, "project": {"type": "string", "minLength": 1},
+    "version": {"type": "string", "minLength": 1}, "artifact_url": {"type": "string", "minLength": 1},
+    "sha256": {"type": "string", "pattern": "^[A-Fa-f0-9]{64}$"}
+  }, "additionalProperties": true
+}

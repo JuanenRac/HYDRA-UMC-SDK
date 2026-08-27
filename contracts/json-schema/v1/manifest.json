@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "contracts": [
+    {"file":"device-descriptor.schema.json","sha256":"57317c59d2950b2bb964963d310e1302b4eb0d0efcf6981c51fa4339707523c3"},
+    {"file":"event-envelope.schema.json","sha256":"16ed230b5967b48a5a42597956687d419bcdefd013719e8c3a725a47d24aceeb"},
+    {"file":"health-report.schema.json","sha256":"8c2278b6d803314f9273ad61de564597d706b3795578045a47c44fcfe4748a5c"},
+    {"file":"safety-state.schema.json","sha256":"2db5c302cf5c8be0631879bc844ace2d3d2796336c736df6500e553e6cbdaf84"},
+    {"file":"update-manifest.schema.json","sha256":"909e5835668429a17466224d03c2583aa21e30bd438b2197782f51c017c92c3e"}
+  ]
+}

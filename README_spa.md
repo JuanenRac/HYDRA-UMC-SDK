@@ -1,0 +1,88 @@
+<!--
+================================================================================
+HYDRA-UMC-SDK: descripción general del conjunto de herramientas de integración y contratos públicos
+Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
+CC BY-SA 4.0 - ver LICENCIA.md
+================================================================================
+-->
+
+<p align="center">
+  <img src="images/HYDRA_UMC_BANNER.svg" alt="banner HYDRA-UMC-SDK" width="100%">
+</p>
+
+<p align="center">
+  <a href="README.md">???? English</a> |
+  <a href="README_spa.md">🇪🇸 Español</a> |
+  <a href="README_fra.md">🇫🇷 Francés</a> |
+  <a href="README_ita.md">🇮🇹 Italiano</a> |
+  <a href="README_deu.md">🇩🇪 Alemán</a> |
+  <a href="README_zho.md">🇨🇳 简体中文</a> |
+  <a href="README_jpn.md">🇯🇵 日本語</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="Licencia: GPL 3.0">
+  <img src="https://img.shields.io/badge/Contracts-Protobuf%20%7C%20JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contratos: Protobuf | Esquema JSON | OpenAPI">
+  <img src="https://img.shields.io/badge/Reference%20client-Python-blueviolet.svg" alt="Cliente de referencia: Python">
+  <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integración: CM5 | URTC">
+</p>
+
+# HYDRA-UMC-SDK
+
+## 🧩 Contratos compartidos y kit de herramientas de integración para HYDRA-UMC
+
+HYDRA-UMC-SDK define el lenguaje estable compartido por los servicios de HYDRA-UMC,
+Clientes, adaptadores CM5 e integraciones URTC. Posee contratos normativos, un
+validador de referencia de Python libre de dependencias, accesorios de conformidad y
+orientación de integración. no lo hace
+reemplace las API oficiales para Raspberry Pi OS, Hailo, ROS 2, MQTT, OPC-UA o
+MTConnect.
+
+## 🚧 Estado
+
+Contratos JSON Schema v1, accesorios válidos/no válidos, un cliente de validación Python,
+y se implementan pruebas del lado del host. Publicación y clientes de Protobuf/OpenAPI
+para otros idiomas son los hitos de compatibilidad posteriores.
+
+## 🎯 Primer hito
+
+1. Publicar `DeviceDescriptor`, `HealthReport`, `SafetyState` y
+   Esquema JSON `UpdateManifest` v1.
+2. Validar dispositivos válidos e inválidos con el cliente de referencia de Python.
+3. Agregue una matriz de compatibilidad productor/consumidor en CI.
+4. Publicar representaciones de Protobuf/OpenAPI cuando la integración lo requiera.
+5. Agregue clientes TypeScript, Go y Rust desde contratos estables.
+
+## 📂 Diseño del repositorio
+
+<p align="center">
+  <img src="images/REPOSITORY_LAYOUT.svg" alt="Mapa visual del diseño del repositorio de HYDRA-UMC-SDK" width="100%">
+</p>
+
+| Camino | Propósito |
+| --- | --- |
+| `contratos/` | Fuentes normativas del esquema JSON v1; Otras representaciones siguen contratos estables. |
+| `clientes/` | Validador de referencia de Python libre de dependencias y futuros clientes de idiomas. |
+| `conformidad/` | Dispositivos v1 válidos e inválidos utilizados por las pruebas de compatibilidad. |
+| `docs/` | Especificaciones de contrato, API, seguridad y desarrollo. |
+| `ejemplos/` | Ejemplo de validación de Python ejecutable. |
+
+Lea [la guía del contrato](docs/CONTRACTS.md) antes de definir un nuevo mensaje.
+
+## 🔗 Proyectos relacionados
+
+> Mapa canónico de relaciones entre ecosistemas públicos.
+
+| Proyecto | Relación con HYDRA-UMC-SDK |
+| --- | --- |
+| [HYDRA-UMC-OS](https://github.com/JuanenRac/HYDRA-UMC-OS) | Agente de dispositivos consumidor de contratos de dispositivos, salud, seguridad y actualización. |
+| [SERVIDOR-HYDRA-UMC](https://github.com/JuanenRac/SERVIDOR-HYDRA-UMC) | Productor y consumidor de API autenticado regido por contratos de SDK. |
+| [ACTUALIZADOR-HYDRA-UMC](https://github.com/JuanenRac/HYDRA-UMC-UPDATER) | Publica metadatos de versión y compatibilidad consumidos por clientes con reconocimiento de contrato. |
+| [HYDRA-UMC](https://github.com/JuanenRac/HYDRA-UMC) | Plataforma de hardware/firmware expuesta a través de contratos de adaptadores CM5 y MCU vinculados. |
+| [URTC](https://github.com/JuanenRac/URTC) | Plataforma independiente de controlador de herramientas conectada a través de adaptadores de integración versionados. |
+
+**Resto del ecosistema:** explore las siete capas públicas en el [panel del ecosistema JuanenRac](https://juanenrac.github.io/JuanenRac/).
+
+## 📜 Licencia
+
+El código es GPL-3.0 o posterior; La documentación es CC BY-SA 4.0. Consulte [LICENCIA](LICENSE).
