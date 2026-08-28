@@ -44,6 +44,14 @@ Contratos JSON Schema v1, accesorios válidos/no válidos, un cliente de validac
 y se implementan pruebas del lado del host. Publicación y clientes de Protobuf/OpenAPI
 para otros idiomas son los hitos de compatibilidad posteriores.
 
+Una matriz de compatibilidad real y automática (`tools/verify_contract_matrix.py`)
+contrasta cada esquema publicado con la propia lista de contratos del validador
+de Python - encontró y corrigió una brecha real en la que `project-manifest.schema.json`
+(el contrato de `hydra-umc.project.json` que publica cada repositorio de este
+ecosistema) no tenía ninguna entrada de validador, y ahora demuestra que cada
+accesorio de conformidad se evalúa tal como afirma su propio nombre de archivo,
+además de los casos de contrato desconocido e incompatibilidad de versión de esquema.
+
 ## 🎯 Primer hito
 
 1. Publicar `DeviceDescriptor`, `HealthReport`, `SafetyState` y

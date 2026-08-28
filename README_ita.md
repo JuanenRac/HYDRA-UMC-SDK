@@ -44,6 +44,15 @@ Contratti JSON Schema v1, dispositivi validi/non validi, un client di convalida 
 e vengono implementati i test lato host. Pubblicazione e client Protobuf/OpenAPI
 per ulteriori lingue sono successivi traguardi di compatibilità.
 
+Una matrice di compatibilità reale e automatica (`tools/verify_contract_matrix.py`)
+verifica incrociando ogni schema pubblicato con l'elenco dei contratti del
+validatore Python stesso - ha individuato e corretto una lacuna reale in cui
+`project-manifest.schema.json` (il contratto di `hydra-umc.project.json` che
+ogni repository di questo ecosistema pubblica) non aveva alcuna voce di
+validatore, e ora dimostra che ogni dispositivo di conformità viene giudicato
+come afferma il proprio nome file, oltre ai casi di contratto sconosciuto e
+versione di schema incompatibile.
+
 ## 🎯 Primo traguardo
 
 1. Pubblica "DeviceDescriptor", "HealthReport", "SafetyState" e

@@ -72,6 +72,99 @@ class ValidationTests(unittest.TestCase):
         with self.assertRaises(ContractValidationError):
             validate("ServerDiscovery", {"schema_version":"1.0","product":"server","remoteApiVersion":0,"appVersion":"0.0.1","hostname":"host","controllerCount":0,"robotCount":0,"uptimeSeconds":0})
 
+    def test_accepts_project_manifest(self):
+        validate("ProjectManifest", self.fixture("project-manifest.valid.json"))
+
+    def test_rejects_unsupported_project_manifest_role(self):
+        with self.assertRaises(ContractValidationError):
+            validate("ProjectManifest", self.fixture("project-manifest.invalid.json"))
+
+    def _valid_project_manifest(self) -> dict:
+        return dict(self.fixture("project-manifest.valid.json"))
+
+    def test_rejects_wrong_ecosystem(self):
+        payload = self._valid_project_manifest()
+        payload["ecosystem"] = "OTHER"
+        with self.assertRaises(ContractValidationError):
+            validate("ProjectManifest", payload)
+
+    def test_rejects_malformed_name(self):
+        payload = self._valid_project_manifest()
+        payload["name"] = "not-a-real-project-name"
+        with self.assertRaises(ContractValidationError):
+            validate("ProjectManifest", payload)
+
+    def test_rejects_non_semver_version(self):
+        payload = self._valid_project_manifest()
+        payload["version"] = "v1"
+        with self.assertRaises(ContractValidationError):
+            validate("ProjectManifest", payload)
+
+    def test_rejects_unsupported_deployment_target(self):
+        payload = self._valid_project_manifest()
+        payload["deployment_target"] = "cloud"
+        with self.assertRaises(ContractValidationError):
+            validate("ProjectManifest", payload)
+
+    def test_rejects_unsupported_maturity(self):
+        payload = self._valid_project_manifest()
+        payload["maturity"] = "beta"
+        with self.assertRaises(ContractValidationError):
+            validate("ProjectManifest", payload)
+
+    def test_rejects_empty_technologies(self):
+        payload = self._valid_project_manifest()
+        payload["technologies"] = []
+        with self.assertRaises(ContractValidationError):
+            validate("ProjectManifest", payload)
+
+    def test_rejects_duplicate_technologies(self):
+        payload = self._valid_project_manifest()
+        payload["technologies"] = ["Python", "Python"]
+        with self.assertRaises(ContractValidationError):
+            validate("ProjectManifest", payload)
+
+    def test_accepts_null_parent(self):
+        payload = self._valid_project_manifest()
+        payload["parent"] = None
+        validate("ProjectManifest", payload)
+
+    def test_rejects_empty_string_parent(self):
+        payload = self._valid_project_manifest()
+        payload["parent"] = ""
+        with self.assertRaises(ContractValidationError):
+            validate("ProjectManifest", payload)
+
+    def test_accepts_empty_build_and_notes(self):
+        payload = self._valid_project_manifest()
+        payload["build"] = ""
+        payload["notes"] = ""
+        validate("ProjectManifest", payload)
+
+    def test_rejects_native_version_missing_pattern(self):
+        payload = self._valid_project_manifest()
+        payload["native_version"] = {"file": "CHANGELOG.md"}
+        with self.assertRaises(ContractValidationError):
+            validate("ProjectManifest", payload)
+
+    def test_accepts_native_version_component_pattern(self):
+        payload = self._valid_project_manifest()
+        payload["native_version"] = {
+            "file": "version.go",
+            "pattern": {"major": "MAJOR", "minor": "MINOR", "patch": "PATCH"},
+        }
+        validate("ProjectManifest", payload)
+
+    def test_rejects_unknown_contract_name(self):
+        with self.assertRaises(ContractValidationError):
+            validate("NotARealContract", self._valid_project_manifest())
+
+    def test_rejects_incompatible_schema_version(self):
+        payload = self._valid_project_manifest()
+        payload["schema_version"] = "2.0"
+        with self.assertRaises(ContractValidationError):
+            validate("ProjectManifest", payload)
+
 
 if __name__ == "__main__":
     unittest.main()

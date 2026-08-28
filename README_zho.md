@@ -44,6 +44,8 @@ JSON Schema v1 合约、有效/无效装置、Python 验证客户端、
 并实施主机端测试。 Protobuf/OpenAPI 发布和客户端
 对于更多语言是后续的兼容性里程碑。
 
+一个真实、自动化的兼容性矩阵（`tools/verify_contract_matrix.py`）会将每个已发布的架构与 Python 验证器自身的合约列表进行交叉核对，并发现并修复了一个真实的缺口：`project-manifest.schema.json`（本生态系统中每个仓库都会发布的 `hydra-umc.project.json` 合约）此前完全没有验证器条目。现在它证明，每个一致性装置都会按照其自身文件名所声明的方式被判定，此外还涵盖了未知合约和不兼容架构版本这两种情况。
+
 ## 🎯 第一个里程碑
 
 1. 发布 `DeviceDescriptor`、`HealthReport`、`SafetyState` 和

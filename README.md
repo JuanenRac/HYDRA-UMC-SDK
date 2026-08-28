@@ -44,6 +44,14 @@ JSON Schema v1 contracts, valid/invalid fixtures, a Python validation client,
 and host-side tests are implemented. Protobuf/OpenAPI publication and clients
 for further languages are subsequent compatibility milestones.
 
+A real, automatic compatibility matrix (`tools/verify_contract_matrix.py`)
+cross-checks every published schema against the Python validator's own
+contract list - it found and fixed a real gap where `project-manifest.schema.json`
+(the `hydra-umc.project.json` contract every repository in this ecosystem
+publishes) had no validator entry at all, and now proves every conformance
+fixture is judged the way its own filename claims, plus the unknown-contract
+and incompatible-schema-version cases.
+
 ## 🎯 First milestone
 
 1. Publish `DeviceDescriptor`, `HealthReport`, `SafetyState`, and

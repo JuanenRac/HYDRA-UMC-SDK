@@ -44,6 +44,14 @@ Contrats JSON Schema v1, luminaires valides/invalides, un client de validation P
 et des tests côté hôte sont implémentés. Publication et clients Protobuf/OpenAPI
 pour d'autres langues, il y a des étapes de compatibilité ultérieures.
 
+Une matrice de compatibilité réelle et automatique (`tools/verify_contract_matrix.py`)
+recoupe chaque schéma publié avec la propre liste de contrats du validateur
+Python - elle a trouvé et corrigé une lacune réelle où `project-manifest.schema.json`
+(le contrat `hydra-umc.project.json` que chaque dépôt de cet écosystème publie)
+n'avait aucune entrée de validateur, et prouve désormais que chaque luminaire
+de conformité est jugé comme son propre nom de fichier l'affirme, ainsi que les
+cas de contrat inconnu et de version de schéma incompatible.
+
 ## 🎯 Premier jalon
 
 1. Publiez `DeviceDescriptor`, `HealthReport`, `SafetyState` et

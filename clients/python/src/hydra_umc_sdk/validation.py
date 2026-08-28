@@ -32,11 +32,22 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "UpdateManifest": ("schema_version", "project", "version", "artifact_url", "sha256"),
     "EventEnvelope": ("schema_version", "event_id", "type", "source", "timestamp_utc", "sequence"),
     "ServerDiscovery": ("schema_version", "product", "remoteApiVersion", "appVersion", "hostname", "controllerCount", "robotCount", "uptimeSeconds"),
+    "ProjectManifest": (
+        "schema_version", "ecosystem", "name", "version", "role", "stack", "technologies",
+        "deployment_target", "maturity", "family", "parent", "native_version", "build", "notes",
+    ),
 }
 ENUMS = {
     "HealthReport": {"READY", "DEGRADED", "INHIBITED", "FAULT", "SAFE_STOP"},
     "SafetyState": {"READY", "INHIBITED", "FAULT", "SAFE_STOP"},
 }
+PROJECT_MANIFEST_ENUMS = {
+    "role": {"api", "ui", "cli", "firmware", "library", "service", "tool"},
+    "deployment_target": {"cm5", "user-pc", "mobile", "wearable"},
+    "maturity": {"scaffolding", "functional", "established", "production"},
+}
+PROJECT_NAME_PATTERN = re.compile(r"^(HYDRA-UMC|URTC)(-[A-Z0-9-]+)?$")
+SEMVER_PATTERN = re.compile(r"^\d+\.\d+\.\d+$")
 RFC3339_DATE_TIME = re.compile(
     r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$"
 )
@@ -66,6 +77,61 @@ def _require_integer(payload: dict[str, Any], name: str, minimum: int) -> None:
         raise ContractValidationError(f"{name} must be an integer >= {minimum}")
 
 
+def _validate_project_manifest(payload: dict[str, Any]) -> None:
+    """Real v1 ProjectManifest checks - the `hydra-umc.project.json`
+    contract every one of this ecosystem's real repositories publishes.
+    Mirrors project-manifest.schema.json's own real constraints rather
+    than re-deriving them independently, so the two can't silently drift
+    without a conformance fixture (see tools/verify_contract_matrix.py)
+    catching it."""
+    if payload.get("ecosystem") != "HYDRA-UMC":
+        raise ContractValidationError("ecosystem must be 'HYDRA-UMC'")
+    if not PROJECT_NAME_PATTERN.fullmatch(payload.get("name", "")):
+        raise ContractValidationError("name must match ^(HYDRA-UMC|URTC)(-[A-Z0-9-]+)?$")
+    if not SEMVER_PATTERN.fullmatch(payload.get("version", "")):
+        raise ContractValidationError("version must be MAJOR.MINOR.PATCH")
+    if payload.get("role") not in PROJECT_MANIFEST_ENUMS["role"]:
+        raise ContractValidationError(f"unsupported role: {payload.get('role')!r}")
+    if payload.get("deployment_target") not in PROJECT_MANIFEST_ENUMS["deployment_target"]:
+        raise ContractValidationError(f"unsupported deployment_target: {payload.get('deployment_target')!r}")
+    if payload.get("maturity") not in PROJECT_MANIFEST_ENUMS["maturity"]:
+        raise ContractValidationError(f"unsupported maturity: {payload.get('maturity')!r}")
+
+    technologies = payload.get("technologies")
+    if (
+        not isinstance(technologies, list)
+        or not technologies
+        or any(not isinstance(item, str) or not item for item in technologies)
+        or len(set(technologies)) != len(technologies)
+    ):
+        raise ContractValidationError("technologies must be a non-empty array of unique non-empty strings")
+
+    parent = payload.get("parent")
+    if parent is not None and (not isinstance(parent, str) or not parent):
+        raise ContractValidationError("parent must be a non-empty string or null")
+
+    for field in ("build", "notes"):
+        if not isinstance(payload.get(field), str):
+            raise ContractValidationError(f"{field} must be a string")
+
+    native_version = payload.get("native_version")
+    if not isinstance(native_version, dict) or set(native_version) != {"file", "pattern"}:
+        raise ContractValidationError("native_version must contain exactly file and pattern")
+    if not isinstance(native_version.get("file"), str) or not native_version["file"]:
+        raise ContractValidationError("native_version.file must be a non-empty string")
+    pattern = native_version.get("pattern")
+    if isinstance(pattern, str):
+        if not pattern:
+            raise ContractValidationError("native_version.pattern must not be empty")
+    elif isinstance(pattern, dict):
+        if set(pattern) != {"major", "minor", "patch"} or any(
+            not isinstance(value, str) or not value for value in pattern.values()
+        ):
+            raise ContractValidationError("native_version.pattern mapping must contain non-empty major, minor and patch")
+    else:
+        raise ContractValidationError("native_version.pattern must be a string or a component mapping")
+
+
 def validate(contract: str, payload: dict[str, Any]) -> None:
     """Validate the required v1 subset; unknown additive fields are allowed."""
     if contract not in REQUIRED:
@@ -78,7 +144,10 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
     if payload.get("schema_version") != "1.0":
         raise ContractValidationError("schema_version must be '1.0'")
     for field in REQUIRED[contract]:
-        if field not in {"interfaces", "checks", "sequence", "remoteApiVersion", "controllerCount", "robotCount", "uptimeSeconds"}:
+        if field not in {
+            "interfaces", "checks", "sequence", "remoteApiVersion", "controllerCount", "robotCount", "uptimeSeconds",
+            "technologies", "native_version", "parent", "build", "notes",
+        }:
             _require_string(payload, field)
     if contract in {"HealthReport", "SafetyState", "EventEnvelope"}:
         _require_date_time(payload, "timestamp_utc")
@@ -98,6 +167,8 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
             raise ContractValidationError("artifact_url must be an https URL with a hostname")
     if contract == "EventEnvelope":
         _require_integer(payload, "sequence", 0)
+    if contract == "ProjectManifest":
+        _validate_project_manifest(payload)
     if contract == "ServerDiscovery":
         for field in ("remoteApiVersion", "controllerCount", "robotCount", "uptimeSeconds"):
             minimum = 1 if field == "remoteApiVersion" else 0

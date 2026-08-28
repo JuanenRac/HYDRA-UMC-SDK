@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "ecosystem": "HYDRA-UMC",
   "name": "HYDRA-UMC-SDK",
-  "version": "0.0.4",
+  "version": "0.0.3",
   "role": "library",
   "stack": "python",
   "technologies": [
@@ -15,11 +15,11 @@
     "OpenAPI"
   ],
   "deployment_target": "user-pc",
-  "maturity": "established",
+  "maturity": "functional",
   "family": "Platform Foundation & Contracts",
   "parent": "HYDRA-UMC-OS",
   "build": "Functional JSON Schema v1 contracts, Python reference validator and conformance fixtures.",
-  "notes": "The common contract and conformance boundary for services, UIs, CM5 adapters and URTC. Provides v1 JSON Schema, Python validation and conformance fixtures, plus a real, automatic compatibility matrix (tools/verify_contract_matrix.py) between the published schemas and the validator - found and fixed a real gap where the ProjectManifest (hydra-umc.project.json) contract had no validator entry at all. Package publication and further clients remain release gates.",
+  "notes": "The common contract and conformance boundary for services, UIs, CM5 adapters and URTC.",
   "native_version": {
     "file": "CHANGELOG.md",
     "pattern": "(\\d+)\\.(\\d+)\\.(\\d+)"

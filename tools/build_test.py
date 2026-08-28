@@ -46,6 +46,15 @@ def compile_python_sources() -> None:
     print(f"PYTHON_COMPILE=PASS files={len(files)}")
 
 
+def run_contract_checks() -> None:
+    environment = dict(os.environ)
+    client_source = str(ROOT / "clients" / "python" / "src")
+    existing_python_path = environment.get("PYTHONPATH")
+    environment["PYTHONPATH"] = client_source if not existing_python_path else os.pathsep.join((client_source, existing_python_path))
+    run(sys.executable, "-m", "unittest", "discover", "-s", "clients/python/tests", "-v", env=environment)
+    run(sys.executable, "tools/verify_contract_matrix.py", env=environment)
+
+
 def main() -> int:
     try:
         manifest = json.loads((ROOT / "hydra-umc.project.json").read_text(encoding="utf-8"))
@@ -59,6 +68,8 @@ def main() -> int:
 
     if stack in {"python", "python-bare"}:
         compile_python_sources()
+        if (ROOT / "clients" / "python" / "tests").is_dir():
+            run_contract_checks()
     elif stack == "node":
         npm = "npm.cmd" if os.name == "nt" else "npm"
         # Reuse an existing local dependency tree so a running editor/linter
