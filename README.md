@@ -88,6 +88,11 @@ Read [the contract guide](docs/CONTRACTS.md) before defining a new message.
 | [HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER) | Publishes version and compatibility metadata consumed by contract-aware clients. |
 | [HYDRA-UMC](https://github.com/JuanenRac/HYDRA-UMC) | Hardware/firmware platform exposed through bounded CM5 and MCU adapter contracts. |
 | [URTC](https://github.com/JuanenRac/URTC) | Independent tool-controller platform connected through versioned integration adapters. |
+| [HYDRA-UMC-BRIDGE-ROS2](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-ROS2) | Uses the common BridgeJob gate for ROS 2 observation, inspection and cancellable cell work. |
+| [HYDRA-UMC-BRIDGE-OPENPNP](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-OPENPNP) | Uses correlated, idempotent jobs for traceable PCB hand-offs. |
+| [HYDRA-UMC-BRIDGE-PRINTER3D](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-PRINTER3D) | Uses the gate around native printer readiness; it does not expose heater or motion control. |
+| [HYDRA-UMC-BRIDGE-CNC](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-CNC) | Uses the gate to coordinate only alongside an idle, safeguarded CNC. |
+| [HYDRA-UMC-BRIDGE-LASER](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-LASER) | Uses the gate for auxiliaries while preserving laser safety authority. |
 
 **Rest of the ecosystem:** explore the seven public layers in the [JuanenRac ecosystem dashboard](https://juanenrac.github.io/JuanenRac/).
 

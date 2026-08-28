@@ -89,6 +89,11 @@ Lesen Sie [den Vertragsleitfaden](docs/CONTRACTS.md), bevor Sie eine neue Nachri
 | [HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER) | Veröffentlicht Versions- und Kompatibilitätsmetadaten, die von vertragsbewussten Clients verwendet werden. |
 | [HYDRA-UMC](https://github.com/JuanenRac/HYDRA-UMC) | Hardware-/Firmware-Plattform wird durch begrenzte CM5- und MCU-Adapterverträge verfügbar gemacht. |
 | [URTC](https://github.com/JuanenRac/URTC) | Unabhängige Tool-Controller-Plattform, verbunden über versionierte Integrationsadapter. |
+| [HYDRA-UMC-BRIDGE-ROS2](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-ROS2) | Nutzt das gemeinsame BridgeJob-Gate für ROS-2-Beobachtung, Prüfung und abbrechbare Zellarbeit. |
+| [HYDRA-UMC-BRIDGE-OPENPNP](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-OPENPNP) | Nutzt korrelierte und idempotente Jobs für nachverfolgbare PCB-Übergaben. |
+| [HYDRA-UMC-BRIDGE-PRINTER3D](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-PRINTER3D) | Nutzt das Gate um die native Druckerbereitschaft, ohne Heizungs- oder Bewegungssteuerung freizugeben. |
+| [HYDRA-UMC-BRIDGE-CNC](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-CNC) | Nutzt das Gate nur neben einer stillstehenden, geschützten CNC. |
+| [HYDRA-UMC-BRIDGE-LASER](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-LASER) | Nutzt das Gate für Hilfsfunktionen und bewahrt die Laser-Sicherheitsautorität. |
 
 **Rest des Ökosystems:** Erkunden Sie die sieben öffentlichen Ebenen im [JuanenRac-Ökosystem-Dashboard](https://juanenrac.github.io/JuanenRac/).
 

@@ -89,6 +89,11 @@ Leggi [la guida al contratto](docs/CONTRACTS.md) prima di definire un nuovo mess
 | [HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER) | Pubblica i metadati di versione e compatibilità utilizzati dai client consapevoli del contratto. |
 | [HYDRA-UMC](https://github.com/JuanenRac/HYDRA-UMC) | Piattaforma hardware/firmware esposta tramite contratti vincolati per adattatori CM5 e MCU. |
 | [URTC](https://github.com/JuanenRac/URTC) | Piattaforma strumento-controller indipendente connessa tramite adattatori di integrazione con versione. |
+| [HYDRA-UMC-BRIDGE-ROS2](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-ROS2) | Usa la porta BridgeJob comune per osservazione ROS 2, ispezione e lavoro di cella annullabile. |
+| [HYDRA-UMC-BRIDGE-OPENPNP](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-OPENPNP) | Usa lavori correlati e idempotenti per passaggi PCB tracciabili. |
+| [HYDRA-UMC-BRIDGE-PRINTER3D](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-PRINTER3D) | Usa la porta attorno alla disponibilità nativa della stampante senza esporre controllo di heater o movimento. |
+| [HYDRA-UMC-BRIDGE-CNC](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-CNC) | Usa la porta solo accanto a una CNC inattiva e protetta. |
+| [HYDRA-UMC-BRIDGE-LASER](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-LASER) | Usa la porta per ausiliari preservando l'autorità di sicurezza laser. |
 
 **Resto dell'ecosistema:** esplora i sette livelli pubblici nella [dashboard dell'ecosistema JuanenRac](https://juanenrac.github.io/JuanenRac/).
 

@@ -82,6 +82,11 @@ JSON スキーマ v1 コントラクト、有効/無効なフィクスチャ、P
 | [HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER) |契約を認識するクライアントが使用するバージョンと互換性のメタデータを公開します。 |
 | [HYDRA-UMC](https://github.com/JuanenRac/HYDRA-UMC) |ハードウェア/ファームウェア プラットフォームは、制限された CM5 および MCU アダプター コントラクトを通じて公開されます。 |
 | [URTC](https://github.com/JuanenRac/URTC) |バージョン管理された統合アダプターを介して接続された独立したツールコントローラー プラットフォーム。 |
+| [HYDRA-UMC-BRIDGE-ROS2](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-ROS2) | 共通 BridgeJob ゲートを ROS 2 の観測、検査、キャンセル可能なセル作業に使用します。 |
+| [HYDRA-UMC-BRIDGE-OPENPNP](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-OPENPNP) | 追跡可能な PCB 受け渡しに、相関付けられた冪等ジョブを使用します。 |
+| [HYDRA-UMC-BRIDGE-PRINTER3D](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-PRINTER3D) | ネイティブプリンターの準備状態の周囲でゲートを使用し、加熱または動作制御を公開しません。 |
+| [HYDRA-UMC-BRIDGE-CNC](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-CNC) | アイドルで保護された CNC の隣でのみゲートを使用します。 |
+| [HYDRA-UMC-BRIDGE-LASER](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-LASER) | レーザー安全権限を維持しつつ、補助作業にゲートを使用します。 |
 
 **残りのエコシステム:** [JuanenRac エコシステム ダッシュボード](https://juanenrac.github.io/JuanenRac/) で 7 つのパブリック レイヤーを調べてください。
 

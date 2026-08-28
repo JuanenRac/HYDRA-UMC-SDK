@@ -82,6 +82,11 @@ JSON Schema v1 合约、有效/无效装置、Python 验证客户端、
 | [HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER) |发布合同感知客户端使用的版本和兼容性元数据。 |
 | [HYDRA-UMC](https://github.com/JuanenRac/HYDRA-UMC) |通过有界 CM5 和 MCU 适配器合约公开的硬件/固件平台。 |
 | [URTC](https://github.com/JuanenRac/URTC) |通过版本化集成适配器连接的独立工具控制器平台。 |
+| [HYDRA-UMC-BRIDGE-ROS2](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-ROS2) | 使用通用 BridgeJob 门控处理 ROS 2 观测、检查和可取消单元任务。 |
+| [HYDRA-UMC-BRIDGE-OPENPNP](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-OPENPNP) | 使用关联且幂等的任务实现可追溯 PCB 交接。 |
+| [HYDRA-UMC-BRIDGE-PRINTER3D](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-PRINTER3D) | 使用围绕原生打印机就绪状态的门控，不开放加热或运动控制。 |
+| [HYDRA-UMC-BRIDGE-CNC](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-CNC) | 仅在 CNC 空闲且受到保护时使用门控进行协调。 |
+| [HYDRA-UMC-BRIDGE-LASER](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-LASER) | 使用门控协调辅助任务，同时保留激光安全权限。 |
 
 **生态系统的其余部分：** 探索 [JuanenRac 生态系统仪表板](https://juanenrac.github.io/JuanenRac/) 中的七个公共层。
 
