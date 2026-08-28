@@ -18,6 +18,16 @@
 
 ## Unreleased
 
+### Added
+
+- Public, dependency-free Python v0 external-machine bridge contract:
+  `BridgeJob`, bridge/machine/cell state enums and `evaluate_job()` safety
+  gate. It is the shared high-level boundary for the ROS 2, OpenPnP, 3D
+  printer, CNC and laser integrations; it does not expose motion control.
+- `docs/BRIDGE_CONTRACT.md` and five focused unit tests proving productive
+  work is rejected when either side is not ready while `ABORT` remains
+  requestable through the authorised safety path.
+
 ### Fixed
 
 - UpdateManifest validation now requires an HTTPS artifact URL with a real

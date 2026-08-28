@@ -6,4 +6,24 @@
 
 """HYDRA-UMC public contracts and lightweight validation helpers."""
 
+from .bridge_contract import (
+    BridgeError,
+    BridgeJob,
+    CellState,
+    GateDecision,
+    JobPhase,
+    MachineState,
+    evaluate_job,
+)
+
+__all__ = [
+    "BridgeError",
+    "BridgeJob",
+    "CellState",
+    "GateDecision",
+    "JobPhase",
+    "MachineState",
+    "evaluate_job",
+]
+
 __version__ = "0.0.4"
