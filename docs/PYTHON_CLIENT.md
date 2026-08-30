@@ -57,7 +57,7 @@ Passing a `contract` name outside this table raises `ContractValidationError: un
 python -m hydra_umc_sdk.validation <contract> <payload.json>
 ```
 
-- `<contract>` - one of the 6 names in the table above (argparse `choices`, so an invalid name is rejected before the file is even read).
+- `<contract>` - one of the 7 names in the table above (argparse `choices`, so an invalid name is rejected before the file is even read).
 - `<payload.json>` - path to a JSON file to validate.
 
 Prints `valid <contract> v1 payload` and exits `0` on success. On failure (validation error, file not found, or invalid JSON), prints `hydra-umc-contract-validate: <message>` to stderr and exits `2`.
@@ -68,4 +68,37 @@ valid DeviceDescriptor v1 payload
 
 $ python -m hydra_umc_sdk.validation HealthReport bad.json
 hydra-umc-contract-validate: missing required field: timestamp_utc
+```
+
+## CLI: `hydra-umc-sdk-mock-server`
+
+A real, dependency-free HTTP server that serves one schema-valid example
+payload per contract - built so a UI, adapter or integration test has
+something real to hit over HTTP before any actual CM5/robot/MCU hardware
+exists to talk to. Every example it can return is checked, by this
+module's own tests, against the exact same `validate()` this file
+documents above - the mock can never silently drift from what this SDK
+considers a valid payload.
+
+```bash
+python -m hydra_umc_sdk.mock_server [--host HOST] [--port PORT]
+```
+
+Defaults to `127.0.0.1:8790`. Routes:
+
+- `GET /mock/` - `{"contracts": [...]}`, the list of contract names this instance can serve.
+- `GET /mock/<Contract>` - the example payload for that contract (200), or `{"error": ...}` (404) for an unknown name.
+
+This is not a fake robot, a fake MCU, or a simulation of real device
+behavior - it never claims a machine is `READY`, never accepts a write,
+and every route is a static GET. It proves a client parses a real,
+schema-valid HTTP response correctly; it proves nothing about actual
+device behavior, timing, or concurrency.
+
+```bash
+$ python -m hydra_umc_sdk.mock_server &
+hydra-umc-sdk-mock-server: serving 7 contracts on http://127.0.0.1:8790/mock/
+
+$ curl -s http://127.0.0.1:8790/mock/HealthReport
+{"schema_version": "1.0", "state": "READY", "timestamp_utc": "2026-01-01T00:00:00Z", "checks": {"storage": {"state": "PASS"}}}
 ```

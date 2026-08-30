@@ -1,7 +1,23 @@
 # Changelog
 
-## Unreleased
+## [0.0.6] - Dependency-free mock server for testing without hardware
 
+### Added
+
+- **`hydra-umc-sdk-mock-server`** (`mock_server.py`, new) - a real,
+  stdlib-only HTTP server that serves one example payload per known
+  contract (`GET /mock/<Contract>`, plus `GET /mock/` for the contract
+  list), so a UI, adapter or integration test can be written and exercised
+  against a real HTTP endpoint before any actual CM5/robot/MCU hardware
+  exists to talk to. Every example is proven, by this module's own tests,
+  to pass this SDK's real `validate()` for its declared contract - the
+  mock can never silently drift from what the SDK itself considers valid.
+  Fails loudly at import time (not silently at first request) if a
+  contract and its example payload ever fall out of 1:1 sync. Not a fake
+  robot or a device-behavior simulation: every route is a static GET,
+  nothing is ever accepted as a write, and no claim about real timing,
+  concurrency, or physical state is made. 6 new tests, including a real
+  end-to-end HTTP round-trip per contract over an ephemeral port.
 - Added a named `HYDRA-UMC-OS` producer-fixture index and extended the
   contract matrix to validate every producer-declared contract payload. This
   makes producer evidence executable rather than unexamined JSON alongside

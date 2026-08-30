@@ -4,13 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hydra-umc-sdk"
-version = "0.0.5"
+version = "0.0.6"
 description = "Versioned contracts and lightweight Python validation for HYDRA-UMC"
 requires-python = ">=3.11"
 license = {text = "GPL-3.0-or-later"}
 
 [project.scripts]
 hydra-umc-contract-validate = "hydra_umc_sdk.validation:main"
+hydra-umc-sdk-mock-server = "hydra_umc_sdk.mock_server:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
