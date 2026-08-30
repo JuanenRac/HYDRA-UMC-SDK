@@ -118,6 +118,30 @@ def check_fixture_matrix() -> int:
     return checked
 
 
+def check_producer_fixture_matrix() -> int:
+    """Validate named producer evidence instead of treating it as inert JSON."""
+    checked = 0
+    producers = FIXTURES_DIR / "producers"
+    for index_path in sorted(producers.glob("*/fixtures.json")):
+        index = json.loads(index_path.read_text(encoding="utf-8"))
+        if index.get("schema_version") != "1.0" or not isinstance(index.get("producer"), str):
+            fail(f"{index_path.relative_to(ROOT)}: invalid producer fixture index")
+        fixtures = index.get("fixtures")
+        if not isinstance(fixtures, dict) or not fixtures:
+            fail(f"{index_path.relative_to(ROOT)}: producer fixture index must name fixtures")
+        for contract, filename in sorted(fixtures.items()):
+            if contract not in REQUIRED or not isinstance(filename, str) or Path(filename).name != filename:
+                fail(f"{index_path.relative_to(ROOT)}: invalid fixture mapping for {contract}")
+            fixture_path = index_path.parent / filename
+            try:
+                validate(contract, json.loads(fixture_path.read_text(encoding="utf-8")))
+            except (OSError, json.JSONDecodeError, ContractValidationError) as exc:
+                fail(f"{fixture_path.relative_to(ROOT)}: producer payload rejected for {contract}: {exc}")
+            print(f"CONTRACT_MATRIX_PRODUCER=PASS producer={index['producer']} contract={contract}")
+            checked += 1
+    return checked
+
+
 def check_unknown_and_incompatible_cases(schema_contracts: dict[str, Path]) -> None:
     """Real, explicit proof of the two negative cases this matrix is
     specifically meant to guard: a contract name that was never
@@ -162,8 +186,9 @@ def main() -> int:
     schema_contracts = discover_schema_contracts()
     check_matrix_coverage(schema_contracts)
     checked = check_fixture_matrix()
+    producer_checked = check_producer_fixture_matrix()
     check_unknown_and_incompatible_cases(schema_contracts)
-    print(f"CONTRACT_MATRIX=PASS contracts={len(schema_contracts)} fixtures={checked}")
+    print(f"CONTRACT_MATRIX=PASS contracts={len(schema_contracts)} fixtures={checked} producer_fixtures={producer_checked}")
     return 0
 
 

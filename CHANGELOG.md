@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Added a named `HYDRA-UMC-OS` producer-fixture index and extended the
+  contract matrix to validate every producer-declared contract payload. This
+  makes producer evidence executable rather than unexamined JSON alongside
+  the generic valid/invalid fixtures.
+
 ## [0.0.5] - Strict semver enforcement on UpdateManifest.version, wider fixture coverage
 
 ### Fixed

@@ -15,6 +15,12 @@ safety inhibition, duplicate command idempotency, and stale telemetry.
 reference client verifies the required fields, schema version, and initial
 safety/health state enumerations.
 
+Producer evidence lives under `conformance/fixtures/v1/producers/<producer>/`.
+Each `fixtures.json` names the producer, v1 index schema and contract-to-file
+mapping. `tools/verify_contract_matrix.py` validates every mapped payload with
+the reference validator, so producer evidence cannot silently drift while the
+generic fixtures remain valid.
+
 Run the host suite from `clients/python/`:
 
 ```text
