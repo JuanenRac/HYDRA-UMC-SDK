@@ -159,9 +159,11 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
         raise ContractValidationError("checks must be an object")
     if contract in ENUMS and payload["state"] not in ENUMS[contract]:
         raise ContractValidationError(f"unsupported {contract} state: {payload['state']}")
-    if contract == "UpdateManifest" and (len(payload["sha256"]) != 64 or any(c not in "0123456789abcdef" for c in payload["sha256"].lower())):
-        raise ContractValidationError("sha256 must be a 64-character hexadecimal digest")
     if contract == "UpdateManifest":
+        if not SEMVER_PATTERN.fullmatch(payload["version"]):
+            raise ContractValidationError("version must be MAJOR.MINOR.PATCH")
+        if len(payload["sha256"]) != 64 or any(c not in "0123456789abcdef" for c in payload["sha256"].lower()):
+            raise ContractValidationError("sha256 must be a 64-character hexadecimal digest")
         parsed_artifact_url = urlparse(payload["artifact_url"])
         if parsed_artifact_url.scheme != "https" or not parsed_artifact_url.hostname:
             raise ContractValidationError("artifact_url must be an https URL with a hostname")

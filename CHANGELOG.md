@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.0.5] - Strict semver enforcement on UpdateManifest.version, wider fixture coverage
+
+### Fixed
+
+- **`validation.py`** - `UpdateManifest.version` was only checked for a
+  matching `sha256`; a value like `"latest"` or `"v1"` passed straight
+  through. It's now validated against the same `SEMVER_PATTERN` already
+  used elsewhere in this file, and `update-manifest.schema.json` gained
+  the matching JSON Schema `pattern`, so the reference validator and the
+  published schema agree again.
+
+### Added
+
+- **Invalid conformance fixtures for every contract that was missing
+  one** (`device-descriptor.invalid.json`, `event-envelope.invalid.json`,
+  `safety-state.invalid.json`/`.valid.json`,
+  `server-discovery.invalid.json`,
+  `update-manifest.invalid.json`/`.valid.json`) - the compatibility
+  matrix's own claim to check "one accepted and one rejected payload per
+  contract" (see `docs/CONTRACTS.md`) wasn't true yet for these; now it
+  is. New `CONTRACT_MATRIX_UPDATE_VERSION` check in
+  `tools/verify_contract_matrix.py` proves the non-semver rejection
+  directly. 35/35 tests passing, 14/14 fixtures across all 7 contracts.
+
 ## [0.0.4] - Automatic contract/validator compatibility matrix
 
 ### Added

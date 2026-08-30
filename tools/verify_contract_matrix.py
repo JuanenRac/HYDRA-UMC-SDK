@@ -142,6 +142,21 @@ def check_unknown_and_incompatible_cases(schema_contracts: dict[str, Path]) -> N
         fail("an incompatible schema_version must be rejected, not silently accepted")
     print("CONTRACT_MATRIX_INCOMPATIBLE_VERSION=PASS")
 
+    malformed_update = {
+        "schema_version": "1.0",
+        "project": "HYDRA-UMC-EXAMPLE",
+        "version": "latest",
+        "artifact_url": "https://example.invalid/example.tar.gz",
+        "sha256": "0" * 64,
+    }
+    try:
+        validate("UpdateManifest", malformed_update)
+    except ContractValidationError:
+        pass
+    else:
+        fail("an update manifest with a non-semver version must be rejected")
+    print("CONTRACT_MATRIX_UPDATE_VERSION=PASS")
+
 
 def main() -> int:
     schema_contracts = discover_schema_contracts()

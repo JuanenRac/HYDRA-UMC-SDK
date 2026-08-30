@@ -37,6 +37,22 @@ the JSON Schema files remain the normative source. See
 [PYTHON_CLIENT.md](PYTHON_CLIENT.md) for the validator's full function/CLI
 reference, including the exact required-fields table per contract.
 
+## Conformance fixtures and compatibility gate
+
+`conformance/fixtures/v1/` contains one accepted and one rejected payload for
+every published v1 contract.  They are deliberately plain JSON rather than
+test-framework fixtures: any implementation can consume the same examples.
+The rejected cases exercise a meaningful invariant (such as a negative event
+sequence, an unsupported safety state, a non-HTTPS update URL, or an
+incompatible schema version), not merely malformed JSON.
+
+`tools/verify_contract_matrix.py` is the mandatory SDK compatibility gate. It
+fails when a published schema lacks a reference-validator entry, when a stale
+validator entry has no schema, or when any fixture is accepted/rejected
+contrary to its name. Consumers should run this gate from their own CI after
+updating their SDK dependency; it is the baseline contract check, not a claim
+that a real machine has been exercised.
+
 ## Event envelope
 
 Every event needs `event_id`, `schema_version`, `type`, `source`,

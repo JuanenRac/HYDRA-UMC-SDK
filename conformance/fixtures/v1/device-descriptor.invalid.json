@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "node_id": "cm5-01",
+  "profile": "hydra-umc-os",
+  "hostname": "HYDRA-UMC-TEST",
+  "machine": "aarch64",
+  "operating_system": "Raspberry Pi OS",
+  "kernel": "6.12",
+  "interfaces": "eth0"
+}
