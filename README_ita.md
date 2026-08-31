@@ -85,7 +85,7 @@ Leggi [la guida al contratto](docs/CONTRACTS.md) prima di definire un nuovo mess
 | Progetto | Rapporto con HYDRA-UMC-SDK |
 | --- | --- |
 | [HYDRA-UMC-OS](https://github.com/JuanenRac/HYDRA-UMC-OS) | Consumatore dell'agente del dispositivo dei contratti relativi al dispositivo, all'integrità, alla sicurezza e all'aggiornamento. |
-| [SERVER-HYDRA-UMC](https://github.com/JuanenRac/HYDRA-UMC-SERVER) | Produttore e consumatore di API autenticati regolati da contratti SDK. |
+| [HYDRA-UMC-SERVER](https://github.com/JuanenRac/HYDRA-UMC-SERVER) | Produttore e consumatore di API autenticati regolati da contratti SDK. |
 | [HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER) | Pubblica i metadati di versione e compatibilità utilizzati dai client consapevoli del contratto. |
 | [HYDRA-UMC](https://github.com/JuanenRac/HYDRA-UMC) | Piattaforma hardware/firmware esposta tramite contratti vincolati per adattatori CM5 e MCU. |
 | [URTC](https://github.com/JuanenRac/URTC) | Piattaforma strumento-controller indipendente connessa tramite adattatori di integrazione con versione. |

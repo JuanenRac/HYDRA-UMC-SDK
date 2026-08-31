@@ -84,8 +84,8 @@ Lea [la guía del contrato](docs/CONTRACTS.md) antes de definir un nuevo mensaje
 | Proyecto | Relación con HYDRA-UMC-SDK |
 | --- | --- |
 | [HYDRA-UMC-OS](https://github.com/JuanenRac/HYDRA-UMC-OS) | Agente de dispositivos consumidor de contratos de dispositivos, salud, seguridad y actualización. |
-| [SERVIDOR-HYDRA-UMC](https://github.com/JuanenRac/SERVIDOR-HYDRA-UMC) | Productor y consumidor de API autenticado regido por contratos de SDK. |
-| [ACTUALIZADOR-HYDRA-UMC](https://github.com/JuanenRac/HYDRA-UMC-UPDATER) | Publica metadatos de versión y compatibilidad consumidos por clientes con reconocimiento de contrato. |
+| [HYDRA-UMC-SERVER](https://github.com/JuanenRac/HYDRA-UMC-SERVER) | Productor y consumidor de API autenticado regido por contratos de SDK. |
+| [HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER) | Publica metadatos de versión y compatibilidad consumidos por clientes con reconocimiento de contrato. |
 | [HYDRA-UMC](https://github.com/JuanenRac/HYDRA-UMC) | Plataforma de hardware/firmware expuesta a través de contratos de adaptadores CM5 y MCU vinculados. |
 | [URTC](https://github.com/JuanenRac/URTC) | Plataforma independiente de controlador de herramientas conectada a través de adaptadores de integración versionados. |
 | [HYDRA-UMC-BRIDGE-ROS2](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-ROS2) | Usa la puerta común BridgeJob para observación ROS 2, inspección y trabajo de celda cancelable. |
