@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.0.7] - Real JSON wire shape for BridgeJob/GateDecision
+
+### Added
+
+- **`bridge_contract.py`** - `job_to_dict()`/`job_from_dict()`/
+  `decision_to_dict()`, the real shared JSON shape for a `BridgeJob`/
+  `GateDecision` now that `HYDRA-UMC-BRIDGE-CNC`/`-LASER`/`-OPENPNP`/
+  `-PRINTER3D`/`-ROS2` all reach `HYDRA-UMC-MQTT-BROKER`: one wire format
+  every bridge parses/serializes identically, instead of each one
+  reinventing its own ad-hoc JSON mapping for the same dataclass.
+  `job_from_dict()` fails closed with `BridgeError` (never a bare
+  `KeyError`/`ValueError`/`AttributeError`) on malformed input - the real
+  parse boundary for a job arriving over an untrusted external transport
+  (an MQTT PUBLISH payload, in practice). 8 new tests, including a real
+  round-trip and every rejected-input case.
+
 ## [0.0.6] - Dependency-free mock server for testing without hardware
 
 ### Added

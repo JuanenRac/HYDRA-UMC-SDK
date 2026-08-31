@@ -5,7 +5,18 @@
 # =============================================================================
 import unittest
 
-from hydra_umc_sdk.bridge_contract import BridgeError, BridgeJob, CellState, JobPhase, MachineState, evaluate_job
+from hydra_umc_sdk.bridge_contract import (
+    BridgeError,
+    BridgeJob,
+    CellState,
+    GateDecision,
+    JobPhase,
+    MachineState,
+    decision_to_dict,
+    evaluate_job,
+    job_from_dict,
+    job_to_dict,
+)
 
 
 def job(phase=JobPhase.LOAD, machine_state=MachineState.IDLE):
@@ -30,3 +41,53 @@ class BridgeContractTests(unittest.TestCase):
     def test_invalid_identifiers_are_rejected(self):
         with self.assertRaises(BridgeError):
             BridgeJob("", "key", "bridge", JobPhase.LOAD, MachineState.IDLE, {})
+
+
+class JobSerializationTests(unittest.TestCase):
+    """job_to_dict()/job_from_dict() - the real wire shape a bridge now
+    publishes/consumes over HYDRA-UMC-MQTT-BROKER, so this round-trip must
+    be exact, and malformed input must fail closed (BridgeError), never a
+    bare KeyError/ValueError/AttributeError escaping into a bridge's own
+    MQTT message handler."""
+
+    def test_round_trips_a_real_job(self):
+        original = job()
+        restored = job_from_dict(job_to_dict(original))
+        self.assertEqual(original, restored)
+
+    def test_to_dict_uses_plain_json_compatible_values(self):
+        payload = job_to_dict(job())
+        self.assertEqual(payload["phase"], "LOAD")
+        self.assertEqual(payload["machine_state"], "IDLE")
+        self.assertIsInstance(payload["parameters"], dict)
+
+    def test_from_dict_rejects_a_non_mapping(self):
+        with self.assertRaises(BridgeError):
+            job_from_dict("not-a-mapping")  # type: ignore[arg-type]
+
+    def test_from_dict_rejects_a_missing_field(self):
+        payload = job_to_dict(job())
+        del payload["idempotency_key"]
+        with self.assertRaises(BridgeError):
+            job_from_dict(payload)
+
+    def test_from_dict_rejects_an_unrecognised_phase(self):
+        payload = job_to_dict(job())
+        payload["phase"] = "TELEPORT"
+        with self.assertRaises(BridgeError):
+            job_from_dict(payload)
+
+    def test_from_dict_rejects_an_unrecognised_machine_state(self):
+        payload = job_to_dict(job())
+        payload["machine_state"] = "QUANTUM"
+        with self.assertRaises(BridgeError):
+            job_from_dict(payload)
+
+    def test_from_dict_rejects_non_string_parameters(self):
+        payload = job_to_dict(job())
+        payload["parameters"] = {"count": 3}
+        with self.assertRaises(BridgeError):
+            job_from_dict(payload)
+
+    def test_decision_to_dict_shape(self):
+        self.assertEqual(decision_to_dict(GateDecision(True, "ok")), {"allowed": True, "reason": "ok"})
