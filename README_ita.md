@@ -78,7 +78,7 @@ versione di schema incompatibile.
 
 Leggi [la guida al contratto](docs/CONTRACTS.md) prima di definire un nuovo messaggio.
 
-## 🛠️ BUILD & RUN
+## 🛠️ BUILD ED ESECUZIONE
 
 Usa il controllo di compilazione senza versionamento prima di una compilazione di rilascio:
 

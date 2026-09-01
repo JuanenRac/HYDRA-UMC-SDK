@@ -77,7 +77,7 @@ además de los casos de contrato desconocido e incompatibilidad de versión de e
 
 Lea [la guía del contrato](docs/CONTRACTS.md) antes de definir un nuevo mensaje.
 
-## 🛠️ BUILD & RUN
+## 🛠️ BUILD Y EJECUCIÓN
 
 Usa la comprobación de compilación sin versionado antes de una compilación de publicación:
 

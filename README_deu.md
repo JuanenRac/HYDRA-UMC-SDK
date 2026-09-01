@@ -78,7 +78,7 @@ und inkompatible Schema-Version.
 
 Lesen Sie [den Vertragsleitfaden](docs/CONTRACTS.md), bevor Sie eine neue Nachricht definieren.
 
-## 🛠️ BUILD & RUN
+## 🛠️ BUILD UND AUSFÜHRUNG
 
 Verwenden Sie den Build-Check ohne Versionierung vor einem Release-Build:
 

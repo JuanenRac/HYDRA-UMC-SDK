@@ -77,7 +77,7 @@ cas de contrat inconnu et de version de schéma incompatible.
 
 Lisez [le guide du contrat](docs/CONTRACTS.md) avant de définir un nouveau message.
 
-## 🛠️ BUILD & RUN
+## 🛠️ BUILD ET EXÉCUTION
 
 Utilisez la vérification de compilation sans versionnement avant une compilation de publication :
 
