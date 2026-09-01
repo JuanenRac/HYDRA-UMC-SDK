@@ -71,7 +71,7 @@ JSON Schema v1 合约、有效/无效装置、Python 验证客户端、
 
 在定义新消息之前，请阅读[合约指南](docs/CONTRACTS.md)。
 
-## 🛠️ BUILD & RUN
+## 🛠️ 构建与运行
 
 请在发布构建前使用不改动版本的构建检查：
 
