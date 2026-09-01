@@ -77,6 +77,17 @@ cas de contrat inconnu et de version de schéma incompatible.
 
 Lisez [le guide du contrat](docs/CONTRACTS.md) avant de définir un nouveau message.
 
+## 🛠️ BUILD & RUN
+
+Utilisez la vérification de compilation sans versionnement avant une compilation de publication :
+
+| Action | Windows | Linux / macOS |
+|---|---|---|
+| Vérification de compilation (sans modifier la version ni le CHANGELOG) | `build-test.bat` | `./build-test.sh` |
+| Exécution / développement (si disponible) | `run*.bat` ou `dev*.bat` | `./run*.sh` ou `./dev*.sh` |
+
+`build-test.bat` et `build-test.sh` compilent ou valident la pile du projet sans incrémenter `hydra-umc.project.json` ni modifier `CHANGELOG.md`. Ils peuvent uniquement créer les sorties normales du compilateur. Les scripts existants `build*.bat`, `build*.sh`, `run*` et `dev*` conservent leur comportement spécifique de versionnement ou d'exécution ; utilisez-les lorsque ce comportement est requis.
+
 ## 🔗 Projets connexes
 
 > Carte canonique des relations entre les écosystèmes publics.
@@ -99,13 +110,3 @@ Lisez [le guide du contrat](docs/CONTRACTS.md) avant de définir un nouveau mess
 ## 📜 Licence
 
 Le code est GPL-3.0 ou version ultérieure ; la documentation est CC BY-SA 4.0. Voir [LICENCE](LICENSE).
-## 🛠️ BUILD & RUN
-
-Utilisez la vérification de compilation sans versionnement avant une compilation de publication :
-
-| Action | Windows | Linux / macOS |
-|---|---|---|
-| Vérification de compilation (sans modifier la version ni le CHANGELOG) | `build-test.bat` | `./build-test.sh` |
-| Exécution / développement (si disponible) | `run*.bat` ou `dev*.bat` | `./run*.sh` ou `./dev*.sh` |
-
-`build-test.bat` et `build-test.sh` compilent ou valident la pile du projet sans incrémenter `hydra-umc.project.json` ni modifier `CHANGELOG.md`. Ils peuvent uniquement créer les sorties normales du compilateur. Les scripts existants `build*.bat`, `build*.sh`, `run*` et `dev*` conservent leur comportement spécifique de versionnement ou d'exécution ; utilisez-les lorsque ce comportement est requis.
