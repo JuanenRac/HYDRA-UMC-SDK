@@ -11,7 +11,7 @@ CC BY-SA 4.0 - LICENSE.md を参照
 </p>
 
 <p align="center">
-  <a href="README.md">???? English</a> |
+  <a href="README.md">🇺🇸 English</a> |
   <a href="README_spa.md">🇪🇸スペイン語</a> |
   <a href="README_fra.md">🇫🇷 フランス語</a> |
   <a href="README_ita.md">🇮🇹 イタリアーノ</a> |
@@ -27,7 +27,7 @@ CC BY-SA 4.0 - LICENSE.md を参照
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="統合: CM5 | URTC">
 </p>
 
-# ヒドラ-UMC-SDK
+# HYDRA-UMC-SDK
 
 ## 🧩 HYDRA-UMC の共有コントラクトと統合ツールキット
 
@@ -49,7 +49,7 @@ JSON スキーマ v1 コントラクト、有効/無効なフィクスチャ、P
 ## 🎯 最初のマイルストーン
 
 1. `DeviceDescriptor`、`HealthReport`、`SafetyState`、および
-   「UpdateManifest」JSON スキーマ v1。
+   `UpdateManifest` の JSON スキーマ v1。
 2. Python リファレンス クライアントを使用して、有効なフィクスチャと無効なフィクスチャを検証します。
 3. CI にプロデューサー/コンシューマー互換性マトリックスを追加します。
 4. 統合で必要な場合は、Protobuf/OpenAPI 表現を公開します。
@@ -63,11 +63,11 @@ JSON スキーマ v1 コントラクト、有効/無効なフィクスチャ、P
 
 |パス |目的 |
 | --- | --- |
-| `契約/` |標準的な JSON スキーマ v1 ソース。さらなる代表は安定した契約に従います。 |
-| `クライアント/` |依存関係のない Python リファレンス検証ツールと将来の言語クライアント。 |
-| `適合/` |互換性テストで使用される有効な v1 フィクスチャと無効な v1 フィクスチャ。 |
+| `contracts/` |標準的な JSON スキーマ v1 ソース。さらなる代表形式は安定した契約に従います。 |
+| `clients/` |依存関係のない Python リファレンス検証ツールと将来の言語クライアント。 |
+| `conformance/` |互換性テストで使用される有効な v1 フィクスチャと無効な v1 フィクスチャ。 |
 | `docs/` |契約、API、セキュリティ、開発仕様。 |
-| `例/` |実行可能な Python 検証の例。 |
+| `examples/` |実行可能な Python 検証の例。 |
 
 新しいメッセージを定義する前に、[契約ガイド](docs/CONTRACTS.md) をお読みください。
 
@@ -101,6 +101,11 @@ JSON スキーマ v1 コントラクト、有効/無効なフィクスチャ、P
 
 **残りのエコシステム:** [JuanenRac エコシステム ダッシュボード](https://juanenrac.github.io/JuanenRac/) で 7 つのパブリック レイヤーを調べてください。
 
-## 📜ライセンス
+## 👤 作者
+**JuanenRac** (Electro Hobby 3D)
+📧 electrohobby3d@gmail.com
+📺 [youtube.com/@electrohobby3d](https://youtube.com/@electrohobby3d)
 
-コードは GPL-3.0 以降です。ドキュメントは CC BY-SA 4.0 です。 [ライセンス](LICENSE)を参照してください。
+## 📜 ライセンス
+
+コードは GPL-3.0 以降です。ドキュメントは CC BY-SA 4.0 です。[LICENSE](LICENSE) を参照してください。

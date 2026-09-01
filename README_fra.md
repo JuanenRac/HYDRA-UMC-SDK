@@ -11,7 +11,7 @@ CC BY-SA 4.0 - voir LICENSE.md
 </p>
 
 <p align="center">
-  <a href="README.md">???? English</a> |
+  <a href="README.md">🇺🇸 English</a> |
   <a href="README_spa.md">🇪🇸 Español</a> |
   <a href="README_fra.md">🇫🇷 Français</a> |
   <a href="README_ita.md">🇮🇹 Italien</a> |
@@ -69,11 +69,11 @@ cas de contrat inconnu et de version de schéma incompatible.
 
 | Chemin | Objectif |
 | --- | --- |
-| `contrats/` | Sources normatives du schéma JSON v1 ; d'autres représentations suivent des contrats stables. |
+| `contracts/` | Sources normatives du schéma JSON v1 ; d'autres représentations suivent des contrats stables. |
 | `clients/` | Validateur de référence Python sans dépendance et futurs clients de langage. |
-| `conformité/` | Appareils v1 valides et invalides utilisés par les tests de compatibilité. |
+| `conformance/` | Fixtures v1 valides et invalides utilisées par les tests de compatibilité. |
 | `docs/` | Spécifications du contrat, de l’API, de la sécurité et du développement. |
-| `exemples/` | Exemple de validation Python exécutable. |
+| `examples/` | Exemple de validation Python exécutable. |
 
 Lisez [le guide du contrat](docs/CONTRACTS.md) avant de définir un nouveau message.
 
@@ -107,6 +107,11 @@ Utilisez la vérification de compilation sans versionnement avant une compilatio
 
 **Reste de l'écosystème :** explorez les sept couches publiques dans le [tableau de bord de l'écosystème JuanenRac](https://juanenrac.github.io/JuanenRac/).
 
-## 📜 Licence
+## 👤 AUTEUR
+**JuanenRac** (Electro Hobby 3D)
+📧 electrohobby3d@gmail.com
+📺 [youtube.com/@electrohobby3d](https://youtube.com/@electrohobby3d)
+
+## 📜 LICENCE
 
 Le code est GPL-3.0 ou version ultérieure ; la documentation est CC BY-SA 4.0. Voir [LICENCE](LICENSE).

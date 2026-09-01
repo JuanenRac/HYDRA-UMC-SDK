@@ -11,7 +11,7 @@ CC BY-SA 4.0 - vedere LICENZA.md
 </p>
 
 <p align="center">
-  <a href="README.md">???? English</a> |
+  <a href="README.md">🇺🇸 English</a> |
   <a href="README_spa.md">🇪🇸 Español</a> |
   <a href="README_fra.md">🇫🇷 Français</a> |
   <a href="README_ita.md">🇮🇹 Italiano</a> |
@@ -55,8 +55,8 @@ versione di schema incompatibile.
 
 ## 🎯 Primo traguardo
 
-1. Pubblica "DeviceDescriptor", "HealthReport", "SafetyState" e
-   Schema JSON "UpdateManifest" v1.
+1. Pubblica `DeviceDescriptor`, `HealthReport`, `SafetyState` e
+   `UpdateManifest` schema JSON v1.
 2. Convalidare le apparecchiature valide e non valide con il client di riferimento Python.
 3. Aggiungere una matrice di compatibilità produttore/consumatore in CI.
 4. Pubblicare rappresentazioni Protobuf/OpenAPI laddove l'integrazione lo richiede.
@@ -70,11 +70,11 @@ versione di schema incompatibile.
 
 | Percorso | Scopo |
 | --- | --- |
-| `contratti/` | Origini dello schema JSON normativo v1; ulteriori rappresentanze seguono contratti stabili. |
-| `clienti/` | Validatore di riferimenti Python senza dipendenze e futuri client linguistici. |
-| `conformità/` | Fixture v1 valide e non valide utilizzate dai test di compatibilità. |
-| `documenti/` | Specifiche di contratto, API, sicurezza e sviluppo. |
-| `esempi/` | Esempio di validazione Python eseguibile. |
+| `contracts/` | Sorgenti normative dello schema JSON v1; ulteriori rappresentazioni seguono contratti stabili. |
+| `clients/` | Validatore di riferimento Python senza dipendenze e futuri client per altri linguaggi. |
+| `conformance/` | Fixture v1 valide e non valide utilizzate dai test di compatibilità. |
+| `docs/` | Specifiche di contratto, API, sicurezza e sviluppo. |
+| `examples/` | Esempio di validazione Python eseguibile. |
 
 Leggi [la guida al contratto](docs/CONTRACTS.md) prima di definire un nuovo messaggio.
 
@@ -108,6 +108,11 @@ Usa il controllo di compilazione senza versionamento prima di una compilazione d
 
 **Resto dell'ecosistema:** esplora i sette livelli pubblici nella [dashboard dell'ecosistema JuanenRac](https://juanenrac.github.io/JuanenRac/).
 
-## 📜 Licenza
+## 👤 AUTORE
+**JuanenRac** (Electro Hobby 3D)
+📧 electrohobby3d@gmail.com
+📺 [youtube.com/@electrohobby3d](https://youtube.com/@electrohobby3d)
+
+## 📜 LICENZA
 
 Il codice è GPL-3.0 o successivo; la documentazione è CC BY-SA 4.0. Vedere [LICENZA](LICENSE).

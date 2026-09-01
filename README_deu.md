@@ -11,7 +11,7 @@ CC BY-SA 4.0 – siehe LICENSE.md
 </p>
 
 <p align="center">
-  <a href="README.md">???? English</a> |
+  <a href="README.md">🇺🇸 English</a> |
   <a href="README_spa.md">🇪🇸 Spanisch</a> |
   <a href="README_fra.md">🇫🇷 Französisch</a> |
   <a href="README_ita.md">🇮🇹 Italienisch</a> |
@@ -55,8 +55,8 @@ und inkompatible Schema-Version.
 
 ## 🎯 Erster Meilenstein
 
-1. Veröffentlichen Sie „DeviceDescriptor“, „HealthReport“, „SafetyState“ und
-   „UpdateManifest“ JSON-Schema v1.
+1. Veröffentlichen Sie `DeviceDescriptor`, `HealthReport`, `SafetyState` und
+   `UpdateManifest` JSON-Schema v1.
 2. Validieren Sie gültige und ungültige Fixtures mit dem Python-Referenzclient.
 3. Fügen Sie in CI eine Produzenten-/Konsumenten-Kompatibilitätsmatrix hinzu.
 4. Veröffentlichen Sie Protobuf/OpenAPI-Darstellungen dort, wo die Integration dies erfordert.
@@ -70,11 +70,11 @@ und inkompatible Schema-Version.
 
 | Pfad | Zweck |
 | --- | --- |
-| `Verträge/` | Normative JSON-Schema-v1-Quellen; Weitere Vertretungen folgen stabilen Verträgen. |
-| `Kunden/` | Abhängigkeitsfreier Python-Referenzvalidator und zukünftige Sprachclients. |
-| `Konformität/` | Gültige und ungültige v1-Fixtures, die von Kompatibilitätstests verwendet werden. |
+| `contracts/` | Normative JSON-Schema-v1-Quellen; weitere Darstellungen folgen stabilen Verträgen. |
+| `clients/` | Abhängigkeitsfreier Python-Referenzvalidator und zukünftige Sprachclients. |
+| `conformance/` | Gültige und ungültige v1-Fixtures, die von Kompatibilitätstests verwendet werden. |
 | `docs/` | Vertrags-, API-, Sicherheits- und Entwicklungsspezifikationen. |
-| `Beispiele/` | Beispiel für eine ausführbare Python-Validierung. |
+| `examples/` | Beispiel für eine ausführbare Python-Validierung. |
 
 Lesen Sie [den Vertragsleitfaden](docs/CONTRACTS.md), bevor Sie eine neue Nachricht definieren.
 
@@ -108,6 +108,11 @@ Verwenden Sie den Build-Check ohne Versionierung vor einem Release-Build:
 
 **Rest des Ökosystems:** Erkunden Sie die sieben öffentlichen Ebenen im [JuanenRac-Ökosystem-Dashboard](https://juanenrac.github.io/JuanenRac/).
 
-## 📜 Lizenz
+## 👤 AUTOR
+**JuanenRac** (Electro Hobby 3D)
+📧 electrohobby3d@gmail.com
+📺 [youtube.com/@electrohobby3d](https://youtube.com/@electrohobby3d)
+
+## 📜 LIZENZ
 
 Code ist GPL-3.0-or-later; Die Dokumentation ist CC BY-SA 4.0. Siehe [LICENSE](LICENSE).
