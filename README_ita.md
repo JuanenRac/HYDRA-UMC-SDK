@@ -1,6 +1,6 @@
 <!--
 ==============================================================================
-HYDRA-UMC-SDK - Panoramica del toolkit per gli appalti pubblici e l'integrazione
+HYDRA-UMC-SDK - Panoramica del toolkit per i contratti pubblici e l'integrazione
 Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
 CC BY-SA 4.0 - vedere LICENZA.md
 ==============================================================================
@@ -32,15 +32,14 @@ CC BY-SA 4.0 - vedere LICENZA.md
 ## 🧩 Contratti condivisi e toolkit di integrazione per HYDRA-UMC
 
 HYDRA-UMC-SDK definisce il linguaggio stabile condiviso dai servizi HYDRA-UMC,
-client, adattatori CM5 e integrazioni URTC. Possiede contratti normativi, a
-validatore di riferimenti Python senza dipendenze, dispositivi di conformità e
-guida all'integrazione. Non è così
-sostituire le API ufficiali per il sistema operativo Raspberry Pi, Hailo, ROS 2, MQTT, OPC-UA o
+client, adattatori CM5 e integrazioni URTC. Possiede contratti normativi, un
+validatore di riferimento Python senza dipendenze, fixture di conformità e
+guida all'integrazione. Non sostituisce le API ufficiali per il sistema operativo Raspberry Pi, Hailo, ROS 2, MQTT, OPC-UA o
 MTConnect.
 
 ## 🚧Stato
 
-Contratti JSON Schema v1, dispositivi validi/non validi, un client di convalida Python,
+Contratti JSON Schema v1, fixture valide/non valide, un client di convalida Python,
 e vengono implementati i test lato host. Pubblicazione e client Protobuf/OpenAPI
 per ulteriori lingue sono successivi traguardi di compatibilità.
 
@@ -49,18 +48,18 @@ verifica incrociando ogni schema pubblicato con l'elenco dei contratti del
 validatore Python stesso - ha individuato e corretto una lacuna reale in cui
 `project-manifest.schema.json` (il contratto di `hydra-umc.project.json` che
 ogni repository di questo ecosistema pubblica) non aveva alcuna voce di
-validatore, e ora dimostra che ogni dispositivo di conformità viene giudicato
+validatore, e ora dimostra che ogni fixture di conformità viene giudicata
 come afferma il proprio nome file, oltre ai casi di contratto sconosciuto e
 versione di schema incompatibile.
 
 ## 🎯 Primo traguardo
 
-1. Pubblica `DeviceDescriptor`, `HealthReport`, `SafetyState` e
-   `UpdateManifest` schema JSON v1.
-2. Convalidare le apparecchiature valide e non valide con il client di riferimento Python.
+1. Pubblicare lo schema JSON v1 di `DeviceDescriptor`, `HealthReport`, `SafetyState` e
+   `UpdateManifest`.
+2. Convalidare le fixture valide e non valide con il client di riferimento Python.
 3. Aggiungere una matrice di compatibilità produttore/consumatore in CI.
 4. Pubblicare rappresentazioni Protobuf/OpenAPI laddove l'integrazione lo richiede.
-5. Aggiungi client TypeScript, Go e Rust da contratti stabili.
+5. Aggiungere client TypeScript, Go e Rust da contratti stabili.
 
 ## 📂 Layout del repository
 
@@ -102,7 +101,7 @@ Usa il controllo di compilazione senza versionamento prima di una compilazione d
 | [URTC](https://github.com/JuanenRac/URTC) | Piattaforma strumento-controller indipendente connessa tramite adattatori di integrazione con versione. |
 | [HYDRA-UMC-BRIDGE-ROS2](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-ROS2) | Usa la porta BridgeJob comune per osservazione ROS 2, ispezione e lavoro di cella annullabile. |
 | [HYDRA-UMC-BRIDGE-OPENPNP](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-OPENPNP) | Usa lavori correlati e idempotenti per passaggi PCB tracciabili. |
-| [HYDRA-UMC-BRIDGE-PRINTER3D](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-PRINTER3D) | Usa la porta attorno alla disponibilità nativa della stampante senza esporre controllo di heater o movimento. |
+| [HYDRA-UMC-BRIDGE-PRINTER3D](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-PRINTER3D) | Usa la porta attorno alla disponibilità nativa della stampante senza esporre controllo di riscaldatori o movimento. |
 | [HYDRA-UMC-BRIDGE-CNC](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-CNC) | Usa la porta solo accanto a una CNC inattiva e protetta. |
 | [HYDRA-UMC-BRIDGE-LASER](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-LASER) | Usa la porta per ausiliari preservando l'autorità di sicurezza laser. |
 

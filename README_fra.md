@@ -33,30 +33,29 @@ CC BY-SA 4.0 - voir LICENSE.md
 
 HYDRA-UMC-SDK définit le langage stable partagé par les services HYDRA-UMC,
 clients, adaptateurs CM5 et intégrations URTC. Elle possède des contrats normatifs, un
-validateur de référence Python sans dépendance, dispositifs de conformité et
-un accompagnement pour l'intégration. Ce n'est pas le cas
-remplacer les API officielles pour Raspberry Pi OS, Hailo, ROS 2, MQTT, OPC-UA ou
+validateur de référence Python sans dépendance, des fixtures de conformité et
+un accompagnement pour l'intégration. Il ne remplace pas les API officielles de Raspberry Pi OS, Hailo, ROS 2, MQTT, OPC-UA ou
 MTConnect.
 
 ## 🚧 Statut
 
-Contrats JSON Schema v1, luminaires valides/invalides, un client de validation Python,
-et des tests côté hôte sont implémentés. Publication et clients Protobuf/OpenAPI
-pour d'autres langues, il y a des étapes de compatibilité ultérieures.
+Les contrats JSON Schema v1, les fixtures valides/invalides, un client de validation Python
+et les tests côté hôte sont implémentés. La publication Protobuf/OpenAPI et les clients
+pour d'autres langages sont les prochaines étapes de compatibilité.
 
 Une matrice de compatibilité réelle et automatique (`tools/verify_contract_matrix.py`)
 recoupe chaque schéma publié avec la propre liste de contrats du validateur
 Python - elle a trouvé et corrigé une lacune réelle où `project-manifest.schema.json`
 (le contrat `hydra-umc.project.json` que chaque dépôt de cet écosystème publie)
-n'avait aucune entrée de validateur, et prouve désormais que chaque luminaire
-de conformité est jugé comme son propre nom de fichier l'affirme, ainsi que les
+n'avait aucune entrée de validateur, et prouve désormais que chaque fixture
+de conformité est jugée comme son propre nom de fichier l'affirme, ainsi que les
 cas de contrat inconnu et de version de schéma incompatible.
 
 ## 🎯 Premier jalon
 
-1. Publiez `DeviceDescriptor`, `HealthReport`, `SafetyState` et
-   Schéma JSON `UpdateManifest` v1.
-2. Validez les appareils valides et invalides avec le client de référence Python.
+1. Publiez le schéma JSON v1 de `DeviceDescriptor`, `HealthReport`, `SafetyState` et
+   `UpdateManifest`.
+2. Validez les fixtures valides et invalides avec le client de référence Python.
 3. Ajoutez une matrice de compatibilité producteur/consommateur dans CI.
 4. Publiez les représentations Protobuf/OpenAPI là où l'intégration l'exige.
 5. Ajoutez des clients TypeScript, Go et Rust à partir de contrats stables.

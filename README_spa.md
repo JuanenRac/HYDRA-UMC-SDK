@@ -32,17 +32,16 @@ CC BY-SA 4.0 - ver LICENCIA.md
 ## 🧩 Contratos compartidos y kit de herramientas de integración para HYDRA-UMC
 
 HYDRA-UMC-SDK define el lenguaje estable compartido por los servicios de HYDRA-UMC,
-Clientes, adaptadores CM5 e integraciones URTC. Posee contratos normativos, un
+clientes, adaptadores CM5 e integraciones URTC. Posee contratos normativos, un
 validador de referencia de Python libre de dependencias, accesorios de conformidad y
-orientación de integración. no lo hace
-reemplace las API oficiales para Raspberry Pi OS, Hailo, ROS 2, MQTT, OPC-UA o
+orientación de integración. No reemplaza las API oficiales de Raspberry Pi OS, Hailo, ROS 2, MQTT, OPC-UA o
 MTConnect.
 
 ## 🚧 Estado
 
-Contratos JSON Schema v1, accesorios válidos/no válidos, un cliente de validación Python,
-y se implementan pruebas del lado del host. Publicación y clientes de Protobuf/OpenAPI
-para otros idiomas son los hitos de compatibilidad posteriores.
+Los contratos JSON Schema v1, los accesorios válidos/no válidos, un cliente de validación en Python
+y las pruebas del lado del host ya están implementados. La publicación de Protobuf/OpenAPI y los clientes
+para otros idiomas son los siguientes hitos de compatibilidad.
 
 Una matriz de compatibilidad real y automática (`tools/verify_contract_matrix.py`)
 contrasta cada esquema publicado con la propia lista de contratos del validador
@@ -54,12 +53,12 @@ además de los casos de contrato desconocido e incompatibilidad de versión de e
 
 ## 🎯 Primer hito
 
-1. Publicar `DeviceDescriptor`, `HealthReport`, `SafetyState` y
-   Esquema JSON `UpdateManifest` v1.
-2. Validar dispositivos válidos e inválidos con el cliente de referencia de Python.
-3. Agregue una matriz de compatibilidad productor/consumidor en CI.
+1. Publicar el Esquema JSON v1 de `DeviceDescriptor`, `HealthReport`, `SafetyState` y
+   `UpdateManifest`.
+2. Validar accesorios válidos e inválidos con el cliente de referencia de Python.
+3. Añadir una matriz de compatibilidad productor/consumidor en CI.
 4. Publicar representaciones de Protobuf/OpenAPI cuando la integración lo requiera.
-5. Agregue clientes TypeScript, Go y Rust desde contratos estables.
+5. Añadir clientes de TypeScript, Go y Rust a partir de contratos estables.
 
 ## 📂 Diseño del repositorio
 
@@ -67,7 +66,7 @@ además de los casos de contrato desconocido e incompatibilidad de versión de e
   <img src="images/REPOSITORY_LAYOUT.svg" alt="Mapa visual del diseño del repositorio de HYDRA-UMC-SDK" width="100%">
 </p>
 
-| Camino | Propósito |
+| Ruta | Propósito |
 | --- | --- |
 | `contracts/` | Fuentes normativas del esquema JSON v1; otras representaciones siguen contratos estables. |
 | `clients/` | Validador de referencia de Python libre de dependencias y futuros clientes de otros lenguajes. |
@@ -101,7 +100,7 @@ Usa la comprobación de compilación sin versionado antes de una compilación de
 | [URTC](https://github.com/JuanenRac/URTC) | Plataforma independiente de controlador de herramientas conectada a través de adaptadores de integración versionados. |
 | [HYDRA-UMC-BRIDGE-ROS2](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-ROS2) | Usa la puerta común BridgeJob para observación ROS 2, inspección y trabajo de celda cancelable. |
 | [HYDRA-UMC-BRIDGE-OPENPNP](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-OPENPNP) | Usa trabajos correlacionados e idempotentes para entregas de PCB trazables. |
-| [HYDRA-UMC-BRIDGE-PRINTER3D](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-PRINTER3D) | Usa la puerta alrededor de la disponibilidad nativa de impresora; no expone control de heaters ni movimiento. |
+| [HYDRA-UMC-BRIDGE-PRINTER3D](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-PRINTER3D) | Usa la puerta alrededor de la disponibilidad nativa de impresora; no expone control de calentadores ni movimiento. |
 | [HYDRA-UMC-BRIDGE-CNC](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-CNC) | Usa la puerta para coordinar solo junto a una CNC inactiva y protegida. |
 | [HYDRA-UMC-BRIDGE-LASER](https://github.com/JuanenRac/HYDRA-UMC-BRIDGE-LASER) | Usa la puerta para auxiliares conservando la autoridad de seguridad láser. |
 
@@ -114,4 +113,4 @@ Usa la comprobación de compilación sin versionado antes de una compilación de
 
 ## 📜 LICENCIA
 
-El código es GPL-3.0 o posterior; La documentación es CC BY-SA 4.0. Consulte [LICENCIA](LICENSE).
+El código es GPL-3.0 o posterior; la documentación es CC BY-SA 4.0. Consulte [LICENCIA](LICENSE).

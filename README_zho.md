@@ -33,22 +33,22 @@ CC BY-SA 4.0 - 参见 LICENSE.md
 
 HYDRA-UMC-SDK 定义了 HYDRA-UMC 服务、客户端、CM5 适配器和 URTC
 集成共享的稳定语言。它拥有规范性合约、无依赖的 Python 参考验证器、
-一致性装置和集成指南。它不会取代 Raspberry Pi OS、Hailo、ROS 2、
+一致性 fixture 和集成指南。它不会取代 Raspberry Pi OS、Hailo、ROS 2、
 MQTT、OPC-UA 或 MTConnect 各自的官方 API。
 
 ## 🚧 状态
 
-JSON Schema v1 合约、有效/无效装置、Python 验证客户端、
+JSON Schema v1 合约、有效/无效 fixture、Python 验证客户端、
 并实施主机端测试。 Protobuf/OpenAPI 发布和客户端
 对于更多语言是后续的兼容性里程碑。
 
-一个真实、自动化的兼容性矩阵（`tools/verify_contract_matrix.py`）会将每个已发布的架构与 Python 验证器自身的合约列表进行交叉核对，并发现并修复了一个真实的缺口：`project-manifest.schema.json`（本生态系统中每个仓库都会发布的 `hydra-umc.project.json` 合约）此前完全没有验证器条目。现在它证明，每个一致性装置都会按照其自身文件名所声明的方式被判定，此外还涵盖了未知合约和不兼容架构版本这两种情况。
+一个真实、自动化的兼容性矩阵（`tools/verify_contract_matrix.py`）会将每个已发布的架构与 Python 验证器自身的合约列表进行交叉核对，并发现并修复了一个真实的缺口：`project-manifest.schema.json`（本生态系统中每个仓库都会发布的 `hydra-umc.project.json` 合约）此前完全没有验证器条目。现在它证明，每个一致性 fixture 都会按照其自身文件名所声明的方式被判定，此外还涵盖了未知合约和不兼容架构版本这两种情况。
 
 ## 🎯 第一个里程碑
 
 1. 发布 `DeviceDescriptor`、`HealthReport`、`SafetyState` 和
    `UpdateManifest` JSON 模式 v1。
-2. 使用 Python 参考客户端验证有效和无效的装置。
+2. 使用 Python 参考客户端验证有效和无效的 fixture。
 3. 在 CI 中加入生产者/消费者兼容性矩阵。
 4. 在集成需要时发布 Protobuf/OpenAPI 表示。
 5. 从稳定合约中添加 TypeScript、Go 和 Rust 客户端。
@@ -63,7 +63,7 @@ JSON Schema v1 合约、有效/无效装置、Python 验证客户端、
 | ---| ---|
 | `contracts/` |规范性 JSON Schema v1 源文件；其余表示形式遵循稳定的合约。 |
 | `clients/` |无依赖的 Python 参考验证器和未来的其他语言客户端。 |
-| `conformance/` |兼容性测试使用的有效和无效 v1 装置。 |
+| `conformance/` |兼容性测试使用的有效和无效 v1 fixture。 |
 | `docs/` |合约、API、安全和开发规范文档。 |
 | `examples/` |可运行的 Python 验证示例。 |
 
@@ -86,7 +86,7 @@ JSON Schema v1 合约、有效/无效装置、Python 验证客户端、
 
 |项目|与 HYDRA-UMC-SDK 的关系 |
 | ---| ---|
-| [HYDRA-UMC-OS](https://github.com/JuanenRac/HYDRA-UMC-OS) |设备代理消费者的设备、健康、安全和更新合同。 |
+| [HYDRA-UMC-OS](https://github.com/JuanenRac/HYDRA-UMC-OS) |消费设备、健康、安全和更新合约的设备代理。 |
 | [HYDRA-UMC-SERVER](https://github.com/JuanenRac/HYDRA-UMC-SERVER) |经过身份验证的 API 生产者和消费者受 SDK 合约管理。 |
 | [HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER) |发布合同感知客户端使用的版本和兼容性元数据。 |
 | [HYDRA-UMC](https://github.com/JuanenRac/HYDRA-UMC) |通过有界 CM5 和 MCU 适配器合约公开的硬件/固件平台。 |

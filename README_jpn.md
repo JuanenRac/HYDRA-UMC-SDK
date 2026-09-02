@@ -31,12 +31,11 @@ CC BY-SA 4.0 - LICENSE.md を参照
 
 ## 🧩 HYDRA-UMC の共有コントラクトと統合ツールキット
 
-HYDRA-UMC-SDK は、HYDRA-UMC サービスによって共有される安定した言語を定義します。
-クライアント、CM5 アダプター、および URTC 統合。規範的な契約を所有しています。
+HYDRA-UMC-SDK は、HYDRA-UMC サービス、クライアント、CM5 アダプター、および
+URTC 統合によって共有される安定した言語を定義します。規範的な契約、
 依存関係のない Python 参照バリデータ、適合フィクスチャ、
-統合ガイダンス。そうではありません
-Raspberry Pi OS、Hailo、ROS 2、MQTT、OPC-UA、または
-MTコネクト。
+統合ガイダンスを備えています。Raspberry Pi OS、Hailo、ROS 2、MQTT、OPC-UA、
+MTConnect の公式 API を置き換えるものではありません。
 
 ## 🚧 ステータス
 
@@ -49,7 +48,7 @@ JSON スキーマ v1 コントラクト、有効/無効なフィクスチャ、P
 ## 🎯 最初のマイルストーン
 
 1. `DeviceDescriptor`、`HealthReport`、`SafetyState`、および
-   `UpdateManifest` の JSON スキーマ v1。
+   `UpdateManifest` の JSON スキーマ v1 を公開します。
 2. Python リファレンス クライアントを使用して、有効なフィクスチャと無効なフィクスチャを検証します。
 3. CI にプロデューサー/コンシューマー互換性マトリックスを追加します。
 4. 統合で必要な場合は、Protobuf/OpenAPI 表現を公開します。

@@ -31,11 +31,10 @@ CC BY-SA 4.0 – siehe LICENSE.md
 
 ## 🧩 Gemeinsame Verträge und Integrations-Toolkit für HYDRA-UMC
 
-HYDRA-UMC-SDK definiert die stabile Sprache, die von HYDRA-UMC-Diensten gemeinsam genutzt wird.
-Clients, CM5-Adapter und URTC-Integrationen. Es besitzt normative Verträge, u. a
-Abhängigkeitsfreier Python-Referenzvalidator, Konformitätsvorkehrungen und
-Integrationsberatung. Das ist nicht der Fall
-Ersetzen Sie offizielle APIs für Raspberry Pi OS, Hailo, ROS 2, MQTT, OPC-UA oder
+HYDRA-UMC-SDK definiert die stabile Sprache, die von HYDRA-UMC-Diensten,
+Clients, CM5-Adaptern und URTC-Integrationen gemeinsam genutzt wird. Es besitzt normative Verträge, einen
+abhängigkeitsfreien Python-Referenzvalidator, Konformitäts-Fixtures und
+Integrationsberatung. Es ersetzt nicht die offiziellen APIs für Raspberry Pi OS, Hailo, ROS 2, MQTT, OPC-UA oder
 MTConnect.
 
 ## 🚧 Status
