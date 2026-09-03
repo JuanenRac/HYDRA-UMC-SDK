@@ -1,3 +1,0 @@
-[console_scripts]
-hydra-umc-contract-validate = hydra_umc_sdk.validation:main
-hydra-umc-sdk-mock-server = hydra_umc_sdk.mock_server:main
