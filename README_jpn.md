@@ -45,6 +45,8 @@ JSON スキーマ v1 コントラクト、有効/無効なフィクスチャ、P
 
 実際に動作する自動互換性マトリクス（`tools/verify_contract_matrix.py`）は、公開されているすべてのスキーマを Python バリデータ自身のコントラクト一覧と突き合わせて検証します。これにより、`project-manifest.schema.json`（このエコシステムの各リポジトリが公開する `hydra-umc.project.json` のコントラクト）にバリデータのエントリが一つも存在しないという実際のギャップを発見し、修正しました。現在では、各適合フィクスチャがそのファイル名どおりに判定されること、さらに未知のコントラクトおよび非互換なスキーマバージョンのケースについても正しく判定されることを証明しています。
 
+下記の最初のマイルストーン以降、さらに2つのコントラクトが追加されました。外部マシン連携のための公開コントラクト `BridgeJob`/`GateDecision`(詳細は [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md))は `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` で共有され、独自の実データJSONワイヤー形式(`job_to_dict()`/`job_from_dict()`/`decision_to_dict()`)を持ちます。また `hydra-umc-sdk-mock-server`(`mock_server.py`)は、実際のCM5・ロボット・MCUハードウェアが無くてもUIやアダプタを開発できるよう、既知の各コントラクトについて有効なサンプルペイロードを単純なHTTP経由で提供します。7つすべてのコントラクトが、上記の互換性マトリクスで検証済みの有効・無効な適合フィクスチャを少なくとも1つずつ持っています。
+
 ## 🎯 最初のマイルストーン
 
 1. `DeviceDescriptor`、`HealthReport`、`SafetyState`、および
@@ -67,8 +69,21 @@ JSON スキーマ v1 コントラクト、有効/無効なフィクスチャ、P
 | `conformance/` |互換性テストで使用される有効な v1 フィクスチャと無効な v1 フィクスチャ。 |
 | `docs/` |契約、API、セキュリティ、開発仕様。 |
 | `examples/` |実行可能な Python 検証の例。 |
+| `tools/` |`verify_contract_matrix.py`(スキーマ/バリデータ互換性マトリクス)と、変更を加えない `build-test` エンジン。 |
 
 新しいメッセージを定義する前に、[契約ガイド](docs/CONTRACTS.md) をお読みください。
+
+## 📖 その他のドキュメント
+
+- **[docs/CONTRACTS.md](docs/CONTRACTS.md)** — 規範となる契約ガイド。新しいメッセージを定義する前に読むこと。
+- **[docs/PYTHON_CLIENT.md](docs/PYTHON_CLIENT.md)** — `validate()` 関数と `hydra-umc-contract-validate` CLI の完全なリファレンス。契約ごとの必須フィールドと追加検証ルールの表を含む。
+- **[docs/CONFORMANCE.md](docs/CONFORMANCE.md)** — 契約ごとに有効/後方互換/不正/安全でないフィクスチャ集が何をカバーすべきか、そして実装済みのv1スイートが現在何をカバーしているか。
+- **[docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)** — `HYDRA-UMC-BRIDGE-ROS2`、`-OPENPNP`、`-PRINTER3D`、`-CNC`、`-LASER` が共有するv0 `BridgeJob`/`GateDecision` 境界。
+- **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — CM5-MCU/URTCアダプタ境界:トランスポート、フレーミング、プロトコル、サービスの各層、そしてMCUが物理的な限界と安全停止について権威であり続ける理由。
+- **[docs/API_DESIGN.md](docs/API_DESIGN.md)** — HYDRA-UMC-SERVER自身の公開HTTP/WebSocket APIが従う規約:バージョン管理された `/api/v1` ルート、コマンド結果の `ACCEPTED`/`REJECTED`/`RUNNING`/`COMPLETED`/`FAILED` 形式。
+- **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** — このSDK自身の契約が開発されているスキーマファーストのワークフロー、そして契約変更に必要なもの(変更履歴のエントリ、互換性の判断、例、テスト)。
+- **[docs/PROJECT_MANIFEST.md](docs/PROJECT_MANIFEST.md)** — このエコシステムの各リポジトリが公開する `hydra-umc.project.json` 契約。
+- **[docs/HEADER_CONVENTION.md](docs/HEADER_CONVENTION.md)** — このエコシステム全体で新しいソース・ドキュメントファイルに必要な著作権/ライセンスヘッダー。
 
 ## 🛠️ ビルドと実行
 

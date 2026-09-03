@@ -1,0 +1,6 @@
+Metadata-Version: 2.4
+Name: hydra-umc-sdk
+Version: 0.0.7
+Summary: Versioned contracts and lightweight Python validation for HYDRA-UMC
+License: GPL-3.0-or-later
+Requires-Python: >=3.11

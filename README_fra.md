@@ -51,6 +51,19 @@ n'avait aucune entrée de validateur, et prouve désormais que chaque fixture
 de conformité est jugée comme son propre nom de fichier l'affirme, ainsi que les
 cas de contrat inconnu et de version de schéma incompatible.
 
+Deux contrats supplémentaires ont été livrés depuis le premier jalon
+ci-dessous : un contrat public de pont vers des machines externes
+`BridgeJob`/`GateDecision` (voir
+[docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), partagé par
+`HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` et doté
+de sa propre forme JSON réelle (`job_to_dict()`/`job_from_dict()`/
+`decision_to_dict()`) ; et un `hydra-umc-sdk-mock-server`
+(`mock_server.py`) qui sert un exemple de payload valide par contrat
+connu via HTTP simple, pour qu'une UI ou un adaptateur puisse être
+développé avant qu'un vrai matériel CM5/robot/MCU soit disponible. Les 7
+contrats disposent chacun d'au moins une fixture de conformité valide et
+une invalide, vérifiées par la matrice de compatibilité ci-dessus.
+
 ## 🎯 Premier jalon
 
 1. Publiez le schéma JSON v1 de `DeviceDescriptor`, `HealthReport`, `SafetyState` et
@@ -73,8 +86,21 @@ cas de contrat inconnu et de version de schéma incompatible.
 | `conformance/` | Fixtures v1 valides et invalides utilisées par les tests de compatibilité. |
 | `docs/` | Spécifications du contrat, de l’API, de la sécurité et du développement. |
 | `examples/` | Exemple de validation Python exécutable. |
+| `tools/` | `verify_contract_matrix.py` (matrice de compatibilité schéma/validateur) et le moteur non destructif de `build-test`. |
 
 Lisez [le guide du contrat](docs/CONTRACTS.md) avant de définir un nouveau message.
+
+## 📖 Documentation complémentaire
+
+- **[docs/CONTRACTS.md](docs/CONTRACTS.md)** — le guide normatif des contrats : à lire avant de définir un nouveau message.
+- **[docs/PYTHON_CLIENT.md](docs/PYTHON_CLIENT.md)** — référence complète de la fonction `validate()` et de la CLI `hydra-umc-contract-validate`, avec le tableau des champs requis et règles supplémentaires par contrat.
+- **[docs/CONFORMANCE.md](docs/CONFORMANCE.md)** — ce qu'un jeu de fixtures valide/rétrocompatible/malformé/dangereux doit couvrir par contrat, et ce que couvre la suite v1 implémentée aujourd'hui.
+- **[docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)** — la frontière partagée v0 `BridgeJob`/`GateDecision` utilisée par `HYDRA-UMC-BRIDGE-ROS2`, `-OPENPNP`, `-PRINTER3D`, `-CNC` et `-LASER`.
+- **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — la frontière d'adaptateur CM5-MCU/URTC : couches transport, framing, protocole et service, et pourquoi le MCU reste l'autorité pour les limites physiques et l'arrêt sûr.
+- **[docs/API_DESIGN.md](docs/API_DESIGN.md)** — les conventions suivies par la propre API publique HTTP/WebSocket de HYDRA-UMC-SERVER : routes versionnées `/api/v1`, et la forme `ACCEPTED`/`REJECTED`/`RUNNING`/`COMPLETED`/`FAILED` du résultat d'une commande.
+- **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** — le flux de travail schema-first sous lequel les propres contrats de ce SDK sont développés, et ce qu'exige un changement de contrat (entrée de changelog, décision de compatibilité, exemples, tests).
+- **[docs/PROJECT_MANIFEST.md](docs/PROJECT_MANIFEST.md)** — le contrat `hydra-umc.project.json` que publie chaque dépôt de cet écosystème.
+- **[docs/HEADER_CONVENTION.md](docs/HEADER_CONVENTION.md)** — l'en-tête de copyright/licence requis pour les nouveaux fichiers source et de documentation dans tout cet écosystème.
 
 ## 🛠️ BUILD ET EXÉCUTION
 

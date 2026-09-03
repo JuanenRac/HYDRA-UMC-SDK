@@ -44,6 +44,8 @@ JSON Schema v1 合约、有效/无效 fixture、Python 验证客户端、
 
 一个真实、自动化的兼容性矩阵（`tools/verify_contract_matrix.py`）会将每个已发布的架构与 Python 验证器自身的合约列表进行交叉核对，并发现并修复了一个真实的缺口：`project-manifest.schema.json`（本生态系统中每个仓库都会发布的 `hydra-umc.project.json` 合约）此前完全没有验证器条目。现在它证明，每个一致性 fixture 都会按照其自身文件名所声明的方式被判定，此外还涵盖了未知合约和不兼容架构版本这两种情况。
 
+自下方"第一个里程碑"之后又新增了两个合约:面向外部机器的公开桥接合约 `BridgeJob`/`GateDecision`(见 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)),由 `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` 共享,并拥有自己真实的 JSON 线上格式(`job_to_dict()`/`job_from_dict()`/`decision_to_dict()`);以及一个 `hydra-umc-sdk-mock-server`(`mock_server.py`),通过普通 HTTP 为每个已知合约提供一份有效的示例负载,便于在真实的 CM5/机器人/MCU 硬件就绪之前开发 UI 或适配器。全部 7 个合约都至少各有一个有效和一个无效的一致性 fixture,已通过上述兼容性矩阵验证。
+
 ## 🎯 第一个里程碑
 
 1. 发布 `DeviceDescriptor`、`HealthReport`、`SafetyState` 和
@@ -66,8 +68,21 @@ JSON Schema v1 合约、有效/无效 fixture、Python 验证客户端、
 | `conformance/` |兼容性测试使用的有效和无效 v1 fixture。 |
 | `docs/` |合约、API、安全和开发规范文档。 |
 | `examples/` |可运行的 Python 验证示例。 |
+| `tools/` |`verify_contract_matrix.py`(架构/验证器兼容性矩阵)以及不做修改的 `build-test` 引擎。 |
 
 在定义新消息之前，请阅读[合约指南](docs/CONTRACTS.md)。
+
+## 📖 更多文档
+
+- **[docs/CONTRACTS.md](docs/CONTRACTS.md)** — 规范性合约指南:在定义新消息之前请阅读。
+- **[docs/PYTHON_CLIENT.md](docs/PYTHON_CLIENT.md)** — `validate()` 函数与 `hydra-umc-contract-validate` CLI 的完整参考,含每个合约的必填字段与额外校验规则表。
+- **[docs/CONFORMANCE.md](docs/CONFORMANCE.md)** — 每个合约的有效/向后兼容/格式错误/不安全 fixture 集必须覆盖的内容,以及当前已实现的 v1 套件实际覆盖的内容。
+- **[docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)** — `HYDRA-UMC-BRIDGE-ROS2`、`-OPENPNP`、`-PRINTER3D`、`-CNC` 和 `-LASER` 共用的 v0 `BridgeJob`/`GateDecision` 边界。
+- **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — CM5-MCU/URTC 适配器边界:传输、成帧、协议与服务各层,以及为何 MCU 始终对物理限位和安全停止拥有最终权威。
+- **[docs/API_DESIGN.md](docs/API_DESIGN.md)** — HYDRA-UMC-SERVER 自身公开 HTTP/WebSocket API 所遵循的约定:带版本号的 `/api/v1` 路由,以及命令结果的 `ACCEPTED`/`REJECTED`/`RUNNING`/`COMPLETED`/`FAILED` 形式。
+- **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** — 本 SDK 自身合约所遵循的 schema 优先工作流程,以及一次合约变更所需要的内容(变更日志条目、兼容性决策、示例、测试)。
+- **[docs/PROJECT_MANIFEST.md](docs/PROJECT_MANIFEST.md)** — 本生态系统中每个仓库都会发布的 `hydra-umc.project.json` 合约。
+- **[docs/HEADER_CONVENTION.md](docs/HEADER_CONVENTION.md)** — 整个生态系统中新源代码和文档文件所需的版权/许可证头部格式。
 
 ## 🛠️ 构建与运行
 

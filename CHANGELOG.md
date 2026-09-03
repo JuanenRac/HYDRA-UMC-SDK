@@ -63,23 +63,12 @@
   `tools/verify_contract_matrix.py` proves the non-semver rejection
   directly. 35/35 tests passing, 14/14 fixtures across all 7 contracts.
 
-## [0.0.4] - Automatic contract/validator compatibility matrix
+## External machine bridge contract (no odometer bump)
 
-### Added
-
-- **`tools/verify_contract_matrix.py`** (new) - a real, automatic compatibility matrix between the published v1 JSON Schema files and this SDK's own Python reference validator. It discovers every real `*.schema.json` under `contracts/json-schema/v1/`, cross-checks that each one has a matching `validate()` entry (and vice versa - a stale validator entry with no real schema file is flagged too), runs every conformance fixture through `validate()` and confirms it's judged the way its own `.valid.json`/`.invalid.json` filename claims, and proves the two negative cases this matrix specifically guards: an unknown contract name and an incompatible `schema_version`.
-- **`ProjectManifest` contract validation** (`validation.py`) - the matrix immediately found a real, concrete gap it was built to catch: `project-manifest.schema.json` (the `hydra-umc.project.json` contract every repository in this ecosystem publishes) had no corresponding entry in the Python validator at all - it could never actually be validated. Added the real required-field/enum/pattern checks mirroring the schema (`ecosystem`, `name` pattern, semver `version`, `role`/`deployment_target`/`maturity` enums, non-empty unique `technologies`, nullable `parent`, `native_version`'s string-or-component `pattern`), plus real conformance fixtures (`project-manifest.valid.json`/`.invalid.json`).
-- 22 new tests (`test_validation.py`) = 30 total.
-
-### Fixed
-
-- `tools/build_test.py`'s non-mutating `build-test.sh` check compiled Python sources but never actually ran the real conformance test suite (`clients/python/tests`) or the new contract matrix - both are now wired in, so the "test" step genuinely tests something.
-
-### Changed
-
-- Automated build version increment from 0.0.3.
-
-## Unreleased
+Landed after [0.0.4] and before [0.0.5] above without going through the
+odometer build script - `evaluate_job()` and `BridgeJob` were already in
+use by [0.0.5]'s "all 7 contracts" fixture count, and [0.0.7] later
+extends this same contract with its real JSON wire shape.
 
 ### Added
 
@@ -102,6 +91,22 @@
   treats `bool` as an `int` subclass, which previously let invalid contract
   payloads pass reference validation.
 
+## [0.0.4] - Automatic contract/validator compatibility matrix
+
+### Added
+
+- **`tools/verify_contract_matrix.py`** (new) - a real, automatic compatibility matrix between the published v1 JSON Schema files and this SDK's own Python reference validator. It discovers every real `*.schema.json` under `contracts/json-schema/v1/`, cross-checks that each one has a matching `validate()` entry (and vice versa - a stale validator entry with no real schema file is flagged too), runs every conformance fixture through `validate()` and confirms it's judged the way its own `.valid.json`/`.invalid.json` filename claims, and proves the two negative cases this matrix specifically guards: an unknown contract name and an incompatible `schema_version`.
+- **`ProjectManifest` contract validation** (`validation.py`) - the matrix immediately found a real, concrete gap it was built to catch: `project-manifest.schema.json` (the `hydra-umc.project.json` contract every repository in this ecosystem publishes) had no corresponding entry in the Python validator at all - it could never actually be validated. Added the real required-field/enum/pattern checks mirroring the schema (`ecosystem`, `name` pattern, semver `version`, `role`/`deployment_target`/`maturity` enums, non-empty unique `technologies`, nullable `parent`, `native_version`'s string-or-component `pattern`), plus real conformance fixtures (`project-manifest.valid.json`/`.invalid.json`).
+- 22 new tests (`test_validation.py`) = 30 total.
+
+### Fixed
+
+- `tools/build_test.py`'s non-mutating `build-test.sh` check compiled Python sources but never actually ran the real conformance test suite (`clients/python/tests`) or the new contract matrix - both are now wired in, so the "test" step genuinely tests something.
+
+### Changed
+
+- Automated build version increment from 0.0.3.
+
 ## Documentation
 
 ### Added
@@ -115,13 +120,13 @@
   and CLI. Linked from `docs/CONTRACTS.md`. Documentation-only - no code
   changed, no version bump.
 
-## [0.0.3] - 2026-08-26
+## [0.0.3]
 
 ### Changed
 
 - Automated build version increment from 0.0.2.
 
-## [0.0.2] - 2026-08-26
+## [0.0.2]
 
 ### Added
 
@@ -136,7 +141,7 @@
 - Protobuf, OpenAPI, package publication, and non-Python clients are not part
   of this initial contract release.
 
-## [0.0.1] - 2026-08-26
+## [0.0.1]
 
 ### Added
 
