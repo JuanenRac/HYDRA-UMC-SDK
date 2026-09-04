@@ -1,5 +1,52 @@
 # Changelog
 
+## [0.0.8] - Go, TypeScript and Rust reference clients
+
+### Added
+
+- **`clients/go`** - real, tested Go reference client: hand-written struct
+  types field-for-field from the v1 schemas (`types.go`), a custom
+  `MarshalJSON`/`UnmarshalJSON` pair for `native_version.pattern`'s real
+  `oneOf` shape (`native_version_pattern.go`, since `encoding/json` has no
+  native union-type support), and real Draft 2020-12 validation
+  (`validation.go`) via `github.com/santhosh-tekuri/jsonschema/v5`
+  compiling this client's own `//go:embed`-vendored schema copies -
+  enforcing the full published schema, not a reimplemented subset.
+- **`clients/typescript`** - real, tested TypeScript reference client:
+  hand-written interfaces (`src/types.ts`) and real Draft 2020-12
+  validation (`src/validation.ts`) via Ajv (`ajv` + `ajv-formats`)
+  compiling this package's own vendored `schemas/`.
+- **`clients/rust`** - real, tested Rust reference client: hand-written
+  structs (`src/types.rs`, including a real `#[serde(untagged)]` enum for
+  `native_version.pattern`'s `oneOf`) and real Draft 2020-12 validation
+  (`src/validation.rs`) via the `jsonschema` crate compiling this crate's
+  own `include_str!`-embedded schema copies, with `should_validate_formats(true)`
+  set explicitly since format validation is draft-dependent and not on by
+  default in that crate.
+- Every one of the three new clients has its own anti-drift test proving
+  its vendored `schemas/*.json` stays byte-identical to
+  `contracts/json-schema/v1/`, and its own full pass over
+  `conformance/fixtures/v1/*.valid.json`/`*.invalid.json` - the same
+  fixtures the Python reference client's own tests already use.
+
+### Fixed
+
+- **`.github/workflows/ci.yml`** - the Node/TypeScript, Rust and Go
+  validation steps only ever looked for `package.json`/`Cargo.toml`/`go.mod`
+  at the repository root (`hashFiles('package.json')` etc. are not
+  recursive), so none of them ever actually ran for this repository's own
+  `clients/go`, `clients/rust` and `clients/typescript` - a real, silent
+  CI gap now closed by also matching `clients/**/package.json` etc. and by
+  `cd`-ing into the discovered client directory before running
+  `npm`/`cargo`/`go`, mirroring the existing Go step's own module-discovery
+  pattern.
+- **`contracts/json-schema/v1/manifest.json`** - the recorded sha256 for
+  `update-manifest.schema.json` was stale (the schema file was edited for
+  the `[0.0.5]` SemVer `pattern` addition, but the manifest was never
+  regenerated afterwards). Every one of the three new clients' own
+  integrity check caught this independently; fixed by re-running
+  `contracts/generate_manifest.py` and correcting the one stale digest.
+
 ## [0.0.7] - Real JSON wire shape for BridgeJob/GateDecision
 
 ### Added

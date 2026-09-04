@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "ecosystem": "HYDRA-UMC",
   "name": "HYDRA-UMC-SDK",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "role": "library",
   "stack": "python",
   "technologies": [
@@ -18,8 +18,8 @@
   "maturity": "established",
   "family": "Platform Foundation & Contracts",
   "parent": "HYDRA-UMC-OS",
-  "build": "Functional JSON Schema v1 contracts, Python reference validator and conformance fixtures.",
-  "notes": "The common contract and conformance boundary for services, UIs, CM5 adapters and URTC. Provides v1 JSON Schema, Python validation and conformance fixtures, plus a real, automatic compatibility matrix (tools/verify_contract_matrix.py) between the published schemas and the validator - found and fixed a real gap where the ProjectManifest (hydra-umc.project.json) contract had no validator entry at all. Package publication and further clients remain release gates.",
+  "build": "Functional JSON Schema v1 contracts, plus real, tested Python, Go, TypeScript and Rust reference clients and conformance fixtures.",
+  "notes": "The common contract and conformance boundary for services, UIs, CM5 adapters and URTC. Provides v1 JSON Schema, a Python reference validator and conformance fixtures, plus a real, automatic compatibility matrix (tools/verify_contract_matrix.py) between the published schemas and the validator - found and fixed a real gap where the ProjectManifest (hydra-umc.project.json) contract had no validator entry at all. Go, TypeScript and Rust reference clients (clients/go, clients/typescript, clients/rust) now compile and enforce the real published schemas directly through a real Draft 2020-12 validator library per language, each with its own passing test suite against the shared conformance fixtures; the CI baseline now actually discovers and exercises all three (their manifests live under clients/, not the repository root). Package publication remains a release gate.",
   "native_version": {
     "file": "CHANGELOG.md",
     "pattern": "(\\d+)\\.(\\d+)\\.(\\d+)"

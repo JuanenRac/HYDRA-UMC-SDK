@@ -23,7 +23,7 @@ CC BY-SA 4.0 – siehe LICENSE.md
 <p align="center">
   <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="Lizenz: GPL 3.0">
   <img src="https://img.shields.io/badge/Contracts-Protobuf%20%7C%20JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Verträge: Protobuf | JSON Schema | OpenAPI">
-  <img src="https://img.shields.io/badge/Reference%20client-Python-blueviolet.svg" alt="Referenzclient: Python">
+  <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Referenzclients: Python | Go | TypeScript | Rust">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration: CM5 | URTC">
 </p>
 
@@ -73,7 +73,7 @@ durch die obige Kompatibilitätsmatrix.
 2. Validieren Sie gültige und ungültige Fixtures mit dem Python-Referenzclient.
 3. Fügen Sie in CI eine Produzenten-/Konsumenten-Kompatibilitätsmatrix hinzu.
 4. Veröffentlichen Sie Protobuf/OpenAPI-Darstellungen dort, wo die Integration dies erfordert.
-5. Fügen Sie TypeScript-, Go- und Rust-Clients aus stabilen Verträgen hinzu.
+5. Echte, getestete TypeScript-, Go- und Rust-Clients hinzufügen, die die stabilen v1-Verträge validieren.
 
 ## 📂 Repository-Layout
 
@@ -84,7 +84,7 @@ durch die obige Kompatibilitätsmatrix.
 | Pfad | Zweck |
 | --- | --- |
 | `contracts/` | Normative JSON-Schema-v1-Quellen; weitere Darstellungen folgen stabilen Verträgen. |
-| `clients/` | Abhängigkeitsfreier Python-Referenzvalidator und zukünftige Sprachclients. |
+| `clients/` | Echte, getestete Python-, Go-, TypeScript- und Rust-Referenzclients, die jeweils dieselben veröffentlichten v1-Schemas validieren. |
 | `conformance/` | Gültige und ungültige v1-Fixtures, die von Kompatibilitätstests verwendet werden. |
 | `docs/` | Vertrags-, API-, Sicherheits- und Entwicklungsspezifikationen. |
 | `examples/` | Beispiel für eine ausführbare Python-Validierung. |

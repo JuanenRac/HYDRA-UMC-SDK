@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/hydra-umc-sdk/contracts/v1/device-descriptor.schema.json",
+  "title": "DeviceDescriptor",
+  "type": "object",
+  "required": ["schema_version", "node_id", "profile", "hostname", "machine", "operating_system", "kernel", "interfaces"],
+  "properties": {
+    "schema_version": {"const": "1.0"}, "node_id": {"type": "string", "minLength": 1},
+    "profile": {"type": "string", "minLength": 1}, "hostname": {"type": "string", "minLength": 1},
+    "machine": {"type": "string", "minLength": 1}, "operating_system": {"type": "string", "minLength": 1},
+    "kernel": {"type": "string", "minLength": 1}, "interfaces": {"type": "array", "items": {"type": "string"}}
+  }, "additionalProperties": true
+}

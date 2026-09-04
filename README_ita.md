@@ -23,7 +23,7 @@ CC BY-SA 4.0 - vedere LICENZA.md
 <p align="center">
   <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="Licenza: GPL 3.0">
   <img src="https://img.shields.io/badge/Contracts-Protobuf%20%7C%20JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contratti: Protobuf | JSON Schema | OpenAPI">
-  <img src="https://img.shields.io/badge/Reference%20client-Python-blueviolet.svg" alt="Client di riferimento: Python">
+  <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Client di riferimento: Python | Go | TypeScript | Rust">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integrazione: CM5 | URTC">
 </p>
 
@@ -72,7 +72,7 @@ valida, verificate dalla matrice di compatibilità sopra.
 2. Convalidare le fixture valide e non valide con il client di riferimento Python.
 3. Aggiungere una matrice di compatibilità produttore/consumatore in CI.
 4. Pubblicare rappresentazioni Protobuf/OpenAPI laddove l'integrazione lo richiede.
-5. Aggiungere client TypeScript, Go e Rust da contratti stabili.
+5. Aggiungere client TypeScript, Go e Rust reali e testati che validano i contratti v1 stabili.
 
 ## 📂 Layout del repository
 
@@ -83,7 +83,7 @@ valida, verificate dalla matrice di compatibilità sopra.
 | Percorso | Scopo |
 | --- | --- |
 | `contracts/` | Sorgenti normative dello schema JSON v1; ulteriori rappresentazioni seguono contratti stabili. |
-| `clients/` | Validatore di riferimento Python senza dipendenze e futuri client per altri linguaggi. |
+| `clients/` | Client di riferimento reali e testati in Python, Go, TypeScript e Rust, ognuno dei quali valida gli stessi schemi v1 pubblicati. |
 | `conformance/` | Fixture v1 valide e non valide utilizzate dai test di compatibilità. |
 | `docs/` | Specifiche di contratto, API, sicurezza e sviluppo. |
 | `examples/` | Esempio di validazione Python eseguibile. |

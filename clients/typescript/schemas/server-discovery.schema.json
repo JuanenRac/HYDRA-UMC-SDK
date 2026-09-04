@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/hydra-umc-sdk/contracts/v1/server-discovery.schema.json",
+  "title": "ServerDiscovery",
+  "type": "object",
+  "required": ["schema_version", "product", "remoteApiVersion", "appVersion", "hostname", "controllerCount", "robotCount", "uptimeSeconds"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "product": {"type": "string", "minLength": 1},
+    "remoteApiVersion": {"type": "integer", "minimum": 1},
+    "appVersion": {"type": "string", "minLength": 1},
+    "hostname": {"type": "string", "minLength": 1},
+    "controllerCount": {"type": "integer", "minimum": 0},
+    "robotCount": {"type": "integer", "minimum": 0},
+    "uptimeSeconds": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": true
+}

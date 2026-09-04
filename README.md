@@ -23,7 +23,7 @@ CC BY-SA 4.0 - see LICENSE.md
 <p align="center">
   <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="License: GPL 3.0">
   <img src="https://img.shields.io/badge/Contracts-Protobuf%20%7C%20JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts: Protobuf | JSON Schema | OpenAPI">
-  <img src="https://img.shields.io/badge/Reference%20client-Python-blueviolet.svg" alt="Reference client: Python">
+  <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference clients: Python | Go | TypeScript | Rust">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration: CM5 | URTC">
 </p>
 
@@ -71,7 +71,7 @@ matrix above.
 2. Validate valid and invalid fixtures with the Python reference client.
 3. Add a producer/consumer compatibility matrix in CI.
 4. Publish Protobuf/OpenAPI representations where the integration requires it.
-5. Add TypeScript, Go, and Rust clients from stable contracts.
+5. Add real, tested TypeScript, Go, and Rust clients validating the stable v1 contracts.
 
 ## 📂 Repository layout
 
@@ -82,7 +82,7 @@ matrix above.
 | Path | Purpose |
 | --- | --- |
 | `contracts/` | Normative JSON Schema v1 sources; further representations follow stable contracts. |
-| `clients/` | Dependency-free Python reference validator and future language clients. |
+| `clients/` | Real, tested Python, Go, TypeScript and Rust reference clients, each validating the same published v1 schemas. |
 | `conformance/` | Valid and invalid v1 fixtures used by compatibility tests. |
 | `docs/` | Contract, API, security, and development specifications. |
 | `examples/` | Runnable Python validation example. |

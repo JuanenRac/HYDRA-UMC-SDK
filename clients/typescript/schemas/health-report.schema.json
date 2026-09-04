@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/hydra-umc-sdk/contracts/v1/health-report.schema.json",
+  "title": "HealthReport", "type": "object",
+  "required": ["schema_version", "state", "timestamp_utc", "checks"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "state": {"enum": ["READY", "DEGRADED", "INHIBITED", "FAULT", "SAFE_STOP"]},
+    "timestamp_utc": {"type": "string", "format": "date-time"}, "checks": {"type": "object"}
+  }, "additionalProperties": true
+}

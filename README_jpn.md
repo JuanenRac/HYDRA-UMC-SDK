@@ -23,7 +23,7 @@ CC BY-SA 4.0 - LICENSE.md を参照
 <p align="center">
   <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="ライセンス: GPL 3.0">
   <img src="https://img.shields.io/badge/Contracts-Protobuf%20%7C%20JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="契約: Protobuf | JSON スキーマ | OpenAPI">
-  <img src="https://img.shields.io/badge/Reference%20client-Python-blueviolet.svg" alt="リファレンス クライアント: Python">
+  <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="リファレンス クライアント: Python | Go | TypeScript | Rust">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="統合: CM5 | URTC">
 </p>
 
@@ -54,7 +54,7 @@ JSON スキーマ v1 コントラクト、有効/無効なフィクスチャ、P
 2. Python リファレンス クライアントを使用して、有効なフィクスチャと無効なフィクスチャを検証します。
 3. CI にプロデューサー/コンシューマー互換性マトリックスを追加します。
 4. 統合で必要な場合は、Protobuf/OpenAPI 表現を公開します。
-5. 安定した契約から TypeScript、Go、および Rust クライアントを追加します。
+5. 安定した v1 契約を検証する、実際にテスト済みの TypeScript、Go、Rust クライアントを追加します。
 
 ## 📂 リポジトリのレイアウト
 
@@ -65,7 +65,7 @@ JSON スキーマ v1 コントラクト、有効/無効なフィクスチャ、P
 |パス |目的 |
 | --- | --- |
 | `contracts/` |標準的な JSON スキーマ v1 ソース。さらなる代表形式は安定した契約に従います。 |
-| `clients/` |依存関係のない Python リファレンス検証ツールと将来の言語クライアント。 |
+| `clients/` |実際にテスト済みの Python、Go、TypeScript、Rust のリファレンス クライアント。いずれも同じ公開済み v1 スキーマを検証します。 |
 | `conformance/` |互換性テストで使用される有効な v1 フィクスチャと無効な v1 フィクスチャ。 |
 | `docs/` |契約、API、セキュリティ、開発仕様。 |
 | `examples/` |実行可能な Python 検証の例。 |

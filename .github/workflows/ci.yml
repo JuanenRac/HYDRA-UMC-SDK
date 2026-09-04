@@ -44,36 +44,55 @@ jobs:
           PYTHONPATH: clients/python/src
         run: python -m unittest discover -s clients/python/tests -v
       - name: Set up Node.js
-        if: ${{ hashFiles('package.json') != '' }}
+        if: ${{ hashFiles('package.json', 'clients/**/package.json') != '' }}
         uses: actions/setup-node@v5
         with:
           node-version: "20"
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            clients/**/package-lock.json
       - name: Validate Node.js or TypeScript project
-        if: ${{ hashFiles('package.json') != '' }}
+        if: ${{ hashFiles('package.json', 'clients/**/package.json') != '' }}
+        shell: bash
         run: |
+          module_dir="."
+          if [ ! -f package.json ]; then
+            found="$(find . -mindepth 2 -name package.json -not -path '*/node_modules/*' -not -path '*/.git/*' -print -quit)"
+            test -n "$found"
+            module_dir="$(dirname "$found")"
+          fi
+          cd "$module_dir"
           npm ci --ignore-scripts
           npm run typecheck --if-present
           npm test --if-present
           npm run lint --if-present
       - name: Set up Rust
-        if: ${{ hashFiles('Cargo.toml') != '' }}
+        if: ${{ hashFiles('Cargo.toml', 'clients/**/Cargo.toml') != '' }}
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
       - name: Validate Rust project
-        if: ${{ hashFiles('Cargo.toml') != '' }}
+        if: ${{ hashFiles('Cargo.toml', 'clients/**/Cargo.toml') != '' }}
+        shell: bash
         run: |
+          module_dir="."
+          if [ ! -f Cargo.toml ]; then
+            found="$(find . -mindepth 2 -name Cargo.toml -not -path '*/target/*' -not -path '*/.git/*' -print -quit)"
+            test -n "$found"
+            module_dir="$(dirname "$found")"
+          fi
+          cd "$module_dir"
           cargo fmt --check
           cargo clippy --all-targets -- -D warnings
           cargo test --all-targets
       - name: Set up Go
-        if: ${{ hashFiles('go.mod') != '' || hashFiles('src/go.mod') != '' }}
+        if: ${{ hashFiles('go.mod', 'src/go.mod', 'clients/**/go.mod') != '' }}
         uses: actions/setup-go@v5
         with:
           go-version: stable
       - name: Validate Go project
-        if: ${{ hashFiles('go.mod') != '' || hashFiles('src/go.mod') != '' }}
+        if: ${{ hashFiles('go.mod', 'src/go.mod', 'clients/**/go.mod') != '' }}
         shell: bash
         run: |
           module_dir="$(dirname "$(find . -name go.mod -not -path '*/.git/*' -print -quit)")"

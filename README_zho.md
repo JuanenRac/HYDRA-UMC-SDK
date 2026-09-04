@@ -23,7 +23,7 @@ CC BY-SA 4.0 - 参见 LICENSE.md
 <p align="center">
   <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="许可证：GPL 3.0">
   <img src="https://img.shields.io/badge/Contracts-Protobuf%20%7C%20JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="合约：Protobuf | JSON 架构 | OpenAPI">
-  <img src="https://img.shields.io/badge/Reference%20client-Python-blueviolet.svg" alt="参考客户端：Python">
+  <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="参考客户端：Python | Go | TypeScript | Rust">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="集成：CM5 | URTC">
 </p>
 
@@ -53,7 +53,7 @@ JSON Schema v1 合约、有效/无效 fixture、Python 验证客户端、
 2. 使用 Python 参考客户端验证有效和无效的 fixture。
 3. 在 CI 中加入生产者/消费者兼容性矩阵。
 4. 在集成需要时发布 Protobuf/OpenAPI 表示。
-5. 从稳定合约中添加 TypeScript、Go 和 Rust 客户端。
+5. 添加真实且经过测试的 TypeScript、Go 和 Rust 客户端，验证稳定的 v1 合约。
 
 ## 📂 存储库布局
 
@@ -64,7 +64,7 @@ JSON Schema v1 合约、有效/无效 fixture、Python 验证客户端、
 |路径|目的|
 | ---| ---|
 | `contracts/` |规范性 JSON Schema v1 源文件；其余表示形式遵循稳定的合约。 |
-| `clients/` |无依赖的 Python 参考验证器和未来的其他语言客户端。 |
+| `clients/` |真实且经过测试的 Python、Go、TypeScript 和 Rust 参考客户端，各自验证相同的已发布 v1 架构。 |
 | `conformance/` |兼容性测试使用的有效和无效 v1 fixture。 |
 | `docs/` |合约、API、安全和开发规范文档。 |
 | `examples/` |可运行的 Python 验证示例。 |
