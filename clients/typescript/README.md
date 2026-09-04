@@ -60,14 +60,14 @@ verify against the real file contents on disk.
 
 ```bash
 cd clients/typescript
-npm install
-npm run build   # tsc -p tsconfig.json
-npm test        # rebuilds, then node --test tests/*.test.mts
+npm ci
+npm run typecheck   # tsc -p tsconfig.json --noEmit
+npm test            # builds src/ and tests/, then node --test dist-tests/*.test.mjs
 ```
 
 All commands above were run for real against this exact source tree
-(Node v26.6.0, TypeScript 7.0.2, npm 12.0.2 on Windows) before this client
-was committed - `npm install`, `npm run build`, and `npm test` all pass:
+(Node v20 and v26.6.0, TypeScript 7.0.2, npm 12.0.2) before this client
+was committed - `npm ci`, `npm run typecheck`, and `npm test` all pass:
 22/22 tests, including:
 
 - One accept + one reject test per contract, loaded straight from
@@ -84,7 +84,17 @@ was committed - `npm install`, `npm run build`, and `npm test` all pass:
 The two test files use the `.mts` extension (real ESM) purely so they can
 use `import` syntax while `package.json` keeps `"type": "commonjs"` for
 published output - `dist/` stays plain CommonJS (`require()`-compatible)
-either way.
+either way. `npm test`'s `pretest` step compiles them with a second,
+test-only `tsconfig.test.json` (`rootDir: tests`, `outDir: dist-tests`,
+not published - see `.gitignore`) before `node --test` ever runs, rather
+than executing `.mts` source directly: Node's own unflagged TypeScript
+type-stripping only exists from v22.18/v23.6 onward, so running the
+`.mts` sources directly (as an earlier version of this client did) passed
+locally on a newer Node but broke this repository's own CI, which pins
+Node 20 (`.github/workflows/ci.yml`) to match `package.json`'s declared
+`"engines": {"node": ">=20"}`. Compiling first keeps the test run
+portable to any Node `>=20` with no dependency on that newer runtime
+feature.
 
 ## Usage
 

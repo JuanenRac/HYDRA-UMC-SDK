@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.0.9] - Fix the TypeScript client's real CI failure on Node 20
+
+### Fixed
+
+- **`clients/typescript`** - the real GitHub Actions run for `[0.0.8]`
+  failed: `npm test` executed `tests/*.test.mts` directly via `node
+  --test`, relying on Node's unflagged TypeScript type stripping (only
+  available from Node v22.18/v23.6 onward). It passed locally only
+  because local development happened on a newer Node than this
+  repository's own CI pins (`node-version: "20"` in
+  `.github/workflows/ci.yml`, matching `package.json`'s declared
+  `"engines": {"node": ">=20"}`) - so it broke silently until the actual
+  workflow run was checked, not just simulated locally. Fixed by adding
+  `tsconfig.test.json` (a second, test-only config compiling
+  `tests/**/*.mts` to a git-ignored `dist-tests/`) and having `npm test`
+  run the compiled `.mjs` output instead of the TypeScript source, so the
+  test run no longer depends on that newer runtime feature at all.
+  Re-verified against a clean `npm ci --ignore-scripts` (matching CI
+  exactly, not a reused local `node_modules`): `npm run typecheck`,
+  `npm test` (22/22), and `npm run lint --if-present` all pass.
+
 ## [0.0.8] - Go, TypeScript and Rust reference clients
 
 ### Added
