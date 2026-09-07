@@ -1,0 +1,13 @@
+!.env.example
+# HYDRA-UMC shared secret protection
+*.egg-info/
+.env
+.pytest_cache/
+__pycache__/
+build/
+coverage/
+dist/
+dist-tests/
+node_modules/
+secrets/
+target/

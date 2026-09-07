@@ -1,0 +1,1 @@
+{"schema_version":"1.0","event_id":"evt-001","type":"health.reported","source":"hydra-umc-os","timestamp_utc":"2026-08-26T12:00:00Z","sequence":0,"correlation_id":"boot-001"}

@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "producer": "HYDRA-UMC-OS",
+  "fixtures": {
+    "DeviceDescriptor": "device-descriptor.json",
+    "HealthReport": "health-report.json"
+  }
+}

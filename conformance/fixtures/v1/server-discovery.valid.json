@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "product": "HYDRA-UMC STUDIO",
+  "remoteApiVersion": 2,
+  "appVersion": "0.1.5",
+  "hostname": "hydra-umc-test",
+  "controllerCount": 0,
+  "robotCount": 0,
+  "uptimeSeconds": 1
+}

@@ -1,0 +1,1012 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "HYDRA-UMC-SERVER API",
+    "version": "1.0.0",
+    "description": "Real, hand-verified OpenAPI description of HYDRA-UMC-SERVER's own public HTTP surface (src/server.ts) - the SDK's own charter (docs/API_DESIGN.md) commits to publishing 'the OpenAPI source and typed clients', and this is its first real slice, not a placeholder. Deliberately covers only the routes an external/typed client actually needs to discover a server, read/write its fleet roster, and dispatch a real-time robot command - the read/command/real-time planes docs/API_DESIGN.md itself separates. It is NOT a full inventory of every route in server.ts: admin-only account/log/integration management, camera process supervision, CAN-OTA firmware transfer, and power/system-service control are real, but operational rather than SDK-contract surface, and are intentionally left for a later slice (see the 'still out of scope' note at the end of this description). One real, disclosed discrepancy: docs/API_DESIGN.md describes command results using ACCEPTED/REJECTED/RUNNING/COMPLETED/FAILED plus a correlation identifier - POST /api/robot/{id}/command's own real implementation does not (yet) return that envelope; it replies with a plain {success, affectedCount} once the mutation has already been applied and broadcast. This document describes the real, current behavior, not the aspirational one - fixing that gap is Server-side product work, out of scope for this SDK.",
+    "license": {
+      "name": "CC-BY-SA-4.0",
+      "url": "https://creativecommons.org/licenses/by-sa/4.0/"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "HYDRA-UMC-SERVER's own default bind address (see HYDRA-UMC-SERVER/src/server.ts's defaultServerURL-equivalent and HYDRA-UMC-TOOL-CLI's own defaultServerURL, which both point here)."
+    }
+  ],
+  "tags": [
+    {
+      "name": "discovery",
+      "description": "Unauthenticated server identity/health, per docs/CONTRACTS.md's ServerDiscovery contract."
+    },
+    {
+      "name": "auth",
+      "description": "JWT issuance for every other authenticated route below."
+    },
+    {
+      "name": "fleet",
+      "description": "The real controller/robot roster - the read plane docs/API_DESIGN.md describes."
+    },
+    {
+      "name": "command",
+      "description": "Real-time, per-robot atomic commands - the command plane docs/API_DESIGN.md describes."
+    }
+  ],
+  "paths": {
+    "/api/hydra-info": {
+      "get": {
+        "tags": [
+          "discovery"
+        ],
+        "operationId": "getHydraInfo",
+        "summary": "Real server identity and discovery metadata",
+        "description": "Unauthenticated by default. Real, per-client remote-access gating (Config > Remote Access) can make this respond 404 for a given X-Hydra-Client caller instead of exposing whether a server exists at all at that address.",
+        "parameters": [
+          {
+            "name": "X-Hydra-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifies which real client is asking (e.g. suite, android, ios), so the per-client remote-access gate in Config can allow/deny it independently of the others."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Real server identity, mirroring the published ServerDiscovery contract (contracts/json-schema/v1/server-discovery.schema.json).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerDiscovery"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Remote access is disabled for this X-Hydra-Client caller - deliberately indistinguishable from 'no server running here' to a scanning client. Empty body."
+          }
+        }
+      }
+    },
+    "/api/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "login",
+        "summary": "Authenticate with a local username/password and obtain a JWT",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Real JWT issued - pass it as `Authorization: Bearer <token>` on every route below tagged with bearerAuth.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "username/password missing or not strings.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Real invalid-credentials rejection - same message for an unknown username and a wrong password, on purpose (never confirms which one was wrong).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/settings": {
+      "get": {
+        "tags": [
+          "fleet"
+        ],
+        "operationId": "getSettings",
+        "summary": "Read the real, current full settings document, including the controller/robot roster",
+        "description": "Unauthenticated real read - the same contract HYDRA-UMC-TOOL-CLI's own `robots`/`doctor` commands already consume. The `settings` object is intentionally NOT modeled field-by-field here: the server itself treats it as an opaque, forward-compatible blob (see docs/CONTRACTS.md's own 'producers can add compatible fields without breaking older consumers') - only the `controllers` roster actually consumed by real typed clients today is modeled below.",
+        "responses": {
+          "200": {
+            "description": "The real, current settings document.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsDocument"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The settings file on disk could not be read.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "fleet"
+        ],
+        "operationId": "replaceSettings",
+        "summary": "Replace the real settings document (admin only)",
+        "description": "Real, admin-only write. Persists the payload verbatim (queued, debounced disk write) and broadcasts it to every other connected client - and, on a real HYDRA-UMC-SERVER build with the camera process supervisor, reconciles each camera's own capture process against its new configuration.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettingsDocument"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Real, successful write.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "A valid, non-admin JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The write itself failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/robot/{id}/command": {
+      "post": {
+        "tags": [
+          "command"
+        ],
+        "operationId": "sendRobotCommand",
+        "summary": "Dispatch one real, atomic, broadcast command to a robot (and its combined sibling, where the command type fans out)",
+        "description": "Real command plane: mutates in-memory state, queues a debounced full-settings write, and broadcasts a small per-robot delta to every other connected client via the same request/response cycle - there is no separate polling step. See this document's own top-level description for the real (not the aspirational ACCEPTED/REJECTED/... ) response shape.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "A real robot's own numeric id (distinct from a controller's own, sometimes string, id - see HYDRA-UMC-TOOL-CLI's own robots.go for that real, confirmed API inconsistency)."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/CommandStop"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandPlay"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandPause"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandJog"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandReset"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandJogStep"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandReset3D"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandTool"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandValve"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandPump"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandSpeed"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandTrajectory"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandVision"
+                  }
+                ],
+                "discriminator": {
+                  "propertyName": "command",
+                  "mapping": {
+                    "stop": "#/components/schemas/CommandStop",
+                    "play": "#/components/schemas/CommandPlay",
+                    "pause": "#/components/schemas/CommandPause",
+                    "jog": "#/components/schemas/CommandJog",
+                    "reset": "#/components/schemas/CommandReset",
+                    "jogStep": "#/components/schemas/CommandJogStep",
+                    "reset3D": "#/components/schemas/CommandReset3D",
+                    "tool": "#/components/schemas/CommandTool",
+                    "valve": "#/components/schemas/CommandValve",
+                    "pump": "#/components/schemas/CommandPump",
+                    "speed": "#/components/schemas/CommandSpeed",
+                    "trajectory": "#/components/schemas/CommandTrajectory",
+                    "vision": "#/components/schemas/CommandVision"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Real, applied mutation - see this document's own top-level description for why this is not the ACCEPTED/REJECTED/... envelope docs/API_DESIGN.md describes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RobotCommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No settings loaded yet, or (for `trajectory`) a real, rejected point list - too few/many points, a non-finite field, an unsupported motionType, or table axes on a robot with no configured XY table.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No robot with this id exists in the current settings document.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "The token POST /api/login returns."
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "required": [
+          "success"
+        ],
+        "properties": {
+          "success": {
+            "const": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServerDiscovery": {
+        "type": "object",
+        "description": "Mirrors contracts/json-schema/v1/server-discovery.schema.json field-for-field - restated here natively rather than $ref'd across schema drafts, since that file's own $id/$schema target JSON Schema 2020-12 directly rather than through OpenAPI's Schema Object.",
+        "required": [
+          "schema_version",
+          "product",
+          "remoteApiVersion",
+          "appVersion",
+          "hostname",
+          "controllerCount",
+          "robotCount",
+          "uptimeSeconds"
+        ],
+        "properties": {
+          "schema_version": {
+            "const": "1.0"
+          },
+          "product": {
+            "type": "string",
+            "minLength": 1
+          },
+          "remoteApiVersion": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "appVersion": {
+            "type": "string",
+            "minLength": 1
+          },
+          "hostname": {
+            "type": "string",
+            "minLength": 1
+          },
+          "controllerCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "robotCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "uptimeSeconds": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": true
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginResponse": {
+        "type": "object",
+        "required": [
+          "success",
+          "token",
+          "role"
+        ],
+        "properties": {
+          "success": {
+            "const": true
+          },
+          "token": {
+            "type": "string",
+            "description": "A signed JWT (see JWT_EXPIRES_IN for this server's own configured lifetime, default 30d)."
+          },
+          "role": {
+            "type": "string",
+            "description": "e.g. \"admin\" or \"operator\" - see docs/CONTRACTS.md's account-management notes."
+          }
+        },
+        "additionalProperties": false
+      },
+      "RobotRosterEntry": {
+        "type": "object",
+        "description": "Only the roster-level fields real typed clients (e.g. HYDRA-UMC-TOOL-CLI's own robots.go) actually consume are modeled - a real robot object carries many more live-state fields (pos, joints, playbackState, valves, pumps, camera, xyTable, ...) not exhaustively typed here, matching this contract's own additive philosophy.",
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "A real robot's own numeric id - distinct from a controller's own id, which may be a string."
+          },
+          "name": {
+            "type": "string"
+          },
+          "online": {
+            "type": "boolean"
+          },
+          "model": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "combinedWith": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Sibling robot ids that share this robot's non-trajectory commands (see the command plane's own affectedIds rule)."
+          }
+        },
+        "additionalProperties": true
+      },
+      "ControllerRosterEntry": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "robots"
+        ],
+        "properties": {
+          "id": {
+            "description": "A real controller's own id - may be a string (e.g. \"localhost\" for the default local controller) even though a robot's own id is always numeric; a real, confirmed API inconsistency, not a typo."
+          },
+          "name": {
+            "type": "string"
+          },
+          "ip": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "robots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RobotRosterEntry"
+            }
+          }
+        },
+        "additionalProperties": true
+      },
+      "SettingsDocument": {
+        "type": "object",
+        "description": "The real, full settings document persisted to data/settings.json. `settings` is deliberately left opaque (type: object only) - it carries UI layout, integrations, gamepad mapping, and other fields the server itself treats as an untyped blob it never validates; only `controllers` is modeled to roster depth, since that is the real, stable surface existing typed clients already depend on.",
+        "properties": {
+          "settings": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "controllers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ControllerRosterEntry"
+            }
+          }
+        },
+        "additionalProperties": true
+      },
+      "RobotCommandResult": {
+        "type": "object",
+        "required": [
+          "success",
+          "affectedCount"
+        ],
+        "properties": {
+          "success": {
+            "const": true
+          },
+          "affectedCount": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "How many robots this one command actually touched - more than 1 only for a non-trajectory command on a combined pair (see combinedWith)."
+          }
+        },
+        "additionalProperties": false
+      },
+      "CommandStop": {
+        "type": "object",
+        "description": "Stops playback now (also stops this robot's own server-side playback timer) and clears isPlaying/activeStep/isPaused/isFinished.",
+        "required": [
+          "command"
+        ],
+        "properties": {
+          "command": {
+            "const": "stop"
+          }
+        }
+      },
+      "CommandPlay": {
+        "type": "object",
+        "description": "Starts playback from step 0 (also starts this robot's own server-side playback timer).",
+        "required": [
+          "command"
+        ],
+        "properties": {
+          "command": {
+            "const": "play"
+          }
+        }
+      },
+      "CommandPause": {
+        "type": "object",
+        "description": "Toggles pause by default; `params.paused` sets an explicit desired state instead, so a combined pair can never end up with one paused member and one not.",
+        "required": [
+          "command"
+        ],
+        "properties": {
+          "command": {
+            "const": "pause"
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "paused": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "CommandJog": {
+        "type": "object",
+        "description": "Relative (or, with absolute:true, absolute) single-axis motion. target:\"xytable\" only honors axis x/y and requires the robot to have a configured XY table; target:\"robot\" (default) applies to any of x/y/z/a/b/c and accepts an optional client-computed joints override (validated as 6 finite numbers, else the server falls back to its own generic IK).",
+        "required": [
+          "command",
+          "params"
+        ],
+        "properties": {
+          "command": {
+            "const": "jog"
+          },
+          "params": {
+            "type": "object",
+            "required": [
+              "axis",
+              "amount"
+            ],
+            "properties": {
+              "axis": {
+                "type": "string",
+                "enum": [
+                  "x",
+                  "y",
+                  "z",
+                  "a",
+                  "b",
+                  "c"
+                ]
+              },
+              "amount": {
+                "type": "number",
+                "minimum": -1000,
+                "maximum": 1000
+              },
+              "target": {
+                "type": "string",
+                "enum": [
+                  "robot",
+                  "xytable"
+                ],
+                "default": "robot"
+              },
+              "absolute": {
+                "type": "boolean",
+                "default": false,
+                "description": "Set the axis to amount instead of adding amount to it."
+              },
+              "joints": {
+                "type": "object",
+                "description": "Optional client-computed joint override, only honored for target:\"robot\".",
+                "properties": {
+                  "j1": {
+                    "type": "number"
+                  },
+                  "j2": {
+                    "type": "number"
+                  },
+                  "j3": {
+                    "type": "number"
+                  },
+                  "j4": {
+                    "type": "number"
+                  },
+                  "j5": {
+                    "type": "number"
+                  },
+                  "j6": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "CommandReset": {
+        "type": "object",
+        "description": "target:\"robot\" (default) zeroes pos/joints to home (tx/ty/trz preserved); target:\"xytable\" zeroes only the XY table's own pos and pos.tx/ty, leaving the arm's own pose untouched.",
+        "required": [
+          "command"
+        ],
+        "properties": {
+          "command": {
+            "const": "reset"
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "target": {
+                "type": "string",
+                "enum": [
+                  "robot",
+                  "xytable"
+                ],
+                "default": "robot"
+              },
+              "joints": {
+                "type": "object",
+                "description": "Optional client-supplied home pose (e.g. a per-model homePoseFor(robot.model)); falls back to the server's own generic IK if omitted/invalid.",
+                "properties": {
+                  "j1": {
+                    "type": "number"
+                  },
+                  "j2": {
+                    "type": "number"
+                  },
+                  "j3": {
+                    "type": "number"
+                  },
+                  "j4": {
+                    "type": "number"
+                  },
+                  "j5": {
+                    "type": "number"
+                  },
+                  "j6": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "CommandJogStep": {
+        "type": "object",
+        "description": "Sets this robot's own server-synced jog step size, used by subsequent \"jog\" commands' own client-side amount calculation.",
+        "required": [
+          "command",
+          "params"
+        ],
+        "properties": {
+          "command": {
+            "const": "jogStep"
+          },
+          "params": {
+            "type": "object",
+            "required": [
+              "value"
+            ],
+            "properties": {
+              "value": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 1000
+              }
+            }
+          }
+        }
+      },
+      "CommandReset3D": {
+        "type": "object",
+        "description": "Signals every OTHER connected client to remount its own local 3D camera view for this robot - no real robot motion or state change.",
+        "required": [
+          "command"
+        ],
+        "properties": {
+          "command": {
+            "const": "reset3D"
+          }
+        }
+      },
+      "CommandTool": {
+        "type": "object",
+        "description": "Sets the robot's currently mounted end-effector/tool label.",
+        "required": [
+          "command",
+          "params"
+        ],
+        "properties": {
+          "command": {
+            "const": "tool"
+          },
+          "params": {
+            "type": "object",
+            "required": [
+              "tool"
+            ],
+            "properties": {
+              "tool": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "CommandValve": {
+        "type": "object",
+        "description": "Sets one pneumatic valve's open/closed state.",
+        "required": [
+          "command",
+          "params"
+        ],
+        "properties": {
+          "command": {
+            "const": "valve"
+          },
+          "params": {
+            "type": "object",
+            "required": [
+              "index",
+              "state"
+            ],
+            "properties": {
+              "index": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "state": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "CommandPump": {
+        "type": "object",
+        "description": "Sets one vacuum pump's on/off state.",
+        "required": [
+          "command",
+          "params"
+        ],
+        "properties": {
+          "command": {
+            "const": "pump"
+          },
+          "params": {
+            "type": "object",
+            "required": [
+              "index",
+              "state"
+            ],
+            "properties": {
+              "index": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "state": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "CommandSpeed": {
+        "type": "object",
+        "description": "Sets playback speed and/or acceleration, each independently optional; at least one is expected to be present for this command to have any effect.",
+        "required": [
+          "command"
+        ],
+        "properties": {
+          "command": {
+            "const": "speed"
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "speed": {
+                "type": "number",
+                "minimum": 10,
+                "maximum": 500
+              },
+              "acceleration": {
+                "type": "number",
+                "minimum": 10,
+                "maximum": 500
+              }
+            }
+          }
+        }
+      },
+      "CommandTrajectory": {
+        "type": "object",
+        "description": "Loads and selects a full point list as this robot's own Work, validated and prepared BEFORE any state is touched (so a racing Play command can never replay a stale trajectory). Unlike every other command, this never applies to a combined sibling - a trajectory belongs to exactly one robot.",
+        "required": [
+          "command",
+          "params"
+        ],
+        "properties": {
+          "command": {
+            "const": "trajectory"
+          },
+          "params": {
+            "type": "object",
+            "required": [
+              "points"
+            ],
+            "properties": {
+              "points": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 10000,
+                "items": {
+                  "$ref": "#/components/schemas/TrajectoryPoint"
+                }
+              },
+              "selectedWorkFile": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}\\.json$"
+              },
+              "selectedExample": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+              }
+            }
+          }
+        }
+      },
+      "TrajectoryPoint": {
+        "type": "object",
+        "description": "Every field is optional per point, but the point must carry either all 6 native joints (j1..j6) or a full Cartesian pose (x, y, z) - checked after this shape validates. tx/ty/trz (XY table axes) are only accepted on a robot with a configured XY table.",
+        "properties": {
+          "j1": {
+            "type": "number"
+          },
+          "j2": {
+            "type": "number"
+          },
+          "j3": {
+            "type": "number"
+          },
+          "j4": {
+            "type": "number"
+          },
+          "j5": {
+            "type": "number"
+          },
+          "j6": {
+            "type": "number"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "z": {
+            "type": "number"
+          },
+          "a": {
+            "type": "number"
+          },
+          "b": {
+            "type": "number"
+          },
+          "c": {
+            "type": "number"
+          },
+          "tx": {
+            "type": "number"
+          },
+          "ty": {
+            "type": "number"
+          },
+          "trz": {
+            "type": "number"
+          },
+          "motionType": {
+            "type": "string",
+            "enum": [
+              "model-joints"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "CommandVision": {
+        "type": "object",
+        "description": "Enables/disables this robot's own vision pipeline, and its assigned camera's connected flag alongside it.",
+        "required": [
+          "command",
+          "params"
+        ],
+        "properties": {
+          "command": {
+            "const": "vision"
+          },
+          "params": {
+            "type": "object",
+            "required": [
+              "enabled"
+            ],
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
