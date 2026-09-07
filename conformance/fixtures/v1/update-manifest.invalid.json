@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0",
+  "project": "HYDRA-UMC-SERVER",
+  "version": "0.2.4",
+  "artifact_url": "http://example.invalid/server.tar.gz",
+  "sha256": "not-a-sha256"
+}

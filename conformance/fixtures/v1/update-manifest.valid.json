@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0",
+  "project": "HYDRA-UMC-SERVER",
+  "version": "0.2.4",
+  "artifact_url": "https://github.com/JuanenRac/HYDRA-UMC-SERVER/releases/download/v0.2.4/server.tar.gz",
+  "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+}

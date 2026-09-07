@@ -1,0 +1,1 @@
+{"schema_version":"1.0","ecosystem":"HYDRA-UMC","name":"HYDRA-UMC-SDK","version":"0.0.3","role":"daemon","stack":"python","technologies":["Python"],"deployment_target":"user-pc","maturity":"functional","family":"Platform Foundation & Contracts","parent":"HYDRA-UMC-OS","build":"","notes":"","native_version":{"file":"CHANGELOG.md","pattern":"(\\d+)\\.(\\d+)\\.(\\d+)"}}

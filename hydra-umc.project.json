@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "ecosystem": "HYDRA-UMC",
+  "name": "HYDRA-UMC-SDK",
+  "version": "0.1.2",
+  "role": "library",
+  "stack": "python",
+  "technologies": [
+    "Python",
+    "TypeScript",
+    "Go",
+    "Rust",
+    "Protobuf",
+    "JSON Schema",
+    "OpenAPI"
+  ],
+  "deployment_target": "user-pc",
+  "maturity": "established",
+  "family": "Platform Foundation & Contracts",
+  "parent": "HYDRA-UMC-OS",
+  "build": "Functional JSON Schema v1 contracts, a real first OpenAPI v1 slice for HYDRA-UMC-SERVER's own HTTP surface, plus real, tested Python, Go, TypeScript and Rust reference clients and conformance fixtures.",
+  "notes": "The common contract and conformance boundary for services, UIs, CM5 adapters and URTC. Provides v1 JSON Schema, a Python reference validator and conformance fixtures, plus a real, automatic compatibility matrix (tools/verify_contract_matrix.py) between the published schemas and the validator - found and fixed a real gap where the ProjectManifest (hydra-umc.project.json) contract had no validator entry at all. Go, TypeScript and Rust reference clients (clients/go, clients/typescript, clients/rust) now compile and enforce the real published schemas directly through a real Draft 2020-12 validator library per language, each with its own passing test suite against the shared conformance fixtures; the CI baseline now actually discovers and exercises all three (their manifests live under clients/, not the repository root). contracts/openapi/v1/server.openapi.json is a real, hand-verified OpenAPI 3.1 description of HYDRA-UMC-SERVER's discovery/auth/fleet/command routes (docs/API_DESIGN.md's own committed 'OpenAPI source', not a placeholder), gated by a new dependency-free tools/verify_openapi.py now wired into both build-test and, alongside verify_contract_matrix.py itself, this repository's real CI workflow for the first time. `BridgeJob`'s direct public constructor now validates `parameters` is a real mapping before using it, matching the guard `job_from_dict()` already had (REV-009) - every real construction path across the ecosystem's bridges fails the same clean way now. Package publication remains a release gate.",
+  "native_version": {
+    "file": "CHANGELOG.md",
+    "pattern": "(\\d+)\\.(\\d+)\\.(\\d+)"
+  }
+}
