@@ -7,8 +7,10 @@ GPL-3.0-or-later - see LICENSE
 # HYDRA-UMC External Machine Bridge Contract
 
 `HYDRA-UMC-BRIDGE-ROS2`, `HYDRA-UMC-BRIDGE-OPENPNP`,
-`HYDRA-UMC-BRIDGE-PRINTER3D`, `HYDRA-UMC-BRIDGE-CNC` and
-`HYDRA-UMC-BRIDGE-LASER` share this v0 boundary.
+`HYDRA-UMC-BRIDGE-PRINTER3D`, `HYDRA-UMC-BRIDGE-CNC`,
+`HYDRA-UMC-BRIDGE-LASER`, `HYDRA-UMC-BRIDGE-AMR`,
+`HYDRA-UMC-BRIDGE-DROIDS` and `HYDRA-UMC-BRIDGE-UAV` share this v0
+boundary - all 8 bridges use `bridge_contract.py`'s `evaluate_job()`.
 
 ## Safety authority
 
@@ -37,3 +39,11 @@ otherwise deduplicate the idempotency key before retrying an external request.
   proves that safe.
 - Printer, CNC and laser bridges coordinate auxiliaries around native G-code
   machine work. They do not replace the controller firmware or its interlocks.
+- AMR coordinates a VDA-5050-inspired order vocabulary over MQTT; path
+  planning stays the AMR's own navigation stack, never this bridge's.
+- Droids coordinate a named walk/pick/place action vocabulary over a real
+  Boston Dynamics Spot transport; gait and balance stay on the droid's own
+  controller.
+- UAV coordinates a named flight-request vocabulary over a real MAVLink
+  transport, with a deterministic heartbeat/link-loss failsafe watchdog;
+  flight control itself stays on the UAV's own autopilot.

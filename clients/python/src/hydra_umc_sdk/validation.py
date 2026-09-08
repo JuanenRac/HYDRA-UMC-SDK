@@ -43,12 +43,11 @@ ENUMS = {
 }
 PROJECT_MANIFEST_ENUMS = {
     "role": {"api", "ui", "cli", "firmware", "library", "service", "tool"},
-    # "dev-server" added 2026-09-08 for HYDRA-UMC-DEV-SERVER - a Raspberry
-    # Pi 5/CM5 host dedicated to development and task execution, distinct
-    # from "cm5" (the operational node that talks to real machines/robots).
-    # Compatible manifest extension per the software-preparation plan's own
-    # 13.2.2 ("el manifiesto compartido se amplia de forma compatible si
-    # aun no expresa una relacion necesaria").
+    # "dev-server" added for HYDRA-UMC-DEV-SERVER - a Raspberry Pi 5/CM5
+    # host dedicated to development and task execution, distinct from
+    # "cm5" (the operational node that talks to real machines/robots).
+    # A compatible manifest extension: no existing value changed meaning,
+    # no consumer needs to change.
     "deployment_target": {"cm5", "user-pc", "mobile", "wearable", "dev-server"},
     "maturity": {"scaffolding", "functional", "established", "production"},
 }
