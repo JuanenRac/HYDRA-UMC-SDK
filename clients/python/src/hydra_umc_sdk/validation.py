@@ -43,7 +43,13 @@ ENUMS = {
 }
 PROJECT_MANIFEST_ENUMS = {
     "role": {"api", "ui", "cli", "firmware", "library", "service", "tool"},
-    "deployment_target": {"cm5", "user-pc", "mobile", "wearable"},
+    # "dev-server" added 2026-09-08 for HYDRA-UMC-DEV-SERVER - a Raspberry
+    # Pi 5/CM5 host dedicated to development and task execution, distinct
+    # from "cm5" (the operational node that talks to real machines/robots).
+    # Compatible manifest extension per the software-preparation plan's own
+    # 13.2.2 ("el manifiesto compartido se amplia de forma compatible si
+    # aun no expresa una relacion necesaria").
+    "deployment_target": {"cm5", "user-pc", "mobile", "wearable", "dev-server"},
     "maturity": {"scaffolding", "functional", "established", "production"},
 }
 PROJECT_NAME_PATTERN = re.compile(r"^(HYDRA-UMC|URTC)(-[A-Z0-9-]+)?$")

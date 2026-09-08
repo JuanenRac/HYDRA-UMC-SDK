@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.3] - ProjectManifest: new `deployment_target` value `dev-server`
+
+### Added
+
+- `clients/python/src/hydra_umc_sdk/validation.py` - `"dev-server"` added
+  to `PROJECT_MANIFEST_ENUMS["deployment_target"]` for the new
+  HYDRA-UMC-DEV-SERVER project (a Raspberry Pi 5/CM5 host dedicated to
+  development and task execution, distinct from `"cm5"`, the operational
+  node that talks to real machines/robots). Compatible manifest extension
+  per the software-preparation plan's own 13.2.2 - no existing value
+  changed meaning, no consumer needs to change. New test
+  `test_accepts_dev_server_deployment_target`.
+
 ## [0.1.2] - REV-009: BridgeJob's direct constructor now validates `parameters` before using it
 
 ### Fixed
