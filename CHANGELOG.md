@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.4] - docs/BRIDGE_CONTRACT.md: list all 8 bridges that actually use it
+
+### Fixed
+
+- `docs/BRIDGE_CONTRACT.md`'s own scope line only listed 5 of the 8
+  bridges that genuinely import `bridge_contract.py`/call
+  `evaluate_job()` - `HYDRA-UMC-BRIDGE-AMR`, `HYDRA-UMC-BRIDGE-DROIDS`
+  and `HYDRA-UMC-BRIDGE-UAV` were missing despite using the same real
+  contract, confirmed by grepping every bridge's own source. Added,
+  plus their own bridge-specific meaning entries.
+- Removed a private-document allusion from `CHANGELOG.md`'s own 0.1.3
+  entry and from `validation.py`'s own comment for the same change - a
+  compatible manifest extension is documented on its own real merits,
+  never by citing an unnamed external plan's section number.
+
 ## [0.1.3] - ProjectManifest: new `deployment_target` value `dev-server`
 
 ### Added
@@ -8,10 +23,9 @@
   to `PROJECT_MANIFEST_ENUMS["deployment_target"]` for the new
   HYDRA-UMC-DEV-SERVER project (a Raspberry Pi 5/CM5 host dedicated to
   development and task execution, distinct from `"cm5"`, the operational
-  node that talks to real machines/robots). Compatible manifest extension
-  per the software-preparation plan's own 13.2.2 - no existing value
-  changed meaning, no consumer needs to change. New test
-  `test_accepts_dev_server_deployment_target`.
+  node that talks to real machines/robots). A compatible manifest
+  extension - no existing value changed meaning, no consumer needs to
+  change. New test `test_accepts_dev_server_deployment_target`.
 
 ## [0.1.2] - REV-009: BridgeJob's direct constructor now validates `parameters` before using it
 

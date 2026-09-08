@@ -107,8 +107,8 @@ class ValidationTests(unittest.TestCase):
             validate("ProjectManifest", payload)
 
     def test_accepts_dev_server_deployment_target(self):
-        # Added 2026-09-08 for HYDRA-UMC-DEV-SERVER - a real compatible
-        # manifest extension, not a guess (see validation.py's own comment).
+        # For HYDRA-UMC-DEV-SERVER - a real compatible manifest extension,
+        # not a guess (see validation.py's own comment).
         payload = self._valid_project_manifest()
         payload["deployment_target"] = "dev-server"
         validate("ProjectManifest", payload)  # must not raise
