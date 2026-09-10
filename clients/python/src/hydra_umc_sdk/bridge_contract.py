@@ -60,8 +60,7 @@ class BridgeJob:
     def __post_init__(self) -> None:
         if not all(isinstance(value, str) and value.strip() for value in (self.job_id, self.idempotency_key, self.source)):
             raise BridgeError("job_id, idempotency_key and source must be non-empty strings")
-        # SDK-01 (found in an ecosystem-wide software-improvements audit,
-        # P1): `phase`/`machine_state` are typed as `JobPhase`/
+        # SDK-01 (P1): `phase`/`machine_state` are typed as `JobPhase`/
         # `MachineState` in the dataclass annotation, but Python never
         # enforces that at runtime - constructing `BridgeJob` directly
         # (not through `job_from_dict`, which does validate this) with
@@ -77,7 +76,7 @@ class BridgeJob:
             raise BridgeError(f"phase must be a real JobPhase member, got {self.phase!r}")
         if not isinstance(self.machine_state, MachineState):
             raise BridgeError(f"machine_state must be a real MachineState member, got {self.machine_state!r}")
-        # REV-009 (found in an independent revalidation audit, P2):
+        # REV-009 (P2):
         # `parameters` is typed as `Mapping[str, str]` in the dataclass
         # annotation, but - same class of gap as SDK-01 above - Python
         # never enforces that at runtime. `job_from_dict()` already
