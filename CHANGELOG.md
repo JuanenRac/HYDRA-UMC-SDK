@@ -32,7 +32,7 @@
 ### Fixed
 
 - **`clients/python/src/hydra_umc_sdk/bridge_contract.py`'s `BridgeJob`**
-  (found in an independent revalidation audit, P2; same class of gap as
+  (found in a second review pass, P2; same class of gap as
   [0.1.1]'s SDK-01 above, this time on `parameters` instead of
   `phase`/`machine_state`): `parameters` is typed as `Mapping[str, str]`
   in the dataclass annotation, but Python never enforces that at
@@ -62,8 +62,7 @@
 ### Fixed
 
 - **`clients/python/src/hydra_umc_sdk/bridge_contract.py`'s `BridgeJob`**
-  (found in an ecosystem-wide software-improvements audit, P1):
-  `phase`/`machine_state` are typed as `JobPhase`/`MachineState` in the
+  (P1): `phase`/`machine_state` are typed as `JobPhase`/`MachineState` in the
   dataclass annotation, but Python never enforces that at runtime -
   constructing `BridgeJob` directly (not through `job_from_dict`, which
   already validated this) with an unrecognised string for either field
