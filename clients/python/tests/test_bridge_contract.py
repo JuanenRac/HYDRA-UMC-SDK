@@ -42,8 +42,7 @@ class BridgeContractTests(unittest.TestCase):
         with self.assertRaises(BridgeError):
             BridgeJob("", "key", "bridge", JobPhase.LOAD, MachineState.IDLE, {})
 
-    # SDK-01 (found in an ecosystem-wide software-improvements audit,
-    # P1): the finding's own exact reproduction - constructing BridgeJob
+    # SDK-01 (P1): the finding's own exact reproduction - constructing BridgeJob
     # DIRECTLY (not through job_from_dict, which already validated this)
     # with an unrecognised phase used to succeed, and
     # evaluate_job(job, CellState.READY) could then return allowed=True
@@ -58,7 +57,7 @@ class BridgeContractTests(unittest.TestCase):
         with self.assertRaises(BridgeError):
             BridgeJob("job-1", "key-1", "bridge", JobPhase.LOAD, "QUANTUM", {})  # type: ignore[arg-type]
 
-    # REV-009 (found in an independent revalidation audit, P2): same
+    # REV-009 (P2): same
     # class of gap as SDK-01 above, on `parameters` instead of
     # `phase`/`machine_state`. `job_from_dict()` already guarded this
     # before ever constructing a BridgeJob, but the direct public
