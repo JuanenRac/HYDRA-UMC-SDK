@@ -48,7 +48,7 @@ Protobuf の公開と、さらなる言語のクライアントは、その後�
 
 実際に動作する自動互換性マトリクス（`tools/verify_contract_matrix.py`）は、公開されているすべてのスキーマを Python バリデータ自身のコントラクト一覧と突き合わせて検証します。これにより、`project-manifest.schema.json`（このエコシステムの各リポジトリが公開する `hydra-umc.project.json` のコントラクト）にバリデータのエントリが一つも存在しないという実際のギャップを発見し、修正しました。現在では、各適合フィクスチャがそのファイル名どおりに判定されること、さらに未知のコントラクトおよび非互換なスキーマバージョンのケースについても正しく判定されることを証明しています。
 
-下記の最初のマイルストーン以降、さらにコントラクトが追加されました(現在8件)。外部マシン連携のための公開コントラクト `BridgeJob`/`GateDecision`(詳細は [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md))は `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` で共有され、独自の実データJSONワイヤー形式(`job_to_dict()`/`job_from_dict()`/`decision_to_dict()`)を持ちます。また `hydra-umc-sdk-mock-server`(`mock_server.py`)は、実際のCM5・ロボット・MCUハードウェアが無くてもUIやアダプタを開発できるよう、既知の各コントラクトについて有効なサンプルペイロードを単純なHTTP経由で提供します。8つすべてのコントラクトが、上記の互換性マトリクスで検証済みの有効・無効な適合フィクスチャを少なくとも1つずつ持っています。
+下記の最初のマイルストーン以降、さらにコントラクトが追加されました(現在9件)。外部マシン連携のための公開コントラクト `BridgeJob`/`GateDecision`(詳細は [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md))は `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` で共有され、独自の実データJSONワイヤー形式(`job_to_dict()`/`job_from_dict()`/`decision_to_dict()`)を持ちます。`ScenarioOutcome` コントラクトと `compare_runs()` は、共有のT07/I60「本当に直ったか」チェックで、障害が再現しなくなってもベースのフィンガープリントが変わっていなければ `apparent-success`(`regression-fixed` ではなく)を返します。`Operation` コントラクト(P03)と `validate_status_transition()` は、共有の目標/ジョブ/操作ライフサイクル - `received`/`authorized`/`queued`/`sent`/`confirmed`/`terminated`/`rejected` を表し、単一の「実行済み」の器にまとめることは決してありません。また `hydra-umc-sdk-mock-server`(`mock_server.py`)は、実際のCM5・ロボット・MCUハードウェアが無くてもUIやアダプタを開発できるよう、既知の各コントラクトについて有効なサンプルペイロードを単純なHTTP経由で提供します。9つすべてのコントラクトが、上記の互換性マトリクスで検証済みの有効・無効な適合フィクスチャを少なくとも1つずつ持っています。
 
 ## 🎯 最初のマイルストーン
 

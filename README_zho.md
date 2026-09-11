@@ -46,7 +46,7 @@ OpenAPI v1 切片(`contracts/openapi/v1/server.openapi.json` - 参见
 
 一个真实、自动化的兼容性矩阵（`tools/verify_contract_matrix.py`）会将每个已发布的架构与 Python 验证器自身的合约列表进行交叉核对，并发现并修复了一个真实的缺口：`project-manifest.schema.json`（本生态系统中每个仓库都会发布的 `hydra-umc.project.json` 合约）此前完全没有验证器条目。现在它证明，每个一致性 fixture 都会按照其自身文件名所声明的方式被判定，此外还涵盖了未知合约和不兼容架构版本这两种情况。
 
-自下方"第一个里程碑"之后又新增了若干合约(现共 8 个):面向外部机器的公开桥接合约 `BridgeJob`/`GateDecision`(见 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)),由 `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` 共享,并拥有自己真实的 JSON 线上格式(`job_to_dict()`/`job_from_dict()`/`decision_to_dict()`);以及一个 `hydra-umc-sdk-mock-server`(`mock_server.py`),通过普通 HTTP 为每个已知合约提供一份有效的示例负载,便于在真实的 CM5/机器人/MCU 硬件就绪之前开发 UI 或适配器。全部 8 个合约都至少各有一个有效和一个无效的一致性 fixture,已通过上述兼容性矩阵验证。
+自下方"第一个里程碑"之后又新增了若干合约(现共 9 个):面向外部机器的公开桥接合约 `BridgeJob`/`GateDecision`(见 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)),由 `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` 共享,并拥有自己真实的 JSON 线上格式(`job_to_dict()`/`job_from_dict()`/`decision_to_dict()`);一个 `ScenarioOutcome` 合约加上 `compare_runs()`,即共享的 T07/I60"是否真的修复了"检查——当某个失败不再复现、但基线指纹从未改变时,返回 `apparent-success` 而非 `regression-fixed`;一个 `Operation` 合约(P03)加上 `validate_status_transition()`,即共享的目标/任务/操作生命周期——`received`/`authorized`/`queued`/`sent`/`confirmed`/`terminated`/`rejected`,绝不归入单一的"已执行"筐里;以及一个 `hydra-umc-sdk-mock-server`(`mock_server.py`),通过普通 HTTP 为每个已知合约提供一份有效的示例负载,便于在真实的 CM5/机器人/MCU 硬件就绪之前开发 UI 或适配器。全部 9 个合约都至少各有一个有效和一个无效的一致性 fixture,已通过上述兼容性矩阵验证。
 
 ## 🎯 第一个里程碑
 

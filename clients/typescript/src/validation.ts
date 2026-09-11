@@ -30,9 +30,18 @@ export class ContractValidationError extends Error {
 }
 
 /**
- * Vendored schema file for each of the 7 real payload contracts this
- * client validates - the same 7 names documented in
- * docs/PYTHON_CLIENT.md's REQUIRED table for the Python reference client.
+ * Vendored schema file for each real payload contract this client
+ * validates - the same names documented in docs/PYTHON_CLIENT.md's
+ * REQUIRED table for the Python reference client.
+ *
+ * Found while adding the Operation contract: ScenarioOutcome had already
+ * been published (schema vendored to schemas/, and wired into the Python
+ * validator) but was never added here - `tools/verify_contract_matrix.py`
+ * only ever cross-checked the Python validator against the schema files,
+ * never this map, so a real drift between this client and the others
+ * went uncaught. Fixed alongside adding Operation; see that script's own
+ * new Go/TypeScript cross-check for how this drift class is now
+ * detected automatically going forward.
  */
 const CONTRACT_FILES: Record<ContractName, string> = {
   DeviceDescriptor: "device-descriptor.schema.json",
@@ -42,6 +51,8 @@ const CONTRACT_FILES: Record<ContractName, string> = {
   EventEnvelope: "event-envelope.schema.json",
   ServerDiscovery: "server-discovery.schema.json",
   ProjectManifest: "project-manifest.schema.json",
+  ScenarioOutcome: "scenario-outcome.schema.json",
+  Operation: "operation.schema.json",
 };
 
 /**

@@ -69,6 +69,17 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "source": "mock-server",
         "timestamp_utc": "2026-01-01T00:00:00Z",
     },
+    "Operation": {
+        "schema_version": "1.0",
+        "operation_id": "mock-op-01",
+        "correlation_id": "mock-mission-01",
+        "kind": "move_to_pose",
+        "target": {"kind": "robot", "id": "mock-controller:mock-robot"},
+        "status": "queued",
+        "requested_at_utc": "2026-01-01T00:00:00Z",
+        "updated_at_utc": "2026-01-01T00:00:00Z",
+        "params": {},
+    },
     "UpdateManifest": {
         "schema_version": "1.0",
         "project": "HYDRA-UMC-MOCK",

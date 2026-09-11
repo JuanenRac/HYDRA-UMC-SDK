@@ -28,8 +28,17 @@ import (
 var schemas embed.FS
 
 // contractFiles maps each contract name this client validates to its
-// vendored schema file - the same 7 names the Python reference validator's
+// vendored schema file - the same names the Python reference validator's
 // REQUIRED table documents in docs/PYTHON_CLIENT.md.
+//
+// Found while adding the Operation contract: ScenarioOutcome had already
+// been published (schema vendored to schemas/, wired into the Python
+// validator) but was never added here - tools/verify_contract_matrix.py
+// only ever cross-checked the Python validator against the schema files,
+// never this map, so a real drift between this client and the others
+// went uncaught. Fixed alongside adding Operation; see that script's own
+// new Go/TypeScript cross-check for how this drift class is now
+// detected automatically going forward.
 var contractFiles = map[string]string{
 	"DeviceDescriptor": "device-descriptor.schema.json",
 	"EventEnvelope":    "event-envelope.schema.json",
@@ -38,6 +47,8 @@ var contractFiles = map[string]string{
 	"SafetyState":      "safety-state.schema.json",
 	"ServerDiscovery":  "server-discovery.schema.json",
 	"UpdateManifest":   "update-manifest.schema.json",
+	"ScenarioOutcome":  "scenario-outcome.schema.json",
+	"Operation":        "operation.schema.json",
 }
 
 // ContractValidationError is returned by Validate when payload fails real

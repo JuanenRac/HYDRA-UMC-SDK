@@ -1,0 +1,1 @@
+{"schema_version":"1.0","operation_id":"op-1","correlation_id":"mission-1","kind":"move_to_pose","target":{"kind":"robot"},"status":"executed","requested_at_utc":"2024-01-01T00:00:00Z","updated_at_utc":"2024-01-01T00:00:00Z","params":{}}

@@ -54,17 +54,25 @@ hatte, und beweist nun, dass jede Konformitäts-Fixture so beurteilt wird, wie
 es ihr eigener Dateiname behauptet, ebenso wie die Fälle unbekannter Vertrag
 und inkompatible Schema-Version.
 
-Seit dem ersten Meilenstein unten sind zwei weitere Verträge
+Seit dem ersten Meilenstein unten sind weitere Verträge
 hinzugekommen: ein öffentlicher `BridgeJob`/`GateDecision`-Vertrag für
 externe Maschinenanbindung (siehe
 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), gemeinsam genutzt
 von `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` und
 mit einer eigenen echten JSON-Wire-Form (`job_to_dict()`/
-`job_from_dict()`/`decision_to_dict()`); und ein
+`job_from_dict()`/`decision_to_dict()`); ein `ScenarioOutcome`-Vertrag
+plus `compare_runs()`, die gemeinsame T07/I60-Prüfung "wurde es wirklich
+behoben", die `apparent-success` (nicht `regression-fixed`) zurückgibt,
+wenn ein Fehler nicht mehr reproduzierbar ist, sich der Basis-Fingerabdruck
+aber nie geändert hat; ein `Operation`-Vertrag (P03) plus
+`validate_status_transition()`, der gemeinsame Ziel-/Auftrags-/
+Operations-Lebenszyklus - `received`/`authorized`/`queued`/`sent`/
+`confirmed`/`terminated`/`rejected`, niemals ein einziger
+"ausgeführt"-Sammeltopf; und ein
 `hydra-umc-sdk-mock-server` (`mock_server.py`), der für jeden bekannten
 Vertrag ein gültiges Beispiel-Payload über einfaches HTTP bereitstellt,
 damit eine UI oder ein Adapter entwickelt werden kann, bevor echte
-CM5-/Roboter-/MCU-Hardware verfügbar ist. Alle 8 Verträge besitzen
+CM5-/Roboter-/MCU-Hardware verfügbar ist. Alle 9 Verträge besitzen
 mindestens eine gültige und eine ungültige Konformitäts-Fixture, geprüft
 durch die obige Kompatibilitätsmatrix.
 
