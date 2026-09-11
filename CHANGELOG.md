@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.1.8] - P01: a durable, transactional promotion journal
+
+### Added
+
+- **`clients/python/src/hydra_umc_sdk/promotion_journal.py`** - the real,
+  durable version of the mitigation HYDRA-UMC-UPDATER's own
+  `install.py` already carries inline (V07-004: "honest, bounded
+  mitigation, not the full transactional journal/rollback... that needs
+  designing once, shared with HYDRA-UMC-OPS-AGENT's own
+  `canary_deploy.py`"). Both installers stage a verified candidate, then
+  promote it over a live installation with 2 back-to-back directory
+  renames; each already added its own in-process self-heal for the
+  narrow gap between them, but that only survives an exception inside
+  the same Python call stack - a full process crash, `kill -9`, power
+  loss, or a reboot mid-promotion leaves nothing to run.
+  `PromotionJournal` writes a `PromotionRecord` to a small JSON file,
+  atomically (write-to-temp + `os.replace`), BEFORE the first real
+  filesystem mutation - `begin()`/`advance()`/`complete()`/`pending()`.
+  `recover(journal)` finds every promotion left short of `COMPLETE` and
+  applies the same real self-heal rule those installers' own inline code
+  already uses (restore `backup_path` -> `target_path` if the crash
+  happened right after the first rename; nothing to do if it happened
+  after the second), generalized so it also survives the process itself
+  having died - runnable the NEXT time an installer starts, not only
+  within the same run. A record whose filesystem state genuinely can't
+  be resolved (neither `target_path` nor `backup_path` exist) is left
+  pending for a human rather than silently pruned.
+- 16 new tests (`test_promotion_journal.py`), including a real crash
+  simulation restored by a completely fresh `PromotionJournal` instance,
+  a corrupt-journal-file degradation path, and an unresolvable case left
+  pending on purpose. New example
+  (`examples/python/recover_interrupted_promotion.py`).
+
 ## [0.1.7] - P07: cross-service failure tracing + a real observability toolkit
 
 ### Added
