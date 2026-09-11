@@ -28,6 +28,7 @@ from .lifecycle import (
     StructuredLogEntry,
     trace_first_failure,
 )
+from .promotion_journal import PromotionJournal, PromotionPhase, PromotionRecord, recover
 from .scenario import ScenarioComparison, compare_runs
 from .validation import ContractValidationError, validate
 
@@ -48,10 +49,14 @@ __all__ = [
     "ProcessLifecycleState",
     "StructuredLogEntry",
     "trace_first_failure",
+    "PromotionJournal",
+    "PromotionPhase",
+    "PromotionRecord",
+    "recover",
     "ScenarioComparison",
     "compare_runs",
     "ContractValidationError",
     "validate",
 ]
 
-__version__ = "0.1.7"
+__version__ = "0.1.8"
