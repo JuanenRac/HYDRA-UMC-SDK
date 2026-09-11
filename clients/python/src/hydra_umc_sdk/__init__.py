@@ -22,6 +22,12 @@ from .operation import (
     is_terminal,
     validate_status_transition,
 )
+from .lifecycle import (
+    BoundedLog,
+    ProcessLifecycleState,
+    StructuredLogEntry,
+    trace_first_failure,
+)
 from .scenario import ScenarioComparison, compare_runs
 from .validation import ContractValidationError, validate
 
@@ -38,10 +44,14 @@ __all__ = [
     "TERMINAL_STATUSES",
     "is_terminal",
     "validate_status_transition",
+    "BoundedLog",
+    "ProcessLifecycleState",
+    "StructuredLogEntry",
+    "trace_first_failure",
     "ScenarioComparison",
     "compare_runs",
     "ContractValidationError",
     "validate",
 ]
 
-__version__ = "0.1.6"
+__version__ = "0.1.7"

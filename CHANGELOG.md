@@ -1,5 +1,42 @@
 # Changelog
 
+## [0.1.7] - P07: cross-service failure tracing + a real observability toolkit
+
+### Added
+
+- **`clients/python/src/hydra_umc_sdk/lifecycle.py`** - P07's own real
+  deliverable. `ProcessLifecycleState` (`alive`/`ready`/`degraded`/
+  `disconnected`/`unknown`) - the 5 real, distinct process-liveness
+  states P07 names, never collapsed into a boolean "up"/"down". Distinct
+  from `HealthReport`/`SafetyState` (a ROBOT's or MACHINE's own safety
+  state) - a different, complementary concern.
+  `StructuredLogEntry(component, correlation_id, version, timestamp_utc,
+  level, message, error_cause, caused_by)` - the payload a service puts
+  inside an existing `EventEnvelope`, not a competing wire shape.
+  `caused_by` is the one field that makes P07's own literal acceptance
+  criterion possible: `trace_first_failure()` walks a `caused_by` chain
+  across however many services' own log entries back to the ACTUAL first
+  component that failed - not whichever entry a caller happened to look
+  at first (in practice, usually the LAST service to notice and report
+  it, since that's typically the one an operator gets paged for). Stops
+  honestly at the earliest entry actually collected if the chain extends
+  further back than what was gathered, and never loops forever on a
+  cyclic `caused_by` reference in malformed input.
+  `StructuredLogEntry.redacted(redactor)` - "exportar diagnóstico
+  saneado" as real code: only `message`/`error_cause` are ever passed
+  through a redactor, every structural field (`component`/
+  `correlation_id`/`version`/`caused_by`) is left untouched, since those
+  are identifiers, never where a real secret would land.
+  `BoundedLog(max_entries)` - "acotar tamaño de logs, colas y
+  reintentos" as enforced behavior: drops the OLDEST entry once over
+  capacity (same drop-oldest policy this ecosystem's own bounded queues
+  already use elsewhere, e.g. HYDRA-UMC's `RelayRxQueue`), tracks
+  `dropped_count`.
+- 14 new tests (`test_lifecycle.py`), including a real multi-service
+  cause-chain trace (`urtc-relay` -> `hydra-umc-server` -> `studio`) and
+  a new example (`examples/python/trace_first_failure.py`) walking that
+  exact scenario end to end, redaction included.
+
 ## [0.1.6] - New `Operation` contract (P03: shared, strict, versioned lifecycle)
 
 ### Added
