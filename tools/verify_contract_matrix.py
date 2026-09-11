@@ -31,6 +31,8 @@ ROOT = Path(__file__).resolve().parent.parent
 SCHEMA_DIR = ROOT / "contracts" / "json-schema" / "v1"
 FIXTURES_DIR = ROOT / "conformance" / "fixtures" / "v1"
 CLIENT_SRC = ROOT / "clients" / "python" / "src"
+GO_VALIDATION = ROOT / "clients" / "go" / "validation.go"
+TS_VALIDATION = ROOT / "clients" / "typescript" / "src" / "validation.ts"
 sys.path.insert(0, str(CLIENT_SRC))
 
 from hydra_umc_sdk.validation import REQUIRED, ContractValidationError, validate  # noqa: E402
@@ -78,6 +80,42 @@ def check_matrix_coverage(schema_contracts: dict[str, Path]) -> None:
         )
 
     print(f"CONTRACT_MATRIX_COVERAGE=PASS contracts={len(schema_names)}")
+
+
+def check_other_client_coverage(schema_contracts: dict[str, Path]) -> None:
+    """Real drift found while adding the Operation contract: ScenarioOutcome
+    had a published schema AND a working Python validator entry, but was
+    never added to the Go or TypeScript clients' own contract maps - this
+    function only ever checked the Python validator, so that gap went
+    uncaught through a whole prior contract addition. Cheap, regex-based
+    extraction (not a real Go/TS parse) is enough here: both files declare
+    their contract map as a flat `"Name": "....schema.json"` literal, one
+    entry per line, so this only ever needs to be as strict as catching a
+    missing or stale entry - not as a general-purpose language parser.
+    """
+    schema_names = set(schema_contracts)
+
+    if GO_VALIDATION.exists():
+        go_source = GO_VALIDATION.read_text(encoding="utf-8")
+        go_names = set(re.findall(r'"([A-Za-z]+)":\s*"[a-z0-9-]+\.schema\.json"', go_source))
+        missing = sorted(schema_names - go_names)
+        stale = sorted(go_names - schema_names)
+        if missing:
+            fail(f"clients/go/validation.go contractFiles is missing: {', '.join(missing)}")
+        if stale:
+            fail(f"clients/go/validation.go contractFiles has stale entries: {', '.join(stale)}")
+        print(f"CONTRACT_MATRIX_GO_COVERAGE=PASS contracts={len(go_names)}")
+
+    if TS_VALIDATION.exists():
+        ts_source = TS_VALIDATION.read_text(encoding="utf-8")
+        ts_names = set(re.findall(r'^\s*([A-Za-z]+):\s*"[a-z0-9-]+\.schema\.json"', ts_source, re.MULTILINE))
+        missing = sorted(schema_names - ts_names)
+        stale = sorted(ts_names - schema_names)
+        if missing:
+            fail(f"clients/typescript/src/validation.ts CONTRACT_FILES is missing: {', '.join(missing)}")
+        if stale:
+            fail(f"clients/typescript/src/validation.ts CONTRACT_FILES has stale entries: {', '.join(stale)}")
+        print(f"CONTRACT_MATRIX_TS_COVERAGE=PASS contracts={len(ts_names)}")
 
 
 def check_fixture_matrix() -> int:
@@ -185,6 +223,7 @@ def check_unknown_and_incompatible_cases(schema_contracts: dict[str, Path]) -> N
 def main() -> int:
     schema_contracts = discover_schema_contracts()
     check_matrix_coverage(schema_contracts)
+    check_other_client_coverage(schema_contracts)
     checked = check_fixture_matrix()
     producer_checked = check_producer_fixture_matrix()
     check_unknown_and_incompatible_cases(schema_contracts)

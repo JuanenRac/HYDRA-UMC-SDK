@@ -46,6 +46,9 @@ Raises `ContractValidationError` (a `ValueError` subclass) on the first rule vio
 | `UpdateManifest` | `schema_version`, `project`, `version`, `artifact_url`, `sha256` | `sha256` must be a 64-character lowercase/uppercase hex digest. `artifact_url` must start with `https://`. |
 | `EventEnvelope` | `schema_version`, `event_id`, `type`, `source`, `timestamp_utc`, `sequence` | `timestamp_utc` must be a valid RFC 3339 date-time. `sequence` must be a non-negative JSON integer (not a boolean). |
 | `ServerDiscovery` | `schema_version`, `product`, `remoteApiVersion`, `appVersion`, `hostname`, `controllerCount`, `robotCount`, `uptimeSeconds` | `remoteApiVersion` must be a JSON integer >= 1; `controllerCount`/`robotCount`/`uptimeSeconds` must each be JSON integers >= 0 (not booleans). |
+| `ProjectManifest` | `schema_version`, `ecosystem`, `name`, `version`, `role`, `stack`, `technologies`, `deployment_target`, `maturity`, `family`, `parent`, `native_version`, `build`, `notes` | The real `hydra-umc.project.json` contract - see `_validate_project_manifest()`'s own docstring for the full set of enum/pattern/shape checks (name pattern, semver version, role/deployment_target/maturity enums, `native_version` shape). |
+| `ScenarioOutcome` | `schema_version`, `scenario_id`, `run_id`, `base_fingerprint`, `phase`, `repro_case`, `observed`, `timestamp_utc` | `phase` must be `before`/`after`. `observed` must be an object whose `outcome` is `reproduced`/`not-reproduced`/`error`, with `exit_code` (if present) a JSON integer. `timestamp_utc` must be a valid RFC 3339 date-time. See `scenario.py`'s `compare_runs()` for the before/after check built on this contract. |
+| `Operation` | `schema_version`, `operation_id`, `correlation_id`, `kind`, `target`, `status`, `requested_at_utc`, `updated_at_utc`, `params` | `status` must be one of `received`/`authorized`/`queued`/`sent`/`confirmed`/`terminated`/`rejected` - no `executed` bucket, by design (P03). `target` must be an object with non-empty `kind`/`id`. `params` must be an object. `error`, if present, must be an object with non-empty `code`/`message`. `requested_at_utc`/`updated_at_utc` must each be a valid RFC 3339 date-time. See `operation.py`'s `validate_status_transition()` for the enforced lifecycle. |
 
 Every other required field not listed with an "extra rule" above just needs to be a non-empty string.
 
@@ -97,7 +100,7 @@ device behavior, timing, or concurrency.
 
 ```bash
 $ python -m hydra_umc_sdk.mock_server &
-hydra-umc-sdk-mock-server: serving 7 contracts on http://127.0.0.1:8790/mock/
+hydra-umc-sdk-mock-server: serving 9 contracts on http://127.0.0.1:8790/mock/
 
 $ curl -s http://127.0.0.1:8790/mock/HealthReport
 {"schema_version": "1.0", "state": "READY", "timestamp_utc": "2026-01-01T00:00:00Z", "checks": {"storage": {"state": "PASS"}}}

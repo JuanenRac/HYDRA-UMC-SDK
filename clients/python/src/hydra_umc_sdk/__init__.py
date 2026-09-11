@@ -15,6 +15,13 @@ from .bridge_contract import (
     MachineState,
     evaluate_job,
 )
+from .operation import (
+    OPERATION_STATUSES,
+    OperationRecord,
+    TERMINAL_STATUSES,
+    is_terminal,
+    validate_status_transition,
+)
 from .scenario import ScenarioComparison, compare_runs
 from .validation import ContractValidationError, validate
 
@@ -26,10 +33,15 @@ __all__ = [
     "JobPhase",
     "MachineState",
     "evaluate_job",
+    "OPERATION_STATUSES",
+    "OperationRecord",
+    "TERMINAL_STATUSES",
+    "is_terminal",
+    "validate_status_transition",
     "ScenarioComparison",
     "compare_runs",
     "ContractValidationError",
     "validate",
 ]
 
-__version__ = "0.1.5"
+__version__ = "0.1.6"

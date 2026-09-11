@@ -92,6 +92,10 @@ const SCHEMA_FILES: &[(&str, &str)] = &[
         "scenario-outcome.schema.json",
         include_str!("../schemas/scenario-outcome.schema.json"),
     ),
+    (
+        "operation.schema.json",
+        include_str!("../schemas/operation.schema.json"),
+    ),
 ];
 
 /// This crate's embedded copy of `manifest.json` - the generated

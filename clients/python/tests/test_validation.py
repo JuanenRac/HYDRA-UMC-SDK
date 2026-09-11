@@ -44,6 +44,33 @@ class ValidationTests(unittest.TestCase):
                 "observed": "not-an-object", "timestamp_utc": "2026-01-02T09:00:00Z",
             })
 
+    def test_accepts_operation(self):
+        validate("Operation", self.fixture("operation.valid.json"))
+
+    def test_rejects_operation_executed_status_and_incomplete_target(self):
+        # P03's own core point: an "executed" status doesn't exist in this
+        # contract at all, and the fixture's target is also missing `id`.
+        with self.assertRaises(ContractValidationError):
+            validate("Operation", self.fixture("operation.invalid.json"))
+
+    def test_rejects_operation_non_object_params(self):
+        with self.assertRaises(ContractValidationError):
+            validate("Operation", {
+                "schema_version": "1.0", "operation_id": "o", "correlation_id": "c",
+                "kind": "k", "target": {"kind": "robot", "id": "r"}, "status": "received",
+                "requested_at_utc": "2026-01-02T09:00:00Z", "updated_at_utc": "2026-01-02T09:00:00Z",
+                "params": "not-an-object",
+            })
+
+    def test_rejects_operation_malformed_error_object(self):
+        with self.assertRaises(ContractValidationError):
+            validate("Operation", {
+                "schema_version": "1.0", "operation_id": "o", "correlation_id": "c",
+                "kind": "k", "target": {"kind": "robot", "id": "r"}, "status": "rejected",
+                "requested_at_utc": "2026-01-02T09:00:00Z", "updated_at_utc": "2026-01-02T09:00:00Z",
+                "params": {}, "error": {"code": "timeout"},
+            })
+
     def test_rejects_bad_update_digest(self):
         with self.assertRaises(ContractValidationError):
             validate("UpdateManifest", {"schema_version": "1.0", "project": "HYDRA-UMC-OS", "version": "0.0.2", "artifact_url": "https://example.invalid/a", "sha256": "bad"})

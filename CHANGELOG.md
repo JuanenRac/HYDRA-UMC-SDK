@@ -1,5 +1,56 @@
 # Changelog
 
+## [0.1.6] - New `Operation` contract (P03: shared, strict, versioned lifecycle)
+
+### Added
+
+- **`contracts/json-schema/v1/operation.schema.json`** - the goal/job/
+  operation contract P03 calls for: a shared shape for anything crossing
+  a service boundary in this ecosystem (SERVER, ORCHESTRATOR, DEV-SERVER,
+  OPS-AGENT, ...) to report its own real progress through 6 genuinely
+  distinct states - `received`, `authorized`, `queued`, `sent`,
+  `confirmed`, `terminated` (plus `rejected`) - instead of collapsing
+  everything into a single "executed" bucket. `target` names what the
+  operation is directed at (`kind`/`id`, domain-agnostic on purpose);
+  `correlation_id` ties related operations together; `params` carries the
+  operation-specific payload; `error` is optional and only meaningful
+  once `rejected`.
+- **`clients/python/src/hydra_umc_sdk/operation.py`** - the real,
+  enforced lifecycle: `validate_status_transition(previous, next)` is the
+  concrete form of P03's "no presentar todos como ejecutado" - the only
+  legal forward path is received -> authorized -> queued -> sent ->
+  confirmed -> terminated, `rejected` is reachable from any non-terminal
+  status but nothing is ever reachable FROM a terminal one. `is_terminal()`
+  and a small validated `OperationRecord` dataclass round out the module.
+  Distinct from `bridge_contract.py`'s own `BridgeJob`/`JobPhase` (a
+  narrower, domain-specific safety gate for external machine bridges) -
+  the two are not redundant.
+- Vendored to `clients/{go,rust,typescript}/schemas/`, `manifest.json`
+  regenerated in all 4 locations, `conformance/fixtures/v1/operation.
+  {valid,invalid}.json` (the invalid fixture uses `status: "executed"` -
+  exactly the collapsed bucket this contract exists to forbid), and a new
+  example (`examples/python/operation_lifecycle.py`).
+- 12 new Python tests (`test_operation.py` + `test_validation.py`), 1 new
+  Rust conformance test (embedded schema), 4 new TypeScript fixture tests,
+  1 new Go fixture round-trip.
+
+### Fixed
+
+- **Real cross-client drift found while adding this contract**:
+  `ScenarioOutcome` (added in 0.1.5) had a published schema and a working
+  Python validator entry, but was never added to the Go client's
+  `contractFiles` map or the TypeScript client's `ContractName` type/
+  `CONTRACT_FILES` map - `tools/verify_contract_matrix.py` only ever
+  cross-checked the Python validator against the schema files, so this
+  went uncaught through a whole prior contract addition. Both clients
+  fixed (`ScenarioOutcome` and `Operation` now both wired end to end in
+  all 4 languages); `verify_contract_matrix.py` extended with a real
+  Go/TypeScript coverage cross-check so this drift class can't recur
+  silently again. `docs/PYTHON_CLIENT.md`'s own required-fields table was
+  also missing `ProjectManifest` and `ScenarioOutcome` rows (pre-existing
+  gaps, unrelated to this specific drift) - added, alongside the new
+  `Operation` row.
+
 ## [0.1.5] - New `ScenarioOutcome` contract + the T07/I60 before/after check
 
 ### Added

@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "operation_id": "op-3f9c2b1a",
+  "correlation_id": "mission-77-leg-2",
+  "kind": "move_to_pose",
+  "target": {
+    "kind": "robot",
+    "id": "controller-1:robot-3"
+  },
+  "status": "queued",
+  "status_reason": "waiting for the XY table's own reservation to clear",
+  "requested_at_utc": "2024-01-01T00:00:00Z",
+  "updated_at_utc": "2024-01-01T00:00:04Z",
+  "params": {
+    "pose": {"x": 120.5, "y": 40.0, "z": 15.0},
+    "speed": 0.6
+  }
+}

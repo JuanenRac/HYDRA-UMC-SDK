@@ -63,12 +63,15 @@ given its own real JSON wire shape (`job_to_dict()`/`job_from_dict()`/
 `decision_to_dict()`); a `ScenarioOutcome` contract plus
 `compare_runs()`, the shared T07/I60 "was it actually fixed" check that
 returns `apparent-success` (not `regression-fixed`) when a failure
-stopped reproducing but the base fingerprint never moved; and a
-`hydra-umc-sdk-mock-server` (`mock_server.py`) that serves one
-contract-valid example payload per known contract over plain HTTP, for a
-UI or adapter to develop against before any real CM5/robot/MCU hardware
-is available. All 8 contracts have at least one valid and one invalid
-conformance fixture, verified by the compatibility matrix above.
+stopped reproducing but the base fingerprint never moved; an `Operation`
+contract (P03) plus `validate_status_transition()`, the shared
+goal/job/operation lifecycle - `received`/`authorized`/`queued`/`sent`/
+`confirmed`/`terminated`/`rejected`, never a single collapsed "executed"
+bucket; and a `hydra-umc-sdk-mock-server` (`mock_server.py`) that serves
+one contract-valid example payload per known contract over plain HTTP,
+for a UI or adapter to develop against before any real CM5/robot/MCU
+hardware is available. All 9 contracts have at least one valid and one
+invalid conformance fixture, verified by the compatibility matrix above.
 
 ## 🎯 First milestone
 

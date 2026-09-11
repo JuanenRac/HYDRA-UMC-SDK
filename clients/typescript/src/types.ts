@@ -170,4 +170,6 @@ export type ContractName =
   | "UpdateManifest"
   | "EventEnvelope"
   | "ServerDiscovery"
-  | "ProjectManifest";
+  | "ProjectManifest"
+  | "ScenarioOutcome"
+  | "Operation";

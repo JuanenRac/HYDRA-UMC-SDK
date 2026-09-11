@@ -53,17 +53,25 @@ ecosistema) no tenía ninguna entrada de validador, y ahora demuestra que cada
 accesorio de conformidad se evalúa tal como afirma su propio nombre de archivo,
 además de los casos de contrato desconocido e incompatibilidad de versión de esquema.
 
-Desde el primer hito de abajo se han añadido dos contratos más: un
-contrato público de puente a máquinas externas `BridgeJob`/`GateDecision`
-(ver [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), compartido por
+Desde el primer hito de abajo se han añadido más contratos: un contrato
+público de puente a máquinas externas `BridgeJob`/`GateDecision` (ver
+[docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), compartido por
 `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` y con su
 propia forma JSON real (`job_to_dict()`/`job_from_dict()`/
-`decision_to_dict()`); y un `hydra-umc-sdk-mock-server` (`mock_server.py`)
-que sirve un payload de ejemplo válido por cada contrato conocido sobre
-HTTP plano, para que una UI o un adaptador puedan desarrollarse antes de
-que exista hardware CM5/robot/MCU real. Los 8 contratos tienen al menos
-un accesorio de conformidad válido e inválido, verificados por la matriz
-de compatibilidad de arriba.
+`decision_to_dict()`); un contrato `ScenarioOutcome` más `compare_runs()`,
+la comprobación compartida T07/I60 de "se arregló de verdad" que
+devuelve `apparent-success` (no `regression-fixed`) cuando un fallo dejó
+de reproducirse pero la huella base nunca se movió; un contrato
+`Operation` (P03) más `validate_status_transition()`, el ciclo de vida
+compartido de objetivo/trabajo/operación -
+`received`/`authorized`/`queued`/`sent`/`confirmed`/`terminated`/
+`rejected`, nunca un único cajón "ejecutado"-; y un
+`hydra-umc-sdk-mock-server` (`mock_server.py`) que sirve un payload de
+ejemplo válido por cada contrato conocido sobre HTTP plano, para que una
+UI o un adaptador puedan desarrollarse antes de que exista hardware
+CM5/robot/MCU real. Los 9 contratos tienen al menos un accesorio de
+conformidad válido e inválido, verificados por la matriz de
+compatibilidad de arriba.
 
 ## 🎯 Primer hito
 

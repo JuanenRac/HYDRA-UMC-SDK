@@ -32,6 +32,7 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "UpdateManifest": ("schema_version", "project", "version", "artifact_url", "sha256"),
     "EventEnvelope": ("schema_version", "event_id", "type", "source", "timestamp_utc", "sequence"),
     "ScenarioOutcome": ("schema_version", "scenario_id", "run_id", "base_fingerprint", "phase", "repro_case", "observed", "timestamp_utc"),
+    "Operation": ("schema_version", "operation_id", "correlation_id", "kind", "target", "status", "requested_at_utc", "updated_at_utc", "params"),
     "ServerDiscovery": ("schema_version", "product", "remoteApiVersion", "appVersion", "hostname", "controllerCount", "robotCount", "uptimeSeconds"),
     "ProjectManifest": (
         "schema_version", "ecosystem", "name", "version", "role", "stack", "technologies",
@@ -152,11 +153,29 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
     for field in REQUIRED[contract]:
         if field not in {
             "interfaces", "checks", "sequence", "remoteApiVersion", "controllerCount", "robotCount", "uptimeSeconds",
-            "technologies", "native_version", "parent", "build", "notes", "observed",
+            "technologies", "native_version", "parent", "build", "notes", "observed", "target", "params",
         }:
             _require_string(payload, field)
     if contract in {"HealthReport", "SafetyState", "EventEnvelope", "ScenarioOutcome"}:
         _require_date_time(payload, "timestamp_utc")
+    if contract == "Operation":
+        _require_date_time(payload, "requested_at_utc")
+        _require_date_time(payload, "updated_at_utc")
+        if payload["status"] not in {"received", "authorized", "queued", "sent", "confirmed", "terminated", "rejected"}:
+            # P03's own core point: "no presentar todos como ejecutado" -
+            # this contract has no "executed" status at all, on purpose.
+            raise ContractValidationError("status must be one of: received, authorized, queued, sent, confirmed, terminated, rejected")
+        target = payload["target"]
+        if not isinstance(target, dict) or not isinstance(target.get("kind"), str) or not target.get("kind") \
+                or not isinstance(target.get("id"), str) or not target.get("id"):
+            raise ContractValidationError("target must be an object with non-empty kind and id")
+        if not isinstance(payload["params"], dict):
+            raise ContractValidationError("params must be an object")
+        if "error" in payload:
+            error = payload["error"]
+            if not isinstance(error, dict) or not isinstance(error.get("code"), str) or not error.get("code") \
+                    or not isinstance(error.get("message"), str) or not error.get("message"):
+                raise ContractValidationError("error, when present, must be an object with non-empty code and message")
     if contract == "ScenarioOutcome":
         if payload["phase"] not in {"before", "after"}:
             raise ContractValidationError("phase must be 'before' or 'after'")

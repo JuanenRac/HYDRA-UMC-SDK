@@ -54,17 +54,25 @@ validatore, e ora dimostra che ogni fixture di conformità viene giudicata
 come afferma il proprio nome file, oltre ai casi di contratto sconosciuto e
 versione di schema incompatibile.
 
-Dal primo traguardo qui sotto sono stati aggiunti altri contratti (8 in totale): un
+Dal primo traguardo qui sotto sono stati aggiunti altri contratti (9 in totale): un
 contratto pubblico di bridge verso macchine esterne
 `BridgeJob`/`GateDecision` (vedi
 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), condiviso da
 `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` e dotato
 di una propria forma JSON reale (`job_to_dict()`/`job_from_dict()`/
-`decision_to_dict()`); e un `hydra-umc-sdk-mock-server`
+`decision_to_dict()`); un contratto `ScenarioOutcome` più
+`compare_runs()`, la verifica condivisa T07/I60 "è stato davvero
+risolto" che restituisce `apparent-success` (non `regression-fixed`)
+quando un fallimento smette di riprodursi ma l'impronta di base non è
+mai cambiata; un contratto `Operation` (P03) più
+`validate_status_transition()`, il ciclo di vita condiviso di
+obiettivo/lavoro/operazione - `received`/`authorized`/`queued`/`sent`/
+`confirmed`/`terminated`/`rejected`, mai un unico contenitore
+"eseguito"; e un `hydra-umc-sdk-mock-server`
 (`mock_server.py`) che serve un payload di esempio valido per ogni
 contratto noto via HTTP semplice, così una UI o un adattatore possono
 essere sviluppati prima che esista un vero hardware CM5/robot/MCU. Tutti
-e 8 i contratti hanno almeno una fixture di conformità valida e una non
+e 9 i contratti hanno almeno una fixture di conformità valida e una non
 valida, verificate dalla matrice di compatibilità sopra.
 
 ## 🎯 Primo traguardo

@@ -53,16 +53,24 @@ n'avait aucune entrée de validateur, et prouve désormais que chaque fixture
 de conformité est jugée comme son propre nom de fichier l'affirme, ainsi que les
 cas de contrat inconnu et de version de schéma incompatible.
 
-Des contrats supplémentaires ont été livrés depuis le premier jalon (8 au total)
+Des contrats supplémentaires ont été livrés depuis le premier jalon (9 au total)
 ci-dessous : un contrat public de pont vers des machines externes
 `BridgeJob`/`GateDecision` (voir
 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), partagé par
 `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` et doté
 de sa propre forme JSON réelle (`job_to_dict()`/`job_from_dict()`/
-`decision_to_dict()`) ; et un `hydra-umc-sdk-mock-server`
+`decision_to_dict()`) ; un contrat `ScenarioOutcome` plus
+`compare_runs()`, la vérification partagée T07/I60 « est-ce vraiment
+corrigé » qui renvoie `apparent-success` (pas `regression-fixed`) quand
+un échec cesse de se reproduire mais que l'empreinte de base n'a jamais
+bougé ; un contrat `Operation` (P03) plus
+`validate_status_transition()`, le cycle de vie partagé
+objectif/tâche/opération - `received`/`authorized`/`queued`/`sent`/
+`confirmed`/`terminated`/`rejected`, jamais un seul panier « exécuté »
+fourre-tout ; et un `hydra-umc-sdk-mock-server`
 (`mock_server.py`) qui sert un exemple de payload valide par contrat
 connu via HTTP simple, pour qu'une UI ou un adaptateur puisse être
-développé avant qu'un vrai matériel CM5/robot/MCU soit disponible. Les 7
+développé avant qu'un vrai matériel CM5/robot/MCU soit disponible. Les 9
 contrats disposent chacun d'au moins une fixture de conformité valide et
 une invalide, vérifiées par la matrice de compatibilité ci-dessus.
 
