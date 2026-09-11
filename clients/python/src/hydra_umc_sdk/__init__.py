@@ -15,6 +15,8 @@ from .bridge_contract import (
     MachineState,
     evaluate_job,
 )
+from .scenario import ScenarioComparison, compare_runs
+from .validation import ContractValidationError, validate
 
 __all__ = [
     "BridgeError",
@@ -24,6 +26,10 @@ __all__ = [
     "JobPhase",
     "MachineState",
     "evaluate_job",
+    "ScenarioComparison",
+    "compare_runs",
+    "ContractValidationError",
+    "validate",
 ]
 
-__version__ = "0.1.3"
+__version__ = "0.1.5"

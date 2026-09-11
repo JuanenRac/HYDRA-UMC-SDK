@@ -53,7 +53,7 @@ n'avait aucune entrée de validateur, et prouve désormais que chaque fixture
 de conformité est jugée comme son propre nom de fichier l'affirme, ainsi que les
 cas de contrat inconnu et de version de schéma incompatible.
 
-Deux contrats supplémentaires ont été livrés depuis le premier jalon
+Des contrats supplémentaires ont été livrés depuis le premier jalon (8 au total)
 ci-dessous : un contrat public de pont vers des machines externes
 `BridgeJob`/`GateDecision` (voir
 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), partagé par

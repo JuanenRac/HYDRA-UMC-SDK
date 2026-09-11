@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.1.5] - New `ScenarioOutcome` contract + the T07/I60 before/after check
+
+### Added
+
+- **`contracts/json-schema/v1/scenario-outcome.schema.json`** - one run
+  of a fixed reproduction scenario, `before` or `after` a candidate fix:
+  a stable `scenario_id` + `repro_case` say WHAT is reproduced, `run_id`
+  + `base_fingerprint` pin THIS run to an exact source state, and
+  `observed.outcome` (`reproduced` / `not-reproduced` / `error`) says
+  what happened. Vendored into the Go/Rust/TypeScript client
+  `schemas/`; `conformance/fixtures/v1/scenario-outcome.{valid,invalid}.json`
+  added; `validation.py` gained the matching `ScenarioOutcome` entry so
+  `tools/verify_contract_matrix.py` still passes (`contracts=8`).
+- **`clients/python/src/hydra_umc_sdk/scenario.py`** - `compare_runs(before,
+  after) -> ScenarioComparison`, the reference consumer. It is the same
+  "apparent success" control HYDRA-UMC-DEV-SERVER's own DS08 repair cycle
+  applies, published once so every promotion path (DEV-SERVER,
+  HYDRA-UMC-OPS-AGENT) judges a pair the same way. Verdicts:
+  `regression-fixed` (reproduced before, not after, **and the base
+  genuinely moved**), `still-broken`, `apparent-success` (stopped
+  reproducing but the base fingerprint never changed - nothing was
+  applied), `inconclusive` (phases out of order, a different
+  `scenario_id`/`repro_case` - evidence for the wrong case - the
+  after-run errored, or the before-run never reproduced the failure).
+  Only a genuine `regression-fixed` is `is_promotable`.
+- `examples/python/compare_scenario_runs.py` - two real recorded runs
+  (an `apparent-success` and a `regression-fixed`) and the verdict for
+  each.
+- 12 new tests (`clients/python/tests/test_scenario.py` + `ScenarioOutcome`
+  cases in `test_validation.py`).
+
 ## [0.1.4] - docs/BRIDGE_CONTRACT.md: list all 8 bridges that actually use it
 
 ### Fixed

@@ -1,4 +1,4 @@
-﻿{
+{
   "schema_version": "1.0",
   "contracts": [
     {
@@ -20,6 +20,10 @@
     {
       "file": "safety-state.schema.json",
       "sha256": "2db5c302cf5c8be0631879bc844ace2d3d2796336c736df6500e553e6cbdaf84"
+    },
+    {
+      "file": "scenario-outcome.schema.json",
+      "sha256": "3b5addfe24bab9fb4fa11d0e7a73b159b40b9fbb3c567a919ae5e9450e1a03cb"
     },
     {
       "file": "server-discovery.schema.json",

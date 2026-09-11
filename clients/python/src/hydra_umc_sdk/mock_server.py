@@ -53,6 +53,16 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "timestamp_utc": "2026-01-01T00:00:00Z",
         "checks": {"storage": {"state": "PASS"}},
     },
+    "ScenarioOutcome": {
+        "schema_version": "1.0",
+        "scenario_id": "mock/scenario/example",
+        "run_id": "mock-run-01",
+        "base_fingerprint": "mock-base-00",
+        "phase": "after",
+        "repro_case": "mock-repro-case",
+        "observed": {"outcome": "not-reproduced", "exit_code": 0, "evidence": "mock example"},
+        "timestamp_utc": "2026-01-01T00:00:00Z",
+    },
     "SafetyState": {
         "schema_version": "1.0",
         "state": "READY",

@@ -29,6 +29,21 @@ class ValidationTests(unittest.TestCase):
         with self.assertRaises(ContractValidationError):
             validate("HealthReport", self.fixture("health-report.invalid.json"))
 
+    def test_accepts_scenario_outcome(self):
+        validate("ScenarioOutcome", self.fixture("scenario-outcome.valid.json"))
+
+    def test_rejects_scenario_outcome_bad_phase_and_outcome(self):
+        with self.assertRaises(ContractValidationError):
+            validate("ScenarioOutcome", self.fixture("scenario-outcome.invalid.json"))
+
+    def test_rejects_scenario_outcome_non_object_observed(self):
+        with self.assertRaises(ContractValidationError):
+            validate("ScenarioOutcome", {
+                "schema_version": "1.0", "scenario_id": "s", "run_id": "r",
+                "base_fingerprint": "b", "phase": "after", "repro_case": "c",
+                "observed": "not-an-object", "timestamp_utc": "2026-01-02T09:00:00Z",
+            })
+
     def test_rejects_bad_update_digest(self):
         with self.assertRaises(ContractValidationError):
             validate("UpdateManifest", {"schema_version": "1.0", "project": "HYDRA-UMC-OS", "version": "0.0.2", "artifact_url": "https://example.invalid/a", "sha256": "bad"})
