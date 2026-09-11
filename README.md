@@ -55,17 +55,20 @@ publishes) had no validator entry at all, and now proves every conformance
 fixture is judged the way its own filename claims, plus the unknown-contract
 and incompatible-schema-version cases.
 
-Two more contracts have since shipped beyond the four in the first
-milestone below: a public `BridgeJob`/`GateDecision` external-machine
-bridge contract (see [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)),
-shared by `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER`
-and given its own real JSON wire shape (`job_to_dict()`/`job_from_dict()`/
-`decision_to_dict()`); and a `hydra-umc-sdk-mock-server` (`mock_server.py`)
-that serves one contract-valid example payload per known contract over
-plain HTTP, for a UI or adapter to develop against before any real
-CM5/robot/MCU hardware is available. All 7 contracts have at least one
-valid and one invalid conformance fixture, verified by the compatibility
-matrix above.
+More contracts have since shipped beyond the four in the first milestone
+below: a public `BridgeJob`/`GateDecision` external-machine bridge
+contract (see [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), shared
+by `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` and
+given its own real JSON wire shape (`job_to_dict()`/`job_from_dict()`/
+`decision_to_dict()`); a `ScenarioOutcome` contract plus
+`compare_runs()`, the shared T07/I60 "was it actually fixed" check that
+returns `apparent-success` (not `regression-fixed`) when a failure
+stopped reproducing but the base fingerprint never moved; and a
+`hydra-umc-sdk-mock-server` (`mock_server.py`) that serves one
+contract-valid example payload per known contract over plain HTTP, for a
+UI or adapter to develop against before any real CM5/robot/MCU hardware
+is available. All 8 contracts have at least one valid and one invalid
+conformance fixture, verified by the compatibility matrix above.
 
 ## 🎯 First milestone
 

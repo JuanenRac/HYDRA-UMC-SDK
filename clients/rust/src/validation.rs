@@ -88,6 +88,10 @@ const SCHEMA_FILES: &[(&str, &str)] = &[
         "update-manifest.schema.json",
         include_str!("../schemas/update-manifest.schema.json"),
     ),
+    (
+        "scenario-outcome.schema.json",
+        include_str!("../schemas/scenario-outcome.schema.json"),
+    ),
 ];
 
 /// This crate's embedded copy of `manifest.json` - the generated

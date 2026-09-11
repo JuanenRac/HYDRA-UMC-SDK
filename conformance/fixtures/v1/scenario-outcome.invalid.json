@@ -1,0 +1,1 @@
+{"schema_version":"1.0","scenario_id":"dev-server/I60/apparent-success","run_id":"run-2f9a","base_fingerprint":"a1b2c3d4","phase":"sideways","repro_case":"base-moved-mid-cycle","observed":{"outcome":"maybe"},"timestamp_utc":"2026-01-02T09:15:00Z"}

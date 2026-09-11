@@ -31,6 +31,7 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "SafetyState": ("schema_version", "state", "source", "timestamp_utc"),
     "UpdateManifest": ("schema_version", "project", "version", "artifact_url", "sha256"),
     "EventEnvelope": ("schema_version", "event_id", "type", "source", "timestamp_utc", "sequence"),
+    "ScenarioOutcome": ("schema_version", "scenario_id", "run_id", "base_fingerprint", "phase", "repro_case", "observed", "timestamp_utc"),
     "ServerDiscovery": ("schema_version", "product", "remoteApiVersion", "appVersion", "hostname", "controllerCount", "robotCount", "uptimeSeconds"),
     "ProjectManifest": (
         "schema_version", "ecosystem", "name", "version", "role", "stack", "technologies",
@@ -151,11 +152,21 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
     for field in REQUIRED[contract]:
         if field not in {
             "interfaces", "checks", "sequence", "remoteApiVersion", "controllerCount", "robotCount", "uptimeSeconds",
-            "technologies", "native_version", "parent", "build", "notes",
+            "technologies", "native_version", "parent", "build", "notes", "observed",
         }:
             _require_string(payload, field)
-    if contract in {"HealthReport", "SafetyState", "EventEnvelope"}:
+    if contract in {"HealthReport", "SafetyState", "EventEnvelope", "ScenarioOutcome"}:
         _require_date_time(payload, "timestamp_utc")
+    if contract == "ScenarioOutcome":
+        if payload["phase"] not in {"before", "after"}:
+            raise ContractValidationError("phase must be 'before' or 'after'")
+        observed = payload["observed"]
+        if not isinstance(observed, dict):
+            raise ContractValidationError("observed must be an object")
+        if observed.get("outcome") not in {"reproduced", "not-reproduced", "error"}:
+            raise ContractValidationError("observed.outcome must be 'reproduced', 'not-reproduced' or 'error'")
+        if "exit_code" in observed and type(observed["exit_code"]) is not int:
+            raise ContractValidationError("observed.exit_code must be an integer")
     if contract == "DeviceDescriptor" and not isinstance(payload["interfaces"], list):
         raise ContractValidationError("interfaces must be an array")
     if contract == "DeviceDescriptor" and not all(isinstance(item, str) and item for item in payload["interfaces"]):

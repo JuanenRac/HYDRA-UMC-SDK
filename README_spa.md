@@ -61,7 +61,7 @@ propia forma JSON real (`job_to_dict()`/`job_from_dict()`/
 `decision_to_dict()`); y un `hydra-umc-sdk-mock-server` (`mock_server.py`)
 que sirve un payload de ejemplo válido por cada contrato conocido sobre
 HTTP plano, para que una UI o un adaptador puedan desarrollarse antes de
-que exista hardware CM5/robot/MCU real. Los 7 contratos tienen al menos
+que exista hardware CM5/robot/MCU real. Los 8 contratos tienen al menos
 un accesorio de conformidad válido e inválido, verificados por la matriz
 de compatibilidad de arriba.
 
