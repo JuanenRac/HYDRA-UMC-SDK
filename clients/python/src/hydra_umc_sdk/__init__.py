@@ -28,7 +28,7 @@ from .lifecycle import (
     StructuredLogEntry,
     trace_first_failure,
 )
-from .promotion_journal import PromotionJournal, PromotionPhase, PromotionRecord, recover
+from .promotion_journal import PromotionJournal, PromotionPhase, PromotionRecord, check_service_health, recover
 from .scenario import ScenarioComparison, compare_runs
 from .validation import ContractValidationError, validate
 
@@ -52,6 +52,7 @@ __all__ = [
     "PromotionJournal",
     "PromotionPhase",
     "PromotionRecord",
+    "check_service_health",
     "recover",
     "ScenarioComparison",
     "compare_runs",

@@ -31,6 +31,8 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import urllib.error
+import urllib.request
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from enum import Enum
@@ -56,7 +58,15 @@ class PromotionPhase(str, Enum):
 class PromotionRecord:
     """One real promotion attempt. `target_path`/`staging_path`/
     `backup_path` are always absolute, plain strings (not `Path`, so this
-    round-trips through `json.dumps`/`json.loads` with no custom codec)."""
+    round-trips through `json.dumps`/`json.loads` with no custom codec).
+
+    `health_check_url` (I13): the real URL to probe AFTER promoting,
+    before this promotion may be marked COMPLETE - only ever set when
+    the project's own `hydra-umc.project.json` declares a
+    `service_health_path` (see HYDRA-UMC-UPDATER's `project_manifest.py`);
+    `None` means this project declares no health endpoint, so promotion
+    completes the moment the rename itself succeeds, same as before this
+    field existed."""
 
     promotion_id: str
     project: str
@@ -66,6 +76,7 @@ class PromotionRecord:
     phase: PromotionPhase
     started_at_utc: str
     updated_at_utc: str
+    health_check_url: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         payload = asdict(self)
@@ -83,6 +94,11 @@ class PromotionRecord:
             phase=PromotionPhase(payload["phase"]),
             started_at_utc=payload["started_at_utc"],
             updated_at_utc=payload["updated_at_utc"],
+            # .get(), not [...]: a journal file written before this field
+            # existed has no such key at all - that must read back as "no
+            # health check declared", never a KeyError crashing recover()
+            # on an old, otherwise-valid journal.
+            health_check_url=payload.get("health_check_url"),
         )
 
 
@@ -140,10 +156,17 @@ class PromotionJournal:
         payload = {"schema_version": "1.0", "promotions": {key: record.to_dict() for key, record in records.items()}}
         _atomic_write_json(self.journal_path, payload)
 
-    def begin(self, project: str, target_path: Path, staging_path: Path, backup_path: Path) -> PromotionRecord:
+    def begin(
+        self, project: str, target_path: Path, staging_path: Path, backup_path: Path,
+        *, health_check_url: str | None = None,
+    ) -> PromotionRecord:
         """Writes a new STARTED record BEFORE the caller performs the
         first real rename - the durable analogue of install.py's own
-        in-memory bookkeeping right before its promotion step."""
+        in-memory bookkeeping right before its promotion step.
+        `health_check_url` (I13): pass this project's real health
+        endpoint when it declares one, so a later crash between
+        promoting and checking it is recoverable - see this module's own
+        header and `recover()`'s PROMOTED branch below."""
         now = _now_iso()
         record = PromotionRecord(
             promotion_id=uuid4().hex,
@@ -154,6 +177,7 @@ class PromotionJournal:
             phase=PromotionPhase.STARTED,
             started_at_utc=now,
             updated_at_utc=now,
+            health_check_url=health_check_url,
         )
         records = self._load()
         records[record.promotion_id] = record
@@ -172,6 +196,7 @@ class PromotionJournal:
             target_path=existing.target_path, staging_path=existing.staging_path,
             backup_path=existing.backup_path, phase=phase,
             started_at_utc=existing.started_at_utc, updated_at_utc=_now_iso(),
+            health_check_url=existing.health_check_url,
         )
         self._save(records)
 
@@ -190,6 +215,30 @@ class PromotionJournal:
             (record for record in self._load().values() if record.phase != PromotionPhase.COMPLETE),
             key=lambda record: record.started_at_utc,
         )
+
+
+def check_service_health(url: str, *, timeout: float = 5.0) -> tuple[bool, str]:
+    """I13's own real "servicio comprobado" step: a real, minimal HTTP GET
+    against `url`, never raising. Deliberately STRICTER than a bare
+    reachability probe (compare HYDRA-UMC-LOCAL-TECHNICIAN's own
+    `network.connectivity`, where any real HTTP response - even a 5xx -
+    counts as "reachable"): here the question is "did the promotion I
+    just performed actually come up healthy", so only a real 2xx counts
+    as healthy - a 4xx/5xx means the newly-promoted code IS running and
+    answering, but is not well, and must not be waved through as success.
+    Returns (healthy, reason) - reason is always a real, human-readable
+    fact (the status code, or the real connection failure), never a
+    guess."""
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as response:
+            status = response.getcode()
+            return (200 <= status < 300), f"HTTP {status}"
+    except urllib.error.HTTPError as exc:
+        return False, f"HTTP {exc.code}"
+    except urllib.error.URLError as exc:
+        return False, str(exc.reason)
+    except (TimeoutError, OSError) as exc:
+        return False, str(exc)
 
 
 def recover(journal: PromotionJournal) -> list[str]:
@@ -213,7 +262,14 @@ def recover(journal: PromotionJournal) -> list[str]:
       - phase PROMOTED: `staging_path` was already renamed into
         `target_path` before the crash - the promotion in fact
         succeeded, only the journal never got to record COMPLETE. No
-        filesystem action needed; the promotion is real.
+        filesystem action needed; the promotion is real. If this record
+        declares a `health_check_url` (I13), the pending health check
+        itself is run for real right now, exactly as `install.py` would
+        have run it had the crash not interrupted things - never
+        skipped, and never repeating the actual install/build. A check
+        that still fails leaves the record pending (same "leave it for a
+        human" precedent the BACKED_UP branch already sets below), so
+        recovery never announces success prematurely.
 
     Every real, distinct outcome (including a state that does not match
     what the filesystem actually shows - e.g. BACKED_UP but
@@ -243,6 +299,21 @@ def recover(journal: PromotionJournal) -> list[str]:
                 backup.rename(target)
                 actions.append(f"{record.project}: restored {backup} -> {target} (interrupted promotion, phase was BACKED_UP)")
         elif record.phase == PromotionPhase.PROMOTED:
-            actions.append(f"{record.project}: promotion {record.promotion_id} had already reached {target} before the interruption - nothing to recover")
+            if record.health_check_url:
+                healthy, reason = check_service_health(record.health_check_url)
+                if healthy:
+                    actions.append(
+                        f"{record.project}: promotion {record.promotion_id} had already reached {target}; "
+                        f"its pending health check now passes ({reason}) - completing"
+                    )
+                else:
+                    actions.append(
+                        f"{record.project}: promotion {record.promotion_id} had already reached {target}, but its "
+                        f"pending health check still fails ({reason}) - leaving pending for a human/next run, not "
+                        "announcing success"
+                    )
+                    continue  # do NOT mark complete - same precedent as the BACKED_UP branch above
+            else:
+                actions.append(f"{record.project}: promotion {record.promotion_id} had already reached {target} before the interruption - nothing to recover")
         journal.complete(record.promotion_id)
     return actions

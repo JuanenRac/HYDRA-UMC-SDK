@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from hydra_umc_sdk.promotion_journal import PromotionJournal, PromotionPhase, recover
+from hydra_umc_sdk.promotion_journal import PromotionJournal, PromotionPhase, check_service_health, recover
 
 
 class PromotionJournalBasicsTests(unittest.TestCase):
@@ -156,6 +156,192 @@ class RecoverTests(unittest.TestCase):
         with TemporaryDirectory() as tmp:
             journal = PromotionJournal(Path(tmp) / "journal.json")
             self.assertEqual(recover(journal), [])
+
+    def test_a_promoted_promotion_with_no_health_check_url_needs_no_action(self):
+        # Same real case as test_a_promoted_promotion_needs_no_filesystem_action
+        # above, made explicit for a project that declares no health
+        # endpoint at all (health_check_url=None) - must behave exactly
+        # as it always did, not silently start requiring one.
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / "project"
+            target.mkdir()
+            journal = PromotionJournal(root / "journal.json")
+            record = journal.begin("demo", target, root / "project.staging", root / "project.backup")
+            journal.advance(record.promotion_id, PromotionPhase.PROMOTED)
+
+            actions = recover(journal)
+
+            self.assertEqual(journal.pending(), [])
+            self.assertIn("nothing to recover", actions[0])
+
+    def test_i13_a_promoted_promotion_with_a_passing_health_check_completes(self):
+        import threading
+        from http.server import BaseHTTPRequestHandler, HTTPServer
+
+        class _Handler(BaseHTTPRequestHandler):
+            def do_GET(self):  # noqa: N802
+                self.send_response(200)
+                self.end_headers()
+
+            def log_message(self, *args):
+                pass
+
+        server = HTTPServer(("127.0.0.1", 0), _Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            port = server.server_address[1]
+            with TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                target = root / "project"
+                target.mkdir()
+                journal = PromotionJournal(root / "journal.json")
+                record = journal.begin(
+                    "demo", target, root / "project.staging", root / "project.backup",
+                    health_check_url=f"http://127.0.0.1:{port}/health",
+                )
+                journal.advance(record.promotion_id, PromotionPhase.PROMOTED)
+
+                actions = recover(journal)
+
+                self.assertEqual(journal.pending(), [], "a passing health check must complete the promotion, not leave it pending forever")
+                self.assertIn("now passes", actions[0])
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+
+    def test_i13_a_promoted_promotion_with_a_failing_health_check_stays_pending(self):
+        # I13's own real acceptance test: cut the process after PROMOTED
+        # and before the health check ever ran (simulated here by simply
+        # never having a real server listening) - recovery must run the
+        # real pending check, find it failing, and refuse to announce
+        # success by leaving the record pending rather than completing it.
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / "project"
+            target.mkdir()
+            journal = PromotionJournal(root / "journal.json")
+            # A real, guaranteed-closed local port - nothing is listening.
+            import socket as _socket
+            probe = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)
+            probe.bind(("127.0.0.1", 0))
+            closed_port = probe.getsockname()[1]
+            probe.close()
+
+            record = journal.begin(
+                "demo", target, root / "project.staging", root / "project.backup",
+                health_check_url=f"http://127.0.0.1:{closed_port}/health",
+            )
+            journal.advance(record.promotion_id, PromotionPhase.PROMOTED)
+
+            actions = recover(journal)
+
+            self.assertEqual(len(journal.pending()), 1, "a failing health check must never be silently completed")
+            self.assertIn("still fails", actions[0])
+
+    def test_health_check_url_survives_advance_across_phases(self):
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            journal = PromotionJournal(root / "journal.json")
+            record = journal.begin(
+                "demo", root / "target", root / "staging", root / "backup",
+                health_check_url="http://127.0.0.1:9/health",
+            )
+            journal.advance(record.promotion_id, PromotionPhase.BACKED_UP)
+            journal.advance(record.promotion_id, PromotionPhase.PROMOTED)
+            reloaded = PromotionJournal(root / "journal.json").pending()[0]
+            self.assertEqual(reloaded.health_check_url, "http://127.0.0.1:9/health")
+
+    def test_a_journal_file_written_before_health_check_url_existed_still_loads(self):
+        # Real backward compatibility: an old journal entry on disk simply
+        # has no "health_check_url" key at all - from_dict() must default
+        # it to None, never KeyError.
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "journal.json"
+            old_shaped_payload = {
+                "schema_version": "1.0",
+                "promotions": {
+                    "abc123": {
+                        "promotion_id": "abc123", "project": "demo",
+                        "target_path": "/a", "staging_path": "/a-s", "backup_path": "/a-b",
+                        "phase": "promoted", "started_at_utc": "2020-01-01T00:00:00Z",
+                        "updated_at_utc": "2020-01-01T00:00:00Z",
+                        # no health_check_url key - matches a real pre-I13 journal
+                    }
+                },
+            }
+            path.write_text(json.dumps(old_shaped_payload), encoding="utf-8")
+            journal = PromotionJournal(path)
+            pending = journal.pending()
+            self.assertEqual(len(pending), 1)
+            self.assertIsNone(pending[0].health_check_url)
+
+
+class CheckServiceHealthTests(unittest.TestCase):
+    def test_a_real_2xx_response_is_healthy(self):
+        import threading
+        from http.server import BaseHTTPRequestHandler, HTTPServer
+
+        class _Handler(BaseHTTPRequestHandler):
+            def do_GET(self):  # noqa: N802
+                self.send_response(200)
+                self.end_headers()
+
+            def log_message(self, *args):
+                pass
+
+        server = HTTPServer(("127.0.0.1", 0), _Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            port = server.server_address[1]
+            healthy, reason = check_service_health(f"http://127.0.0.1:{port}/health")
+            self.assertTrue(healthy)
+            self.assertEqual(reason, "HTTP 200")
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+
+    def test_a_real_500_response_is_not_healthy(self):
+        # The key real difference from a bare reachability probe: the
+        # endpoint DID answer, but a 5xx means the freshly-promoted
+        # service itself is not well - this must not be waved through.
+        import threading
+        from http.server import BaseHTTPRequestHandler, HTTPServer
+
+        class _Handler(BaseHTTPRequestHandler):
+            def do_GET(self):  # noqa: N802
+                self.send_response(500)
+                self.end_headers()
+
+            def log_message(self, *args):
+                pass
+
+        server = HTTPServer(("127.0.0.1", 0), _Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            port = server.server_address[1]
+            healthy, reason = check_service_health(f"http://127.0.0.1:{port}/health")
+            self.assertFalse(healthy)
+            self.assertEqual(reason, "HTTP 500")
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+
+    def test_a_real_closed_port_is_not_healthy(self):
+        import socket
+
+        probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        probe.bind(("127.0.0.1", 0))
+        closed_port = probe.getsockname()[1]
+        probe.close()
+
+        healthy, reason = check_service_health(f"http://127.0.0.1:{closed_port}/health", timeout=1.0)
+
+        self.assertFalse(healthy)
+        self.assertTrue(reason)  # some real, non-empty reason - never silently empty
 
 
 class AtomicWriteTests(unittest.TestCase):
