@@ -1,5 +1,37 @@
 # Changelog
 
+## [0.1.9] - P01/I13: recover a health check left pending by a crash, not just a rename
+
+I13 ("Checkpoints respaldados por postcondiciones"): a
+promotion that finishes its 2 renames is not necessarily a HEALTHY
+promotion - the real postcondition the plan calls for is "servicio
+comprobado" (service checked), not merely "files moved". `PromotionRecord`
+gains an optional `health_check_url` (only set when a project's own
+`hydra-umc.project.json` declares a `service_health_path`); new
+`check_service_health(url)` does a real, minimal HTTP GET - deliberately
+STRICTER than a bare reachability probe (compare
+HYDRA-UMC-LOCAL-TECHNICIAN's own `network.connectivity`, where any real
+HTTP response counts as reachable): here, only a real 2xx counts as
+healthy, since a 4xx/5xx means the freshly-promoted code IS running but
+is not well, and must not be waved through as success.
+
+`recover()`'s own PROMOTED branch used to say "nothing to recover" for
+every promoted record - now, when a `health_check_url` is set, it runs
+the real pending check right now (never repeating the actual clone/build)
+and only marks the promotion `COMPLETE` if it genuinely passes; a check
+that still fails leaves the record pending for a human/next run instead
+of announcing success prematurely - I13's own literal acceptance test:
+cut the process after promoting and before checking health, restart,
+and the pending check runs for real rather than being silently skipped.
+
+8 new tests (`test_promotion_journal.py`, `CheckServiceHealthTests` +
+extensions to `RecoverTests`): a real local HTTP server answering 200
+(health check passes, promotion completes), one answering 500 (fails,
+stays pending), a real closed port (fails, stays pending), `health_check_url`
+surviving `advance()` across phase transitions, and a pre-I13-shaped
+journal file (no `health_check_url` key at all) still loading with it
+defaulting to `None`.
+
 ## [0.1.8] - P01: a durable, transactional promotion journal
 
 ### Added
