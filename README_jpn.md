@@ -87,6 +87,7 @@ Protobuf の公開と、さらなる言語のクライアントは、その後�
 - **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — CM5-MCU/URTCアダプタ境界:トランスポート、フレーミング、プロトコル、サービスの各層、そしてMCUが物理的な限界と安全停止について権威であり続ける理由。
 - **[docs/API_DESIGN.md](docs/API_DESIGN.md)** — HYDRA-UMC-SERVER自身の公開HTTP/WebSocket APIが従う規約:バージョン管理された `/api/v1` ルート、コマンド結果の `ACCEPTED`/`REJECTED`/`RUNNING`/`COMPLETED`/`FAILED` 形式。
 - **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** — このSDK自身の契約が開発されているスキーマファーストのワークフロー、そして契約変更に必要なもの(変更履歴のエントリ、互換性の判断、例、テスト)。
+- **[docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md)** — どのリポジトリも自己点検できる、共有のテストレベル、プラットフォームマトリクス、結果ごとの最低限のエビデンス、再現可能なキャンペーンの目標、フィクスチャの独立性、コスト/ストレージの規約。
 - **[docs/PROJECT_MANIFEST.md](docs/PROJECT_MANIFEST.md)** — このエコシステムの各リポジトリが公開する `hydra-umc.project.json` 契約。
 - **[docs/HEADER_CONVENTION.md](docs/HEADER_CONVENTION.md)** — このエコシステム全体で新しいソース・ドキュメントファイルに必要な著作権/ライセンスヘッダー。
 

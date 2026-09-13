@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.1] - New docs/TESTING_STRATEGY.md: shared test levels, evidence, and fixture conventions
+
+- Published the shared test-level (per-commit/contract-change/scheduled/
+  release-candidate), platform-matrix, minimum-evidence-per-result,
+  reproducible-campaign target, fixture-independence, and cost/storage
+  conventions every repository's own `build-test`/`ci_validate` already
+  approximates on its own - previously only living as a private planning
+  document, now a real, linkable guide. Cross-references
+  `compare_runs()`/`ScenarioOutcome` (T07/I60) as the reproducible-scenario
+  level's own "was it actually fixed" check.
+- Linked from README.md's "Further documentation" list in all 7
+  languages.
+
 ## [0.2.0] - I02: Operation.result + Capability, and 2 real cross-client drift bugs fixed along the way
 
 I02 ("Contrato de evidencia de ejecución, distinto de la capacidad

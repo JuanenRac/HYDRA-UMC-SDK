@@ -84,6 +84,7 @@ OpenAPI v1 切片(`contracts/openapi/v1/server.openapi.json` - 参见
 - **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — CM5-MCU/URTC 适配器边界:传输、成帧、协议与服务各层,以及为何 MCU 始终对物理限位和安全停止拥有最终权威。
 - **[docs/API_DESIGN.md](docs/API_DESIGN.md)** — HYDRA-UMC-SERVER 自身公开 HTTP/WebSocket API 所遵循的约定:带版本号的 `/api/v1` 路由,以及命令结果的 `ACCEPTED`/`REJECTED`/`RUNNING`/`COMPLETED`/`FAILED` 形式。
 - **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** — 本 SDK 自身合约所遵循的 schema 优先工作流程,以及一次合约变更所需要的内容(变更日志条目、兼容性决策、示例、测试)。
+- **[docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md)** — 各仓库都可以用来自我对照的共享测试级别、平台矩阵、每个结果的最低证据、可复现活动的目标、fixture 独立性以及成本/存储约定。
 - **[docs/PROJECT_MANIFEST.md](docs/PROJECT_MANIFEST.md)** — 本生态系统中每个仓库都会发布的 `hydra-umc.project.json` 合约。
 - **[docs/HEADER_CONVENTION.md](docs/HEADER_CONVENTION.md)** — 整个生态系统中新源代码和文档文件所需的版权/许可证头部格式。
 
