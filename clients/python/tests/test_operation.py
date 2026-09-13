@@ -8,8 +8,11 @@ import unittest
 from hydra_umc_sdk.operation import (
     OPERATION_STATUSES,
     OperationRecord,
+    OperationResult,
     TERMINAL_STATUSES,
+    concludes_success,
     is_terminal,
+    parse_operation_result,
     validate_status_transition,
 )
 from hydra_umc_sdk.validation import ContractValidationError
@@ -91,6 +94,98 @@ class OperationRecordTests(unittest.TestCase):
     def test_from_payload_rejects_a_target_missing_id(self):
         with self.assertRaises(ContractValidationError):
             OperationRecord.from_payload(_operation(target={"kind": "robot"}))
+
+
+def _result(**over):
+    payload = {
+        "run_id": "run-1",
+        "origin": "real",
+        "observers_enabled": True,
+        "outcome": "success",
+        "observed_at_utc": "2026-01-01T00:00:04Z",
+    }
+    payload.update(over)
+    return payload
+
+
+class OperationResultTests(unittest.TestCase):
+    def test_rejects_non_success_outcome_without_a_reason(self):
+        with self.assertRaises(ValueError):
+            OperationResult(run_id="run-1", origin="real", observers_enabled=True, outcome="failure")
+
+    def test_rejects_unknown_origin(self):
+        with self.assertRaises(ValueError):
+            OperationResult(run_id="run-1", origin="simulated-ish", observers_enabled=True, outcome="success")
+
+    def test_rejects_empty_run_id(self):
+        with self.assertRaises(ValueError):
+            OperationResult(run_id="", origin="real", observers_enabled=True, outcome="success")
+
+
+class ParseOperationResultTests(unittest.TestCase):
+    def test_parses_a_real_payload(self):
+        result = parse_operation_result(_result(revision="config-rev-7"))
+        self.assertEqual(result.run_id, "run-1")
+        self.assertEqual(result.origin, "real")
+        self.assertTrue(result.observers_enabled)
+        self.assertEqual(result.outcome, "success")
+        self.assertEqual(result.revision, "config-rev-7")
+        self.assertIsNotNone(result.observed_at)
+
+    def test_never_observed_payload_omits_observed_at(self):
+        payload = _result(outcome="unknown", outcome_reason="observer offline")
+        del payload["observed_at_utc"]
+        result = parse_operation_result(payload)
+        self.assertIsNone(result.observed_at)
+
+
+# --- I02's own literal acceptance test: a result from another session, or
+# with observers disabled, must never permit concluding success. ---
+
+
+class ConcludesSuccessTests(unittest.TestCase):
+    def test_a_real_active_fresh_result_concludes_success(self):
+        ok, reason = concludes_success(parse_operation_result(_result()))
+        self.assertTrue(ok)
+        self.assertIn("run-1", reason)
+
+    def test_a_result_from_a_different_run_never_concludes_success(self):
+        # The exact real anti-pattern this fix closes: a stale or replayed
+        # result for a DIFFERENT run_id than the one the caller actually
+        # started must never be silently accepted as this run's evidence.
+        result = parse_operation_result(_result(run_id="run-OLD"))
+        ok, reason = concludes_success(result, expected_run_id="run-NEW")
+        self.assertFalse(ok)
+        self.assertIn("run-OLD", reason)
+        self.assertIn("run-NEW", reason)
+
+    def test_disabled_observers_never_conclude_success_even_with_outcome_success(self):
+        result = parse_operation_result(_result(observers_enabled=False))
+        ok, reason = concludes_success(result)
+        self.assertFalse(ok)
+        self.assertIn("disabled", reason)
+
+    def test_never_observed_never_concludes_success(self):
+        payload = _result(outcome="unknown", outcome_reason="observer offline")
+        del payload["observed_at_utc"]
+        result = parse_operation_result(payload)
+        ok, reason = concludes_success(result)
+        self.assertFalse(ok)
+        self.assertIn("never actually observed", reason)
+
+    def test_a_real_failure_outcome_never_concludes_success(self):
+        result = parse_operation_result(_result(outcome="failure", outcome_reason="target unreachable"))
+        ok, reason = concludes_success(result)
+        self.assertFalse(ok)
+        self.assertEqual(reason, "target unreachable")
+
+    def test_expected_run_id_none_never_gates_on_run_id(self):
+        # A caller that doesn't track its own run_id (a simple consumer)
+        # still gets the observer/outcome gates - only run_id comparison
+        # is skipped when it isn't supplied.
+        result = parse_operation_result(_result(run_id="whatever"))
+        ok, _ = concludes_success(result, expected_run_id=None)
+        self.assertTrue(ok)
 
 
 if __name__ == "__main__":

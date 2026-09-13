@@ -53,6 +53,7 @@ const CONTRACT_FILES: Record<ContractName, string> = {
   ProjectManifest: "project-manifest.schema.json",
   ScenarioOutcome: "scenario-outcome.schema.json",
   Operation: "operation.schema.json",
+  Capability: "capability.schema.json",
 };
 
 /**

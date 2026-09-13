@@ -23,11 +23,26 @@ safety gate for external machine bridges specifically, not a general
 cross-service lifecycle - the two are not redundant, and a bridge job
 reaching SERVER/ORCHESTRATOR can be wrapped in an Operation without
 either contract needing to change.
+
+I02 ("Contrato de evidencia de ejecucion, distinto de la capacidad
+declarada"): an Operation reaching a terminal status is not, by itself,
+proof anything really happened - `status: "terminated"` only means the
+lifecycle's own bookkeeping finished, which a queue can report even
+with observation entirely disabled. `OperationResult`/
+`concludes_success()` below are the one real gate that decides whether
+a result is trustworthy evidence of success: a result from a different
+run (a stale/replayed message), one produced with observers disabled,
+or one never actually observed, must never be silently read as success.
+See `capability.py`'s own module docstring for the companion half of
+I02 - whether a target even declares (and recently verified) support
+for a `kind` at all, a separate question from whether one particular
+Operation of that kind actually succeeded.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
 from .validation import validate
@@ -124,3 +139,96 @@ class OperationRecord:
             target_kind=target["kind"],
             target_id=target["id"],
         )
+
+
+OPERATION_RESULT_ORIGINS: tuple[str, ...] = ("real", "simulated")
+OPERATION_RESULT_OUTCOMES: tuple[str, ...] = ("success", "failure", "unknown")
+
+
+@dataclass(frozen=True)
+class OperationResult:
+    """I02's own "resultado compartido": run_id/origin/observers_enabled
+    are the evidence `concludes_success()` needs to refuse a stale,
+    simulated-when-real-was-expected, or unobserved outcome - never
+    trust `outcome == "success"` alone."""
+
+    run_id: str
+    origin: str
+    observers_enabled: bool
+    outcome: str
+    revision: str | None = None
+    accepted_at: datetime | None = None
+    executed_at: datetime | None = None
+    observed_at: datetime | None = None
+    outcome_reason: str | None = None
+
+    def __post_init__(self) -> None:
+        if not self.run_id:
+            raise ValueError("run_id must be a non-empty string")
+        if self.origin not in OPERATION_RESULT_ORIGINS:
+            raise ValueError(f"origin must be one of {OPERATION_RESULT_ORIGINS}, got {self.origin!r}")
+        if self.outcome not in OPERATION_RESULT_OUTCOMES:
+            raise ValueError(f"outcome must be one of {OPERATION_RESULT_OUTCOMES}, got {self.outcome!r}")
+        if self.outcome != "success" and not self.outcome_reason:
+            raise ValueError("outcome_reason is required when outcome is not 'success'")
+
+
+def parse_operation_result(payload: dict[str, Any]) -> OperationResult:
+    """Parses a bare `result` object - the same shape `Operation.result`
+    carries - independent of the enclosing Operation, so a result can be
+    stored/audited/compared on its own. Does not itself validate against
+    the full Operation contract (there is no standalone Operation.result
+    JSON Schema entry); construction's own `__post_init__` above is the
+    real invariant check for this shape."""
+
+    def _parse_dt(key: str) -> datetime | None:
+        raw = payload.get(key)
+        return datetime.fromisoformat(raw.replace("Z", "+00:00")) if raw else None
+
+    return OperationResult(
+        run_id=payload["run_id"],
+        origin=payload["origin"],
+        observers_enabled=payload["observers_enabled"],
+        outcome=payload["outcome"],
+        revision=payload.get("revision"),
+        accepted_at=_parse_dt("accepted_at_utc"),
+        executed_at=_parse_dt("executed_at_utc"),
+        observed_at=_parse_dt("observed_at_utc"),
+        outcome_reason=payload.get("outcome_reason"),
+    )
+
+
+def concludes_success(result: OperationResult, *, expected_run_id: str | None = None) -> tuple[bool, str]:
+    """The real gate I02 exists for: whether `result` is trustworthy
+    enough evidence to conclude the Operation it belongs to actually
+    succeeded. Checked in this fixed order, each able to short-circuit
+    the rest:
+
+    1. `expected_run_id` (when the caller supplies one - e.g. "the run_id
+       I started this Operation under") must match `result.run_id` - a
+       result from another session/process instance must never be
+       silently accepted as evidence for this one.
+    2. `observers_enabled` must be true - a result produced while
+       observation itself was turned off cannot confirm anything really
+       happened, regardless of what `outcome` claims.
+    3. `observed_at` must be set - `outcome == "success"` alone (backed
+       only by `accepted_at`/`executed_at`) is exactly the "queue says
+       done" illusion I02 exists to close; only a real observation
+       counts.
+    4. Only then is `outcome` itself checked.
+
+    Returns (True, reason) only when every one of those holds AND
+    `outcome == "success"`.
+    """
+    if expected_run_id is not None and result.run_id != expected_run_id:
+        return False, (
+            f"result belongs to run {result.run_id!r}, not the expected {expected_run_id!r} - "
+            "a stale or replayed result must not be trusted"
+        )
+    if not result.observers_enabled:
+        return False, "observers were disabled for this run - cannot confirm the outcome really happened"
+    if result.observed_at is None:
+        return False, "never actually observed - requested/accepted/executed alone do not confirm the outcome"
+    if result.outcome != "success":
+        return False, result.outcome_reason or f"outcome is {result.outcome}"
+    return True, f"confirmed by a real, active observer (run {result.run_id})"

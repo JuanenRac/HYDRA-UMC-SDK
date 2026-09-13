@@ -33,6 +33,7 @@ FIXTURES_DIR = ROOT / "conformance" / "fixtures" / "v1"
 CLIENT_SRC = ROOT / "clients" / "python" / "src"
 GO_VALIDATION = ROOT / "clients" / "go" / "validation.go"
 TS_VALIDATION = ROOT / "clients" / "typescript" / "src" / "validation.ts"
+RUST_VALIDATION = ROOT / "clients" / "rust" / "src" / "validation.rs"
 sys.path.insert(0, str(CLIENT_SRC))
 
 from hydra_umc_sdk.validation import REQUIRED, ContractValidationError, validate  # noqa: E402
@@ -88,10 +89,22 @@ def check_other_client_coverage(schema_contracts: dict[str, Path]) -> None:
     never added to the Go or TypeScript clients' own contract maps - this
     function only ever checked the Python validator, so that gap went
     uncaught through a whole prior contract addition. Cheap, regex-based
-    extraction (not a real Go/TS parse) is enough here: both files declare
-    their contract map as a flat `"Name": "....schema.json"` literal, one
-    entry per line, so this only ever needs to be as strict as catching a
-    missing or stale entry - not as a general-purpose language parser.
+    extraction (not a real Go/TS/Rust parse) is enough here: all three
+    files declare their contract map as a flat `"Name": "....schema.json"`
+    (or `("Name", "....schema.json")` for Rust) literal, one entry per
+    line, so this only ever needs to be as strict as catching a missing or
+    stale entry - not as a general-purpose language parser.
+
+    A second real instance of this exact drift class was found while
+    adding the Capability contract (I02): this function had grown a Go
+    and a TypeScript check but never a Rust one, even though Rust has its
+    own separate `CONTRACT_FILES` map exactly like the other two - Rust's
+    ScenarioOutcome and Operation entries had silently gone missing
+    (`validate("Operation", ...)` returned "unknown contract" for every
+    real payload) through two whole prior contract additions before this
+    check below caught up to the other two languages. Fixed alongside
+    Capability; see clients/rust/src/validation.rs's own comment for the
+    concrete fix.
     """
     schema_names = set(schema_contracts)
 
@@ -116,6 +129,17 @@ def check_other_client_coverage(schema_contracts: dict[str, Path]) -> None:
         if stale:
             fail(f"clients/typescript/src/validation.ts CONTRACT_FILES has stale entries: {', '.join(stale)}")
         print(f"CONTRACT_MATRIX_TS_COVERAGE=PASS contracts={len(ts_names)}")
+
+    if RUST_VALIDATION.exists():
+        rust_source = RUST_VALIDATION.read_text(encoding="utf-8")
+        rust_names = set(re.findall(r'\(\s*"([A-Za-z]+)",\s*"[a-z0-9-]+\.schema\.json"\s*\)', rust_source))
+        missing = sorted(schema_names - rust_names)
+        stale = sorted(rust_names - schema_names)
+        if missing:
+            fail(f"clients/rust/src/validation.rs CONTRACT_FILES is missing: {', '.join(missing)}")
+        if stale:
+            fail(f"clients/rust/src/validation.rs CONTRACT_FILES has stale entries: {', '.join(stale)}")
+        print(f"CONTRACT_MATRIX_RUST_COVERAGE=PASS contracts={len(rust_names)}")
 
 
 def check_fixture_matrix() -> int:

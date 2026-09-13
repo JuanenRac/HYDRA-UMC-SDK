@@ -39,6 +39,9 @@ const CONTRACT_FIXTURE_STEM: &[(&str, &str)] = &[
     ("SafetyState", "safety-state"),
     ("ServerDiscovery", "server-discovery"),
     ("UpdateManifest", "update-manifest"),
+    ("ScenarioOutcome", "scenario-outcome"),
+    ("Operation", "operation"),
+    ("Capability", "capability"),
 ];
 
 #[test]
@@ -82,9 +85,9 @@ fn unknown_contract_is_rejected() {
 }
 
 #[test]
-fn known_contracts_lists_all_seven() {
+fn known_contracts_lists_all_ten() {
     let names = known_contracts();
-    assert_eq!(names.len(), 7, "expected 7 known contracts, got {names:?}");
+    assert_eq!(names.len(), 10, "expected 10 known contracts, got {names:?}");
 }
 
 #[test]

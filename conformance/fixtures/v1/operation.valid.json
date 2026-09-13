@@ -7,12 +7,22 @@
     "kind": "robot",
     "id": "controller-1:robot-3"
   },
-  "status": "queued",
-  "status_reason": "waiting for the XY table's own reservation to clear",
+  "status": "terminated",
+  "status_reason": "confirmed complete by a real, active observer",
   "requested_at_utc": "2024-01-01T00:00:00Z",
   "updated_at_utc": "2024-01-01T00:00:04Z",
   "params": {
     "pose": {"x": 120.5, "y": 40.0, "z": 15.0},
     "speed": 0.6
+  },
+  "result": {
+    "run_id": "run-2024-01-01-0001",
+    "revision": "config-rev-7",
+    "origin": "real",
+    "observers_enabled": true,
+    "accepted_at_utc": "2024-01-01T00:00:01Z",
+    "executed_at_utc": "2024-01-01T00:00:03Z",
+    "observed_at_utc": "2024-01-01T00:00:04Z",
+    "outcome": "success"
   }
 }

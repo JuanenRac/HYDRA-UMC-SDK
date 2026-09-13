@@ -54,6 +54,7 @@ var contractFixtureFile = map[string]string{
 	"UpdateManifest":   "update-manifest",
 	"ScenarioOutcome":  "scenario-outcome",
 	"Operation":        "operation",
+	"Capability":       "capability",
 }
 
 func TestAcceptsEveryValidFixture(t *testing.T) {
@@ -92,10 +93,10 @@ func TestUnknownContractIsRejected(t *testing.T) {
 	}
 }
 
-func TestKnownContractsListsAllNine(t *testing.T) {
+func TestKnownContractsListsAllTen(t *testing.T) {
 	names := KnownContracts()
-	if len(names) != 9 {
-		t.Fatalf("expected 9 known contracts, got %d: %v", len(names), names)
+	if len(names) != 10 {
+		t.Fatalf("expected 10 known contracts, got %d: %v", len(names), names)
 	}
 }
 

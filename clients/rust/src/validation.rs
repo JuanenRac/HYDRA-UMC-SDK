@@ -40,11 +40,23 @@ impl std::fmt::Display for ContractValidationError {
 
 impl std::error::Error for ContractValidationError {}
 
-/// Contract name -> vendored schema file name - the same 7 names
+/// Contract name -> vendored schema file name - the same names
 /// documented in `docs/PYTHON_CLIENT.md`'s REQUIRED table for the Python
 /// reference client, and the same mapping
 /// `clients/go/validation.go`'s `contractFiles` and
 /// `clients/typescript/src/validation.ts`'s `CONTRACT_FILES` use.
+///
+/// Real drift found while adding the Capability contract (I02): this map
+/// (unlike `SCHEMA_FILES` below, which embeds the raw bytes of every
+/// vendored schema file) was still missing `ScenarioOutcome` and
+/// `Operation` - both schemas had been embedded and vendored correctly,
+/// but `validate("Operation", ...)`/`validate("ScenarioOutcome", ...)`
+/// returned "unknown contract" for every real payload, silently, because
+/// `tools/verify_contract_matrix.py`'s cross-client coverage check only
+/// ever compared the Go and TypeScript clients against the published
+/// schemas - it never looked at Rust at all. Both fixed here; see that
+/// script's own new Rust coverage check for how this drift class is now
+/// caught automatically going forward.
 const CONTRACT_FILES: &[(&str, &str)] = &[
     ("DeviceDescriptor", "device-descriptor.schema.json"),
     ("EventEnvelope", "event-envelope.schema.json"),
@@ -53,6 +65,9 @@ const CONTRACT_FILES: &[(&str, &str)] = &[
     ("SafetyState", "safety-state.schema.json"),
     ("ServerDiscovery", "server-discovery.schema.json"),
     ("UpdateManifest", "update-manifest.schema.json"),
+    ("ScenarioOutcome", "scenario-outcome.schema.json"),
+    ("Operation", "operation.schema.json"),
+    ("Capability", "capability.schema.json"),
 ];
 
 /// Vendored schema file name -> raw JSON text, embedded at compile time.
@@ -95,6 +110,10 @@ const SCHEMA_FILES: &[(&str, &str)] = &[
     (
         "operation.schema.json",
         include_str!("../schemas/operation.schema.json"),
+    ),
+    (
+        "capability.schema.json",
+        include_str!("../schemas/capability.schema.json"),
     ),
 ];
 

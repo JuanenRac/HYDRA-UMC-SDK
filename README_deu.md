@@ -68,11 +68,22 @@ aber nie geändert hat; ein `Operation`-Vertrag (P03) plus
 `validate_status_transition()`, der gemeinsame Ziel-/Auftrags-/
 Operations-Lebenszyklus - `received`/`authorized`/`queued`/`sent`/
 `confirmed`/`terminated`/`rejected`, niemals ein einziger
-"ausgeführt"-Sammeltopf; und ein
+"ausgeführt"-Sammeltopf; ein optionales `result` auf `Operation` plus
+`concludes_success()` (I02) - echte Evidenz (`run_id`/`origin`/
+`observers_enabled`/`outcome`), die sich weigert, aus einem veralteten/
+wiederholten Ergebnis oder einem Lauf mit deaktivierter Beobachtung
+Erfolg zu schließen; ein eigenständiger `Capability`-Vertrag plus
+`is_capability_usable()` (I02) - ob ein Ziel Unterstützung für eine
+Operations-`kind` überhaupt *deklariert*, wird als Datum modelliert, das
+sich von der Frage unterscheidet, ob diese Unterstützung *kürzlich
+tatsächlich verifiziert* wurde
+(`last_checked_at_utc`/`checked_configuration`/`max_age_seconds`), sodass
+eine deklarierte, aber nie geprüfte oder veraltete Fähigkeit niemals
+stillschweigend als nutzbar behandelt wird; und ein
 `hydra-umc-sdk-mock-server` (`mock_server.py`), der für jeden bekannten
 Vertrag ein gültiges Beispiel-Payload über einfaches HTTP bereitstellt,
 damit eine UI oder ein Adapter entwickelt werden kann, bevor echte
-CM5-/Roboter-/MCU-Hardware verfügbar ist. Alle 9 Verträge besitzen
+CM5-/Roboter-/MCU-Hardware verfügbar ist. Alle 10 Verträge besitzen
 mindestens eine gültige und eine ungültige Konformitäts-Fixture, geprüft
 durch die obige Kompatibilitätsmatrix.
 
