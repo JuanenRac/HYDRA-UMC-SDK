@@ -54,7 +54,7 @@ validatore, e ora dimostra che ogni fixture di conformità viene giudicata
 come afferma il proprio nome file, oltre ai casi di contratto sconosciuto e
 versione di schema incompatibile.
 
-Dal primo traguardo qui sotto sono stati aggiunti altri contratti (9 in totale): un
+Dal primo traguardo qui sotto sono stati aggiunti altri contratti (10 in totale): un
 contratto pubblico di bridge verso macchine esterne
 `BridgeJob`/`GateDecision` (vedi
 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), condiviso da
@@ -68,11 +68,22 @@ mai cambiata; un contratto `Operation` (P03) più
 `validate_status_transition()`, il ciclo di vita condiviso di
 obiettivo/lavoro/operazione - `received`/`authorized`/`queued`/`sent`/
 `confirmed`/`terminated`/`rejected`, mai un unico contenitore
-"eseguito"; e un `hydra-umc-sdk-mock-server`
+"eseguito"; un `result` opzionale su `Operation` più
+`concludes_success()` (I02) - evidenza reale (`run_id`/`origin`/
+`observers_enabled`/`outcome`) che rifiuta di concludere il successo a
+partire da un risultato obsoleto/ripetuto o da un'esecuzione con
+osservazione disattivata; un contratto `Capability` autonomo più
+`is_capability_usable()` (I02) - il fatto che un target *dichiari* di
+supportare un `kind` di operazione è modellato come dato distinto dal
+fatto che quel supporto sia stato *recentemente e davvero verificato*
+(`last_checked_at_utc`/`checked_configuration`/`max_age_seconds`), così
+una capacità dichiarata ma mai verificata o ormai obsoleta non viene mai
+trattata silenziosamente come utilizzabile; e un
+`hydra-umc-sdk-mock-server`
 (`mock_server.py`) che serve un payload di esempio valido per ogni
 contratto noto via HTTP semplice, così una UI o un adattatore possono
 essere sviluppati prima che esista un vero hardware CM5/robot/MCU. Tutti
-e 9 i contratti hanno almeno una fixture di conformità valida e una non
+e 10 i contratti hanno almeno una fixture di conformità valida e una non
 valida, verificate dalla matrice di compatibilità sopra.
 
 ## 🎯 Primo traguardo

@@ -65,11 +65,21 @@ de reproducirse pero la huella base nunca se movió; un contrato
 `Operation` (P03) más `validate_status_transition()`, el ciclo de vida
 compartido de objetivo/trabajo/operación -
 `received`/`authorized`/`queued`/`sent`/`confirmed`/`terminated`/
-`rejected`, nunca un único cajón "ejecutado"-; y un
+`rejected`, nunca un único cajón "ejecutado"-; un `result` opcional en
+`Operation` más `concludes_success()` (I02) - evidencia real
+(`run_id`/`origin`/`observers_enabled`/`outcome`) que se niega a
+concluir éxito a partir de un resultado obsoleto/repetido o de una
+ejecución con la observación desactivada; un contrato `Capability`
+independiente más `is_capability_usable()` (I02) - que un objetivo
+*declare* soportar un `kind` de operación se modela como un dato
+distinto de si ese soporte fue *comprobado de verdad recientemente*
+(`last_checked_at_utc`/`checked_configuration`/`max_age_seconds`), de
+modo que una capacidad declarada pero nunca comprobada o ya caducada
+nunca se trate silenciosamente como utilizable; y un
 `hydra-umc-sdk-mock-server` (`mock_server.py`) que sirve un payload de
 ejemplo válido por cada contrato conocido sobre HTTP plano, para que una
 UI o un adaptador puedan desarrollarse antes de que exista hardware
-CM5/robot/MCU real. Los 9 contratos tienen al menos un accesorio de
+CM5/robot/MCU real. Los 10 contratos tienen al menos un accesorio de
 conformidad válido e inválido, verificados por la matriz de
 compatibilidad de arriba.
 

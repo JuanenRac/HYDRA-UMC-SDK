@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "target": {
+    "kind": "robot",
+    "id": "controller-1:robot-3"
+  },
+  "kind": "move_to_pose",
+  "declared": true,
+  "last_checked_at_utc": "2024-01-01T00:00:00Z",
+  "checked_configuration": "config-rev-7",
+  "max_age_seconds": 3600,
+  "last_check_outcome": "verified"
+}

@@ -71,6 +71,80 @@ class ValidationTests(unittest.TestCase):
                 "params": {}, "error": {"code": "timeout"},
             })
 
+    def _operation_payload(self, **result_over):
+        payload = {
+            "schema_version": "1.0", "operation_id": "o", "correlation_id": "c",
+            "kind": "k", "target": {"kind": "robot", "id": "r"}, "status": "terminated",
+            "requested_at_utc": "2026-01-02T09:00:00Z", "updated_at_utc": "2026-01-02T09:00:00Z",
+            "params": {},
+        }
+        result = {
+            "run_id": "run-1", "origin": "real", "observers_enabled": True,
+            "outcome": "success", "observed_at_utc": "2026-01-02T09:00:04Z",
+        }
+        result.update(result_over)
+        payload["result"] = result
+        return payload
+
+    def test_accepts_operation_with_a_real_result(self):
+        validate("Operation", self._operation_payload())
+
+    def test_rejects_operation_result_non_object(self):
+        payload = self._operation_payload()
+        payload["result"] = "not-an-object"
+        with self.assertRaises(ContractValidationError):
+            validate("Operation", payload)
+
+    def test_rejects_operation_result_missing_run_id(self):
+        payload = self._operation_payload()
+        del payload["result"]["run_id"]
+        with self.assertRaises(ContractValidationError):
+            validate("Operation", payload)
+
+    def test_rejects_operation_result_bad_origin(self):
+        with self.assertRaises(ContractValidationError):
+            validate("Operation", self._operation_payload(origin="on-device"))
+
+    def test_rejects_operation_result_non_boolean_observers_enabled(self):
+        with self.assertRaises(ContractValidationError):
+            validate("Operation", self._operation_payload(observers_enabled="yes"))
+
+    def test_rejects_operation_result_non_success_outcome_without_reason(self):
+        payload = self._operation_payload(outcome="failure")
+        del payload["result"]["observed_at_utc"]
+        with self.assertRaises(ContractValidationError):
+            validate("Operation", payload)
+
+    def test_accepts_operation_result_non_success_outcome_with_reason(self):
+        validate("Operation", self._operation_payload(outcome="unknown", outcome_reason="observer offline"))
+
+    def test_accepts_capability(self):
+        validate("Capability", self.fixture("capability.valid.json"))
+
+    def test_rejects_capability_non_boolean_declared(self):
+        with self.assertRaises(ContractValidationError):
+            validate("Capability", self.fixture("capability.invalid.json"))
+
+    def test_rejects_capability_missing_target_id(self):
+        with self.assertRaises(ContractValidationError):
+            validate("Capability", {
+                "schema_version": "1.0", "target": {"kind": "robot"}, "kind": "move_to_pose", "declared": True,
+            })
+
+    def test_rejects_capability_non_positive_max_age(self):
+        with self.assertRaises(ContractValidationError):
+            validate("Capability", {
+                "schema_version": "1.0", "target": {"kind": "robot", "id": "r"}, "kind": "move_to_pose",
+                "declared": True, "max_age_seconds": 0,
+            })
+
+    def test_rejects_capability_bad_last_check_outcome(self):
+        with self.assertRaises(ContractValidationError):
+            validate("Capability", {
+                "schema_version": "1.0", "target": {"kind": "robot", "id": "r"}, "kind": "move_to_pose",
+                "declared": True, "last_check_outcome": "passed",
+            })
+
     def test_rejects_bad_update_digest(self):
         with self.assertRaises(ContractValidationError):
             validate("UpdateManifest", {"schema_version": "1.0", "project": "HYDRA-UMC-OS", "version": "0.0.2", "artifact_url": "https://example.invalid/a", "sha256": "bad"})

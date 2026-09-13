@@ -80,6 +80,16 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "updated_at_utc": "2026-01-01T00:00:00Z",
         "params": {},
     },
+    "Capability": {
+        "schema_version": "1.0",
+        "target": {"kind": "robot", "id": "mock-controller:mock-robot"},
+        "kind": "move_to_pose",
+        "declared": True,
+        "last_checked_at_utc": "2026-01-01T00:00:00Z",
+        "checked_configuration": "mock-config-01",
+        "max_age_seconds": 3600,
+        "last_check_outcome": "verified",
+    },
     "UpdateManifest": {
         "schema_version": "1.0",
         "project": "HYDRA-UMC-MOCK",

@@ -172,4 +172,5 @@ export type ContractName =
   | "ServerDiscovery"
   | "ProjectManifest"
   | "ScenarioOutcome"
-  | "Operation";
+  | "Operation"
+  | "Capability";

@@ -33,6 +33,7 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "EventEnvelope": ("schema_version", "event_id", "type", "source", "timestamp_utc", "sequence"),
     "ScenarioOutcome": ("schema_version", "scenario_id", "run_id", "base_fingerprint", "phase", "repro_case", "observed", "timestamp_utc"),
     "Operation": ("schema_version", "operation_id", "correlation_id", "kind", "target", "status", "requested_at_utc", "updated_at_utc", "params"),
+    "Capability": ("schema_version", "target", "kind", "declared"),
     "ServerDiscovery": ("schema_version", "product", "remoteApiVersion", "appVersion", "hostname", "controllerCount", "robotCount", "uptimeSeconds"),
     "ProjectManifest": (
         "schema_version", "ecosystem", "name", "version", "role", "stack", "technologies",
@@ -153,7 +154,7 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
     for field in REQUIRED[contract]:
         if field not in {
             "interfaces", "checks", "sequence", "remoteApiVersion", "controllerCount", "robotCount", "uptimeSeconds",
-            "technologies", "native_version", "parent", "build", "notes", "observed", "target", "params",
+            "technologies", "native_version", "parent", "build", "notes", "observed", "target", "params", "declared",
         }:
             _require_string(payload, field)
     if contract in {"HealthReport", "SafetyState", "EventEnvelope", "ScenarioOutcome"}:
@@ -176,6 +177,27 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
             if not isinstance(error, dict) or not isinstance(error.get("code"), str) or not error.get("code") \
                     or not isinstance(error.get("message"), str) or not error.get("message"):
                 raise ContractValidationError("error, when present, must be an object with non-empty code and message")
+        if "result" in payload:
+            # I02: an optional, real result distinct from the Operation's
+            # own status transitions - see operation.py's concludes_success()
+            # for why observers_enabled/run_id/outcome exist at all.
+            result = payload["result"]
+            if not isinstance(result, dict):
+                raise ContractValidationError("result must be an object")
+            for field in ("run_id", "origin"):
+                if not isinstance(result.get(field), str) or not result[field]:
+                    raise ContractValidationError(f"result.{field} must be a non-empty string")
+            if result["origin"] not in {"real", "simulated"}:
+                raise ContractValidationError("result.origin must be 'real' or 'simulated'")
+            if not isinstance(result.get("observers_enabled"), bool):
+                raise ContractValidationError("result.observers_enabled must be a boolean")
+            if result.get("outcome") not in {"success", "failure", "unknown"}:
+                raise ContractValidationError("result.outcome must be 'success', 'failure' or 'unknown'")
+            if result["outcome"] != "success" and not result.get("outcome_reason"):
+                raise ContractValidationError("result.outcome_reason is required when outcome is not 'success'")
+            for ts_field in ("accepted_at_utc", "executed_at_utc", "observed_at_utc"):
+                if ts_field in result:
+                    _require_date_time(result, ts_field)
     if contract == "ScenarioOutcome":
         if payload["phase"] not in {"before", "after"}:
             raise ContractValidationError("phase must be 'before' or 'after'")
@@ -210,6 +232,21 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
         for field in ("remoteApiVersion", "controllerCount", "robotCount", "uptimeSeconds"):
             minimum = 1 if field == "remoteApiVersion" else 0
             _require_integer(payload, field, minimum)
+    if contract == "Capability":
+        target = payload["target"]
+        if not isinstance(target, dict) or not isinstance(target.get("kind"), str) or not target.get("kind") \
+                or not isinstance(target.get("id"), str) or not target.get("id"):
+            raise ContractValidationError("target must be an object with non-empty kind and id")
+        if not isinstance(payload["declared"], bool):
+            raise ContractValidationError("declared must be a boolean")
+        if "last_checked_at_utc" in payload:
+            _require_date_time(payload, "last_checked_at_utc")
+        if "max_age_seconds" in payload:
+            value = payload["max_age_seconds"]
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or value <= 0:
+                raise ContractValidationError("max_age_seconds must be a positive number")
+        if "last_check_outcome" in payload and payload["last_check_outcome"] not in {"verified", "failed", "unknown"}:
+            raise ContractValidationError("last_check_outcome must be 'verified', 'failed' or 'unknown'")
 
 
 def main(argv: list[str] | None = None) -> int:

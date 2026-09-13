@@ -2,6 +2,10 @@
   "schema_version": "1.0",
   "contracts": [
     {
+      "file": "capability.schema.json",
+      "sha256": "f435d0562cd27f9b345266b39619b04a7d078355bc900efdbba337ddc5fa0048"
+    },
+    {
       "file": "device-descriptor.schema.json",
       "sha256": "57317c59d2950b2bb964963d310e1302b4eb0d0efcf6981c51fa4339707523c3"
     },
@@ -15,7 +19,7 @@
     },
     {
       "file": "operation.schema.json",
-      "sha256": "1fc272bbb5753976a73fabe8181af1ec578e5cd6020913adcea2c3d2ba2acbe6"
+      "sha256": "fb96c05012431895937076e8eb69548560c15d8cce351feae789c915c3cd6dd3"
     },
     {
       "file": "project-manifest.schema.json",

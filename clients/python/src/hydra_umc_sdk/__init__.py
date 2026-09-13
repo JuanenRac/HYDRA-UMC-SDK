@@ -15,11 +15,22 @@ from .bridge_contract import (
     MachineState,
     evaluate_job,
 )
+from .capability import (
+    CapabilityError,
+    CapabilityStatus,
+    capability_check_age_seconds,
+    is_capability_check_stale,
+    is_capability_usable,
+    parse_capability_status,
+)
 from .operation import (
     OPERATION_STATUSES,
     OperationRecord,
+    OperationResult,
     TERMINAL_STATUSES,
+    concludes_success,
     is_terminal,
+    parse_operation_result,
     validate_status_transition,
 )
 from .lifecycle import (
@@ -40,10 +51,19 @@ __all__ = [
     "JobPhase",
     "MachineState",
     "evaluate_job",
+    "CapabilityError",
+    "CapabilityStatus",
+    "capability_check_age_seconds",
+    "is_capability_check_stale",
+    "is_capability_usable",
+    "parse_capability_status",
     "OPERATION_STATUSES",
     "OperationRecord",
+    "OperationResult",
     "TERMINAL_STATUSES",
+    "concludes_success",
     "is_terminal",
+    "parse_operation_result",
     "validate_status_transition",
     "BoundedLog",
     "ProcessLifecycleState",
@@ -60,4 +80,4 @@ __all__ = [
     "validate",
 ]
 
-__version__ = "0.1.8"
+__version__ = "0.2.0"

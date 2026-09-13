@@ -1,5 +1,59 @@
 # Changelog
 
+## [0.2.0] - I02: Operation.result + Capability, and 2 real cross-client drift bugs fixed along the way
+
+I02 ("Contrato de evidencia de ejecución, distinto de la capacidad
+declarada"): an Operation reaching a terminal status was never, by
+itself, proof anything really happened - a queue can report
+`status: "terminated"` with observation entirely disabled. New optional
+`result` on the `Operation` contract (`run_id`, `revision`, `origin`
+real/simulated, `observers_enabled`, `accepted_at_utc`/`executed_at_utc`/
+`observed_at_utc`, `outcome` success/failure/unknown with a required
+`outcome_reason` whenever it isn't success) plus `operation.py`'s new
+`concludes_success()` - the real gate that refuses to conclude success
+from a result belonging to a different run, one produced with observers
+disabled, or one never actually observed. New standalone `Capability`
+contract (`target`, `kind`, `declared`, `last_checked_at_utc`,
+`checked_configuration`, `max_age_seconds`, `last_check_outcome`) plus
+`capability.py`'s `is_capability_usable()` - whether a target *declares*
+support for an operation kind at all is now modeled as data distinct
+from whether that support was *recently, actually verified*; a declared
+but never-checked or gone-stale capability is never treated as usable.
+Both mirror this ecosystem's own established calibration/observation
+freshness pattern (HYDRA-UMC-SAFETY-ZONES' `calibration.py`/
+`observation.py`). 10 real contracts now, vendored across all 4
+reference clients (Python/Go/TypeScript/Rust) with matching conformance
+fixtures.
+
+Also fixed two real, unrelated drift bugs found while doing this work:
+
+- This repository's own `hydra-umc.project.json` declared `native_version.file`
+  as `CHANGELOG.md` with a bare `(\d+)\.(\d+)\.(\d+)` pattern - a
+  self-referential, tautological check that could never actually catch
+  the native version (`clients/python/pyproject.toml`) drifting out of
+  sync with the manifest, which is exactly what had already happened:
+  the previous 0.1.9 release bumped the manifest and `CHANGELOG.md` but
+  never `pyproject.toml`/`__init__.py` themselves. Fixed the manifest to
+  point at the real file, and synced the real native version to 0.1.9
+  before bumping to this release.
+- `clients/rust/src/validation.rs`'s `CONTRACT_FILES` map (and the test
+  suite's own `CONTRACT_FIXTURE_STEM`) had silently never gained
+  `ScenarioOutcome` or `Operation` entries, even though both schemas
+  were correctly embedded - `validate("Operation", ...)` returned
+  "unknown contract" for every real payload in the Rust client, through
+  two whole prior contract additions, because `tools/verify_contract_matrix.py`'s
+  cross-client coverage check only ever compared Go and TypeScript
+  against the published schemas, never Rust. Both contracts restored;
+  the matrix script now also cross-checks Rust, so this drift class is
+  caught automatically going forward for all three non-Python clients.
+
+22 new Python tests (`test_capability.py`, `test_operation.py`,
+`test_validation.py`), Go/Rust/TypeScript fixture-loop coverage extended
+automatically via their existing dynamic fixture maps. Verified: python
+161 passed + 20 subtests, go test ok, cargo test 9/9, npm test 28/28
+(tsc clean), verify_contract_matrix PASS contracts=10 (incl. new Rust
+coverage check), ci_validate PASS. README x7 synced (9 -> 10 contracts).
+
 ## [0.1.9] - P01/I13: recover a health check left pending by a crash, not just a rename
 
 I13 ("Checkpoints respaldados por postcondiciones"): a
