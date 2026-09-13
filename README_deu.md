@@ -124,6 +124,7 @@ Lesen Sie [den Vertragsleitfaden](docs/CONTRACTS.md), bevor Sie eine neue Nachri
 - **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — die CM5-MCU/URTC-Adaptergrenze: Transport-, Framing-, Protokoll- und Service-Schichten, und warum der MCU für physische Grenzen und den sicheren Halt maßgeblich bleibt.
 - **[docs/API_DESIGN.md](docs/API_DESIGN.md)** — die Konventionen, denen die eigene öffentliche HTTP/WebSocket-API von HYDRA-UMC-SERVER folgt: versionierte `/api/v1`-Routen und die `ACCEPTED`/`REJECTED`/`RUNNING`/`COMPLETED`/`FAILED`-Form des Befehlsergebnisses.
 - **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** — der Schema-First-Workflow, unter dem die eigenen Verträge dieses SDKs entwickelt werden, und was eine Vertragsänderung erfordert (Changelog-Eintrag, Kompatibilitätsentscheidung, Beispiele, Tests).
+- **[docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md)** — die gemeinsamen Testebenen, die Plattformmatrix, die Mindestevidenz pro Ergebnis, die Ziele für reproduzierbare Kampagnen, die Fixture-Unabhängigkeit und die Kosten-/Speicherkonventionen, an denen sich jedes Repository selbst messen kann.
 - **[docs/PROJECT_MANIFEST.md](docs/PROJECT_MANIFEST.md)** — der `hydra-umc.project.json`-Vertrag, den jedes Repository in diesem Ökosystem veröffentlicht.
 - **[docs/HEADER_CONVENTION.md](docs/HEADER_CONVENTION.md)** — der erforderliche Copyright-/Lizenz-Header für neue Quell- und Dokumentationsdateien in diesem gesamten Ökosystem.
 

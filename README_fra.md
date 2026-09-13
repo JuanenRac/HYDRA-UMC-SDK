@@ -122,6 +122,7 @@ Lisez [le guide du contrat](docs/CONTRACTS.md) avant de définir un nouveau mess
 - **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — la frontière d'adaptateur CM5-MCU/URTC : couches transport, framing, protocole et service, et pourquoi le MCU reste l'autorité pour les limites physiques et l'arrêt sûr.
 - **[docs/API_DESIGN.md](docs/API_DESIGN.md)** — les conventions suivies par la propre API publique HTTP/WebSocket de HYDRA-UMC-SERVER : routes versionnées `/api/v1`, et la forme `ACCEPTED`/`REJECTED`/`RUNNING`/`COMPLETED`/`FAILED` du résultat d'une commande.
 - **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** — le flux de travail schema-first sous lequel les propres contrats de ce SDK sont développés, et ce qu'exige un changement de contrat (entrée de changelog, décision de compatibilité, exemples, tests).
+- **[docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md)** — les niveaux de test partagés, la matrice de plateformes, l'évidence minimale par résultat, les objectifs de campagnes reproductibles, l'indépendance des fixtures et les conventions de coût/stockage auxquelles n'importe quel dépôt peut se comparer.
 - **[docs/PROJECT_MANIFEST.md](docs/PROJECT_MANIFEST.md)** — le contrat `hydra-umc.project.json` que publie chaque dépôt de cet écosystème.
 - **[docs/HEADER_CONVENTION.md](docs/HEADER_CONVENTION.md)** — l'en-tête de copyright/licence requis pour les nouveaux fichiers source et de documentation dans tout cet écosystème.
 
