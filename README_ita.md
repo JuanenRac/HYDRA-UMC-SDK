@@ -37,7 +37,7 @@ validatore di riferimento Python senza dipendenze, fixture di conformità e
 guida all'integrazione. Non sostituisce le API ufficiali per il sistema operativo Raspberry Pi, Hailo, ROS 2, MQTT, OPC-UA o
 MTConnect.
 
-## 🚧Stato
+## 🚧 Stato
 
 Contratti JSON Schema v1, fixture valide/non valide, un client di convalida Python,
 e vengono implementati i test lato host, oltre a una vera prima porzione OpenAPI v1

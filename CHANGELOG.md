@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.2.3] - H048: real, automatic README section-structure parity between languages
+
+The ecosystem's own Related Projects catalog gap (H058) was found by
+manual audit - nothing automatically checked whether a translation's
+own README structure actually matched its English original.
+
+- New `hydra_umc_sdk.readme_parity` module: `check_readme_section_parity()`
+  compares README.md's own ordered `## <emoji>` heading signature
+  against every translation's - reports a missing section, an extra
+  one, a reordered one, or a mismatched heading emoji, without caring
+  about the translated prose at all. Reuses what already exists in
+  every repo (the emoji itself is never translated) instead of
+  inventing a new `canonical:start/end` marker convention that would
+  duplicate information hundreds of files already encode. 9 new unit
+  tests.
+- New `tools/sync_readme_parity.py`: same real distribution design as
+  H045's `sync_doc_policy.py` (a vendored `tools/_readme_parity.py`
+  copy per repo, no live runtime dependency added to any repo's own
+  per-commit CI) - adds a real call right after H045's own check in
+  each sibling's `ci_validate.py`.
+- Ran it against the whole ecosystem while building it: found and fixed
+  2 real, tiny structural bugs it was designed to catch (`HYDRA-UMC-SDK`
+  and `HYDRA-UMC-OS`'s own `README_ita.md` each had `## 🚧Stato` missing
+  the space after the emoji, present nowhere in this or 6 other
+  languages) - the exact class of drift this check exists to catch
+  automatically instead of by manual audit.
+
 ## [0.2.2] - H045: the public/private documentation boundary check is a real, tested, canonical module now
 
 Every one of this ecosystem's ~60 repos carried its own byte-for-byte
