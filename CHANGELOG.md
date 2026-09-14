@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.2.5] - PROM-G02/G03: a real evidence and promotion-gate standard, describing what the ecosystem's own real closures already do
+
+Two new sections in `docs/PROJECT_MANIFEST.md`, right after "Maturity
+levels": "Promotion evidence" and "Promotion gate". Same spirit as
+0.2.4's own maturity glossary - neither invents a new process, both
+name the real practice this ecosystem's own actual closures already
+follow, so it stops being tribal knowledge.
+
+"Promotion evidence" names what a real change's own record should be
+able to answer (scope, exact command/test run, environment, result,
+known limitations, affected consumers), reusing each repository's own
+existing `CHANGELOG.md`/CI rather than a second registry, and keeps 4
+real evidence kinds distinct rather than letting a lighter one stand in
+for a heavier one: a unit test, a real-process loopback/integration
+test, an emulation (proves this code's own handling of a simulated
+condition, never that real hardware/a real driver works), and a real
+physical-bench/supervised-operation result.
+
+"Promotion gate" is the real checklist this ecosystem's own actual
+maturity changes already apply before changing `maturity`: close real
+blockers on the dependency path, run the affected real consumer's own
+tests too (not just this repository in isolation), a real
+non-incremental build/test, install/run the produced package OUTSIDE
+its own checkout, exercise one real good case and one real bad case,
+and bring manifest/`CHANGELOG.md`/README (all 7 languages)/usage docs
+back in sync with what actually shipped - `established` additionally
+requires a real restart/cancellation/lost-dependency/recovery within
+the promoted scope.
+
 ## [0.2.4] - PROM-G01: a real maturity-level glossary, describing what the ecosystem already does
 
 `maturity` (`scaffolding`/`functional`/`established`/`production`) has
