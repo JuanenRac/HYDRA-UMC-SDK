@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.2.4] - PROM-G01: a real maturity-level glossary, describing what the ecosystem already does
+
+`maturity` (`scaffolding`/`functional`/`established`/`production`) has
+been a validated manifest enum since the beginning, but nothing ever
+wrote down what actually distinguishes the four values - each
+repository's own choice was a judgment call, not a checked criterion.
+
+New "Maturity levels" section in `docs/PROJECT_MANIFEST.md`, grounded in
+the real, current split across all 60 manifests (53 `established`, 5
+`scaffolding`, 1 `functional`, 0 `production`) rather than inventing a
+new rule: `scaffolding` means real, tested code not yet exercised in
+its own real operational context (physical hardware, sustained
+deployment) - even a repository whose own delivery plan is 100% shipped
+(`HYDRA-UMC-DEV-SERVER`) stays `scaffolding` until that happens;
+`functional` means real capability validated against SOME real physical
+target, not yet at `established`'s breadth (`URTC`); `established` is
+real code AND real, sustained use in this ecosystem's own actual
+deployment; `production` is reserved, unclaimed by any repository today.
+Descriptive, not a new mandate - no repository's own `maturity` value
+changes because of this.
+
 ## [0.2.3] - H048: real, automatic README section-structure parity between languages
 
 The ecosystem's own Related Projects catalog gap (H058) was found by
