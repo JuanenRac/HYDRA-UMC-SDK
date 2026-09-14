@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.2.2] - H045: the public/private documentation boundary check is a real, tested, canonical module now
+
+Every one of this ecosystem's ~60 repos carried its own byte-for-byte
+copy of the same public/private documentation boundary check inside its
+own `tools/ci_validate.py` - a real future rule change would have meant
+hand-editing ~60 files, since nothing here was a single source of truth.
+
+- New `hydra_umc_sdk.doc_policy` module: `check_public_private_boundary()`,
+  the exact same two-part check (a bare private-marker name, and a set
+  of private-planning-material phrases) every repo's own CI already ran,
+  now real, tested, canonical code instead of ~60 independent copies. 7
+  new unit tests against a real throwaway git repository (this check
+  shells out to `git grep`, so a fake filesystem alone would never
+  exercise the real command it runs).
+- New `tools/sync_doc_policy.py`: propagates a vendored copy
+  (`tools/_doc_policy.py`, never hand-edited there) into every sibling
+  repo, and rewrites each one's own `ci_validate.py` to call it instead
+  of carrying an independent copy. Deliberately NOT a live runtime
+  dependency on this package for every repo's own per-commit CI - most
+  of them are not Python projects at all, and this ecosystem's own CI
+  already has enough real fragility from cross-repo checkouts. A future
+  rule change now means: edit the one canonical module, run this script
+  once.
+
 ## [0.2.1] - New docs/TESTING_STRATEGY.md: shared test levels, evidence, and fixture conventions
 
 - Published the shared test-level (per-commit/contract-change/scheduled/
