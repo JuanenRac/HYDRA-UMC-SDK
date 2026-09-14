@@ -1,0 +1,87 @@
+# =============================================================================
+# HYDRA-UMC-SDK - clients/python/src/hydra_umc_sdk/readme_parity.py
+# Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
+# GPL-3.0-or-later - see LICENSE
+# =============================================================================
+"""H048: detects a real README section-structure gap between a repo's
+English original and its 6 translations - automatically, instead of only
+by manual audit (the exact class of gap
+[[project_related_projects_rewrite_plan]]/H058 found by hand).
+
+The original H048 idea proposed a NEW markup convention
+(`<!-- canonical:start:NAME --> ... <!-- canonical:end:NAME -->` wrapped
+around every section, in all 7 languages) plus a verifier reading those
+markers. This module reaches the same real goal - "does every
+translation have the same section STRUCTURE as English, never mind the
+prose" - without inventing that markup at all: every README in this
+ecosystem already opens each of its own top-level sections with a
+`## <emoji> <title>` heading, and the emoji itself is never translated
+(confirmed across every repo checked while designing this) - it is
+already a real, existing, language-independent section identity. Adding
+hundreds of new HTML comments across ~400 files to duplicate information
+the file's own headings already encode would be pure invented ceremony
+this ecosystem doesn't need; reusing what is already there is not.
+
+A signature is the ORDERED list of each `## ` heading's own emoji token
+(an optional leading "N. " ordinal, as several repos' own numbered
+sections use, is stripped first) - comparing signatures catches a
+missing section, an extra section, a reordered section, or a
+mismatched/typo'd heading emoji in any translation, all without caring
+about the translated prose itself at all.
+"""
+
+from __future__ import annotations
+
+import re
+from pathlib import Path
+from typing import Sequence
+
+DEFAULT_LANGUAGE_FILES: tuple[str, ...] = (
+    "README.md",
+    "README_spa.md",
+    "README_fra.md",
+    "README_ita.md",
+    "README_deu.md",
+    "README_zho.md",
+    "README_jpn.md",
+)
+
+_HEADING_RE = re.compile(r"(?m)^##\s+(?:\d+\.\s+)?(\S+)")
+
+
+def readme_section_signature(path: Path) -> list[str]:
+    """The ordered list of `## ` heading emoji tokens in `path`, read as
+    UTF-8. A file with no `## ` headings at all returns an empty list -
+    a real, honest "nothing to compare", not an error."""
+    text = path.read_text(encoding="utf-8")
+    return _HEADING_RE.findall(text)
+
+
+def check_readme_section_parity(
+    root: Path, language_files: Sequence[str] = DEFAULT_LANGUAGE_FILES
+) -> list[str]:
+    """Compares `README.md`'s own heading signature against every other
+    language file in `language_files` that actually exists under `root`.
+    Returns a list of real, ready-to-report mismatch descriptions (empty
+    if every present translation's structure matches the English
+    original exactly). A missing translation file is not itself a
+    parity violation here - `ci_validate.py`'s own REQUIRED_DOCUMENTS
+    check already covers that separately.
+    """
+    english_path = root / language_files[0]
+    if not english_path.is_file():
+        return [f"{language_files[0]} is missing - cannot check section parity"]
+    english_signature = readme_section_signature(english_path)
+
+    problems: list[str] = []
+    for language_file in language_files[1:]:
+        path = root / language_file
+        if not path.is_file():
+            continue
+        signature = readme_section_signature(path)
+        if signature != english_signature:
+            problems.append(
+                f"{language_file} section structure does not match {language_files[0]}: "
+                f"expected {english_signature}, got {signature}"
+            )
+    return problems
