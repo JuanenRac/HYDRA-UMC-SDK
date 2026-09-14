@@ -87,7 +87,11 @@ fn unknown_contract_is_rejected() {
 #[test]
 fn known_contracts_lists_all_ten() {
     let names = known_contracts();
-    assert_eq!(names.len(), 10, "expected 10 known contracts, got {names:?}");
+    assert_eq!(
+        names.len(),
+        10,
+        "expected 10 known contracts, got {names:?}"
+    );
 }
 
 #[test]
