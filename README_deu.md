@@ -61,19 +61,19 @@ externe Maschinenanbindung (siehe
 von `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` und
 mit einer eigenen echten JSON-Wire-Form (`job_to_dict()`/
 `job_from_dict()`/`decision_to_dict()`); ein `ScenarioOutcome`-Vertrag
-plus `compare_runs()`, die gemeinsame T07/I60-Prüfung "wurde es wirklich
+plus `compare_runs()`, eine gemeinsame Prüfung "wurde es wirklich
 behoben", die `apparent-success` (nicht `regression-fixed`) zurückgibt,
 wenn ein Fehler nicht mehr reproduzierbar ist, sich der Basis-Fingerabdruck
-aber nie geändert hat; ein `Operation`-Vertrag (P03) plus
+aber nie geändert hat; ein `Operation`-Vertrag plus
 `validate_status_transition()`, der gemeinsame Ziel-/Auftrags-/
 Operations-Lebenszyklus - `received`/`authorized`/`queued`/`sent`/
 `confirmed`/`terminated`/`rejected`, niemals ein einziger
 "ausgeführt"-Sammeltopf; ein optionales `result` auf `Operation` plus
-`concludes_success()` (I02) - echte Evidenz (`run_id`/`origin`/
+`concludes_success()` - echte Evidenz (`run_id`/`origin`/
 `observers_enabled`/`outcome`), die sich weigert, aus einem veralteten/
 wiederholten Ergebnis oder einem Lauf mit deaktivierter Beobachtung
 Erfolg zu schließen; ein eigenständiger `Capability`-Vertrag plus
-`is_capability_usable()` (I02) - ob ein Ziel Unterstützung für eine
+`is_capability_usable()` - ob ein Ziel Unterstützung für eine
 Operations-`kind` überhaupt *deklariert*, wird als Datum modelliert, das
 sich von der Frage unterscheidet, ob diese Unterstützung *kürzlich
 tatsächlich verifiziert* wurde

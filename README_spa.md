@@ -59,18 +59,18 @@ público de puente a máquinas externas `BridgeJob`/`GateDecision` (ver
 `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` y con su
 propia forma JSON real (`job_to_dict()`/`job_from_dict()`/
 `decision_to_dict()`); un contrato `ScenarioOutcome` más `compare_runs()`,
-la comprobación compartida T07/I60 de "se arregló de verdad" que
+una comprobación compartida de "se arregló de verdad" que
 devuelve `apparent-success` (no `regression-fixed`) cuando un fallo dejó
 de reproducirse pero la huella base nunca se movió; un contrato
-`Operation` (P03) más `validate_status_transition()`, el ciclo de vida
+`Operation` más `validate_status_transition()`, el ciclo de vida
 compartido de objetivo/trabajo/operación -
 `received`/`authorized`/`queued`/`sent`/`confirmed`/`terminated`/
 `rejected`, nunca un único cajón "ejecutado"-; un `result` opcional en
-`Operation` más `concludes_success()` (I02) - evidencia real
+`Operation` más `concludes_success()` - evidencia real
 (`run_id`/`origin`/`observers_enabled`/`outcome`) que se niega a
 concluir éxito a partir de un resultado obsoleto/repetido o de una
 ejecución con la observación desactivada; un contrato `Capability`
-independiente más `is_capability_usable()` (I02) - que un objetivo
+independiente más `is_capability_usable()` - que un objetivo
 *declare* soportar un `kind` de operación se modela como un dato
 distinto de si ese soporte fue *comprobado de verdad recientemente*
 (`last_checked_at_utc`/`checked_configuration`/`max_age_seconds`), de

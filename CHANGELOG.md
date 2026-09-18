@@ -130,15 +130,15 @@ hand-editing ~60 files, since nothing here was a single source of truth.
   conventions every repository's own `build-test`/`ci_validate` already
   approximates on its own - previously only living as a private planning
   document, now a real, linkable guide. Cross-references
-  `compare_runs()`/`ScenarioOutcome` (T07/I60) as the reproducible-scenario
+  `compare_runs()`/`ScenarioOutcome` as the reproducible-scenario
   level's own "was it actually fixed" check.
 - Linked from README.md's "Further documentation" list in all 7
   languages.
 
-## [0.2.0] - I02: Operation.result + Capability, and 2 real cross-client drift bugs fixed along the way
+## [0.2.0] - Operation.result + Capability, and 2 real cross-client drift bugs fixed along the way
 
-I02 ("Contrato de evidencia de ejecución, distinto de la capacidad
-declarada"): an Operation reaching a terminal status was never, by
+A real evidence-of-execution contract, distinct from a merely declared
+capability: an Operation reaching a terminal status was never, by
 itself, proof anything really happened - a queue can report
 `status: "terminated"` with observation entirely disabled. New optional
 `result` on the `Operation` contract (`run_id`, `revision`, `origin`
@@ -189,12 +189,12 @@ automatically via their existing dynamic fixture maps. Verified: python
 (tsc clean), verify_contract_matrix PASS contracts=10 (incl. new Rust
 coverage check), ci_validate PASS. README x7 synced (9 -> 10 contracts).
 
-## [0.1.9] - P01/I13: recover a health check left pending by a crash, not just a rename
+## [0.1.9] - Recover a health check left pending by a crash, not just a rename
 
-I13 ("Checkpoints respaldados por postcondiciones"): a
+Checkpoints backed by real postconditions, not just a rename: a
 promotion that finishes its 2 renames is not necessarily a HEALTHY
-promotion - the real postcondition the plan calls for is "servicio
-comprobado" (service checked), not merely "files moved". `PromotionRecord`
+promotion - the real postcondition is that the service was actually
+checked, not merely that files were moved. `PromotionRecord`
 gains an optional `health_check_url` (only set when a project's own
 `hydra-umc.project.json` declares a `service_health_path`); new
 `check_service_health(url)` does a real, minimal HTTP GET - deliberately
@@ -209,7 +209,7 @@ every promoted record - now, when a `health_check_url` is set, it runs
 the real pending check right now (never repeating the actual clone/build)
 and only marks the promotion `COMPLETE` if it genuinely passes; a check
 that still fails leaves the record pending for a human/next run instead
-of announcing success prematurely - I13's own literal acceptance test:
+of announcing success prematurely - the acceptance test:
 cut the process after promoting and before checking health, restart,
 and the pending check runs for real rather than being silently skipped.
 
@@ -217,20 +217,20 @@ and the pending check runs for real rather than being silently skipped.
 extensions to `RecoverTests`): a real local HTTP server answering 200
 (health check passes, promotion completes), one answering 500 (fails,
 stays pending), a real closed port (fails, stays pending), `health_check_url`
-surviving `advance()` across phase transitions, and a pre-I13-shaped
+surviving `advance()` across phase transitions, and an older-shaped
 journal file (no `health_check_url` key at all) still loading with it
 defaulting to `None`.
 
-## [0.1.8] - P01: a durable, transactional promotion journal
+## [0.1.8] - A durable, transactional promotion journal
 
 ### Added
 
 - **`clients/python/src/hydra_umc_sdk/promotion_journal.py`** - the real,
   durable version of the mitigation HYDRA-UMC-UPDATER's own
-  `install.py` already carries inline (V07-004: "honest, bounded
-  mitigation, not the full transactional journal/rollback... that needs
-  designing once, shared with HYDRA-UMC-OPS-AGENT's own
-  `canary_deploy.py`"). Both installers stage a verified candidate, then
+  `install.py` already carries inline (previously an honest, bounded
+  mitigation rather than the full transactional journal/rollback, which
+  needed designing once and sharing with HYDRA-UMC-OPS-AGENT's own
+  `canary_deploy.py`). Both installers stage a verified candidate, then
   promote it over a live installation with 2 back-to-back directory
   renames; each already added its own in-process self-heal for the
   narrow gap between them, but that only survives an exception inside
@@ -254,21 +254,21 @@ defaulting to `None`.
   pending on purpose. New example
   (`examples/python/recover_interrupted_promotion.py`).
 
-## [0.1.7] - P07: cross-service failure tracing + a real observability toolkit
+## [0.1.7] - Cross-service failure tracing + a real observability toolkit
 
 ### Added
 
-- **`clients/python/src/hydra_umc_sdk/lifecycle.py`** - P07's own real
+- **`clients/python/src/hydra_umc_sdk/lifecycle.py`** - a real observability
   deliverable. `ProcessLifecycleState` (`alive`/`ready`/`degraded`/
-  `disconnected`/`unknown`) - the 5 real, distinct process-liveness
-  states P07 names, never collapsed into a boolean "up"/"down". Distinct
+  `disconnected`/`unknown`) - 5 real, distinct process-liveness
+  states, never collapsed into a boolean "up"/"down". Distinct
   from `HealthReport`/`SafetyState` (a ROBOT's or MACHINE's own safety
   state) - a different, complementary concern.
   `StructuredLogEntry(component, correlation_id, version, timestamp_utc,
   level, message, error_cause, caused_by)` - the payload a service puts
   inside an existing `EventEnvelope`, not a competing wire shape.
-  `caused_by` is the one field that makes P07's own literal acceptance
-  criterion possible: `trace_first_failure()` walks a `caused_by` chain
+  `caused_by` is the field that makes real cross-service tracing
+  possible: `trace_first_failure()` walks a `caused_by` chain
   across however many services' own log entries back to the ACTUAL first
   component that failed - not whichever entry a caller happened to look
   at first (in practice, usually the LAST service to notice and report
@@ -276,13 +276,13 @@ defaulting to `None`.
   honestly at the earliest entry actually collected if the chain extends
   further back than what was gathered, and never loops forever on a
   cyclic `caused_by` reference in malformed input.
-  `StructuredLogEntry.redacted(redactor)` - "exportar diagnóstico
-  saneado" as real code: only `message`/`error_cause` are ever passed
+  `StructuredLogEntry.redacted(redactor)` - exporting a sanitized
+  diagnostic as real code: only `message`/`error_cause` are ever passed
   through a redactor, every structural field (`component`/
   `correlation_id`/`version`/`caused_by`) is left untouched, since those
   are identifiers, never where a real secret would land.
-  `BoundedLog(max_entries)` - "acotar tamaño de logs, colas y
-  reintentos" as enforced behavior: drops the OLDEST entry once over
+  `BoundedLog(max_entries)` - bounding the size of logs, queues and
+  retries as enforced behavior: drops the OLDEST entry once over
   capacity (same drop-oldest policy this ecosystem's own bounded queues
   already use elsewhere, e.g. HYDRA-UMC's `RelayRxQueue`), tracks
   `dropped_count`.
@@ -291,12 +291,11 @@ defaulting to `None`.
   a new example (`examples/python/trace_first_failure.py`) walking that
   exact scenario end to end, redaction included.
 
-## [0.1.6] - New `Operation` contract (P03: shared, strict, versioned lifecycle)
+## [0.1.6] - New `Operation` contract: shared, strict, versioned lifecycle
 
 ### Added
 
-- **`contracts/json-schema/v1/operation.schema.json`** - the goal/job/
-  operation contract P03 calls for: a shared shape for anything crossing
+- **`contracts/json-schema/v1/operation.schema.json`** - a shared shape for anything crossing
   a service boundary in this ecosystem (SERVER, ORCHESTRATOR, DEV-SERVER,
   OPS-AGENT, ...) to report its own real progress through 6 genuinely
   distinct states - `received`, `authorized`, `queued`, `sent`,
@@ -308,7 +307,8 @@ defaulting to `None`.
   once `rejected`.
 - **`clients/python/src/hydra_umc_sdk/operation.py`** - the real,
   enforced lifecycle: `validate_status_transition(previous, next)` is the
-  concrete form of P03's "no presentar todos como ejecutado" - the only
+  concrete enforcement of that idea - never collapsing every real state into
+  a single "executed" bucket - the only
   legal forward path is received -> authorized -> queued -> sent ->
   confirmed -> terminated, `rejected` is reachable from any non-terminal
   status but nothing is ever reachable FROM a terminal one. `is_terminal()`
@@ -342,7 +342,7 @@ defaulting to `None`.
   gaps, unrelated to this specific drift) - added, alongside the new
   `Operation` row.
 
-## [0.1.5] - New `ScenarioOutcome` contract + the T07/I60 before/after check
+## [0.1.5] - New `ScenarioOutcome` contract + a real before/after check
 
 ### Added
 

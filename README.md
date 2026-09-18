@@ -61,17 +61,17 @@ contract (see [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), shared
 by `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` and
 given its own real JSON wire shape (`job_to_dict()`/`job_from_dict()`/
 `decision_to_dict()`); a `ScenarioOutcome` contract plus
-`compare_runs()`, the shared T07/I60 "was it actually fixed" check that
+`compare_runs()`, a shared "was it actually fixed" check that
 returns `apparent-success` (not `regression-fixed`) when a failure
 stopped reproducing but the base fingerprint never moved; an `Operation`
-contract (P03) plus `validate_status_transition()`, the shared
+contract plus `validate_status_transition()`, the shared
 goal/job/operation lifecycle - `received`/`authorized`/`queued`/`sent`/
 `confirmed`/`terminated`/`rejected`, never a single collapsed "executed"
-bucket; an optional `result` on `Operation` plus `concludes_success()`
-(I02) - real evidence (`run_id`/`origin`/`observers_enabled`/`outcome`)
+bucket; an optional `result` on `Operation` plus `concludes_success()` -
+real evidence (`run_id`/`origin`/`observers_enabled`/`outcome`)
 that refuses to conclude success from a stale/replayed result or a run
 with observation disabled; a standalone `Capability` contract plus
-`is_capability_usable()` (I02) - whether a target even *declares*
+`is_capability_usable()` - whether a target even *declares*
 support for an operation `kind` is modeled as data distinct from
 whether that support was *recently, actually verified*
 (`last_checked_at_utc`/`checked_configuration`/`max_age_seconds`), so a

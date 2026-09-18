@@ -5,7 +5,7 @@ every repository's own `build-test`/`ci_validate`/CI workflow already
 approximates on its own. This exists to name that convention explicitly, so
 a repo can check itself against it instead of reinventing its own rules.
 `compare_runs()` (see the main README's "Contracts" section, and
-`clients/python/src/hydra_umc_sdk/scenario.py`) is the shared T07/I60
+`clients/python/src/hydra_umc_sdk/scenario.py`) is the shared
 "was it actually fixed" check this strategy's own reproducible-scenario
 level (below) relies on.
 
@@ -56,7 +56,7 @@ A real test result records, at minimum:
 - A reference to the issue this closes and the test that prevents its
   return.
 
-For a `ScenarioOutcome` pair (`compare_runs()`, T07/I60), also record:
+For a `ScenarioOutcome` pair (`compare_runs()`), also record:
 `run_id` and generation, `scenario_id`, model configuration/hash where
 applicable, seed, clock mode, active observers, coverage window, and the
 reason for any value that could not be measured. Missing fields are never
