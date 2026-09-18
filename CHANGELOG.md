@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.2.6] - real cross-language contract round-trip tests
+
+New round-trip tests in all 4 reference clients (Python, Go, Rust,
+TypeScript), each decoding the same real `conformance/fixtures/v1/*.valid.json`
+fixtures the existing schema-validation tests already use, re-encoding
+them, and asserting the result is structurally identical to the original -
+a different, complementary check from schema validation: a payload can
+validate cleanly against its schema while still losing or reordering data
+on its way through a language's own encode/decode path. Go and Rust decode
+into their own hand-written structs for the 7 contracts that have one
+(catching a real risk those two languages specifically have: a struct
+missing a field would silently drop it on round trip); the 3 newer
+contracts with no dedicated struct yet (Capability, Operation,
+ScenarioOutcome) round-trip through the same generic representation each
+client's own validator already uses for them. Evaluated
+`contracts/openapi/v1/server.openapi.json` for auto-generation from the
+JSON Schema contracts: confirmed hand-maintained, but skipped adding a
+generator - only 1 of its 23 `components/schemas` entries maps to a real
+published JSON Schema contract, the other 22 describe REST-only request/
+response bodies with no schema source to generate from.
+
 ## [0.2.5] - PROM-G02/G03: a real evidence and promotion-gate standard, describing what the ecosystem's own real closures already do
 
 Two new sections in `docs/PROJECT_MANIFEST.md`, right after "Maturity
