@@ -400,13 +400,13 @@ defaulting to `None`.
   extension - no existing value changed meaning, no consumer needs to
   change. New test `test_accepts_dev_server_deployment_target`.
 
-## [0.1.2] - REV-009: BridgeJob's direct constructor now validates `parameters` before using it
+## [0.1.2] - BridgeJob's direct constructor now validates `parameters` before using it
 
 ### Fixed
 
 - **`clients/python/src/hydra_umc_sdk/bridge_contract.py`'s `BridgeJob`**
-  (found in a second review pass, P2; same class of gap as
-  [0.1.1]'s SDK-01 above, this time on `parameters` instead of
+  (found in a second review pass; same class of gap as
+  the [0.1.1] fix below, this time on `parameters` instead of
   `phase`/`machine_state`): `parameters` is typed as `Mapping[str, str]`
   in the dataclass annotation, but Python never enforces that at
   runtime. `job_from_dict()` already guarded this before ever
@@ -421,8 +421,8 @@ defaulting to `None`.
   path fails the same clean way. 2 new regression tests reproduce the
   finding's own exact scenario (a list, and a real mapping with a
   non-string value, both rejected with `BridgeError`).
-  **Checked for the same ecosystem-wide breakage SDK-01 caused (5
-  consumer bridges' own tests broke on that fix):** every real
+  **Checked for the same ecosystem-wide breakage the [0.1.1] fix caused
+  (5 consumer bridges' own tests broke on that fix):** every real
   `BridgeJob(...)` call site across the ecosystem (all 9 bridges plus
   CONNECTOR-HUB's `sdk_gate.py`) was grepped - every one already passes
   a real `dict`/`{}` or another job's own already-valid `.parameters`,
@@ -430,12 +430,12 @@ defaulting to `None`.
   fix. `PYTHONPATH=clients/python/src python -m unittest discover -s
   clients/python/tests -v`: 53/53 passing.
 
-## [0.1.1] - SDK-01: enforce real enum membership at the BridgeJob constructor
+## [0.1.1] - Enforce real enum membership at the BridgeJob constructor
 
 ### Fixed
 
-- **`clients/python/src/hydra_umc_sdk/bridge_contract.py`'s `BridgeJob`**
-  (P1): `phase`/`machine_state` are typed as `JobPhase`/`MachineState` in the
+- **`clients/python/src/hydra_umc_sdk/bridge_contract.py`'s `BridgeJob`:**
+  `phase`/`machine_state` are typed as `JobPhase`/`MachineState` in the
   dataclass annotation, but Python never enforces that at runtime -
   constructing `BridgeJob` directly (not through `job_from_dict`, which
   already validated this) with an unrecognised string for either field
