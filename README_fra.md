@@ -60,19 +60,19 @@ ci-dessous : un contrat public de pont vers des machines externes
 `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` et doté
 de sa propre forme JSON réelle (`job_to_dict()`/`job_from_dict()`/
 `decision_to_dict()`) ; un contrat `ScenarioOutcome` plus
-`compare_runs()`, la vérification partagée T07/I60 « est-ce vraiment
+`compare_runs()`, une vérification partagée « est-ce vraiment
 corrigé » qui renvoie `apparent-success` (pas `regression-fixed`) quand
 un échec cesse de se reproduire mais que l'empreinte de base n'a jamais
-bougé ; un contrat `Operation` (P03) plus
+bougé ; un contrat `Operation` plus
 `validate_status_transition()`, le cycle de vie partagé
 objectif/tâche/opération - `received`/`authorized`/`queued`/`sent`/
 `confirmed`/`terminated`/`rejected`, jamais un seul panier « exécuté »
 fourre-tout ; un `result` optionnel sur `Operation` plus
-`concludes_success()` (I02) - une preuve réelle (`run_id`/`origin`/
+`concludes_success()` - une preuve réelle (`run_id`/`origin`/
 `observers_enabled`/`outcome`) qui refuse de conclure au succès à
 partir d'un résultat périmé/rejoué ou d'une exécution avec observation
 désactivée ; un contrat `Capability` autonome plus
-`is_capability_usable()` (I02) - le fait qu'une cible *déclare* prendre
+`is_capability_usable()` - le fait qu'une cible *déclare* prendre
 en charge un `kind` d'opération est modélisé séparément du fait que ce
 support a été *récemment et réellement vérifié*
 (`last_checked_at_utc`/`checked_configuration`/`max_age_seconds`), pour

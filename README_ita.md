@@ -61,19 +61,19 @@ contratto pubblico di bridge verso macchine esterne
 `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` e dotato
 di una propria forma JSON reale (`job_to_dict()`/`job_from_dict()`/
 `decision_to_dict()`); un contratto `ScenarioOutcome` più
-`compare_runs()`, la verifica condivisa T07/I60 "è stato davvero
+`compare_runs()`, una verifica condivisa "è stato davvero
 risolto" che restituisce `apparent-success` (non `regression-fixed`)
 quando un fallimento smette di riprodursi ma l'impronta di base non è
-mai cambiata; un contratto `Operation` (P03) più
+mai cambiata; un contratto `Operation` più
 `validate_status_transition()`, il ciclo di vita condiviso di
 obiettivo/lavoro/operazione - `received`/`authorized`/`queued`/`sent`/
 `confirmed`/`terminated`/`rejected`, mai un unico contenitore
 "eseguito"; un `result` opzionale su `Operation` più
-`concludes_success()` (I02) - evidenza reale (`run_id`/`origin`/
+`concludes_success()` - evidenza reale (`run_id`/`origin`/
 `observers_enabled`/`outcome`) che rifiuta di concludere il successo a
 partire da un risultato obsoleto/ripetuto o da un'esecuzione con
 osservazione disattivata; un contratto `Capability` autonomo più
-`is_capability_usable()` (I02) - il fatto che un target *dichiari* di
+`is_capability_usable()` - il fatto che un target *dichiari* di
 supportare un `kind` di operazione è modellato come dato distinto dal
 fatto che quel supporto sia stato *recentemente e davvero verificato*
 (`last_checked_at_utc`/`checked_configuration`/`max_age_seconds`), così
