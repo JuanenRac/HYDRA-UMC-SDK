@@ -4,12 +4,12 @@
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
 # GPL-3.0-or-later - see LICENSE
 # =============================================================================
-"""H048: propagates this repo's own canonical
+"""Propagates this repo's own canonical
 `clients/python/src/hydra_umc_sdk/readme_parity.py` to every sibling
 repo's `tools/_readme_parity.py` (a plain vendored copy, never
 hand-edited there) and adds a real README section-structure-parity call
 to each sibling's own `tools/ci_validate.py`, right after its existing
-public/private documentation boundary check (H045 - see
+public/private documentation boundary check (see
 `sync_doc_policy.py`, the same real distribution design this reuses:
 no live runtime dependency on this package for any repo's own
 per-commit CI).
@@ -35,7 +35,7 @@ VENDORED_HEADER = """# =========================================================
 # =============================================================================
 # VENDORED - do not hand-edit. This is a byte-for-byte copy of
 # HYDRA-UMC-SDK's own canonical
-# clients/python/src/hydra_umc_sdk/readme_parity.py (H048), kept in sync
+# clients/python/src/hydra_umc_sdk/readme_parity.py, kept in sync
 # by that repo's own tools/sync_readme_parity.py. Edit the rule there,
 # then re-run that script to update every repo that vendors it, this one
 # included.
@@ -49,11 +49,11 @@ CALL_SITE = '''    for readme_problem in check_readme_section_parity(ROOT):
 IMPORT_LINE = "from _readme_parity import check_readme_section_parity\n"
 
 # Anchor: insert right after the doc-policy import this same repo's own
-# H045 pass (sync_doc_policy.py) already added - keeps both new checks
+# earlier sync_doc_policy.py pass already added - keeps both new checks
 # grouped together, and gives every repo an unambiguous, idempotent
 # anchor to insert after.
 _DOC_POLICY_IMPORT = "from _doc_policy import check_public_private_boundary\n"
-# Anchor for the CALL_SITE: right after H045's own call-site block.
+# Anchor for the CALL_SITE: right after that earlier call-site block.
 _DOC_POLICY_CALL = '''    doc_policy_error = check_public_private_boundary(ROOT)
     if doc_policy_error:
         fail(doc_policy_error)

@@ -4,7 +4,7 @@
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
 # GPL-3.0-or-later - see LICENSE
 # =============================================================================
-"""H045: propagates this repo's own canonical
+"""Propagates this repo's own canonical
 `clients/python/src/hydra_umc_sdk/doc_policy.py` to every sibling repo's
 `tools/_doc_policy.py` (a plain vendored copy, never hand-edited there),
 and rewrites each sibling's own `tools/ci_validate.py` to call it instead
@@ -14,7 +14,7 @@ Real design decision this module's own docstring already explains: no
 sibling repo gains a live runtime dependency on this package (most of
 them are not even Python projects, and this ecosystem's own CI already
 has enough real fragility from cross-repo checkouts) - each repo's own
-per-commit CI stays fully self-contained. The actual problem H045 found
+per-commit CI stays fully self-contained. The actual real problem found
 (a future rule change needs editing ~60 byte-for-byte copies by hand) is
 what this script fixes: edit the ONE canonical module above, then run
 this script once to re-propagate it everywhere mechanically.
@@ -46,7 +46,7 @@ VENDORED_HEADER = """# =========================================================
 # =============================================================================
 # VENDORED - do not hand-edit. This is a byte-for-byte copy of
 # HYDRA-UMC-SDK's own canonical
-# clients/python/src/hydra_umc_sdk/doc_policy.py (H045), kept in sync by
+# clients/python/src/hydra_umc_sdk/doc_policy.py, kept in sync by
 # that repo's own tools/sync_doc_policy.py. Edit the rule there, then
 # re-run that script to update every repo that vendors it, this one
 # included.
