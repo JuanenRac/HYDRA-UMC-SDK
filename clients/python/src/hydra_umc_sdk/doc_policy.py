@@ -3,7 +3,7 @@
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
 # GPL-3.0-or-later - see LICENSE
 # =============================================================================
-"""H045: the ecosystem's own public/private documentation boundary check,
+"""The ecosystem's own public/private documentation boundary check,
 as ONE real, tested, canonical module - not the ~60 byte-for-byte copies
 of the same logic every repo's own `tools/ci_validate.py` used to carry
 before this module existed.

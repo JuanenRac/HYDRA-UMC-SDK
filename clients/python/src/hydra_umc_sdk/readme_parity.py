@@ -3,12 +3,12 @@
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
 # GPL-3.0-or-later - see LICENSE
 # =============================================================================
-"""H048: detects a real README section-structure gap between a repo's
+"""Detects a real README section-structure gap between a repo's
 English original and its 6 translations - automatically, instead of only
-by manual audit (the exact class of gap
-[[project_related_projects_rewrite_plan]]/H058 found by hand).
+by manual audit (the exact class of gap a prior manual pass across this
+ecosystem found by hand).
 
-The original H048 idea proposed a NEW markup convention
+The original idea for this check proposed a NEW markup convention
 (`<!-- canonical:start:NAME --> ... <!-- canonical:end:NAME -->` wrapped
 around every section, in all 7 languages) plus a verifier reading those
 markers. This module reaches the same real goal - "does every
