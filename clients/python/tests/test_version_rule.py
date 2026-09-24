@@ -134,5 +134,30 @@ class EndToEndTests(unittest.TestCase):
         self.assertNotEqual(self._run(root, "--sync").returncode, 0)
 
 
+class SeparateFieldPatternTests(unittest.TestCase):
+    """Versions kept in separate fields (a properties file, C defines) use an optional build entry."""
+
+    def setUp(self):
+        self.m = _load()
+        keys = {"major": "Major", "minor": "Minor", "patch": "Patch", "build": "Build"}
+        self.pattern = {k: "^version" + v + B + "s*=" + B + "s*(" + B + "d+)" for k, v in keys.items()}
+        self.text = "versionMajor=0" + chr(10) + "versionMinor=7" + chr(10) + "versionPatch=9" + chr(10) + "versionBuild=0" + chr(10)
+
+    def test_below_the_threshold_the_build_field_is_ignored(self):
+        self.assertEqual(self.m.read_version(self.text, self.pattern), "0.7.9")
+
+    def test_crossing_writes_and_reads_the_build_field(self):
+        grown = self.m.replace_version(self.text, self.pattern, "0.8.0.0")
+        self.assertEqual(self.m.read_version(grown, self.pattern), "0.8.0.0")
+        stepped = self.m.replace_version(grown, self.pattern, self.m.next_version("0.8.0.9"))
+        self.assertEqual(self.m.read_version(stepped, self.pattern), "0.8.1.0")
+
+    def test_a_pattern_without_a_build_entry_refuses_a_fourth_component(self):
+        without = {k: v for k, v in self.pattern.items() if k != "build"}
+        with self.assertRaises(ValueError):
+            self.m.replace_version(self.text, without, "0.8.0.0")
+
+
+
 if __name__ == "__main__":
     unittest.main()

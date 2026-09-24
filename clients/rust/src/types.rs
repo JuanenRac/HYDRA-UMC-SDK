@@ -181,6 +181,9 @@ pub struct NativeVersionPatternComponents {
     pub major: String,
     pub minor: String,
     pub patch: String,
+    /// The optional fourth component, kept in its own field.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub build: Option<String>,
 }
 
 /// `project-manifest.schema.json`'s `native_version.pattern` is a real

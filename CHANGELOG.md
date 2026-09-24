@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.8] - Separate-field version patterns may carry a build entry
+
+- `native_version.pattern`'s object form accepts an optional `build` regex (JSON
+  schemas, Python validator, and the Go, Rust and TypeScript types); the contract
+  manifest hashes were regenerated.
+- `tools/sync_version_tools.py` also reports repositories whose object-form
+  pattern has no `build` entry.
+
 ## [0.2.7] - Version fields accept an optional fourth component
 
 - Manifest and update-manifest `version` fields (the JSON schemas in every client
