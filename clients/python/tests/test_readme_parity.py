@@ -99,3 +99,37 @@ class ReadmeSectionParityTests(unittest.TestCase):
         problems = check_readme_section_parity(self.root)
         self.assertEqual(len(problems), 1)
         self.assertIn("README_spa.md", problems[0])
+
+
+NL = chr(10)
+
+
+def _doc(*lines: str) -> str:
+    return NL.join(lines) + NL
+
+
+class ReadmeLinkParityTests(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.root = Path(self._tmp.name)
+
+    def _write(self, name: str, content: str) -> None:
+        (self.root / name).write_text(content, encoding="utf-8")
+
+    def test_a_translation_missing_a_link_is_reported(self):
+        self._write("README.md", _doc("## 🎯 A", "", "[docs](https://example.org/a) [spec](https://example.org/b)"))
+        self._write("README_spa.md", _doc("## 🎯 A", "", "[docs](https://example.org/a)"))
+        problems = check_readme_section_parity(self.root)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("https://example.org/b", problems[0])
+
+    def test_same_links_in_a_different_order_pass(self):
+        self._write("README.md", _doc("## 🎯 A", "", "[x](https://example.org/a) [y](https://example.org/b)"))
+        self._write("README_deu.md", _doc("## 🎯 A", "", "[y](https://example.org/b) [x](https://example.org/a)"))
+        self.assertEqual(check_readme_section_parity(self.root), [])
+
+    def test_relative_links_are_not_compared(self):
+        self._write("README.md", _doc("## 🎯 A", "", "[c](CONTRIBUTING.md)"))
+        self._write("README_fra.md", _doc("## 🎯 A", "", "[c](docs/CONTRIBUTING.md)"))
+        self.assertEqual(check_readme_section_parity(self.root), [])
