@@ -3,7 +3,7 @@
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
 # GPL-3.0-or-later - see LICENSE
 # =============================================================================
-"""Real regression coverage for H045's own canonical public/private
+"""Real regression coverage for this project's own canonical public/private
 documentation boundary check - a real, throwaway git repository per test
 (this check shells out to `git grep`, so a fake filesystem alone would
 never exercise the actual command it runs), not a mock of subprocess."""

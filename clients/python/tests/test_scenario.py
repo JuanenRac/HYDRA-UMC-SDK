@@ -1,5 +1,5 @@
 # =============================================================================
-# HYDRA-UMC-SDK - T07/I60 scenario comparison tests
+# HYDRA-UMC-SDK - T07/scenario comparison tests
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
 # GPL-3.0-or-later - see LICENSE
 # =============================================================================

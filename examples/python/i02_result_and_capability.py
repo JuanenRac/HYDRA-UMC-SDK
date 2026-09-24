@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # =============================================================================
-# HYDRA-UMC-SDK - Example: I02's two real evidence gates
+# HYDRA-UMC-SDK - Example: 's two real evidence gates
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
 # GPL-3.0-or-later - see LICENSE
 # =============================================================================
-"""Shows the two questions I02 keeps separate, each with its own real gate:
+"""Shows the two questions keeps separate, each with its own real gate:
 
 1. `concludes_success()` - given ONE Operation's `result`, was it really
    confirmed, or just reported by a queue? A stale run_id or disabled

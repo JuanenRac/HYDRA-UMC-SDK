@@ -1,5 +1,5 @@
 # =============================================================================
-# HYDRA-UMC-SDK - I02 Capability tests
+# HYDRA-UMC-SDK - Capability tests
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
 # GPL-3.0-or-later - see LICENSE
 # =============================================================================
@@ -43,7 +43,7 @@ class CapabilityStatusTests(unittest.TestCase):
 
     def test_rejects_bool_masquerading_as_max_age(self):
         # Same real guard as calibration.py's own max_age_days parsing
-        # (SAFE-01): bool is a subclass of int in Python.
+        #: bool is a subclass of int in Python.
         with self.assertRaises(CapabilityError):
             CapabilityStatus(target_kind="robot", target_id="r1", kind="move_to_pose", declared=True, max_age_seconds=True)
 

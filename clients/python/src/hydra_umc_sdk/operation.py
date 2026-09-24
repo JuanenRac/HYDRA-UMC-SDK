@@ -24,7 +24,7 @@ cross-service lifecycle - the two are not redundant, and a bridge job
 reaching SERVER/ORCHESTRATOR can be wrapped in an Operation without
 either contract needing to change.
 
-I02 ("Contrato de evidencia de ejecucion, distinto de la capacidad
+("Contrato de evidencia de ejecucion, distinto de la capacidad
 declarada"): an Operation reaching a terminal status is not, by itself,
 proof anything really happened - `status: "terminated"` only means the
 lifecycle's own bookkeeping finished, which a queue can report even
@@ -34,7 +34,7 @@ a result is trustworthy evidence of success: a result from a different
 run (a stale/replayed message), one produced with observers disabled,
 or one never actually observed, must never be silently read as success.
 See `capability.py`'s own module docstring for the companion half of
-I02 - whether a target even declares (and recently verified) support
+- whether a target even declares (and recently verified) support
 for a `kind` at all, a separate question from whether one particular
 Operation of that kind actually succeeded.
 """
@@ -147,7 +147,7 @@ OPERATION_RESULT_OUTCOMES: tuple[str, ...] = ("success", "failure", "unknown")
 
 @dataclass(frozen=True)
 class OperationResult:
-    """I02's own "resultado compartido": run_id/origin/observers_enabled
+    """this project's own "resultado compartido": run_id/origin/observers_enabled
     are the evidence `concludes_success()` needs to refuse a stale,
     simulated-when-real-was-expected, or unobserved outcome - never
     trust `outcome == "success"` alone."""
@@ -199,7 +199,7 @@ def parse_operation_result(payload: dict[str, Any]) -> OperationResult:
 
 
 def concludes_success(result: OperationResult, *, expected_run_id: str | None = None) -> tuple[bool, str]:
-    """The real gate I02 exists for: whether `result` is trustworthy
+    """The real gate exists for: whether `result` is trustworthy
     enough evidence to conclude the Operation it belongs to actually
     succeeded. Checked in this fixed order, each able to short-circuit
     the rest:
@@ -213,7 +213,7 @@ def concludes_success(result: OperationResult, *, expected_run_id: str | None = 
        happened, regardless of what `outcome` claims.
     3. `observed_at` must be set - `outcome == "success"` alone (backed
        only by `accepted_at`/`executed_at`) is exactly the "queue says
-       done" illusion I02 exists to close; only a real observation
+       done" illusion exists to close; only a real observation
        counts.
     4. Only then is `outcome` itself checked.
 

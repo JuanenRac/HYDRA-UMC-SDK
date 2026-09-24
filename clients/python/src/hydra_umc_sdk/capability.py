@@ -1,5 +1,5 @@
 # =============================================================================
-# HYDRA-UMC-SDK - Capability: declared support vs. recently verified (I02)
+# HYDRA-UMC-SDK - Capability: declared support vs. recently verified
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
 # GPL-3.0-or-later - see LICENSE
 # =============================================================================
@@ -7,7 +7,7 @@
 static claim from a manifest or descriptor) is genuinely different data
 from whether that support was actually, recently verified
 (`last_checked_at`/`checked_configuration`/`max_age_seconds`). Collapsing
-both into one boolean ("supported": true) is exactly the gap I02 exists
+both into one boolean ("supported": true) is exactly the gap exists
 to close: a target can declare a capability it has never once
 successfully exercised, or one whose last real check is long stale
 because the target's own configuration moved on since.

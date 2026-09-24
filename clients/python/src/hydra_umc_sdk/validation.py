@@ -178,7 +178,7 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
                     or not isinstance(error.get("message"), str) or not error.get("message"):
                 raise ContractValidationError("error, when present, must be an object with non-empty code and message")
         if "result" in payload:
-            # I02: an optional, real result distinct from the Operation's
+            # an optional, real result distinct from the Operation's
             # own status transitions - see operation.py's concludes_success()
             # for why observers_enabled/run_id/outcome exist at all.
             result = payload["result"]

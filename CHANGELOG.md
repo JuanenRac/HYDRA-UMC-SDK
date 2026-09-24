@@ -71,9 +71,9 @@ deployment; `production` is reserved, unclaimed by any repository today.
 Descriptive, not a new mandate - no repository's own `maturity` value
 changes because of this.
 
-## [0.2.3] - H048: real, automatic README section-structure parity between languages
+## [0.2.3] - real, automatic README section-structure parity between languages
 
-The ecosystem's own Related Projects catalog gap (H058) was found by
+The ecosystem's own Related Projects catalog gap was found by
 manual audit - nothing automatically checked whether a translation's
 own README structure actually matched its English original.
 
@@ -87,9 +87,9 @@ own README structure actually matched its English original.
   duplicate information hundreds of files already encode. 9 new unit
   tests.
 - New `tools/sync_readme_parity.py`: same real distribution design as
-  H045's `sync_doc_policy.py` (a vendored `tools/_readme_parity.py`
+  's `sync_doc_policy.py` (a vendored `tools/_readme_parity.py`
   copy per repo, no live runtime dependency added to any repo's own
-  per-commit CI) - adds a real call right after H045's own check in
+  per-commit CI) - adds a real call right after this project's own check in
   each sibling's `ci_validate.py`.
 - Ran it against the whole ecosystem while building it: found and fixed
   2 real, tiny structural bugs it was designed to catch (`HYDRA-UMC-SDK`
@@ -98,7 +98,7 @@ own README structure actually matched its English original.
   languages) - the exact class of drift this check exists to catch
   automatically instead of by manual audit.
 
-## [0.2.2] - H045: the public/private documentation boundary check is a real, tested, canonical module now
+## [0.2.2] - the public/private documentation boundary check is a real, tested, canonical module now
 
 Every one of this ecosystem's ~60 repos carried its own byte-for-byte
 copy of the same public/private documentation boundary check inside its

@@ -212,7 +212,7 @@ class RecoverTests(unittest.TestCase):
             thread.join(timeout=5)
 
     def test_i13_a_promoted_promotion_with_a_failing_health_check_stays_pending(self):
-        # I13's own real acceptance test: cut the process after PROMOTED
+        # this project's own real acceptance test: cut the process after PROMOTED
         # and before the health check ever ran (simulated here by simply
         # never having a real server listening) - recovery must run the
         # real pending check, find it failing, and refuse to announce

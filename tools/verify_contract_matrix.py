@@ -96,7 +96,7 @@ def check_other_client_coverage(schema_contracts: dict[str, Path]) -> None:
     stale entry - not as a general-purpose language parser.
 
     A second real instance of this exact drift class was found while
-    adding the Capability contract (I02): this function had grown a Go
+    adding the Capability contract: this function had grown a Go
     and a TypeScript check but never a Rust one, even though Rust has its
     own separate `CONTRACT_FILES` map exactly like the other two - Rust's
     ScenarioOutcome and Operation entries had silently gone missing
