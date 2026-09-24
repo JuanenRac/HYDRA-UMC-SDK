@@ -89,6 +89,14 @@ class DocPolicyTests(unittest.TestCase):
                 self._run("git", "rm", "-q", "-f", "notes.md")
                 self._run("git", "commit", "-q", "-m", "remove")
 
+    def test_rejects_a_private_memory_link(self):
+        link = "[" + "[project_" + "some_note]" + "]"
+        self._commit("main.py", "# see " + link + chr(10))
+        self.assertEqual(
+            check_public_private_boundary(self.root),
+            "public files must not carry internal tracking codes",
+        )
+
     def test_part_numbers_and_ordinary_names_are_not_tracking_codes(self):
         self._commit("README.md", "Capacitor C10, the H745 MCU, UTF-8 and SHA-256, REV A board." + chr(10))
         self.assertIsNone(check_public_private_boundary(self.root))
