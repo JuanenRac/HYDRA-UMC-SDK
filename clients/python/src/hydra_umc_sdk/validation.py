@@ -55,7 +55,7 @@ PROJECT_MANIFEST_ENUMS = {
     "maturity": {"scaffolding", "functional", "established", "production"},
 }
 PROJECT_NAME_PATTERN = re.compile(r"^(HYDRA-UMC|URTC)(-[A-Z0-9-]+)?$")
-SEMVER_PATTERN = re.compile(r"^\d+\.\d+\.\d+$")
+SEMVER_PATTERN = re.compile(r"^\d+\.\d+\.\d+(?:\.\d+)?$")
 RFC3339_DATE_TIME = re.compile(
     r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$"
 )

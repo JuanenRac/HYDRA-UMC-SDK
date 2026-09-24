@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.7] - Version fields accept an optional fourth component
+
+- Manifest and update-manifest `version` fields (the JSON schemas in every client
+  and the Python validator) accept an optional fourth numeric component.
+- The shared version tooling used by the sibling repositories is kept here under
+  `tools/canonical/` and pushed out with `tools/sync_version_tools.py`.
+
 ## Client package versions
 
 Only the Python client (`clients/python`) tracks this repository's own
