@@ -154,6 +154,8 @@ type NativeVersionPatternComponents struct {
 	Major string `json:"major"`
 	Minor string `json:"minor"`
 	Patch string `json:"patch"`
+	// Build is the optional fourth component, kept in its own field.
+	Build string `json:"build,omitempty"`
 }
 
 // NativeVersion mirrors project-manifest.schema.json's native_version.

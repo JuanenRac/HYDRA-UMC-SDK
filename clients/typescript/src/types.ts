@@ -112,7 +112,7 @@ export type ProjectManifestMaturity = "scaffolding" | "functional" | "establishe
  * `oneOf`: either a single non-empty regex string, or an object with
  * exactly major/minor/patch regex strings.
  */
-export type NativeVersionPattern = string | { major: string; minor: string; patch: string };
+export type NativeVersionPattern = string | { major: string; minor: string; patch: string; build?: string };
 
 /** project-manifest.schema.json's native_version. */
 export interface NativeVersion {

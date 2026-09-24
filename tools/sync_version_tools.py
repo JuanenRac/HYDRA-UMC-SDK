@@ -20,6 +20,7 @@ What it does, all idempotent (running it twice changes nothing more):
 """
 from __future__ import annotations
 
+import json
 import re
 import sys
 from pathlib import Path
@@ -66,6 +67,15 @@ CI_REPLACEMENTS = [
     ('r"\\s+v(\\d+\\.\\d+\\.\\d+)")', 'r"\\s+v(\\d+\\.\\d+\\.\\d+(?:\\.\\d+)?)")'),
     ('(\\d+\\.\\d+\\.\\d+)(?:\\]|\\s|$)', '(\\d+\\.\\d+\\.\\d+(?:\\.\\d+)?)(?:\\]|\\s|$)'),
 ]
+DICT_OLD = '            values.append(match.group(1))\n        return ".".join(values)'
+DICT_NEW = (
+    '            values.append(match.group(1))\n'
+    '        if "build" in pattern and tuple(int(v) for v in values) >= (0, 8, 0):\n'
+    '            build = re.search(pattern["build"], text, re.MULTILINE)\n'
+    '            if build is not None:\n'
+    '                values.append(build.group(1))\n'
+    '        return ".".join(values)'
+)
 NATIVE_OLD = '    return ".".join(match.group(index) for index in (1, 2, 3))'
 NATIVE_NEW = (
     '    parts = [match.group(index) for index in (1, 2, 3)]\n'
@@ -117,6 +127,8 @@ def patch_ci_validate(path: Path) -> bool:
     new = text
     for old, repl in CI_REPLACEMENTS:
         new = new.replace(old, repl)
+    if DICT_OLD in new and "\"build\" in pattern" not in new:
+        new = new.replace(DICT_OLD, DICT_NEW, 1)
     if "_with_optional_fourth_group(pattern)" in new and "def _with_optional_fourth_group" not in new:
         target = "def read_native_version(" if "def read_native_version(" in new else "def native_version("
         new = new.replace(target, HELPER + target, 1)
@@ -198,6 +210,18 @@ def main() -> int:
         watch = repo / "update-from-github.sh"
         if watch.is_file() and patch_simple(watch, 'r"v?\\d+\\.\\d+\\.\\d+"', 'r"v?\\d+\\.\\d+\\.\\d+(?:\\.\\d+)?"') if not check else False:
             changed.append(f"{repo.name}/update-from-github.sh")
+    missing_build = []
+    for repo in repos():
+        try:
+            manifest = json.loads((repo / "hydra-umc.project.json").read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        pattern = manifest.get("native_version", {}).get("pattern")
+        if isinstance(pattern, dict) and "build" not in pattern:
+            missing_build.append(f"{repo.name} (v{manifest.get('version')})")
+    for entry in missing_build:
+        print("no build entry in native_version.pattern: " + entry)
+    changed.extend("build entry: " + entry for entry in missing_build)
     for line in changed:
         print(("would change: " if check else "changed: ") + line)
     print(f"{len(changed)} file(s) {'out of date' if check else 'updated'}")

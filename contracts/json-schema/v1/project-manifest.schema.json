@@ -79,7 +79,8 @@
               "properties": {
                 "major": { "type": "string", "minLength": 1 },
                 "minor": { "type": "string", "minLength": 1 },
-                "patch": { "type": "string", "minLength": 1 }
+                "patch": { "type": "string", "minLength": 1 },
+                "build": { "type": "string", "minLength": 1 }
               }
             }
           ]

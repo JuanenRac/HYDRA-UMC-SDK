@@ -132,7 +132,7 @@ def _validate_project_manifest(payload: dict[str, Any]) -> None:
         if not pattern:
             raise ContractValidationError("native_version.pattern must not be empty")
     elif isinstance(pattern, dict):
-        if set(pattern) != {"major", "minor", "patch"} or any(
+        if not {"major", "minor", "patch"} <= set(pattern) <= {"major", "minor", "patch", "build"} or any(
             not isinstance(value, str) or not value for value in pattern.values()
         ):
             raise ContractValidationError("native_version.pattern mapping must contain non-empty major, minor and patch")
