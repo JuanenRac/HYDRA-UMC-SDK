@@ -9,7 +9,7 @@ live installation ends up needing - HYDRA-UMC-UPDATER's own
 `install.py` (`clone_or_pull()`) and HYDRA-UMC-OPS-AGENT's own
 `canary_deploy.py` each independently do this and each already added
 their own in-process self-heal for the narrow gap between the two
-renames (V07-004) - but that mitigation only survives an exception
+renames - but that mitigation only survives an exception
 inside the SAME Python call stack. A full process crash, a `kill -9`,
 a power loss, or a Windows update rebooting the host mid-promotion
 leaves no in-memory `try/except` to run at all.
@@ -60,7 +60,7 @@ class PromotionRecord:
     `backup_path` are always absolute, plain strings (not `Path`, so this
     round-trips through `json.dumps`/`json.loads` with no custom codec).
 
-    `health_check_url` (I13): the real URL to probe AFTER promoting,
+    `health_check_url`: the real URL to probe AFTER promoting,
     before this promotion may be marked COMPLETE - only ever set when
     the project's own `hydra-umc.project.json` declares a
     `service_health_path` (see HYDRA-UMC-UPDATER's `project_manifest.py`);
@@ -163,7 +163,7 @@ class PromotionJournal:
         """Writes a new STARTED record BEFORE the caller performs the
         first real rename - the durable analogue of install.py's own
         in-memory bookkeeping right before its promotion step.
-        `health_check_url` (I13): pass this project's real health
+        `health_check_url`: pass this project's real health
         endpoint when it declares one, so a later crash between
         promoting and checking it is recoverable - see this module's own
         header and `recover()`'s PROMOTED branch below."""
@@ -218,7 +218,7 @@ class PromotionJournal:
 
 
 def check_service_health(url: str, *, timeout: float = 5.0) -> tuple[bool, str]:
-    """I13's own real "servicio comprobado" step: a real, minimal HTTP GET
+    """this project's own real "servicio comprobado" step: a real, minimal HTTP GET
     against `url`, never raising. Deliberately STRICTER than a bare
     reachability probe (compare HYDRA-UMC-LOCAL-TECHNICIAN's own
     `network.connectivity`, where any real HTTP response - even a 5xx -
@@ -263,7 +263,7 @@ def recover(journal: PromotionJournal) -> list[str]:
         `target_path` before the crash - the promotion in fact
         succeeded, only the journal never got to record COMPLETE. No
         filesystem action needed; the promotion is real. If this record
-        declares a `health_check_url` (I13), the pending health check
+        declares a `health_check_url`, the pending health check
         itself is run for real right now, exactly as `install.py` would
         have run it had the crash not interrupted things - never
         skipped, and never repeating the actual install/build. A check

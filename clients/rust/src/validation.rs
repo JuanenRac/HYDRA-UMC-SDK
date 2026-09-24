@@ -46,7 +46,7 @@ impl std::error::Error for ContractValidationError {}
 /// `clients/go/validation.go`'s `contractFiles` and
 /// `clients/typescript/src/validation.ts`'s `CONTRACT_FILES` use.
 ///
-/// Real drift found while adding the Capability contract (I02): this map
+/// Real drift found while adding the Capability contract: this map
 /// (unlike `SCHEMA_FILES` below, which embeds the raw bytes of every
 /// vendored schema file) was still missing `ScenarioOutcome` and
 /// `Operation` - both schemas had been embedded and vendored correctly,

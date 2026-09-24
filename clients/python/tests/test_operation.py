@@ -139,7 +139,7 @@ class ParseOperationResultTests(unittest.TestCase):
         self.assertIsNone(result.observed_at)
 
 
-# --- I02's own literal acceptance test: a result from another session, or
+# --- this project's own literal acceptance test: a result from another session, or
 # with observers disabled, must never permit concluding success. ---
 
 

@@ -1,9 +1,9 @@
 # =============================================================================
-# HYDRA-UMC-SDK - T07/I60 scenario before/after comparison (reference consumer)
+# HYDRA-UMC-SDK - T07/scenario before/after comparison (reference consumer)
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
 # GPL-3.0-or-later - see LICENSE
 # =============================================================================
-"""The shared T07/I60 check: given a `ScenarioOutcome` for the same fixed
+"""The shared T07/check: given a `ScenarioOutcome` for the same fixed
 reproduction scenario run BEFORE a candidate fix and one run AFTER it,
 decide whether the fix actually closed the failure - and, above all,
 refuse to call it fixed when nothing really changed.
@@ -27,7 +27,7 @@ from .validation import ContractValidationError, validate
 #   still-broken        - the failure still reproduces after the fix.
 #   apparent-success    - the failure stopped reproducing but the base
 #                        fingerprint is unchanged: nothing was actually
-#                        applied, so this "pass" is meaningless (I60/T07).
+# applied, so this "pass" is meaningless (/T07).
 #   inconclusive        - the pair cannot be compared: phases out of order,
 #                        a different scenario_id or repro_case (evidence for
 #                        the wrong case), the after-run errored, or the

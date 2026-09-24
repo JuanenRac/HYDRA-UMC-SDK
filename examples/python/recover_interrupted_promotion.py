@@ -5,7 +5,7 @@
 # GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """Simulates exactly the crash HYDRA-UMC-UPDATER's own install.py already
-mitigates in-process (V07-004) - but here the process itself is gone: a
+mitigates in-process - but here the process itself is gone: a
 NEW PromotionJournal instance, pointed at the same journal file, finds
 the interrupted promotion and recovers it.
 
