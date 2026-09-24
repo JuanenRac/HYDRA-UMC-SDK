@@ -1,5 +1,15 @@
 # Changelog
 
+## Client package versions
+
+Only the Python client (`clients/python`) tracks this repository's own
+version. The Rust (`clients/rust`) and TypeScript (`clients/typescript`,
+`@hydra-umc/sdk`) clients keep their own `0.1.0` and the Go client is tagged
+by module path: none of them is published to a package registry from here,
+so those numbers do not gate anything today. The day one of them is
+published, it gets its own independent version and this note is replaced by
+the real release policy.
+
 ## [0.2.6] - real cross-language contract round-trip tests
 
 New round-trip tests in all 4 reference clients (Python, Go, Rust,
