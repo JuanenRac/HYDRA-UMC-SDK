@@ -77,3 +77,18 @@ class DocPolicyTests(unittest.TestCase):
     def test_an_unrelated_use_of_a_common_word_does_not_trip_the_phrase_check(self):
         self._commit("README.md", "This service keeps an audit trail and a work log of its own runs.\n")
         self.assertIsNone(check_public_private_boundary(self.root))
+
+    def test_rejects_an_internal_tracking_code(self):
+        for code in ("V07" + "-012", "REV" + "-004", "PROM" + "-HUB-F02", "DOC" + "-BUG-7"):
+            with self.subTest(code=code):
+                self._commit("notes.md", f"// {code}: a leaked label" + chr(10))
+                self.assertEqual(
+                    check_public_private_boundary(self.root),
+                    "public files must not carry internal tracking codes",
+                )
+                self._run("git", "rm", "-q", "-f", "notes.md")
+                self._run("git", "commit", "-q", "-m", "remove")
+
+    def test_part_numbers_and_ordinary_names_are_not_tracking_codes(self):
+        self._commit("README.md", "Capacitor C10, the H745 MCU, UTF-8 and SHA-256, REV A board." + chr(10))
+        self.assertIsNone(check_public_private_boundary(self.root))
