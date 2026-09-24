@@ -12,7 +12,7 @@ from hydra_umc_sdk.scenario import ContractValidationError, compare_runs
 def _before(**over):
     run = {
         "schema_version": "1.0",
-        "scenario_id": "dev-server/I60/base-moved",
+        "scenario_id": "dev-server/base-moved",
         "run_id": "run-before-1",
         "base_fingerprint": "base-A",
         "phase": "before",
@@ -27,7 +27,7 @@ def _before(**over):
 def _after(**over):
     run = {
         "schema_version": "1.0",
-        "scenario_id": "dev-server/I60/base-moved",
+        "scenario_id": "dev-server/base-moved",
         "run_id": "run-after-1",
         "base_fingerprint": "base-B",
         "phase": "after",
@@ -44,7 +44,7 @@ class CompareRunsTests(unittest.TestCase):
         c = compare_runs(_before(), _after())
         self.assertEqual(c.verdict, "regression-fixed")
         self.assertTrue(c.is_promotable)
-        self.assertEqual(c.scenario_id, "dev-server/I60/base-moved")
+        self.assertEqual(c.scenario_id, "dev-server/base-moved")
         self.assertEqual((c.before_run_id, c.after_run_id), ("run-before-1", "run-after-1"))
 
     def test_base_unchanged_is_apparent_success_never_promotable(self):
@@ -68,7 +68,7 @@ class CompareRunsTests(unittest.TestCase):
         self.assertIn("different repro case", c.reason)
 
     def test_different_scenario_id_is_inconclusive(self):
-        c = compare_runs(_before(), _after(scenario_id="dev-server/I60/other"))
+        c = compare_runs(_before(), _after(scenario_id="dev-server/other"))
         self.assertEqual(c.verdict, "inconclusive")
 
     def test_phases_out_of_order_is_inconclusive(self):
