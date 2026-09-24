@@ -23,7 +23,7 @@
     },
     {
       "file": "project-manifest.schema.json",
-      "sha256": "d972eb7e042632e49072b863dc23e40d6ceb3ea9f2c55fc6c7936a8e6e7661cc"
+      "sha256": "cdfd4b028a0742268b25106430ce019763ba4d117d3fb836e2417fdd9a94142b"
     },
     {
       "file": "safety-state.schema.json",
@@ -39,7 +39,7 @@
     },
     {
       "file": "update-manifest.schema.json",
-      "sha256": "8fd40c0609384be3106983e966b10fadde6a21f96f70936aa02528cdd70b5ddc"
+      "sha256": "871e6b0182ca021cbdd3674e14482f2cede0440128254ce285302075741634ec"
     }
   ]
 }
