@@ -48,8 +48,9 @@ fn assert_roundtrips_structurally<T: DeserializeOwned + Serialize>(contract: &st
     let original: Value = serde_json::from_str(raw)
         .unwrap_or_else(|error| panic!("{contract}: fixture is not valid JSON: {error}"));
 
-    let decoded: T = serde_json::from_str(raw)
-        .unwrap_or_else(|error| panic!("{contract}: failed to decode into the native type: {error}"));
+    let decoded: T = serde_json::from_str(raw).unwrap_or_else(|error| {
+        panic!("{contract}: failed to decode into the native type: {error}")
+    });
 
     let reencoded = serde_json::to_string(&decoded)
         .unwrap_or_else(|error| panic!("{contract}: failed to re-encode: {error}"));
@@ -133,7 +134,9 @@ roundtrip_test!(
 #[test]
 fn generic_contracts_roundtrip() {
     let Some(dir) = fixtures_dir() else {
-        eprintln!("conformance fixtures not found - skipping (expected inside a HYDRA-UMC-SDK checkout)");
+        eprintln!(
+            "conformance fixtures not found - skipping (expected inside a HYDRA-UMC-SDK checkout)"
+        );
         return;
     };
     for (contract, fixture) in [
