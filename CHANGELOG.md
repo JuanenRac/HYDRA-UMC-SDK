@@ -1,11 +1,5 @@
 # Changelog
 
-## [0.2.9]
-
-### Changed
-
-- Automated build version increment from 0.2.8.
-
 ## [0.2.9] - The gate uses the machine state the bridge observes, and bridges get a job intake
 
 - **Observed state.** `evaluate_job(job, cell_state, observed_machine_state=None)`: when the bridge passes the state it just read from its machine, that is what the gate uses; the `machine_state` inside the job is only a claim by whoever published it (a message anybody on the broker may send), and a gate that trusted it let "IDLE" through while the machine was running. Without an observation the claim is still used, so existing bridges keep working until they pass theirs.
