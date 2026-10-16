@@ -15,6 +15,7 @@ from .bridge_contract import (
     MachineState,
     evaluate_job,
 )
+from .job_intake import IdempotencyStore, Intake, JobIntake
 from .capability import (
     CapabilityError,
     CapabilityStatus,
@@ -51,6 +52,9 @@ __all__ = [
     "JobPhase",
     "MachineState",
     "evaluate_job",
+    "IdempotencyStore",
+    "Intake",
+    "JobIntake",
     "CapabilityError",
     "CapabilityStatus",
     "capability_check_age_seconds",
@@ -80,4 +84,4 @@ __all__ = [
     "validate",
 ]
 
-__version__ = "0.2.8"
+__version__ = "0.2.9"

@@ -17,7 +17,8 @@ CC BY-SA 4.0 - voir LICENSE.md
   <a href="README_ita.md">🇮🇹 Italien</a> |
   <a href="README_deu.md">🇩🇪 Allemand</a> |
   <a href="README_zho.md">🇨🇳 简体中文</a> |
-  <a href="README_jpn.md">🇯🇵 日本語</a>
+  <a href="README_jpn.md">🇯🇵 日本語</a> |
+  <a href="README_por.md">🇵🇹 Português</a>
 </p>
 
 <p align="center">
@@ -59,7 +60,7 @@ ci-dessous : un contrat public de pont vers des machines externes
 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), partagé par
 `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` et doté
 de sa propre forme JSON réelle (`job_to_dict()`/`job_from_dict()`/
-`decision_to_dict()`) ; un contrat `ScenarioOutcome` plus
+`decision_to_dict()`), plus l'état de la machine que le bridge observe lui-même, que la porte utilise à la place de celui que déclare le demandeur, et une admission des travaux (`JobIntake`/`IdempotencyStore`) qui ignore les messages retenus et n'exécute jamais deux fois une clé d'idempotence ; un contrat `ScenarioOutcome` plus
 `compare_runs()`, une vérification partagée « est-ce vraiment
 corrigé » qui renvoie `apparent-success` (pas `regression-fixed`) quand
 un échec cesse de se reproduire mais que l'empreinte de base n'a jamais

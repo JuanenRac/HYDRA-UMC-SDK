@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.9]
+
+### Changed
+
+- Automated build version increment from 0.2.8.
+
+## [0.2.9] - The gate uses the machine state the bridge observes, and bridges get a job intake
+
+- **Observed state.** `evaluate_job(job, cell_state, observed_machine_state=None)`: when the bridge passes the state it just read from its machine, that is what the gate uses; the `machine_state` inside the job is only a claim by whoever published it (a message anybody on the broker may send), and a gate that trusted it let "IDLE" through while the machine was running. Without an observation the claim is still used, so existing bridges keep working until they pass theirs.
+- **Job intake.** `hydra_umc_sdk.job_intake`: `JobIntake` ignores retained messages (the broker replays them at every reconnect, which started a physical action again each time) and refuses malformed jobs; `IdempotencyStore` remembers the idempotency keys (SQLite when given a file, so a restart does not forget; in memory otherwise; 24 hours and 10 000 keys by default) and the answer given to each, so a repeat is answered again instead of being run again. The contract document asked bridges to do this and none did.
+- **Bounded jobs.** A job carries at most 32 parameters (names up to 64 characters, values up to 1024) and identifiers up to 128 characters.
+- Tests for all of it (218 in the package).
+
 ## [0.2.8] - Separate-field version patterns may carry a build entry
 
 - `native_version.pattern`'s object form accepts an optional `build` regex (JSON

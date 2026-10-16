@@ -17,7 +17,8 @@ CC BY-SA 4.0 - see LICENSE.md
   <a href="README_ita.md">🇮🇹 Italiano</a> |
   <a href="README_deu.md">🇩🇪 Deutsch</a> |
   <a href="README_zho.md">🇨🇳 简体中文</a> |
-  <a href="README_jpn.md">🇯🇵 日本語</a>
+  <a href="README_jpn.md">🇯🇵 日本語</a> |
+  <a href="README_por.md">🇵🇹 Português</a>
 </p>
 
 <p align="center">
@@ -60,7 +61,7 @@ below: a public `BridgeJob`/`GateDecision` external-machine bridge
 contract (see [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), shared
 by `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` and
 given its own real JSON wire shape (`job_to_dict()`/`job_from_dict()`/
-`decision_to_dict()`); a `ScenarioOutcome` contract plus
+`decision_to_dict()`), plus the machine state the bridge itself observes, which the gate uses instead of the one the requester claims, and a job intake (`JobIntake`/`IdempotencyStore`) that ignores retained messages and never runs an idempotency key twice; a `ScenarioOutcome` contract plus
 `compare_runs()`, a shared "was it actually fixed" check that
 returns `apparent-success` (not `regression-fixed`) when a failure
 stopped reproducing but the base fingerprint never moved; an `Operation`

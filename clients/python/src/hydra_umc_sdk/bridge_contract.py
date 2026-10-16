@@ -17,6 +17,12 @@ from enum import Enum
 from typing import Mapping
 
 
+MAX_PARAMETERS = 32
+MAX_PARAMETER_KEY_CHARS = 64
+MAX_PARAMETER_VALUE_CHARS = 1024
+MAX_IDENTIFIER_CHARS = 128
+
+
 class BridgeError(ValueError):
     """Raised for an invalid bridge request before any transport is used."""
 
@@ -91,6 +97,13 @@ class BridgeJob:
             raise BridgeError(f"parameters must be a mapping (dict-like) object, got {type(self.parameters).__name__}")
         if any(not isinstance(key, str) or not isinstance(value, str) for key, value in self.parameters.items()):
             raise BridgeError("parameters must map strings to strings")
+        # A job comes from a message anybody on the broker may publish: its size is bounded so that it cannot be used to exhaust a bridge.
+        if len(self.parameters) > MAX_PARAMETERS:
+            raise BridgeError(f"a job carries at most {MAX_PARAMETERS} parameters")
+        if any(len(key) > MAX_PARAMETER_KEY_CHARS or len(value) > MAX_PARAMETER_VALUE_CHARS for key, value in self.parameters.items()):
+            raise BridgeError(f"a parameter name has at most {MAX_PARAMETER_KEY_CHARS} characters and a value {MAX_PARAMETER_VALUE_CHARS}")
+        if any(len(value) > MAX_IDENTIFIER_CHARS for value in (self.job_id, self.idempotency_key, self.source)):
+            raise BridgeError(f"job_id, idempotency_key and source have at most {MAX_IDENTIFIER_CHARS} characters")
 
 
 @dataclass(frozen=True)
@@ -99,20 +112,31 @@ class GateDecision:
     reason: str
 
 
-def evaluate_job(job: BridgeJob, cell_state: CellState) -> GateDecision:
+def evaluate_job(job: BridgeJob, cell_state: CellState, observed_machine_state: MachineState | None = None) -> GateDecision:
     """Apply the minimum common safety rule before a bridge forwards a job.
 
     Abort is always allowed so that an external integration can request a
     controlled stop. Any productive phase needs a READY cell and an IDLE
     external machine; the lower MCU safety authority remains independent.
+
+    `observed_machine_state` is the state of the external machine as the BRIDGE
+    sees it (read from the machine just now), and it is what the gate uses
+    when it is given. `job.machine_state` is only what the requester CLAIMS:
+    it arrives in a message anybody on the broker may publish, so a gate that
+    trusted it would let "machine_state": "IDLE" through while the machine runs.
+    Without an observation the claim is used, for bridges that cannot observe
+    their machine yet; every bridge that can must pass what it observed.
     """
 
     if job.phase is JobPhase.ABORT:
         return GateDecision(True, "abort requests are always forwarded to the authorised safety path")
     if cell_state is not CellState.READY:
         return GateDecision(False, f"cell is {cell_state.value}, not READY")
-    if job.machine_state is not MachineState.IDLE:
-        return GateDecision(False, f"external machine is {job.machine_state.value}, not IDLE")
+    if observed_machine_state is not None and not isinstance(observed_machine_state, MachineState):
+        raise BridgeError(f"observed_machine_state must be a real MachineState member, got {observed_machine_state!r}")
+    machine_state = observed_machine_state if observed_machine_state is not None else job.machine_state
+    if machine_state is not MachineState.IDLE:
+        return GateDecision(False, f"external machine is {machine_state.value}, not IDLE")
     return GateDecision(True, "cell and external machine are ready")
 
 

@@ -17,7 +17,8 @@ CC BY-SA 4.0 – siehe LICENSE.md
   <a href="README_ita.md">🇮🇹 Italienisch</a> |
   <a href="README_deu.md">🇩🇪 Deutsch</a> |
   <a href="README_zho.md">🇨🇳 简体中文</a> |
-  <a href="README_jpn.md">🇯🇵 日本語</a>
+  <a href="README_jpn.md">🇯🇵 日本語</a> |
+  <a href="README_por.md">🇵🇹 Português</a>
 </p>
 
 <p align="center">
@@ -60,7 +61,7 @@ externe Maschinenanbindung (siehe
 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), gemeinsam genutzt
 von `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` und
 mit einer eigenen echten JSON-Wire-Form (`job_to_dict()`/
-`job_from_dict()`/`decision_to_dict()`); ein `ScenarioOutcome`-Vertrag
+`job_from_dict()`/`decision_to_dict()`), dazu der Zustand der Maschine, den der Bridge selbst beobachtet und den das Tor statt des vom Anfragenden behaupteten verwendet, und eine Auftragsannahme (`JobIntake`/`IdempotencyStore`), die zurückgehaltene Nachrichten ignoriert und einen Idempotenzschlüssel nie zweimal ausführt; ein `ScenarioOutcome`-Vertrag
 plus `compare_runs()`, eine gemeinsame Prüfung "wurde es wirklich
 behoben", die `apparent-success` (nicht `regression-fixed`) zurückgibt,
 wenn ein Fehler nicht mehr reproduzierbar ist, sich der Basis-Fingerabdruck

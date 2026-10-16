@@ -26,9 +26,59 @@ a `READY` HYDRA-UMC cell and an `IDLE` external machine. `ABORT` is always
 forwarded to the authorised safety path so a faulted integration can request a
 controlled stop rather than becoming unable to stop itself.
 
-Every `BridgeJob` carries `job_id`, `idempotency_key`, source, phase, observed
-machine state and string-only integration parameters. Bridges must persist or
-otherwise deduplicate the idempotency key before retrying an external request.
+Every `BridgeJob` carries `job_id`, `idempotency_key`, source, phase, the
+machine state **the requester claims** and string-only integration parameters
+(at most 32 of them, names up to 64 characters, values up to 1024, identifiers up
+to 128). Bridges must persist or otherwise deduplicate the idempotency key before
+retrying an external request.
+
+### The gate uses what the bridge observes
+
+A job arrives in a message that anybody on the broker may publish, so the
+`machine_state` inside it is a claim, not a fact. A bridge that can read the
+state of its machine (a printer's Moonraker status, a CNC's GRBL status, the
+OpenPnP machine state, the AMR's fleet state...) must read it just before the
+gate and pass it:
+
+```python
+decision = evaluate_job(job, cell_state, observed_machine_state=machine.state_now())
+```
+
+`evaluate_job` then ignores the claim. Without an observation it falls back to
+the claim, which is only acceptable for a bridge that has no way to observe its
+machine yet.
+
+### Job intake: retained messages and repeated keys
+
+Two rules every bridge needs are carried by the SDK so that they are written once
+(`hydra_umc_sdk.job_intake`):
+
+- **A retained message is not a request.** The broker replays a retained command at
+  every reconnect, which would start a physical action again each time. `JobIntake`
+  ignores any message whose retain flag is set.
+- **A key is handled once.** MQTT QoS 1 may deliver a command twice and a client may
+  retry it. `IdempotencyStore` remembers the keys (SQLite when given a file, so a
+  restart does not forget; 24 hours and 10 000 keys by default) and, if the bridge
+  stores it with `remember()`, the answer that was given, so a repeat is answered
+  again instead of being run again.
+
+```python
+store = IdempotencyStore("/var/lib/hydra-umc/bridge-keys.sqlite")
+intake = JobIntake(store)
+
+def on_message(message):
+    result = intake.accept(json.loads(message.payload), retained=message.retain)
+    if result.duplicate:
+        publish(store.recall(result.job.idempotency_key))   # the same answer, nothing runs twice
+        return
+    if not result.accepted:
+        return                                              # retained or malformed
+    decision = evaluate_job(result.job, cell_state, observed_machine_state=machine.state_now())
+    store.remember(result.job.idempotency_key, decision.reason)
+    ...
+```
+
+A job refused by the gate keeps its key: to try again, the sender uses a new one.
 
 ## Bridge-specific meaning
 

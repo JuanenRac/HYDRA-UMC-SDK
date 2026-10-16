@@ -17,7 +17,8 @@ CC BY-SA 4.0 - ver LICENCIA.md
   <a href="README_ita.md">🇮🇹 Italiano</a> |
   <a href="README_deu.md">🇩🇪 Alemán</a> |
   <a href="README_zho.md">🇨🇳 简体中文</a> |
-  <a href="README_jpn.md">🇯🇵 日本語</a>
+  <a href="README_jpn.md">🇯🇵 日本語</a> |
+  <a href="README_por.md">🇵🇹 Português</a>
 </p>
 
 <p align="center">
@@ -58,7 +59,7 @@ público de puente a máquinas externas `BridgeJob`/`GateDecision` (ver
 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), compartido por
 `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` y con su
 propia forma JSON real (`job_to_dict()`/`job_from_dict()`/
-`decision_to_dict()`); un contrato `ScenarioOutcome` más `compare_runs()`,
+`decision_to_dict()`), más el estado de la máquina que el propio bridge observa, que la puerta usa en lugar del que declara quien pide, y una admisión de trabajos (`JobIntake`/`IdempotencyStore`) que ignora los mensajes retenidos y nunca ejecuta dos veces una clave de idempotencia; un contrato `ScenarioOutcome` más `compare_runs()`,
 una comprobación compartida de "se arregló de verdad" que
 devuelve `apparent-success` (no `regression-fixed`) cuando un fallo dejó
 de reproducirse pero la huella base nunca se movió; un contrato

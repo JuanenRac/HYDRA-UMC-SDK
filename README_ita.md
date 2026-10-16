@@ -17,7 +17,8 @@ CC BY-SA 4.0 - vedere LICENZA.md
   <a href="README_ita.md">🇮🇹 Italiano</a> |
   <a href="README_deu.md">🇩🇪 Tedesco</a> |
   <a href="README_zho.md">🇨🇳 简体中文</a> |
-  <a href="README_jpn.md">🇯🇵 日本語</a>
+  <a href="README_jpn.md">🇯🇵 日本語</a> |
+  <a href="README_por.md">🇵🇹 Português</a>
 </p>
 
 <p align="center">
@@ -60,7 +61,7 @@ contratto pubblico di bridge verso macchine esterne
 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), condiviso da
 `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` e dotato
 di una propria forma JSON reale (`job_to_dict()`/`job_from_dict()`/
-`decision_to_dict()`); un contratto `ScenarioOutcome` più
+`decision_to_dict()`), più lo stato della macchina che il bridge stesso osserva, che la porta usa al posto di quello dichiarato da chi richiede, e un'ammissione dei lavori (`JobIntake`/`IdempotencyStore`) che ignora i messaggi trattenuti e non esegue mai due volte una chiave di idempotenza; un contratto `ScenarioOutcome` più
 `compare_runs()`, una verifica condivisa "è stato davvero
 risolto" che restituisce `apparent-success` (non `regression-fixed`)
 quando un fallimento smette di riprodursi ma l'impronta di base non è
