@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.1] - The Portuguese README is required by the parity check
+
+- The README parity check now requires the Portuguese README: `readme_parity.DEFAULT_LANGUAGE_FILES` includes `README_por.md`, a new `REQUIRED_LANGUAGE_FILES` makes its absence a reported problem (pass `required=()` to switch that off), and a Portuguese README is compared with the English one for section structure and external links like the other six translations.
+- `tools/sync_readme_parity.py` also adds `README_por.md` to each repository's `REQUIRED_DOCUMENTS`, understands the one-line-per-several-names form of that tuple, and leaves a repository that has no `README_por.md` yet on the previous rule (reported as `skipped-no-readme-por`) so its CI is not broken before the file exists.
+- Tests for the required, missing, structure and link cases (229 in total); the vendored copy was propagated to the repositories that carry it.
+
 ## [0.3.0] - MQTT credentials and TLS for bridges from the environment
 
 - New `hydra_umc_sdk.mqtt_connection`: the credentials (`HYDRA_MQTT_USERNAME`, `HYDRA_MQTT_PASSWORD` or `HYDRA_MQTT_PASSWORD_FILE`) and the TLS CA (`HYDRA_MQTT_TLS_CA`) a bridge uses to reach a broker that demands them, read from the environment of the service; a password without a user name is refused, and an explicit user name from the caller never pairs with an environment password.

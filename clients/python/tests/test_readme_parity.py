@@ -60,6 +60,9 @@ class ReadmeSectionParityTests(unittest.TestCase):
         self.addCleanup(self._tmp.cleanup)
         self.root = Path(self._tmp.name)
         (self.root / "README.md").write_text(EN, encoding="utf-8")
+        (self.root / "README_por.md").write_text(
+            "## 🎯 Visão geral\n\n## 🔗 Projetos relacionados\n\n## 👤 AUTOR\n", encoding="utf-8"
+        )
 
     def _write(self, name: str, content: str) -> None:
         (self.root / name).write_text(content, encoding="utf-8")
@@ -87,11 +90,34 @@ class ReadmeSectionParityTests(unittest.TestCase):
         problems = check_readme_section_parity(self.root)
         self.assertEqual(len(problems), 1)
 
-    def test_a_missing_translation_file_is_not_itself_a_parity_violation(self):
+    def test_a_missing_optional_translation_file_is_not_itself_a_parity_violation(self):
         # ci_validate.py's own REQUIRED_DOCUMENTS check already covers a
         # missing translation file - this check is only about the
-        # STRUCTURE of translations that do exist.
+        # STRUCTURE of translations that do exist (the Portuguese README is
+        # the one exception, below).
         self.assertEqual(check_readme_section_parity(self.root), [])
+
+    def test_a_missing_portuguese_readme_is_a_violation(self):
+        (self.root / "README_por.md").unlink()
+        problems = check_readme_section_parity(self.root)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("README_por.md is missing", problems[0])
+
+    def test_the_portuguese_requirement_can_be_switched_off_explicitly(self):
+        (self.root / "README_por.md").unlink()
+        self.assertEqual(check_readme_section_parity(self.root, required=()), [])
+
+    def test_the_portuguese_readme_is_checked_for_structure_like_the_others(self):
+        self._write("README_por.md", "## 🎯 Visão geral\n\n## 👤 AUTOR\n")
+        problems = check_readme_section_parity(self.root)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("README_por.md", problems[0])
+
+    def test_the_portuguese_readme_is_checked_for_links_like_the_others(self):
+        self._write("README.md", EN + "\n[a](https://example.org/a)\n")
+        problems = check_readme_section_parity(self.root)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("README_por.md links do not match", problems[0])
 
     def test_multiple_translations_are_all_checked_and_reported(self):
         self._write("README_spa.md", "## 🎯 Resumen\n\n## 👤 AUTOR\n")
@@ -120,16 +146,16 @@ class ReadmeLinkParityTests(unittest.TestCase):
     def test_a_translation_missing_a_link_is_reported(self):
         self._write("README.md", _doc("## 🎯 A", "", "[docs](https://example.org/a) [spec](https://example.org/b)"))
         self._write("README_spa.md", _doc("## 🎯 A", "", "[docs](https://example.org/a)"))
-        problems = check_readme_section_parity(self.root)
+        problems = check_readme_section_parity(self.root, required=())
         self.assertEqual(len(problems), 1)
         self.assertIn("https://example.org/b", problems[0])
 
     def test_same_links_in_a_different_order_pass(self):
         self._write("README.md", _doc("## 🎯 A", "", "[x](https://example.org/a) [y](https://example.org/b)"))
         self._write("README_deu.md", _doc("## 🎯 A", "", "[y](https://example.org/b) [x](https://example.org/a)"))
-        self.assertEqual(check_readme_section_parity(self.root), [])
+        self.assertEqual(check_readme_section_parity(self.root, required=()), [])
 
     def test_relative_links_are_not_compared(self):
         self._write("README.md", _doc("## 🎯 A", "", "[c](CONTRIBUTING.md)"))
         self._write("README_fra.md", _doc("## 🎯 A", "", "[c](docs/CONTRIBUTING.md)"))
-        self.assertEqual(check_readme_section_parity(self.root), [])
+        self.assertEqual(check_readme_section_parity(self.root, required=()), [])

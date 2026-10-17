@@ -14,6 +14,13 @@ public/private documentation boundary check (see
 no live runtime dependency on this package for any repo's own
 per-commit CI).
 
+The Portuguese README (README_por.md) is required: the vendored rule reports
+its absence, and this script also adds it to each repo's own
+REQUIRED_DOCUMENTS in `tools/ci_validate.py`. A repo that does not have its
+README_por.md yet is reported as `skipped-no-readme-por` and left on the
+previous rule, so adding the requirement never turns its CI red before the
+file exists; write the README, then re-run this script.
+
 Usage: run from this repo's own root, with every sibling repo checked
 out alongside it:
     python tools/sync_readme_parity.py [--check]
@@ -47,6 +54,14 @@ CALL_SITE = '''    for readme_problem in check_readme_section_parity(ROOT):
         fail(readme_problem)
 '''
 IMPORT_LINE = "from _readme_parity import check_readme_section_parity\n"
+
+# Anchor for the required-documents entry: the Japanese README line of the
+# REQUIRED_DOCUMENTS tuple every repo's ci_validate.py carries.
+_REQUIRED_ANCHOR = '    "README_jpn.md",\n'
+_REQUIRED_POR = '    "README_por.md",\n'
+# A few repos write the tuple several names per line instead of one per line.
+_REQUIRED_INLINE_ANCHOR = '"README_jpn.md", '
+_REQUIRED_INLINE_POR = '"README_jpn.md", "README_por.md", '
 
 # Anchor: insert right after the doc-policy import this same repo's own
 # earlier sync_doc_policy.py pass already added - keeps both new checks
@@ -82,6 +97,8 @@ def vendored_text(repo_name: str) -> str:
 
 
 def sync_one(repo: Path, check_only: bool) -> str:
+    if not (repo / "README_por.md").is_file():
+        return "skipped-no-readme-por"
     vendored_path = repo / "tools" / "_readme_parity.py"
     ci_validate_path = repo / "tools" / "ci_validate.py"
 
@@ -89,15 +106,20 @@ def sync_one(repo: Path, check_only: bool) -> str:
     vendored_changed = not vendored_path.is_file() or vendored_path.read_text(encoding="utf-8") != new_vendored
 
     ci_text = ci_validate_path.read_text(encoding="utf-8")
-    if IMPORT_LINE in ci_text:
-        ci_changed = False
-        new_ci_text = ci_text
-    else:
-        if _DOC_POLICY_IMPORT not in ci_text or _DOC_POLICY_CALL not in ci_text:
+    new_ci_text = ci_text
+    if IMPORT_LINE not in new_ci_text:
+        if _DOC_POLICY_IMPORT not in new_ci_text or _DOC_POLICY_CALL not in new_ci_text:
             return "no-h045-anchor-found"
-        new_ci_text = ci_text.replace(_DOC_POLICY_IMPORT, _DOC_POLICY_IMPORT + IMPORT_LINE, 1)
+        new_ci_text = new_ci_text.replace(_DOC_POLICY_IMPORT, _DOC_POLICY_IMPORT + IMPORT_LINE, 1)
         new_ci_text = new_ci_text.replace(_DOC_POLICY_CALL, _DOC_POLICY_CALL + CALL_SITE, 1)
-        ci_changed = True
+    if '"README_por.md"' not in new_ci_text:
+        if _REQUIRED_ANCHOR in new_ci_text:
+            new_ci_text = new_ci_text.replace(_REQUIRED_ANCHOR, _REQUIRED_ANCHOR + _REQUIRED_POR, 1)
+        elif _REQUIRED_INLINE_ANCHOR in new_ci_text:
+            new_ci_text = new_ci_text.replace(_REQUIRED_INLINE_ANCHOR, _REQUIRED_INLINE_POR, 1)
+        else:
+            return "no-required-documents-anchor"
+    ci_changed = new_ci_text != ci_text
 
     if not vendored_changed and not ci_changed:
         return "already-in-sync"
@@ -121,7 +143,7 @@ def main() -> int:
 
     if check_only and results.get("out-of-sync"):
         return 1
-    if results.get("no-h045-anchor-found"):
+    if results.get("no-h045-anchor-found") or results.get("no-required-documents-anchor"):
         return 1
     return 0
 
