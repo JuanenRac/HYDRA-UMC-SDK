@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.0] - MQTT credentials and TLS for bridges from the environment
+
+- New `hydra_umc_sdk.mqtt_connection`: the credentials (`HYDRA_MQTT_USERNAME`, `HYDRA_MQTT_PASSWORD` or `HYDRA_MQTT_PASSWORD_FILE`) and the TLS CA (`HYDRA_MQTT_TLS_CA`) a bridge uses to reach a broker that demands them, read from the environment of the service; a password without a user name is refused, and an explicit user name from the caller never pairs with an environment password.
+- `docs/BRIDGE_CONTRACT.md` documents the variables and that the broker evaluates its ACL for the identity of the credential, not for the client ID the client chose.
+- Unit tests for the settings and for how they are put on a paho client.
+
 ## [0.2.9] - The gate uses the machine state the bridge observes, and bridges get a job intake
 
 - **Observed state.** `evaluate_job(job, cell_state, observed_machine_state=None)`: when the bridge passes the state it just read from its machine, that is what the gate uses; the `machine_state` inside the job is only a claim by whoever published it (a message anybody on the broker may send), and a gate that trusted it let "IDLE" through while the machine was running. Without an observation the claim is still used, so existing bridges keep working until they pass theirs.

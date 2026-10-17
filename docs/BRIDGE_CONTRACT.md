@@ -80,6 +80,19 @@ def on_message(message):
 
 A job refused by the gate keeps its key: to try again, the sender uses a new one.
 
+### Connecting to the broker: credentials and TLS
+
+A production HYDRA-UMC-MQTT-BROKER demands a user and a password, and evaluates its ACL for the identity of the credential (its `clientIdPrefix`), not for the client ID the
+client picked. A bridge therefore connects with the settings of its service environment (`hydra_umc_sdk.mqtt_connection`), never with values written in code or in a committed file:
+
+| Variable | Meaning |
+|---|---|
+| `HYDRA_MQTT_USERNAME` / `HYDRA_MQTT_PASSWORD` | The MQTT credential (the password only together with the user name). The bridge's client ID must start with the prefix of its credential. |
+| `HYDRA_MQTT_PASSWORD_FILE` | The password read from a file (a Docker or systemd secret), used when `HYDRA_MQTT_PASSWORD` is not set. |
+| `HYDRA_MQTT_TLS_CA` | The CA certificate that signed the broker's certificate: the link is then TLS and the certificate is verified. |
+
+With none of them set the connection is anonymous and plain, as it always was (a development broker).
+
 ## Bridge-specific meaning
 
 - ROS 2 maps continuous state to topics, short inspection to services and
