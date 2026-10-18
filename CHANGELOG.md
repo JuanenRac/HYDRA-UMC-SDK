@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.3] - HYDRA-UMC-DOCS in the related projects
+
+- The Related Projects section of the README, in the eight languages, lists HYDRA-UMC-DOCS: the repository that holds the architecture, the interfaces, the security baseline, the capability matrix and the project catalogue generated from every manifest.
+
 ## [0.3.2] - Safer recovery and evidence gates, schemas that match the validator, and a current OpenAPI slice
 
 - **Promotion journal.** `recover()` now looks at the disk for a promotion recorded as `STARTED`: when the live directory had already been set aside it is restored (a crash between the rename and `advance()` no longer loses it). A corrupt or unreadable journal is kept as `<name>.corrupt-<time>` and reported by `recover()` instead of being overwritten, one unreadable record no longer hides the others, one failed restore no longer stops the rest, and the journal file and its directory are synced to disk on every write. `check_service_health()` accepts only `http` and `https`.
