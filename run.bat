@@ -27,7 +27,11 @@ echo ***************************************************************************
 echo.
 REM HYDRA_UMC_SCRIPT_STANDARD_BANNER_END
 setlocal
+rem Keep the window open for people, never in automation (CI / HYDRA_UMC_CI).
+set "KEEP_OPEN=pause"
+if defined CI set "KEEP_OPEN=ver >nul"
+if "%HYDRA_UMC_CI%"=="1" set "KEEP_OPEN=ver >nul"
 cd /d "%~dp0"
 set "PYTHONPATH=%CD%\clients\python\src"
 python -m hydra_umc_sdk.validation HealthReport conformance\fixtures\v1\health-report.valid.json
-pause
+%KEEP_OPEN%
