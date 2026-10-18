@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.4] - The Python validator refuses malformed values instead of crashing
+
+- A list or an object where an enumerated value belongs (`status`, `phase`, `observed.outcome`, `state`, `ecosystem`, `role`, `deployment_target`, `maturity`, `result.origin`, `result.outcome`, `last_check_outcome`) made the Python validator raise `TypeError` instead of `ContractValidationError`, so a service that catches the contract error crashed on a hostile payload. Every enumerated field now goes through one check that accepts only a string from the allowed set.
+- The Python validator now checks three optional text fields that the schemas already required to be strings: `Operation.status_reason`, `Capability.checked_configuration` and `ScenarioOutcome.observed.evidence`. The Go, TypeScript and Rust clients, which validate with the schemas, already refused them.
+- New `test_schema_mutation_differential.py` damages every field of every valid conformance fixture (removed, wrong type, empty, out of range, extra field) and requires the Python validator and the JSON Schema to give the same verdict; a second set of tests checks that no malformed payload raises anything but `ContractValidationError`. New `test_promotion_journal_failures.py` covers a failed atomic write, an unmovable corrupt journal and the health-check error paths.
+
 ## [0.3.3] - HYDRA-UMC-DOCS in the related projects
 
 - The Related Projects section of the README, in the eight languages, lists HYDRA-UMC-DOCS: the repository that holds the architecture, the interfaces, the security baseline, the capability matrix and the project catalogue generated from every manifest.

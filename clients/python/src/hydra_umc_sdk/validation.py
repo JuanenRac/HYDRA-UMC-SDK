@@ -68,6 +68,13 @@ PROJECT_MANIFEST_KEYS = frozenset({
 PROJECT_MANIFEST_SERVICE_KEYS = frozenset({"port", "health_path", "systemd_unit"})
 
 
+def _is_one_of(value: Any, allowed: Any) -> bool:
+    """Enum membership that refuses (rather than crashes on) a value that is not
+    a string: a list or an object in a set lookup raises TypeError (unhashable),
+    which a caller catching ContractValidationError would never see."""
+    return isinstance(value, str) and value in allowed
+
+
 def _require_string(payload: dict[str, Any], name: str) -> None:
     if not isinstance(payload.get(name), str) or not payload[name]:
         raise ContractValidationError(f"{name} must be a non-empty string")
@@ -104,7 +111,7 @@ def _validate_project_manifest(payload: dict[str, Any]) -> None:
     unknown = sorted(set(payload) - PROJECT_MANIFEST_KEYS)
     if unknown:
         raise ContractValidationError(f"unsupported manifest field(s): {', '.join(unknown)}")
-    if payload.get("ecosystem") not in {"HYDRA-UMC", "URTC"}:
+    if not _is_one_of(payload.get("ecosystem"), {"HYDRA-UMC", "URTC"}):
         raise ContractValidationError("ecosystem must be 'HYDRA-UMC' or 'URTC'")
     if "deployment_target_note" in payload and not isinstance(payload["deployment_target_note"], str):
         raise ContractValidationError("deployment_target_note must be a string")
@@ -121,11 +128,11 @@ def _validate_project_manifest(payload: dict[str, Any]) -> None:
         raise ContractValidationError("name must match ^(HYDRA-UMC|URTC)(-[A-Z0-9-]+)?$")
     if not SEMVER_PATTERN.fullmatch(payload.get("version", "")):
         raise ContractValidationError("version must be MAJOR.MINOR.PATCH")
-    if payload.get("role") not in PROJECT_MANIFEST_ENUMS["role"]:
+    if not _is_one_of(payload.get("role"), PROJECT_MANIFEST_ENUMS["role"]):
         raise ContractValidationError(f"unsupported role: {payload.get('role')!r}")
-    if payload.get("deployment_target") not in PROJECT_MANIFEST_ENUMS["deployment_target"]:
+    if not _is_one_of(payload.get("deployment_target"), PROJECT_MANIFEST_ENUMS["deployment_target"]):
         raise ContractValidationError(f"unsupported deployment_target: {payload.get('deployment_target')!r}")
-    if payload.get("maturity") not in PROJECT_MANIFEST_ENUMS["maturity"]:
+    if not _is_one_of(payload.get("maturity"), PROJECT_MANIFEST_ENUMS["maturity"]):
         raise ContractValidationError(f"unsupported maturity: {payload.get('maturity')!r}")
 
     technologies = payload.get("technologies")
@@ -185,7 +192,7 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
     if contract == "Operation":
         _require_date_time(payload, "requested_at_utc")
         _require_date_time(payload, "updated_at_utc")
-        if payload["status"] not in {"received", "authorized", "queued", "sent", "confirmed", "terminated", "rejected"}:
+        if not _is_one_of(payload["status"], {"received", "authorized", "queued", "sent", "confirmed", "terminated", "rejected"}):
             # P03's own core point: "no presentar todos como ejecutado" -
             # this contract has no "executed" status at all, on purpose.
             raise ContractValidationError("status must be one of: received, authorized, queued, sent, confirmed, terminated, rejected")
@@ -195,6 +202,8 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
             raise ContractValidationError("target must be an object with non-empty kind and id")
         if not isinstance(payload["params"], dict):
             raise ContractValidationError("params must be an object")
+        if "status_reason" in payload and not isinstance(payload["status_reason"], str):
+            raise ContractValidationError("status_reason must be a string")
         if "error" in payload:
             error = payload["error"]
             if not isinstance(error, dict) or not isinstance(error.get("code"), str) or not error.get("code") \
@@ -210,11 +219,11 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
             for field in ("run_id", "origin"):
                 if not isinstance(result.get(field), str) or not result[field]:
                     raise ContractValidationError(f"result.{field} must be a non-empty string")
-            if result["origin"] not in {"real", "simulated"}:
+            if not _is_one_of(result["origin"], {"real", "simulated"}):
                 raise ContractValidationError("result.origin must be 'real' or 'simulated'")
             if not isinstance(result.get("observers_enabled"), bool):
                 raise ContractValidationError("result.observers_enabled must be a boolean")
-            if result.get("outcome") not in {"success", "failure", "unknown"}:
+            if not _is_one_of(result.get("outcome"), {"success", "failure", "unknown"}):
                 raise ContractValidationError("result.outcome must be 'success', 'failure' or 'unknown'")
             if "outcome_reason" in result and not isinstance(result["outcome_reason"], str):
                 raise ContractValidationError("result.outcome_reason must be a string")
@@ -226,22 +235,24 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
                 if ts_field in result:
                     _require_date_time(result, ts_field)
     if contract == "ScenarioOutcome":
-        if payload["phase"] not in {"before", "after"}:
+        if not _is_one_of(payload["phase"], {"before", "after"}):
             raise ContractValidationError("phase must be 'before' or 'after'")
         observed = payload["observed"]
         if not isinstance(observed, dict):
             raise ContractValidationError("observed must be an object")
-        if observed.get("outcome") not in {"reproduced", "not-reproduced", "error"}:
+        if not _is_one_of(observed.get("outcome"), {"reproduced", "not-reproduced", "error"}):
             raise ContractValidationError("observed.outcome must be 'reproduced', 'not-reproduced' or 'error'")
         if "exit_code" in observed and type(observed["exit_code"]) is not int:
             raise ContractValidationError("observed.exit_code must be an integer")
+        if "evidence" in observed and not isinstance(observed["evidence"], str):
+            raise ContractValidationError("observed.evidence must be a string")
     if contract == "DeviceDescriptor" and not isinstance(payload["interfaces"], list):
         raise ContractValidationError("interfaces must be an array")
     if contract == "DeviceDescriptor" and not all(isinstance(item, str) and item for item in payload["interfaces"]):
         raise ContractValidationError("interfaces must contain non-empty strings")
     if contract == "HealthReport" and not isinstance(payload["checks"], dict):
         raise ContractValidationError("checks must be an object")
-    if contract in ENUMS and payload["state"] not in ENUMS[contract]:
+    if contract in ENUMS and not _is_one_of(payload["state"], ENUMS[contract]):
         raise ContractValidationError(f"unsupported {contract} state: {payload['state']}")
     if contract == "UpdateManifest":
         if not SEMVER_PATTERN.fullmatch(payload["version"]):
@@ -270,11 +281,13 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
             raise ContractValidationError("declared must be a boolean")
         if "last_checked_at_utc" in payload:
             _require_date_time(payload, "last_checked_at_utc")
+        if "checked_configuration" in payload and not isinstance(payload["checked_configuration"], str):
+            raise ContractValidationError("checked_configuration must be a string")
         if "max_age_seconds" in payload:
             value = payload["max_age_seconds"]
             if isinstance(value, bool) or not isinstance(value, (int, float)) or value <= 0:
                 raise ContractValidationError("max_age_seconds must be a positive number")
-        if "last_check_outcome" in payload and payload["last_check_outcome"] not in {"verified", "failed", "unknown"}:
+        if "last_check_outcome" in payload and not _is_one_of(payload["last_check_outcome"], {"verified", "failed", "unknown"}):
             raise ContractValidationError("last_check_outcome must be 'verified', 'failed' or 'unknown'")
 
 
