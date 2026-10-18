@@ -62,6 +62,37 @@ class PromotionJournalBasicsTests(unittest.TestCase):
             journal = PromotionJournal(path)
             self.assertEqual(journal.pending(), [])
 
+    def test_a_corrupt_journal_is_kept_aside_and_reported_not_overwritten(self):
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "journal.json"
+            path.write_text("{not valid json", encoding="utf-8")
+            journal = PromotionJournal(path)
+            journal.begin("demo", Path("/a/target"), Path("/a/staging"), Path("/a/backup"))
+            kept = [p for p in Path(tmp).iterdir() if ".corrupt-" in p.name]
+            self.assertEqual(len(kept), 1)
+            self.assertEqual(kept[0].read_text(encoding="utf-8"), "{not valid json")
+            self.assertTrue(any("kept at" in action for action in recover(journal)))
+
+    def test_a_journal_that_is_not_an_object_does_not_crash(self):
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "journal.json"
+            path.write_text("[1, 2]", encoding="utf-8")
+            journal = PromotionJournal(path)
+            self.assertEqual(journal.pending(), [])
+            self.assertEqual(len([p for p in Path(tmp).iterdir() if ".corrupt-" in p.name]), 1)
+
+    def test_one_unreadable_record_does_not_hide_the_others(self):
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "journal.json"
+            journal = PromotionJournal(path)
+            record = journal.begin("demo", Path("/a/target"), Path("/a/staging"), Path("/a/backup"))
+            raw = json.loads(path.read_text(encoding="utf-8"))
+            raw["promotions"]["broken"] = {"promotion_id": "broken"}
+            path.write_text(json.dumps(raw), encoding="utf-8")
+            reloaded = PromotionJournal(path)
+            self.assertEqual([r.promotion_id for r in reloaded.pending()], [record.promotion_id])
+            self.assertEqual(len([p for p in Path(tmp).iterdir() if ".corrupt-" in p.name]), 1)
+
     def test_multiple_pending_promotions_are_sorted_by_start_time(self):
         with TemporaryDirectory() as tmp:
             journal = PromotionJournal(Path(tmp) / "journal.json")
@@ -112,12 +143,61 @@ class RecoverTests(unittest.TestCase):
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
             journal = PromotionJournal(root / "journal.json")
+            (root / "target").mkdir()
             journal.begin("demo", root / "target", root / "staging", root / "backup")
 
             actions = recover(journal)
 
             self.assertEqual(journal.pending(), [])
             self.assertIn("stale record complete", actions[0])
+            self.assertTrue((root / "target").exists())
+
+    def test_a_crash_between_the_rename_and_advance_restores_the_live_directory(self):
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            journal = PromotionJournal(root / "journal.json")
+            (root / "live").mkdir()
+            (root / "live" / "marker.txt").write_text("v1", encoding="utf-8")
+            journal.begin("demo", root / "live", root / "staging", root / "backup")
+            (root / "live").rename(root / "backup")  # the process dies here, before advance()
+
+            actions = recover(journal)
+
+            self.assertEqual(journal.pending(), [])
+            self.assertTrue((root / "live" / "marker.txt").exists())
+            self.assertFalse((root / "backup").exists())
+            self.assertIn("restored", actions[0])
+
+    def test_recover_keeps_going_when_one_restore_fails(self):
+        from unittest import mock
+
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            journal = PromotionJournal(root / "journal.json")
+            first = journal.begin("first", root / "a", root / "a-s", root / "a-b")
+            journal.advance(first.promotion_id, PromotionPhase.BACKED_UP)
+            (root / "a-b").mkdir()
+            second = journal.begin("second", root / "b", root / "b-s", root / "b-b")
+            journal.advance(second.promotion_id, PromotionPhase.BACKED_UP)
+            (root / "b-b").mkdir()
+            real_rename = Path.rename
+
+            def flaky(self, target):
+                if self.name == "a-b":
+                    raise PermissionError("denied")
+                return real_rename(self, target)
+
+            with mock.patch.object(Path, "rename", flaky):
+                actions = recover(journal)
+
+            self.assertTrue(any("could not restore" in action for action in actions))
+            self.assertEqual([r.project for r in journal.pending()], ["first"])
+            self.assertTrue((root / "b").exists())
+
+    def test_a_non_http_health_check_url_is_reported_not_raised(self):
+        healthy, reason = check_service_health("file:///etc/hostname")
+        self.assertFalse(healthy)
+        self.assertIn("http", reason)
 
     def test_backed_up_with_target_already_restored_by_something_else_is_left_alone(self):
         # A real, if unusual, case: an operator manually restored the

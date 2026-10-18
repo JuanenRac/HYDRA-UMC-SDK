@@ -23,7 +23,7 @@ CC BY-SA 4.0 - 参见 LICENSE.md
 
 <p align="center">
   <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="许可证：GPL 3.0">
-  <img src="https://img.shields.io/badge/Contracts-Protobuf%20%7C%20JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="合约：Protobuf | JSON 架构 | OpenAPI">
+  <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="合约：JSON 架构 | OpenAPI">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="参考客户端：Python | Go | TypeScript | Rust">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="集成：CM5 | URTC">
 </p>
@@ -42,12 +42,11 @@ MQTT、OPC-UA 或 MTConnect 各自的官方 API。
 JSON Schema v1 合约、有效/无效 fixture、Python 验证客户端、
 并实施主机端测试,以及针对 HYDRA-UMC-SERVER 自身 HTTP 接口的真实首个
 OpenAPI v1 切片(`contracts/openapi/v1/server.openapi.json` - 参见
-[docs/CONTRACTS.md](docs/CONTRACTS.md#openapi-v1))。Protobuf 的发布以及
-更多语言的客户端是后续的兼容性里程碑。
+[docs/CONTRACTS.md](docs/CONTRACTS.md#openapi-v1))。Protobuf 的发布是后续的兼容性里程碑;Go、TypeScript 和 Rust 客户端已经存在。
 
 一个真实、自动化的兼容性矩阵（`tools/verify_contract_matrix.py`）会将每个已发布的架构与 Python 验证器自身的合约列表进行交叉核对，并发现并修复了一个真实的缺口：`project-manifest.schema.json`（本生态系统中每个仓库都会发布的 `hydra-umc.project.json` 合约）此前完全没有验证器条目。现在它证明，每个一致性 fixture 都会按照其自身文件名所声明的方式被判定，此外还涵盖了未知合约和不兼容架构版本这两种情况。
 
-自下方"第一个里程碑"之后又新增了若干合约(现共 10 个):面向外部机器的公开桥接合约 `BridgeJob`/`GateDecision`(见 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)),由 `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` 共享,并拥有自己真实的 JSON 线上格式(`job_to_dict()`/`job_from_dict()`/`decision_to_dict()`)，以及由桥接器自己观测到的机器状态（闸门使用它而不是请求方声称的状态），还有一个作业接收器（`JobIntake`/`IdempotencyStore`），它忽略保留消息，并且绝不会执行同一幂等键两次;一个 `ScenarioOutcome` 合约加上 `compare_runs()`,即共享的"是否真的修复了"检查——当某个失败不再复现、但基线指纹从未改变时,返回 `apparent-success` 而非 `regression-fixed`;一个 `Operation` 合约加上 `validate_status_transition()`,即共享的目标/任务/操作生命周期——`received`/`authorized`/`queued`/`sent`/`confirmed`/`terminated`/`rejected`,绝不归入单一的"已执行"筐里;`Operation` 上新增可选的 `result` 字段加上 `concludes_success()`——真实证据(`run_id`/`origin`/`observers_enabled`/`outcome`)拒绝从过期/重放的结果或观测被禁用的运行中得出成功结论;一个独立的 `Capability` 合约加上 `is_capability_usable()`——某个目标是否*声明*支持某个操作 `kind`,被建模为与该支持是否*最近被真实验证过*(`last_checked_at_utc`/`checked_configuration`/`max_age_seconds`)不同的数据,从而已声明但从未验证或已过期的能力绝不会被默默当作可用;以及一个 `hydra-umc-sdk-mock-server`(`mock_server.py`),通过普通 HTTP 为每个已知合约提供一份有效的示例负载,便于在真实的 CM5/机器人/MCU 硬件就绪之前开发 UI 或适配器。全部 10 个合约都至少各有一个有效和一个无效的一致性 fixture,已通过上述兼容性矩阵验证。
+自下方"第一个里程碑"之后又新增了若干合约(现共 10 个):面向外部机器的公开桥接合约 `BridgeJob`/`GateDecision`(见 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)),由 `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER`/`-AMR`/`-DROIDS`/`-UAV` 共享,并拥有自己真实的 JSON 线上格式(`job_to_dict()`/`job_from_dict()`/`decision_to_dict()`)，以及由桥接器自己观测到的机器状态（闸门使用它而不是请求方声称的状态），还有一个作业接收器（`JobIntake`/`IdempotencyStore`），它忽略保留消息，并且绝不会执行同一幂等键两次;一个 `ScenarioOutcome` 合约加上 `compare_runs()`,即共享的"是否真的修复了"检查——当某个失败不再复现、但基线指纹从未改变时,返回 `apparent-success` 而非 `regression-fixed`;一个 `Operation` 合约加上 `validate_status_transition()`,即共享的目标/任务/操作生命周期——`received`/`authorized`/`queued`/`sent`/`confirmed`/`terminated`/`rejected`,绝不归入单一的"已执行"筐里;`Operation` 上新增可选的 `result` 字段加上 `concludes_success()`——真实证据(`run_id`/`origin`/`observers_enabled`/`outcome`)拒绝从过期/重放的结果或观测被禁用的运行中得出成功结论;一个独立的 `Capability` 合约加上 `is_capability_usable()`——某个目标是否*声明*支持某个操作 `kind`,被建模为与该支持是否*最近被真实验证过*(`last_checked_at_utc`/`checked_configuration`/`max_age_seconds`)不同的数据,从而已声明但从未验证或已过期的能力绝不会被默默当作可用;以及一个 `hydra-umc-sdk-mock-server`(`mock_server.py`),通过普通 HTTP 为每个已知合约提供一份有效的示例负载,便于在真实的 CM5/机器人/MCU 硬件就绪之前开发 UI 或适配器。全部 10 个合约都至少各有一个有效和一个无效的一致性 fixture,已通过上述兼容性矩阵验证。
 
 ## 🎯 第一个里程碑
 
@@ -70,8 +69,8 @@ OpenAPI v1 切片(`contracts/openapi/v1/server.openapi.json` - 参见
 | `contracts/` |规范性 JSON Schema v1 源文件,以及针对 HYDRA-UMC-SERVER 自身 HTTP 接口的真实 OpenAPI v1 切片(`openapi/v1/server.openapi.json`)。 |
 | `clients/` |真实且经过测试的 Python、Go、TypeScript 和 Rust 参考客户端，各自验证相同的已发布 v1 架构。 |
 | `conformance/` |兼容性测试使用的有效和无效 v1 fixture。 |
-| `docs/` |合约、API、安全和开发规范文档。 |
-| `examples/` |可运行的 Python 验证示例。 |
+| `docs/` |合约、API 和开发规范文档。 |
+| `examples/` |可运行的 Python 示例。 |
 | `tools/` |`verify_contract_matrix.py`(架构/验证器兼容性矩阵)、`verify_openapi.py`(无依赖的 OpenAPI 结构校验)以及不做修改的 `build-test` 引擎。 |
 
 在定义新消息之前，请阅读[合约指南](docs/CONTRACTS.md)。
@@ -83,7 +82,7 @@ OpenAPI v1 切片(`contracts/openapi/v1/server.openapi.json` - 参见
 - **[docs/CONFORMANCE.md](docs/CONFORMANCE.md)** — 每个合约的有效/向后兼容/格式错误/不安全 fixture 集必须覆盖的内容,以及当前已实现的 v1 套件实际覆盖的内容。
 - **[docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)** — `HYDRA-UMC-BRIDGE-ROS2`、`-OPENPNP`、`-PRINTER3D`、`-CNC` 和 `-LASER` 共用的 v0 `BridgeJob`/`GateDecision` 边界。
 - **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — CM5-MCU/URTC 适配器边界:传输、成帧、协议与服务各层,以及为何 MCU 始终对物理限位和安全停止拥有最终权威。
-- **[docs/API_DESIGN.md](docs/API_DESIGN.md)** — HYDRA-UMC-SERVER 自身公开 HTTP/WebSocket API 所遵循的约定:带版本号的 `/api/v1` 路由,以及命令结果的 `ACCEPTED`/`REJECTED`/`RUNNING`/`COMPLETED`/`FAILED` 形式。
+- **[docs/API_DESIGN.md](docs/API_DESIGN.md)** — HYDRA-UMC-SERVER 自身公开 HTTP/WebSocket API 所遵循的约定:带版本号的 `/api/v1` 路由这一设计目标(目前路由尚未带版本号),以及命令结果的 `ACCEPTED`/`REJECTED`/`RUNNING`/`COMPLETED`/`FAILED` 形式。
 - **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** — 本 SDK 自身合约所遵循的 schema 优先工作流程,以及一次合约变更所需要的内容(变更日志条目、兼容性决策、示例、测试)。
 - **[docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md)** — 各仓库都可以用来自我对照的共享测试级别、平台矩阵、每个结果的最低证据、可复现活动的目标、fixture 独立性以及成本/存储约定。
 - **[docs/PROJECT_MANIFEST.md](docs/PROJECT_MANIFEST.md)** — 本生态系统中每个仓库都会发布的 `hydra-umc.project.json` 合约。

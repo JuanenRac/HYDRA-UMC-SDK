@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "HYDRA-UMC-SERVER API",
-    "version": "1.0.0",
-    "description": "Real, hand-verified OpenAPI description of HYDRA-UMC-SERVER's own public HTTP surface (src/server.ts) - the SDK's own charter (docs/API_DESIGN.md) commits to publishing 'the OpenAPI source and typed clients', and this is its first real slice, not a placeholder. Deliberately covers only the routes an external/typed client actually needs to discover a server, read/write its fleet roster, and dispatch a real-time robot command - the read/command/real-time planes docs/API_DESIGN.md itself separates. It is NOT a full inventory of every route in server.ts: admin-only account/log/integration management, camera process supervision, CAN-OTA firmware transfer, and power/system-service control are real, but operational rather than SDK-contract surface, and are intentionally left for a later slice (see the 'still out of scope' note at the end of this description). One real, disclosed discrepancy: docs/API_DESIGN.md describes command results using ACCEPTED/REJECTED/RUNNING/COMPLETED/FAILED plus a correlation identifier - POST /api/robot/{id}/command's own real implementation does not (yet) return that envelope; it replies with a plain {success, affectedCount} once the mutation has already been applied and broadcast. This document describes the real, current behavior, not the aspirational one - fixing that gap is Server-side product work, out of scope for this SDK.",
+    "version": "1.1.0",
+    "description": "OpenAPI description of the part of HYDRA-UMC-SERVER's HTTP surface that a typed client needs to discover a server, sign in, read and write its fleet roster and dispatch a robot command. It is a subset: the server's own docs/openapi.json is generated from the server and lists every route (administration, cameras, CAN OTA, system services and more), so use that one when a route is not here. Response objects may gain fields: a client must ignore the ones it does not know. Every route except GET /api/hydra-info, POST /api/login, POST /api/refresh and POST /api/logout needs `Authorization: Bearer <token>`. One disclosed difference with docs/API_DESIGN.md: that design describes command results as ACCEPTED/REJECTED/RUNNING/COMPLETED/FAILED with a correlation identifier, while POST /api/robot/{id}/command replies with a plain {success, affectedCount} once the change has been applied and broadcast.",
     "license": {
       "name": "CC-BY-SA-4.0",
       "url": "https://creativecommons.org/licenses/by-sa/4.0/"
@@ -117,8 +117,19 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too many failed sign-in attempts from this address; wait for the window to pass.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RateLimitedResponse"
+                }
+              }
+            }
           }
-        }
+        },
+        "security": []
       }
     },
     "/api/settings": {
@@ -128,7 +139,7 @@
         ],
         "operationId": "getSettings",
         "summary": "Read the real, current full settings document, including the controller/robot roster",
-        "description": "Unauthenticated real read - the same contract HYDRA-UMC-TOOL-CLI's own `robots`/`doctor` commands already consume. The `settings` object is intentionally NOT modeled field-by-field here: the server itself treats it as an opaque, forward-compatible blob (see docs/CONTRACTS.md's own 'producers can add compatible fields without breaking older consumers') - only the `controllers` roster actually consumed by real typed clients today is modeled below.",
+        "description": "Any signed-in account may read it (an administrator also sees the camera credentials). The `settings` object is intentionally not modeled field by field: the server treats it as an opaque, forward-compatible blob - only the `controllers` roster that typed clients consume is modeled below. The response carries an `ETag`; send it back as `If-Match` when saving.",
         "responses": {
           "200": {
             "description": "The real, current settings document.",
@@ -136,6 +147,24 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SettingsDocument"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "The revision of the document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -150,7 +179,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -180,7 +214,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
+                  "$ref": "#/components/schemas/SettingsWriteResult"
                 }
               }
             }
@@ -205,6 +239,16 @@
               }
             }
           },
+          "409": {
+            "description": "The document changed since the revision in If-Match.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsConflict"
+                }
+              }
+            }
+          },
           "500": {
             "description": "The write itself failed.",
             "content": {
@@ -215,7 +259,18 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ETag received with the document being replaced. When it no longer matches, the write is refused with 409 instead of overwriting another client's change."
+          }
+        ]
       }
     },
     "/api/robot/{id}/command": {
@@ -225,7 +280,7 @@
         ],
         "operationId": "sendRobotCommand",
         "summary": "Dispatch one real, atomic, broadcast command to a robot (and its combined sibling, where the command type fans out)",
-        "description": "Real command plane: mutates in-memory state, queues a debounced full-settings write, and broadcasts a small per-robot delta to every other connected client via the same request/response cycle - there is no separate polling step. See this document's own top-level description for the real (not the aspirational ACCEPTED/REJECTED/... ) response shape.",
+        "description": "Real command plane: mutates in-memory state, queues a debounced full-settings write, and broadcasts a small per-robot delta to every other connected client via the same request/response cycle - there is no separate polling step. See this document's own top-level description for the real (not the aspirational ACCEPTED/REJECTED/... ) response shape. A command that is recognised but whose parameters were discarded still answers 200 and lists the discarded field in `warnings`.",
         "security": [
           {
             "bearerAuth": []
@@ -322,7 +377,7 @@
             }
           },
           "400": {
-            "description": "No settings loaded yet, or (for `trajectory`) a real, rejected point list - too few/many points, a non-finite field, an unsupported motionType, or table axes on a robot with no configured XY table.",
+            "description": "The command is unknown, or its parameters are invalid (a trajectory outside 1-10000 points, for example).",
             "content": {
               "application/json": {
                 "schema": {
@@ -347,6 +402,112 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A robot this command would move is claimed by another account (`stop` is never blocked).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservationConflict"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/refresh": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "refreshToken",
+        "summary": "Exchange a refresh token for a new access token",
+        "description": "No bearer token needed: the refresh token is the credential. It is single use; the response carries its replacement.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A new access token and a new refresh token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "refreshToken missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The refresh token is unknown, expired or revoked.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many refresh attempts from this address.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RateLimitedResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/logout": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "logout",
+        "summary": "Revoke a refresh token",
+        "description": "Always answers success: an unknown or already used token is not an error.",
+        "security": [],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
                 }
               }
             }
@@ -375,7 +536,7 @@
             "type": "string"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": true
       },
       "SuccessResponse": {
         "type": "object",
@@ -387,7 +548,7 @@
             "const": true
           }
         },
-        "additionalProperties": false
+        "additionalProperties": true
       },
       "ServerDiscovery": {
         "type": "object",
@@ -466,14 +627,18 @@
           },
           "token": {
             "type": "string",
-            "description": "A signed JWT (see JWT_EXPIRES_IN for this server's own configured lifetime, default 30d)."
+            "description": "A signed JWT (see JWT_EXPIRES_IN for this server's configured lifetime, default 30d)."
           },
           "role": {
             "type": "string",
             "description": "e.g. \"admin\" or \"operator\" - see docs/CONTRACTS.md's account-management notes."
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "An opaque, single-use refresh token (90 days by default). Exchange it at POST /api/refresh for a new access token and a new refresh token."
           }
         },
-        "additionalProperties": false
+        "additionalProperties": true
       },
       "RobotRosterEntry": {
         "type": "object",
@@ -569,9 +734,34 @@
             "type": "integer",
             "minimum": 0,
             "description": "How many robots this one command actually touched - more than 1 only for a non-trajectory command on a combined pair (see combinedWith)."
+          },
+          "warnings": {
+            "type": "array",
+            "description": "Present when part of a recognised command was discarded (for example a speed outside 10-500, a jog with an unknown axis, a valve index outside 0-7).",
+            "items": {
+              "type": "object",
+              "required": [
+                "robotId",
+                "field",
+                "message"
+              ],
+              "properties": {
+                "robotId": {
+                  "type": "integer"
+                },
+                "field": {
+                  "type": "string"
+                },
+                "requested": {},
+                "message": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": true
+            }
           }
         },
-        "additionalProperties": false
+        "additionalProperties": true
       },
       "CommandStop": {
         "type": "object",
@@ -1006,6 +1196,84 @@
             }
           }
         }
+      },
+      "RefreshRequest": {
+        "type": "object",
+        "required": [
+          "refreshToken"
+        ],
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "RateLimitedResponse": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "retryAfterMs": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The length of the rate-limit window."
+          }
+        },
+        "additionalProperties": true
+      },
+      "SettingsWriteResult": {
+        "type": "object",
+        "required": [
+          "success"
+        ],
+        "properties": {
+          "success": {
+            "const": true
+          },
+          "revision": {
+            "type": "string",
+            "description": "The revision of the document just written (the value of the next ETag)."
+          }
+        },
+        "additionalProperties": true
+      },
+      "SettingsConflict": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string",
+            "description": "The revision the server holds now."
+          }
+        },
+        "additionalProperties": true
+      },
+      "ReservationConflict": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "reservation": {
+            "type": "object",
+            "description": "The active claim that blocks the command.",
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
       }
     }
   }

@@ -85,7 +85,8 @@ def iter_sibling_repos():
     for entry in sorted(SIBLINGS_ROOT.iterdir()):
         if not entry.is_dir():
             continue
-        if not (entry.name.startswith("HYDRA-UMC-") or entry.name.startswith("URTC")):
+        # The firmware repository is called exactly "HYDRA-UMC" (no trailing dash).
+        if not (entry.name == "HYDRA-UMC" or entry.name.startswith("HYDRA-UMC-") or entry.name.startswith("URTC")):
             continue
         if not (entry / "tools" / "ci_validate.py").is_file():
             continue

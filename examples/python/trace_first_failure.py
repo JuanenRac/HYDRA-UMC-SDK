@@ -42,9 +42,9 @@ print("An operator is paged for this alert:")
 print(f"  [{leaf.component}] {leaf.message}")
 
 first_failure = trace_first_failure(incident, start_correlation_id="c-studio-2004")
-print(f"\ntrace_first_failure() walks the caused_by chain back to the real origin:")
+print("\ntrace_first_failure() walks the caused_by chain back to the real origin:")
 print(f"  [{first_failure.component}] {first_failure.message}")
 
 sanitized = first_failure.redacted(lambda text: text.replace("sk-live-abc123", "[REDACTED]"))
-print(f"\nredacted() before this ever leaves the process:")
+print("\nredacted() before this ever leaves the process:")
 print(f"  [{sanitized.component}] {sanitized.message}")

@@ -42,7 +42,16 @@ jobs:
         if: ${{ hashFiles('clients/python/tests/test_validation.py') != '' }}
         env:
           PYTHONPATH: clients/python/src
-        run: python -m unittest discover -s clients/python/tests -v
+        run: |
+          # jsonschema is optional for the library but lets the differential test
+          # compare the Python validator with the normative schemas.
+          python -m pip install jsonschema
+          python -m unittest discover -s clients/python/tests -v
+      - name: Lint the Python sources
+        if: ${{ hashFiles('clients/python/tests/test_validation.py') != '' }}
+        run: |
+          python -m pip install ruff
+          ruff check --select F,E9,B clients tools examples
       - name: Validate the schema/validator compatibility matrix and OpenAPI documents
         # Found while wiring in tools/verify_openapi.py: tools/verify_contract_matrix.py
         # was already documented (docs/CONTRACTS.md) as this SDK's "mandatory
@@ -111,7 +120,7 @@ jobs:
           test -n "$module_dir"
           cd "$module_dir"
           go vet ./...
-          go test ./...
+          go test -race ./...
           go build ./...
       - name: Set up Flutter
         if: ${{ hashFiles('pubspec.yaml') != '' }}

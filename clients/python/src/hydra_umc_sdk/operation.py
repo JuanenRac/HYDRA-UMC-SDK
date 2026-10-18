@@ -45,7 +45,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from .validation import validate
+from .validation import ContractValidationError, validate
 
 OPERATION_STATUSES: tuple[str, ...] = (
     "received",
@@ -163,8 +163,12 @@ class OperationResult:
     outcome_reason: str | None = None
 
     def __post_init__(self) -> None:
-        if not self.run_id:
+        if not isinstance(self.run_id, str) or not self.run_id:
             raise ValueError("run_id must be a non-empty string")
+        # A string such as "false" is truthy, so only a real bool may switch
+        # the observation evidence on.
+        if not isinstance(self.observers_enabled, bool):
+            raise ValueError("observers_enabled must be a boolean")
         if self.origin not in OPERATION_RESULT_ORIGINS:
             raise ValueError(f"origin must be one of {OPERATION_RESULT_ORIGINS}, got {self.origin!r}")
         if self.outcome not in OPERATION_RESULT_OUTCOMES:
@@ -183,23 +187,45 @@ def parse_operation_result(payload: dict[str, Any]) -> OperationResult:
 
     def _parse_dt(key: str) -> datetime | None:
         raw = payload.get(key)
-        return datetime.fromisoformat(raw.replace("Z", "+00:00")) if raw else None
+        if not raw:
+            return None
+        if not isinstance(raw, str):
+            raise ContractValidationError(f"{key} must be an RFC 3339 date-time string")
+        try:
+            parsed = datetime.fromisoformat(raw.replace("Z", "+00:00").replace("z", "+00:00"))
+        except ValueError as exc:
+            raise ContractValidationError(f"{key} is not a valid date-time: {raw!r}") from exc
+        if parsed.tzinfo is None:
+            raise ContractValidationError(f"{key} must carry a time zone: {raw!r}")
+        return parsed
 
-    return OperationResult(
-        run_id=payload["run_id"],
-        origin=payload["origin"],
-        observers_enabled=payload["observers_enabled"],
-        outcome=payload["outcome"],
-        revision=payload.get("revision"),
-        accepted_at=_parse_dt("accepted_at_utc"),
-        executed_at=_parse_dt("executed_at_utc"),
-        observed_at=_parse_dt("observed_at_utc"),
-        outcome_reason=payload.get("outcome_reason"),
-    )
+    if not isinstance(payload, dict):
+        raise ContractValidationError("an operation result must be a JSON object")
+    missing = [key for key in ("run_id", "origin", "observers_enabled", "outcome") if key not in payload]
+    if missing:
+        raise ContractValidationError(f"operation result is missing required fields: {', '.join(missing)}")
+    try:
+        return OperationResult(
+            run_id=payload["run_id"],
+            origin=payload["origin"],
+            observers_enabled=payload["observers_enabled"],
+            outcome=payload["outcome"],
+            revision=payload.get("revision"),
+            accepted_at=_parse_dt("accepted_at_utc"),
+            executed_at=_parse_dt("executed_at_utc"),
+            observed_at=_parse_dt("observed_at_utc"),
+            outcome_reason=payload.get("outcome_reason"),
+        )
+    except ContractValidationError:
+        raise
+    except ValueError as exc:
+        raise ContractValidationError(str(exc)) from exc
 
 
-def concludes_success(result: OperationResult, *, expected_run_id: str | None = None) -> tuple[bool, str]:
-    """The real gate exists for: whether `result` is trustworthy
+def concludes_success(
+    result: OperationResult, *, expected_run_id: str | None = None, allow_simulated: bool = False
+) -> tuple[bool, str]:
+    """The real gate: whether `result` is trustworthy
     enough evidence to conclude the Operation it belongs to actually
     succeeded. Checked in this fixed order, each able to short-circuit
     the rest:
@@ -213,9 +239,13 @@ def concludes_success(result: OperationResult, *, expected_run_id: str | None = 
        happened, regardless of what `outcome` claims.
     3. `observed_at` must be set - `outcome == "success"` alone (backed
        only by `accepted_at`/`executed_at`) is exactly the "queue says
-       done" illusion exists to close; only a real observation
+       done" illusion this check closes; only a real observation
        counts.
-    4. Only then is `outcome` itself checked.
+    4. `origin` must be "real": a result from a simulation, a digital twin
+       or a hardware-in-the-loop run proves nothing about the real
+       machine. A caller that really wants to accept one (a test bench)
+       says so with `allow_simulated=True`.
+    5. Only then is `outcome` itself checked.
 
     Returns (True, reason) only when every one of those holds AND
     `outcome == "success"`.
@@ -229,6 +259,10 @@ def concludes_success(result: OperationResult, *, expected_run_id: str | None = 
         return False, "observers were disabled for this run - cannot confirm the outcome really happened"
     if result.observed_at is None:
         return False, "never actually observed - requested/accepted/executed alone do not confirm the outcome"
+    if result.origin != "real" and not allow_simulated:
+        return False, f"result comes from a {result.origin} run, not from the real machine - cannot confirm the outcome really happened"
     if result.outcome != "success":
         return False, result.outcome_reason or f"outcome is {result.outcome}"
+    if result.origin != "real":
+        return True, f"confirmed by an active observer in a {result.origin} run (run {result.run_id}) - not the real machine"
     return True, f"confirmed by a real, active observer (run {result.run_id})"

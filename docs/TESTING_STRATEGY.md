@@ -51,8 +51,8 @@ A real test result records, at minimum:
 - The exact command, environment, dependencies, and fixture version.
 - Expected result, actual result, and case count.
 - Time and resources observed, and the run's own limits.
-- Evidence level (see [CONFORMANCE.md](CONFORMANCE.md)'s E0-E4 scale) and
-  whether real hardware was actually connected.
+- The evidence level (simulated, replayed or real) and whether real hardware
+  was actually connected.
 - A reference to the issue this closes and the test that prevents its
   return.
 

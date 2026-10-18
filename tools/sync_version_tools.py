@@ -208,8 +208,12 @@ def main() -> int:
             if not check:
                 patch_simple(workflow, old, new)
         watch = repo / "update-from-github.sh"
-        if watch.is_file() and patch_simple(watch, 'r"v?\\d+\\.\\d+\\.\\d+"', 'r"v?\\d+\\.\\d+\\.\\d+(?:\\.\\d+)?"') if not check else False:
+        watch_old = 'r"v?\\d+\\.\\d+\\.\\d+"'
+        watch_new = 'r"v?\\d+\\.\\d+\\.\\d+(?:\\.\\d+)?"'
+        if watch.is_file() and watch_old in watch.read_text(encoding="utf-8"):
             changed.append(f"{repo.name}/update-from-github.sh")
+            if not check:
+                patch_simple(watch, watch_old, watch_new)
     missing_build = []
     for repo in repos():
         try:

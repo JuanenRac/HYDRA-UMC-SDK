@@ -56,9 +56,16 @@ PROJECT_MANIFEST_ENUMS = {
 }
 PROJECT_NAME_PATTERN = re.compile(r"^(HYDRA-UMC|URTC)(-[A-Z0-9-]+)?$")
 SEMVER_PATTERN = re.compile(r"^\d+\.\d+\.\d+(?:\.\d+)?$")
+# RFC 3339 allows a lowercase "t" and "z"; the schema validators of the other
+# clients accept them, so this one does too.
 RFC3339_DATE_TIME = re.compile(
-    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$"
+    r"^\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[Zz]|[+-]\d{2}:\d{2})$"
 )
+PROJECT_MANIFEST_KEYS = frozenset({
+    "schema_version", "ecosystem", "name", "version", "role", "stack", "technologies", "deployment_target",
+    "deployment_target_note", "maturity", "family", "parent", "native_version", "build", "notes", "service",
+})
+PROJECT_MANIFEST_SERVICE_KEYS = frozenset({"port", "health_path", "systemd_unit"})
 
 
 def _require_string(payload: dict[str, Any], name: str) -> None:
@@ -73,7 +80,7 @@ def _require_date_time(payload: dict[str, Any], name: str) -> None:
     if not RFC3339_DATE_TIME.fullmatch(value):
         raise ContractValidationError(f"{name} must be an RFC 3339 date-time")
     try:
-        datetime.fromisoformat(value.replace("Z", "+00:00"))
+        datetime.fromisoformat(value.upper().replace("Z", "+00:00"))
     except ValueError as exc:
         raise ContractValidationError(f"{name} must be a valid RFC 3339 date-time") from exc
 
@@ -92,8 +99,24 @@ def _validate_project_manifest(payload: dict[str, Any]) -> None:
     than re-deriving them independently, so the two can't silently drift
     without a conformance fixture (see tools/verify_contract_matrix.py)
     catching it."""
-    if payload.get("ecosystem") != "HYDRA-UMC":
-        raise ContractValidationError("ecosystem must be 'HYDRA-UMC'")
+    # The schema does not allow other top-level fields (its optional `service`
+    # block has its own fixed set), so neither does this check.
+    unknown = sorted(set(payload) - PROJECT_MANIFEST_KEYS)
+    if unknown:
+        raise ContractValidationError(f"unsupported manifest field(s): {', '.join(unknown)}")
+    if payload.get("ecosystem") not in {"HYDRA-UMC", "URTC"}:
+        raise ContractValidationError("ecosystem must be 'HYDRA-UMC' or 'URTC'")
+    if "deployment_target_note" in payload and not isinstance(payload["deployment_target_note"], str):
+        raise ContractValidationError("deployment_target_note must be a string")
+    if "service" in payload:
+        service = payload["service"]
+        if not isinstance(service, dict) or set(service) - PROJECT_MANIFEST_SERVICE_KEYS:
+            raise ContractValidationError("service must be an object with only port, health_path and systemd_unit")
+        if "port" in service and (type(service["port"]) is not int or not 1 <= service["port"] <= 65535):
+            raise ContractValidationError("service.port must be an integer from 1 to 65535")
+        for key in ("health_path", "systemd_unit"):
+            if key in service and (not isinstance(service[key], str) or not service[key]):
+                raise ContractValidationError(f"service.{key} must be a non-empty string")
     if not PROJECT_NAME_PATTERN.fullmatch(payload.get("name", "")):
         raise ContractValidationError("name must match ^(HYDRA-UMC|URTC)(-[A-Z0-9-]+)?$")
     if not SEMVER_PATTERN.fullmatch(payload.get("version", "")):
@@ -193,6 +216,10 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
                 raise ContractValidationError("result.observers_enabled must be a boolean")
             if result.get("outcome") not in {"success", "failure", "unknown"}:
                 raise ContractValidationError("result.outcome must be 'success', 'failure' or 'unknown'")
+            if "outcome_reason" in result and not isinstance(result["outcome_reason"], str):
+                raise ContractValidationError("result.outcome_reason must be a string")
+            if "revision" in result and not isinstance(result["revision"], str):
+                raise ContractValidationError("result.revision must be a string")
             if result["outcome"] != "success" and not result.get("outcome_reason"):
                 raise ContractValidationError("result.outcome_reason is required when outcome is not 'success'")
             for ts_field in ("accepted_at_utc", "executed_at_utc", "observed_at_utc"):
@@ -226,6 +253,8 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
             raise ContractValidationError("artifact_url must be an https URL with a hostname")
     if contract == "EventEnvelope":
         _require_integer(payload, "sequence", 0)
+        if "correlation_id" in payload and not isinstance(payload["correlation_id"], str):
+            raise ContractValidationError("correlation_id must be a string")
     if contract == "ProjectManifest":
         _validate_project_manifest(payload)
     if contract == "ServerDiscovery":

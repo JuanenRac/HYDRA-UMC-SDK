@@ -8,8 +8,9 @@ CC BY-SA 4.0 - see LICENSE.md
 
 # Universal project manifest
 
-Every HYDRA-UMC and URTC repository owns a root-level
-`hydra-umc.project.json`. It is the public, machine-readable declaration of
+Every HYDRA-UMC repository owns a root-level `hydra-umc.project.json`; a URTC
+repository owns a root-level `urtc.project.json` with `"ecosystem": "URTC"`
+and the same fields. It is the public, machine-readable declaration of
 the repository release version, role, technology stack, deployment target,
 maturity and ecosystem relationships.
 
@@ -62,8 +63,8 @@ section alone.
   than for a pure software service.
 - **`established`** - the common case today (the large majority of
   repositories): real, tested code that has also seen real, sustained
-  use in this ecosystem's own actual deployment (the real CM5 at
-  `192.168.0.180`/`95.60.192.108`, or equivalent real usage for a
+  use in this ecosystem's own actual deployment (a real CM5 on the
+  owner's own network, or equivalent real usage for a
   desktop/mobile client) - not merely "passes its own tests".
 - **`production`** - reserved for a real, continuous, unattended
   deployment with no known open gap. Not used by any repository yet as
@@ -131,10 +132,10 @@ actual promotions already apply:
    tree".
 5. At least one real good case and one real bad case are exercised -
    a genuine failure path checked for real, never only the happy path.
-6. `hydra-umc.project.json`, `CHANGELOG.md`, `README.md` and all 6
+6. `hydra-umc.project.json`, `CHANGELOG.md`, `README.md` and all 7
    translations, and any usage documentation, are brought back in sync
    with what actually shipped - including the README directory
-   structure section, in all 7 languages, if real files were added.
+   structure section, in all 8 languages, if real files were added.
 
 `established` adds one more real requirement on top of the above: a
 restart, a cancellation, a lost dependency, and a recovery are each

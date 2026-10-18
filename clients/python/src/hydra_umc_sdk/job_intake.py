@@ -46,7 +46,12 @@ class IdempotencyStore:
         self._max = int(max_entries)
         self._clock = clock
         self._lock = threading.Lock()
-        self._db = sqlite3.connect(path or ":memory:", check_same_thread=False, isolation_level=None)
+        self._db = sqlite3.connect(path or ":memory:", check_same_thread=False, isolation_level=None, timeout=5.0)
+        # Several bridge processes may share one file: wait for a lock instead of
+        # failing the message, and let readers and the writer work side by side.
+        self._db.execute("PRAGMA busy_timeout = 5000")
+        if path:
+            self._db.execute("PRAGMA journal_mode = WAL")
         self._db.execute("CREATE TABLE IF NOT EXISTS keys (k TEXT PRIMARY KEY, at REAL NOT NULL, result TEXT)")
         self._db.execute("CREATE INDEX IF NOT EXISTS keys_at ON keys (at)")
 
@@ -96,13 +101,19 @@ class Intake:
     job: BridgeJob | None = None
     duplicate: bool = False
     retained: bool = False
+    # True for a duplicate whose key was claimed but never got an answer
+    # (`store.remember`): the first attempt may have died before running the
+    # job, so the bridge must decide whether to run it (when running it twice
+    # is physically harmless) or to ask the sender, instead of staying silent.
+    in_doubt: bool = False
 
 
 class JobIntake:
     """The first look at a job that arrived over a transport: a retained message is ignored, a malformed one is refused and a repeat is recognised.
 
     A bridge calls `accept(payload, retained=message.retain)` for every command message and goes on only when `accepted` is True. A duplicate comes back with `duplicate=True`
-    and the stored answer is `store.recall(job.idempotency_key)`: the bridge can send that again instead of running the job a second time. Without a store nothing is
+    and the stored answer is `store.recall(job.idempotency_key)`: the bridge can send that again instead of running the job a second time. When no answer was ever stored for that key
+    `in_doubt` is True: the first attempt may have stopped before it finished, and the bridge decides what to do. Without a store nothing is
     deduplicated (the bridge says so by passing none), but retained and malformed messages are still stopped.
     """
 
@@ -117,5 +128,9 @@ class JobIntake:
         except BridgeError as error:
             return Intake(False, f"malformed job: {error}")
         if self._store is not None and not self._store.claim(job.idempotency_key):
-            return Intake(False, "this idempotency key was already handled", job=job, duplicate=True)
+            in_doubt = self._store.recall(job.idempotency_key) is None
+            reason = "this idempotency key was already handled"
+            if in_doubt:
+                reason += " but no answer was stored for it: the first attempt may not have finished"
+            return Intake(False, reason, job=job, duplicate=True, in_doubt=in_doubt)
         return Intake(True, "accepted", job=job)

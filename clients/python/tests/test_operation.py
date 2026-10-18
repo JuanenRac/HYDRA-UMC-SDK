@@ -37,7 +37,7 @@ def _operation(**over):
 class OperationLifecycleTests(unittest.TestCase):
     def test_the_full_forward_path_is_legal_step_by_step(self):
         path = ["received", "authorized", "queued", "sent", "confirmed", "terminated"]
-        for previous, next_status in zip(path, path[1:]):
+        for previous, next_status in zip(path, path[1:], strict=False):
             self.assertTrue(validate_status_transition(previous, next_status), f"{previous} -> {next_status}")
 
     def test_rejected_is_reachable_from_every_non_terminal_status(self):
@@ -123,6 +123,24 @@ class OperationResultTests(unittest.TestCase):
 
 
 class ParseOperationResultTests(unittest.TestCase):
+    def test_a_string_instead_of_a_boolean_for_observers_enabled_is_refused(self):
+        with self.assertRaises(ContractValidationError):
+            parse_operation_result(_result(observers_enabled="false"))
+
+    def test_a_missing_field_is_a_contract_error_not_a_key_error(self):
+        payload = _result()
+        del payload["origin"]
+        with self.assertRaises(ContractValidationError):
+            parse_operation_result(payload)
+
+    def test_an_invalid_timestamp_is_a_contract_error(self):
+        with self.assertRaises(ContractValidationError):
+            parse_operation_result(_result(observed_at_utc="yesterday"))
+
+    def test_a_non_string_run_id_is_refused(self):
+        with self.assertRaises(ContractValidationError):
+            parse_operation_result(_result(run_id=5))
+
     def test_parses_a_real_payload(self):
         result = parse_operation_result(_result(revision="config-rev-7"))
         self.assertEqual(result.run_id, "run-1")
@@ -178,6 +196,15 @@ class ConcludesSuccessTests(unittest.TestCase):
         ok, reason = concludes_success(result)
         self.assertFalse(ok)
         self.assertEqual(reason, "target unreachable")
+
+    def test_a_simulated_result_never_concludes_success_unless_allowed(self):
+        result = parse_operation_result(_result(origin="simulated"))
+        ok, reason = concludes_success(result)
+        self.assertFalse(ok)
+        self.assertIn("simulated", reason)
+        ok, reason = concludes_success(result, allow_simulated=True)
+        self.assertTrue(ok)
+        self.assertNotIn("real, active", reason)
 
     def test_expected_run_id_none_never_gates_on_run_id(self):
         # A caller that doesn't track its own run_id (a simple consumer)

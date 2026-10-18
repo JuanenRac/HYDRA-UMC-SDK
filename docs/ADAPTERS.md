@@ -1,7 +1,8 @@
 # Adapter boundary
 
-The SDK provides high-level adapters for CM5-MCU and URTC integration. Their
-layers are transport, framing, protocol, and service interface. The adapter
+This page describes the boundary a CM5-MCU or URTC adapter must respect; the SDK
+itself ships no such adapter yet. An adapter's layers are transport, framing,
+protocol, and service interface. The adapter
 reports capabilities, state, alarms, and typed errors; it never lets a UI
 write raw CAN, SPI, or UART frames.
 

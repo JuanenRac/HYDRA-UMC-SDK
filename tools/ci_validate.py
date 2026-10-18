@@ -11,7 +11,6 @@ from __future__ import annotations
 import json
 import re
 import sys
-import subprocess
 from pathlib import Path
 
 
@@ -80,6 +79,7 @@ VERSION_PROSE_LABELS = (
     "Current version", "Versión actual", "Version actuelle",
     "Versione attuale", "Aktuelle Version", "当前版本", "現在のバージョン",
     "Status:", "Estado:", "État :", "Stato:", "状态：", "ステータス",
+    "Real hoje", "Versão:", "Versão atual",
 )
 VERSION_PROSE_LABEL_PATTERN = re.compile(
     "|".join(f"(?<![A-Za-z\u00c0-\u024f])(?:{re.escape(label)})" for label in VERSION_PROSE_LABELS)
@@ -110,23 +110,6 @@ def validate_readme_version_prose(manifest: dict) -> None:
         preview = "; ".join(offenders[:10])
         suffix = "" if len(offenders) <= 10 else f" (+{len(offenders) - 10} more)"
         fail(f"README states a stale current-version number: {preview}{suffix}")
-
-BUILD_RUN_SECTION_MARKERS = (
-    "BUILD & RUN",
-    "COMPILACIÓN Y EJECUCIÓN",
-    "COMPILATION ET EXÉCUTION",
-    "COMPILAZIONE ED ESECUZIONE",
-    "ERSTELLEN UND AUSFÜHREN",
-    "BUILD & AUSFÜHRUNG",
-    "ビルドと実行",
-    "构建与运行",
-)
-
-
-def has_build_run_section(text: str) -> bool:
-    """Accept the translated BUILD & RUN heading in every public README."""
-    return any(marker in text for marker in BUILD_RUN_SECTION_MARKERS)
-
 
 def fail(message: str) -> None:
     print(f"CI_VALIDATION=FAIL {message}", file=sys.stderr)

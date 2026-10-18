@@ -26,7 +26,7 @@
       "const": "1.0"
     },
     "ecosystem": {
-      "const": "HYDRA-UMC"
+      "enum": ["HYDRA-UMC", "URTC"]
     },
     "name": {
       "type": "string",
@@ -50,10 +50,24 @@
       "uniqueItems": true
     },
     "deployment_target": {
-      "enum": ["cm5", "user-pc", "mobile", "wearable"]
+      "enum": ["cm5", "user-pc", "mobile", "wearable", "dev-server"]
     },
     "maturity": {
       "enum": ["scaffolding", "functional", "established", "production"]
+    },
+    "deployment_target_note": {
+      "description": "Optional free text that explains a deployment_target value.",
+      "type": "string"
+    },
+    "service": {
+      "description": "Optional description of the long-running service this repository installs: its listening port, health path and systemd unit.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "health_path": { "type": "string", "minLength": 1 },
+        "systemd_unit": { "type": "string", "minLength": 1 }
+      }
     },
     "family": {
       "type": "string",

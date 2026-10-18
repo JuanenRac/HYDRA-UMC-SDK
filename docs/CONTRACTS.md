@@ -22,17 +22,26 @@ according to its use case.
 | `DeviceDescriptor` | OS agent, MCU/URTC adapter | Server, Studio, Updater |
 | `HealthReport` | OS agent, services | Server, Node Healing, Studio |
 | `SafetyState` | MCU adapter, safety service | Server, UI, Job Dispatcher |
-| `ToolDescriptor` | URTC adapter | Server, Smart Rack, Studio |
-| `TelemetrySample` | Collector/adapters | DataLake, Reports, Anomaly Detector |
 | `UpdateManifest` | Updater registry | OS agent, updater client |
 | `ServerDiscovery` | Server `GET /api/hydra-info` | Studio, Suite, mobile clients, Updater |
+| `EventEnvelope` | Services | Event consumers, DataLake |
+| `ScenarioOutcome` | Scenario runners | OPS-AGENT, Node Healing |
+| `Operation` | Server, Orchestrator, Dev Server | UIs, Job Dispatcher |
+| `Capability` | Targets and their descriptors | Orchestrator, Job Dispatcher |
+| `ProjectManifest` | Every repository (`hydra-umc.project.json` or `urtc.project.json`) | Updater, dashboard |
+
+Planned, with no schema yet: `ToolDescriptor` (URTC adapter, for Server, Smart
+Rack and Studio) and `TelemetrySample` (collector and adapters, for DataLake,
+Reports and Anomaly Detector).
 
 ## Implemented JSON Schema v1
 
 The implemented contracts are published under `contracts/json-schema/v1/`.
 Their v1 required fields are intentionally small, and `additionalProperties`
 is enabled so producers can add compatible fields without breaking older
-consumers. The Python reference validator implements the required v1 subset;
+consumers. `ProjectManifest` is the exception: it is closed (only the listed
+fields, with `service` and `deployment_target_note` optional), because every
+repository publishes it and a typo in a field name should fail early. The Python reference validator implements the required v1 subset;
 the JSON Schema files remain the normative source. See
 [PYTHON_CLIENT.md](PYTHON_CLIENT.md) for the validator's full function/CLI
 reference, including the exact required-fields table per contract.

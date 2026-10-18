@@ -23,7 +23,7 @@ CC BY-SA 4.0 - LICENSE.md を参照
 
 <p align="center">
   <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="ライセンス: GPL 3.0">
-  <img src="https://img.shields.io/badge/Contracts-Protobuf%20%7C%20JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="契約: Protobuf | JSON スキーマ | OpenAPI">
+  <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="契約: JSON スキーマ | OpenAPI">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="リファレンス クライアント: Python | Go | TypeScript | Rust">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="統合: CM5 | URTC">
 </p>
@@ -44,12 +44,11 @@ JSON スキーマ v1 コントラクト、有効/無効なフィクスチャ、P
 ホスト側のテスト、そして HYDRA-UMC-SERVER 自身の HTTP サーフェスに対する実際の
 最初の OpenAPI v1 スライス（`contracts/openapi/v1/server.openapi.json` -
 [docs/CONTRACTS.md](docs/CONTRACTS.md#openapi-v1) 参照）が実装されています。
-Protobuf の公開と、さらなる言語のクライアントは、その後の互換性マイルストーンに
-なります。
+Protobuf の公開はその後の互換性マイルストーンです。Go、TypeScript、Rust のクライアントはすでにあります。
 
 実際に動作する自動互換性マトリクス（`tools/verify_contract_matrix.py`）は、公開されているすべてのスキーマを Python バリデータ自身のコントラクト一覧と突き合わせて検証します。これにより、`project-manifest.schema.json`（このエコシステムの各リポジトリが公開する `hydra-umc.project.json` のコントラクト）にバリデータのエントリが一つも存在しないという実際のギャップを発見し、修正しました。現在では、各適合フィクスチャがそのファイル名どおりに判定されること、さらに未知のコントラクトおよび非互換なスキーマバージョンのケースについても正しく判定されることを証明しています。
 
-下記の最初のマイルストーン以降、さらにコントラクトが追加されました(現在10件)。外部マシン連携のための公開コントラクト `BridgeJob`/`GateDecision`(詳細は [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md))は `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` で共有され、独自の実データJSONワイヤー形式(`job_to_dict()`/`job_from_dict()`/`decision_to_dict()`)を持ちます。加えて、リクエスト側が主張する状態の代わりにゲートが使う、ブリッジ自身が観測した機器の状態と、保持メッセージを無視し同じ冪等キーを二度実行しないジョブ受付（`JobIntake`/`IdempotencyStore`）があります。`ScenarioOutcome` コントラクトと `compare_runs()` は、共有の「本当に直ったか」チェックで、障害が再現しなくなってもベースのフィンガープリントが変わっていなければ `apparent-success`(`regression-fixed` ではなく)を返します。`Operation` コントラクトと `validate_status_transition()` は、共有の目標/ジョブ/操作ライフサイクル - `received`/`authorized`/`queued`/`sent`/`confirmed`/`terminated`/`rejected` を表し、単一の「実行済み」の器にまとめることは決してありません。`Operation` のオプション `result` と `concludes_success()` は、実際の証拠(`run_id`/`origin`/`observers_enabled`/`outcome`)により、古い/再送された結果や観測が無効化された実行から成功を結論づけることを拒否します。独立した `Capability` コントラクトと `is_capability_usable()` は、あるターゲットが操作 `kind` のサポートを*宣言している*かどうかを、その裏付けが*最近実際に検証された*かどうか(`last_checked_at_utc`/`checked_configuration`/`max_age_seconds`)とは別のデータとしてモデル化し、宣言されただけで一度も検証されていない、または古くなった能力が黙って利用可能と扱われることを防ぎます。また `hydra-umc-sdk-mock-server`(`mock_server.py`)は、実際のCM5・ロボット・MCUハードウェアが無くてもUIやアダプタを開発できるよう、既知の各コントラクトについて有効なサンプルペイロードを単純なHTTP経由で提供します。10個すべてのコントラクトが、上記の互換性マトリクスで検証済みの有効・無効な適合フィクスチャを少なくとも1つずつ持っています。
+下記の最初のマイルストーン以降、さらにコントラクトが追加されました(現在10件)。外部マシン連携のための公開コントラクト `BridgeJob`/`GateDecision`(詳細は [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md))は `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER`/`-AMR`/`-DROIDS`/`-UAV` で共有され、独自の実データJSONワイヤー形式(`job_to_dict()`/`job_from_dict()`/`decision_to_dict()`)を持ちます。加えて、リクエスト側が主張する状態の代わりにゲートが使う、ブリッジ自身が観測した機器の状態と、保持メッセージを無視し同じ冪等キーを二度実行しないジョブ受付（`JobIntake`/`IdempotencyStore`）があります。`ScenarioOutcome` コントラクトと `compare_runs()` は、共有の「本当に直ったか」チェックで、障害が再現しなくなってもベースのフィンガープリントが変わっていなければ `apparent-success`(`regression-fixed` ではなく)を返します。`Operation` コントラクトと `validate_status_transition()` は、共有の目標/ジョブ/操作ライフサイクル - `received`/`authorized`/`queued`/`sent`/`confirmed`/`terminated`/`rejected` を表し、単一の「実行済み」の器にまとめることは決してありません。`Operation` のオプション `result` と `concludes_success()` は、実際の証拠(`run_id`/`origin`/`observers_enabled`/`outcome`)により、古い/再送された結果や観測が無効化された実行から成功を結論づけることを拒否します。独立した `Capability` コントラクトと `is_capability_usable()` は、あるターゲットが操作 `kind` のサポートを*宣言している*かどうかを、その裏付けが*最近実際に検証された*かどうか(`last_checked_at_utc`/`checked_configuration`/`max_age_seconds`)とは別のデータとしてモデル化し、宣言されただけで一度も検証されていない、または古くなった能力が黙って利用可能と扱われることを防ぎます。また `hydra-umc-sdk-mock-server`(`mock_server.py`)は、実際のCM5・ロボット・MCUハードウェアが無くてもUIやアダプタを開発できるよう、既知の各コントラクトについて有効なサンプルペイロードを単純なHTTP経由で提供します。10個すべてのコントラクトが、上記の互換性マトリクスで検証済みの有効・無効な適合フィクスチャを少なくとも1つずつ持っています。
 
 ## 🎯 最初のマイルストーン
 
@@ -73,8 +72,8 @@ Protobuf の公開と、さらなる言語のクライアントは、その後�
 | `contracts/` |標準的な JSON スキーマ v1 ソースに加え、HYDRA-UMC-SERVER 自身の HTTP サーフェスに対する実際の OpenAPI v1 スライス(`openapi/v1/server.openapi.json`)。 |
 | `clients/` |実際にテスト済みの Python、Go、TypeScript、Rust のリファレンス クライアント。いずれも同じ公開済み v1 スキーマを検証します。 |
 | `conformance/` |互換性テストで使用される有効な v1 フィクスチャと無効な v1 フィクスチャ。 |
-| `docs/` |契約、API、セキュリティ、開発仕様。 |
-| `examples/` |実行可能な Python 検証の例。 |
+| `docs/` |契約、API、開発仕様。 |
+| `examples/` |実行可能な Python の例。 |
 | `tools/` |`verify_contract_matrix.py`(スキーマ/バリデータ互換性マトリクス)、`verify_openapi.py`(依存関係のない OpenAPI 構造検証)、そして変更を加えない `build-test` エンジン。 |
 
 新しいメッセージを定義する前に、[契約ガイド](docs/CONTRACTS.md) をお読みください。
@@ -86,7 +85,7 @@ Protobuf の公開と、さらなる言語のクライアントは、その後�
 - **[docs/CONFORMANCE.md](docs/CONFORMANCE.md)** — 契約ごとに有効/後方互換/不正/安全でないフィクスチャ集が何をカバーすべきか、そして実装済みのv1スイートが現在何をカバーしているか。
 - **[docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)** — `HYDRA-UMC-BRIDGE-ROS2`、`-OPENPNP`、`-PRINTER3D`、`-CNC`、`-LASER` が共有するv0 `BridgeJob`/`GateDecision` 境界。
 - **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — CM5-MCU/URTCアダプタ境界:トランスポート、フレーミング、プロトコル、サービスの各層、そしてMCUが物理的な限界と安全停止について権威であり続ける理由。
-- **[docs/API_DESIGN.md](docs/API_DESIGN.md)** — HYDRA-UMC-SERVER自身の公開HTTP/WebSocket APIが従う規約:バージョン管理された `/api/v1` ルート、コマンド結果の `ACCEPTED`/`REJECTED`/`RUNNING`/`COMPLETED`/`FAILED` 形式。
+- **[docs/API_DESIGN.md](docs/API_DESIGN.md)** — HYDRA-UMC-SERVER自身の公開HTTP/WebSocket APIが従う規約:バージョン管理された `/api/v1` ルートという設計目標（現在のルートはバージョン管理されていません）、コマンド結果の `ACCEPTED`/`REJECTED`/`RUNNING`/`COMPLETED`/`FAILED` 形式。
 - **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** — このSDK自身の契約が開発されているスキーマファーストのワークフロー、そして契約変更に必要なもの(変更履歴のエントリ、互換性の判断、例、テスト)。
 - **[docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md)** — どのリポジトリも自己点検できる、共有のテストレベル、プラットフォームマトリクス、結果ごとの最低限のエビデンス、再現可能なキャンペーンの目標、フィクスチャの独立性、コスト/ストレージの規約。
 - **[docs/PROJECT_MANIFEST.md](docs/PROJECT_MANIFEST.md)** — このエコシステムの各リポジトリが公開する `hydra-umc.project.json` 契約。

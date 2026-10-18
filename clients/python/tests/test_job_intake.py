@@ -152,6 +152,18 @@ class JobIntakeTests(unittest.TestCase):
         self.assertTrue(second.duplicate)
         self.assertEqual(second.job.idempotency_key, "key-1")
 
+    def test_a_duplicate_without_a_stored_answer_is_marked_in_doubt(self):
+        store = IdempotencyStore()
+        intake = JobIntake(store)
+        self.assertTrue(intake.accept(payload()).accepted)
+        again = intake.accept(payload())
+        self.assertTrue(again.duplicate)
+        self.assertTrue(again.in_doubt)
+        store.remember("key-1", "done")
+        answered = intake.accept(payload())
+        self.assertTrue(answered.duplicate)
+        self.assertFalse(answered.in_doubt)
+
     def test_a_retained_message_is_ignored_and_does_not_use_up_its_key(self):
         store = IdempotencyStore()
         intake = JobIntake(store)

@@ -7,8 +7,8 @@
 static claim from a manifest or descriptor) is genuinely different data
 from whether that support was actually, recently verified
 (`last_checked_at`/`checked_configuration`/`max_age_seconds`). Collapsing
-both into one boolean ("supported": true) is exactly the gap exists
-to close: a target can declare a capability it has never once
+both into one boolean ("supported": true) is exactly the gap this module
+closes: a target can declare a capability it has never once
 successfully exercised, or one whose last real check is long stale
 because the target's own configuration moved on since.
 
@@ -23,7 +23,7 @@ checked, checked too long ago, or a failed/unknown outcome all count as
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 CAPABILITY_CHECK_OUTCOMES: tuple[str, ...] = ("verified", "failed", "unknown")
@@ -56,12 +56,18 @@ class CapabilityStatus:
             )
 
 
+def _as_utc(moment: datetime) -> datetime:
+    """A naive datetime is taken as UTC, so it can be compared with the
+    time-zone-aware ones the parser produces instead of raising TypeError."""
+    return moment.replace(tzinfo=timezone.utc) if moment.tzinfo is None else moment
+
+
 def capability_check_age_seconds(status: CapabilityStatus, now: datetime) -> float | None:
     """None when `status` has never been checked at all - a real, honest
     "no evidence exists" distinct from "evidence exists but is old"."""
     if status.last_checked_at is None:
         return None
-    return (now - status.last_checked_at).total_seconds()
+    return (_as_utc(now) - _as_utc(status.last_checked_at)).total_seconds()
 
 
 def is_capability_check_stale(status: CapabilityStatus, now: datetime) -> bool:
@@ -95,6 +101,9 @@ def is_capability_usable(status: CapabilityStatus, now: datetime) -> tuple[bool,
     if status.last_check_outcome == "unknown":
         reason = status.last_check_reason or "outcome unknown"
         return False, f"{status.kind} is declared but its last check outcome is unknown: {reason}"
+    if status.last_check_outcome != "verified":
+        # A timestamp alone proves that someone looked, not that it worked.
+        return False, f"{status.kind} is declared and was checked, but no check recorded a verified outcome"
     age = capability_check_age_seconds(status, now)
     return True, f"{status.kind} is declared and was verified {age:.1f}s ago"
 

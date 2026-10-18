@@ -23,7 +23,7 @@ CC BY-SA 4.0 – siehe LICENSE.md
 
 <p align="center">
   <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="Lizenz: GPL 3.0">
-  <img src="https://img.shields.io/badge/Contracts-Protobuf%20%7C%20JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Verträge: Protobuf | JSON Schema | OpenAPI">
+  <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Verträge: JSON Schema | OpenAPI">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Referenzclients: Python | Go | TypeScript | Rust">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration: CM5 | URTC">
 </p>
@@ -43,8 +43,7 @@ MTConnect.
 JSON Schema v1-Verträge, gültige/ungültige Fixtures, ein Python-Validierungsclient,
 und hostseitige Tests werden implementiert, ebenso ein echter erster OpenAPI-v1-Ausschnitt
 für die eigene HTTP-Oberfläche von HYDRA-UMC-SERVER (`contracts/openapi/v1/server.openapi.json`
-- siehe [docs/CONTRACTS.md](docs/CONTRACTS.md#openapi-v1)). Die Protobuf-Veröffentlichung und
-Clients für weitere Sprachen sind spätere Kompatibilitätsmeilensteine.
+- siehe [docs/CONTRACTS.md](docs/CONTRACTS.md#openapi-v1)). Die Protobuf-Veröffentlichung ist ein späterer Kompatibilitätsmeilenstein; die Clients für Go, TypeScript und Rust gibt es bereits.
 
 Eine echte, automatische Kompatibilitätsmatrix (`tools/verify_contract_matrix.py`)
 gleicht jedes veröffentlichte Schema mit der eigenen Vertragsliste des
@@ -59,7 +58,7 @@ Seit dem ersten Meilenstein unten sind weitere Verträge
 hinzugekommen: ein öffentlicher `BridgeJob`/`GateDecision`-Vertrag für
 externe Maschinenanbindung (siehe
 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), gemeinsam genutzt
-von `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` und
+von `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER`/`-AMR`/`-DROIDS`/`-UAV` und
 mit einer eigenen echten JSON-Wire-Form (`job_to_dict()`/
 `job_from_dict()`/`decision_to_dict()`), dazu der Zustand der Maschine, den der Bridge selbst beobachtet und den das Tor statt des vom Anfragenden behaupteten verwendet, und eine Auftragsannahme (`JobIntake`/`IdempotencyStore`), die zurückgehaltene Nachrichten ignoriert und einen Idempotenzschlüssel nie zweimal ausführt; ein `ScenarioOutcome`-Vertrag
 plus `compare_runs()`, eine gemeinsame Prüfung "wurde es wirklich
@@ -110,8 +109,8 @@ durch die obige Kompatibilitätsmatrix.
 | `contracts/` | Normative JSON-Schema-v1-Quellen, plus ein echter OpenAPI-v1-Ausschnitt (`openapi/v1/server.openapi.json`) für die eigene HTTP-Oberfläche von HYDRA-UMC-SERVER. |
 | `clients/` | Echte, getestete Python-, Go-, TypeScript- und Rust-Referenzclients, die jeweils dieselben veröffentlichten v1-Schemas validieren. |
 | `conformance/` | Gültige und ungültige v1-Fixtures, die von Kompatibilitätstests verwendet werden. |
-| `docs/` | Vertrags-, API-, Sicherheits- und Entwicklungsspezifikationen. |
-| `examples/` | Beispiel für eine ausführbare Python-Validierung. |
+| `docs/` | Vertrags-, API- und Entwicklungsspezifikationen. |
+| `examples/` | Ausführbare Python-Beispiele. |
 | `tools/` | `verify_contract_matrix.py` (Schema-/Validator-Kompatibilitätsmatrix), `verify_openapi.py` (abhängigkeitsfreie OpenAPI-Strukturprüfung) und die nicht verändernde `build-test`-Engine. |
 
 Lesen Sie [den Vertragsleitfaden](docs/CONTRACTS.md), bevor Sie eine neue Nachricht definieren.
@@ -123,7 +122,7 @@ Lesen Sie [den Vertragsleitfaden](docs/CONTRACTS.md), bevor Sie eine neue Nachri
 - **[docs/CONFORMANCE.md](docs/CONFORMANCE.md)** — was ein gültiges/abwärtskompatibles/fehlerhaftes/unsicheres Fixture-Set je Vertrag abdecken muss, und was die implementierte v1-Suite heute abdeckt.
 - **[docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)** — die gemeinsame v0-Grenze `BridgeJob`/`GateDecision`, genutzt von `HYDRA-UMC-BRIDGE-ROS2`, `-OPENPNP`, `-PRINTER3D`, `-CNC` und `-LASER`.
 - **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — die CM5-MCU/URTC-Adaptergrenze: Transport-, Framing-, Protokoll- und Service-Schichten, und warum der MCU für physische Grenzen und den sicheren Halt maßgeblich bleibt.
-- **[docs/API_DESIGN.md](docs/API_DESIGN.md)** — die Konventionen, denen die eigene öffentliche HTTP/WebSocket-API von HYDRA-UMC-SERVER folgt: versionierte `/api/v1`-Routen und die `ACCEPTED`/`REJECTED`/`RUNNING`/`COMPLETED`/`FAILED`-Form des Befehlsergebnisses.
+- **[docs/API_DESIGN.md](docs/API_DESIGN.md)** — die Konventionen, denen die eigene öffentliche HTTP/WebSocket-API von HYDRA-UMC-SERVER folgt: das Entwurfsziel versionierter `/api/v1`-Routen (heute sind die Routen nicht versioniert) und die `ACCEPTED`/`REJECTED`/`RUNNING`/`COMPLETED`/`FAILED`-Form des Befehlsergebnisses.
 - **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** — der Schema-First-Workflow, unter dem die eigenen Verträge dieses SDKs entwickelt werden, und was eine Vertragsänderung erfordert (Changelog-Eintrag, Kompatibilitätsentscheidung, Beispiele, Tests).
 - **[docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md)** — die gemeinsamen Testebenen, die Plattformmatrix, die Mindestevidenz pro Ergebnis, die Ziele für reproduzierbare Kampagnen, die Fixture-Unabhängigkeit und die Kosten-/Speicherkonventionen, an denen sich jedes Repository selbst messen kann.
 - **[docs/PROJECT_MANIFEST.md](docs/PROJECT_MANIFEST.md)** — der `hydra-umc.project.json`-Vertrag, den jedes Repository in diesem Ökosystem veröffentlicht.

@@ -7,7 +7,7 @@
     },
     {
       "file": "device-descriptor.schema.json",
-      "sha256": "57317c59d2950b2bb964963d310e1302b4eb0d0efcf6981c51fa4339707523c3"
+      "sha256": "d82f8188b0a0d26d3fac722915823bc6af34cf1d0ee445fea85b980a1a721b09"
     },
     {
       "file": "event-envelope.schema.json",
@@ -23,7 +23,7 @@
     },
     {
       "file": "project-manifest.schema.json",
-      "sha256": "dc246dc3951e9b0f92dd2c6f34841a78a78b7b914de48a1906b4a5dc7c1d0000"
+      "sha256": "8d51d69cc130337da0b5aa7e33f693ce1a5ec0f700be28b5672d436ccbabf341"
     },
     {
       "file": "safety-state.schema.json",
@@ -39,7 +39,7 @@
     },
     {
       "file": "update-manifest.schema.json",
-      "sha256": "871e6b0182ca021cbdd3674e14482f2cede0440128254ce285302075741634ec"
+      "sha256": "650f04ce9c503c809deafca638f19de9a90920ca1cf7b4b4eb5699c5c5872d36"
     }
   ]
 }

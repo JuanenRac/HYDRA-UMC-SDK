@@ -34,6 +34,21 @@ def _payload(**over):
     return payload
 
 
+class CapabilityGateTests(unittest.TestCase):
+    def test_a_check_with_no_recorded_outcome_is_not_usable(self):
+        payload = _payload()
+        del payload["last_check_outcome"]
+        status = parse_capability_status(payload)
+        usable, reason = is_capability_usable(status, NOW)
+        self.assertFalse(usable)
+        self.assertIn("verified outcome", reason)
+
+    def test_a_naive_now_is_compared_as_utc_instead_of_raising(self):
+        status = parse_capability_status(_payload())
+        usable, _ = is_capability_usable(status, datetime(2026, 1, 1, 12, 0, 0))
+        self.assertTrue(usable)
+
+
 class CapabilityStatusTests(unittest.TestCase):
     def test_rejects_non_positive_max_age(self):
         with self.assertRaises(CapabilityError):

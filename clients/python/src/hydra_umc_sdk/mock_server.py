@@ -30,7 +30,7 @@ import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 
-from .validation import REQUIRED, validate
+from .validation import REQUIRED
 
 # One real, minimal, schema-valid example per contract this SDK's own
 # validator knows about. Field values are deliberately generic/obviously
@@ -49,7 +49,7 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
     },
     "HealthReport": {
         "schema_version": "1.0",
-        "state": "READY",
+        "state": "INHIBITED",
         "timestamp_utc": "2026-01-01T00:00:00Z",
         "checks": {"storage": {"state": "PASS"}},
     },
@@ -65,7 +65,7 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
     },
     "SafetyState": {
         "schema_version": "1.0",
-        "state": "READY",
+        "state": "INHIBITED",
         "source": "mock-server",
         "timestamp_utc": "2026-01-01T00:00:00Z",
     },

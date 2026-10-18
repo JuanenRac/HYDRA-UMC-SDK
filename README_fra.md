@@ -23,7 +23,7 @@ CC BY-SA 4.0 - voir LICENSE.md
 
 <p align="center">
   <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="Licence : GPL 3.0">
-  <img src="https://img.shields.io/badge/Contracts-Protobuf%20%7C%20JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contrats : Protobuf | Schéma JSON | OpenAPI">
+  <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contrats : Schéma JSON | OpenAPI">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Clients de référence : Python | Go | TypeScript | Rust">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Intégration : CM5 | URTC">
 </p>
@@ -43,8 +43,7 @@ MTConnect.
 Les contrats JSON Schema v1, les fixtures valides/invalides, un client de validation Python
 et les tests côté hôte sont implémentés, ainsi qu'une vraie première tranche OpenAPI v1
 pour la surface HTTP propre de HYDRA-UMC-SERVER (`contracts/openapi/v1/server.openapi.json`
-- voir [docs/CONTRACTS.md](docs/CONTRACTS.md#openapi-v1)). La publication Protobuf et les
-clients pour d'autres langages sont les prochaines étapes de compatibilité.
+- voir [docs/CONTRACTS.md](docs/CONTRACTS.md#openapi-v1)). La publication Protobuf est une étape de compatibilité ultérieure ; les clients Go, TypeScript et Rust existent déjà.
 
 Une matrice de compatibilité réelle et automatique (`tools/verify_contract_matrix.py`)
 recoupe chaque schéma publié avec la propre liste de contrats du validateur
@@ -58,7 +57,7 @@ Des contrats supplémentaires ont été livrés depuis le premier jalon (10 au t
 ci-dessous : un contrat public de pont vers des machines externes
 `BridgeJob`/`GateDecision` (voir
 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), partagé par
-`HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER` et doté
+`HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER`/`-AMR`/`-DROIDS`/`-UAV` et doté
 de sa propre forme JSON réelle (`job_to_dict()`/`job_from_dict()`/
 `decision_to_dict()`), plus l'état de la machine que le bridge observe lui-même, que la porte utilise à la place de celui que déclare le demandeur, et une admission des travaux (`JobIntake`/`IdempotencyStore`) qui ignore les messages retenus et n'exécute jamais deux fois une clé d'idempotence ; un contrat `ScenarioOutcome` plus
 `compare_runs()`, une vérification partagée « est-ce vraiment
@@ -108,8 +107,8 @@ une invalide, vérifiées par la matrice de compatibilité ci-dessus.
 | `contracts/` | Sources normatives du schéma JSON v1, plus une vraie tranche OpenAPI v1 (`openapi/v1/server.openapi.json`) pour la surface HTTP propre de HYDRA-UMC-SERVER ; d'autres représentations suivent des contrats stables. |
 | `clients/` | Clients de référence réels et testés en Python, Go, TypeScript et Rust, validant chacun les mêmes schémas v1 publiés. |
 | `conformance/` | Fixtures v1 valides et invalides utilisées par les tests de compatibilité. |
-| `docs/` | Spécifications du contrat, de l’API, de la sécurité et du développement. |
-| `examples/` | Exemple de validation Python exécutable. |
+| `docs/` | Spécifications du contrat, de l’API et du développement. |
+| `examples/` | Exemples Python exécutables. |
 | `tools/` | `verify_contract_matrix.py` (matrice de compatibilité schéma/validateur), `verify_openapi.py` (validation structurelle OpenAPI sans dépendance) et le moteur non destructif de `build-test`. |
 
 Lisez [le guide du contrat](docs/CONTRACTS.md) avant de définir un nouveau message.
@@ -121,7 +120,7 @@ Lisez [le guide du contrat](docs/CONTRACTS.md) avant de définir un nouveau mess
 - **[docs/CONFORMANCE.md](docs/CONFORMANCE.md)** — ce qu'un jeu de fixtures valide/rétrocompatible/malformé/dangereux doit couvrir par contrat, et ce que couvre la suite v1 implémentée aujourd'hui.
 - **[docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)** — la frontière partagée v0 `BridgeJob`/`GateDecision` utilisée par `HYDRA-UMC-BRIDGE-ROS2`, `-OPENPNP`, `-PRINTER3D`, `-CNC` et `-LASER`.
 - **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — la frontière d'adaptateur CM5-MCU/URTC : couches transport, framing, protocole et service, et pourquoi le MCU reste l'autorité pour les limites physiques et l'arrêt sûr.
-- **[docs/API_DESIGN.md](docs/API_DESIGN.md)** — les conventions suivies par la propre API publique HTTP/WebSocket de HYDRA-UMC-SERVER : routes versionnées `/api/v1`, et la forme `ACCEPTED`/`REJECTED`/`RUNNING`/`COMPLETED`/`FAILED` du résultat d'une commande.
+- **[docs/API_DESIGN.md](docs/API_DESIGN.md)** — les conventions suivies par la propre API publique HTTP/WebSocket de HYDRA-UMC-SERVER : l'objectif de routes versionnées `/api/v1` (aujourd'hui les routes ne sont pas versionnées), et la forme `ACCEPTED`/`REJECTED`/`RUNNING`/`COMPLETED`/`FAILED` du résultat d'une commande.
 - **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** — le flux de travail schema-first sous lequel les propres contrats de ce SDK sont développés, et ce qu'exige un changement de contrat (entrée de changelog, décision de compatibilité, exemples, tests).
 - **[docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md)** — les niveaux de test partagés, la matrice de plateformes, l'évidence minimale par résultat, les objectifs de campagnes reproductibles, l'indépendance des fixtures et les conventions de coût/stockage auxquelles n'importe quel dépôt peut se comparer.
 - **[docs/PROJECT_MANIFEST.md](docs/PROJECT_MANIFEST.md)** — le contrat `hydra-umc.project.json` que publie chaque dépôt de cet écosystème.

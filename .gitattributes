@@ -1,2 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+# The schemas are hashed byte for byte (manifest.json), so they keep LF on every platform.
+*.json text eol=lf

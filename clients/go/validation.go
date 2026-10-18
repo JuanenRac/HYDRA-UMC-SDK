@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"sync"
 
 	"github.com/santhosh-tekuri/jsonschema/v5"
 )
@@ -65,9 +66,16 @@ func (e *ContractValidationError) Error() string {
 
 func (e *ContractValidationError) Unwrap() error { return e.Err }
 
-var compiledSchemas = map[string]*jsonschema.Schema{}
+// compiledSchemas caches the compiled schemas. Validate is called from many
+// goroutines in a server, so every access goes through compiledSchemasMu.
+var (
+	compiledSchemasMu sync.Mutex
+	compiledSchemas   = map[string]*jsonschema.Schema{}
+)
 
 func compiledSchema(contract string) (*jsonschema.Schema, error) {
+	compiledSchemasMu.Lock()
+	defer compiledSchemasMu.Unlock()
 	if schema, ok := compiledSchemas[contract]; ok {
 		return schema, nil
 	}
@@ -136,11 +144,10 @@ func KnownContracts() []string {
 	return names
 }
 
-// utf8BOM is the 3-byte UTF-8 byte order mark. The real, canonical
-// contracts/json-schema/v1/manifest.json (unlike the *.schema.json files)
-// is saved with a leading BOM; encoding/json does not skip it, so it is
-// stripped explicitly here rather than "fixed" by editing the normative
-// file this client only vendors a copy of.
+// utf8BOM is the 3-byte UTF-8 byte order mark. The published manifest.json
+// carries none today, but an editor on some platforms adds one when the file
+// is saved; encoding/json does not skip it, so it is stripped here rather than
+// making the integrity check fail on an otherwise unchanged file.
 var utf8BOM = []byte{0xEF, 0xBB, 0xBF}
 
 // LoadContractManifest decodes this client's vendored manifest.json - the

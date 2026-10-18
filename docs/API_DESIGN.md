@@ -2,7 +2,9 @@
 
 HYDRA-UMC-SERVER exposes public HTTP/WebSocket APIs. The SDK publishes the
 OpenAPI source and typed clients, but it does not turn every service into an
-HTTP server. Public routes are versioned under `/api/v1`.
+HTTP server. The design goal is to version public routes under `/api/v1`; today the routes are
+not versioned (`/api/...`) and the API generation is reported as
+`remoteApiVersion` by `GET /api/hydra-info`.
 
 `contracts/openapi/v1/server.openapi.json` is the real, first slice of that
 OpenAPI source - discovery, authentication, the fleet roster, and the

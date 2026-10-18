@@ -10,10 +10,13 @@ safety inhibition, duplicate command idempotency, and stale telemetry.
 
 ## Implemented v1 suite
 
-`conformance/fixtures/v1/` contains valid `DeviceDescriptor` and
-`HealthReport` payloads plus an invalid health state fixture. The Python
-reference client verifies the required fields, schema version, and initial
-safety/health state enumerations.
+`conformance/fixtures/v1/` contains one valid and one invalid payload for each
+of the 10 published contracts (`DeviceDescriptor`, `HealthReport`,
+`SafetyState`, `UpdateManifest`, `EventEnvelope`, `ScenarioOutcome`,
+`Operation`, `Capability`, `ServerDiscovery`, `ProjectManifest`). The Python
+reference client and the Go, TypeScript and Rust clients judge them, and
+`clients/python/tests/test_schema_differential.py` checks that the Python
+validator and the normative JSON Schemas agree on them and on boundary cases.
 
 Producer evidence lives under `conformance/fixtures/v1/producers/<producer>/`.
 Each `fixtures.json` names the producer, v1 index schema and contract-to-file

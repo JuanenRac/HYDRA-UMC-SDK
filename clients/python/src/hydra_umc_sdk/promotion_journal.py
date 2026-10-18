@@ -33,6 +33,7 @@ import os
 import tempfile
 import urllib.error
 import urllib.request
+from urllib.parse import urlsplit
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from enum import Enum
@@ -106,6 +107,21 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _fsync_directory(directory: Path) -> None:
+    """Makes a rename inside `directory` durable (POSIX only; a no-op where a
+    directory cannot be opened, e.g. Windows)."""
+    try:
+        fd = os.open(str(directory), os.O_RDONLY)
+    except OSError:
+        return
+    try:
+        os.fsync(fd)
+    except OSError:
+        pass
+    finally:
+        os.close(fd)
+
+
 def _atomic_write_json(path: Path, payload: dict[str, Any]) -> None:
     """Write-to-temp-then-`os.replace()` - the same atomic-rename
     discipline `install.py`'s own promotion itself relies on, applied to
@@ -117,7 +133,13 @@ def _atomic_write_json(path: Path, payload: dict[str, Any]) -> None:
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
             json.dump(payload, handle, indent=2)
+            # The data must be on disk before the rename makes it the journal:
+            # after a power cut some file systems keep the rename but lose an
+            # unsynced file body, which would read back as an empty journal.
+            handle.flush()
+            os.fsync(handle.fileno())
         os.replace(tmp_name, path)
+        _fsync_directory(path.parent)
     except BaseException:
         try:
             os.unlink(tmp_name)
@@ -135,22 +157,53 @@ class PromotionJournal:
 
     def __init__(self, journal_path: Path):
         self.journal_path = journal_path
+        # Files this journal set aside because they could not be read (see
+        # `_load`). `recover()` reports them so a human can look at them.
+        self.preserved_files: list[Path] = []
+
+    def _preserve(self, *, move: bool) -> None:
+        """Keeps the unreadable journal for a human instead of letting the next
+        write replace it: a corrupt file is moved aside, a file with some
+        unreadable records is copied (the readable ones stay in the journal)."""
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+        target = self.journal_path.with_name(f"{self.journal_path.name}.corrupt-{stamp}")
+        try:
+            if move:
+                os.replace(self.journal_path, target)
+            else:
+                target.write_bytes(self.journal_path.read_bytes())
+        except OSError:
+            return
+        self.preserved_files.append(target)
 
     def _load(self) -> dict[str, PromotionRecord]:
         if not self.journal_path.exists():
             return {}
         try:
             raw = json.loads(self.journal_path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            # A corrupt or partially-written journal (e.g. a crash during
-            # a non-atomic write from before this module existed) must
-            # never crash the installer that depends on it - treat it as
-            # empty rather than raising, the same "fail open to no known
-            # pending promotions" choice this journal's own recover()
-            # already makes for a missing file.
+        except OSError:
             return {}
-        records = raw.get("promotions", {})
-        return {key: PromotionRecord.from_dict(value) for key, value in records.items()}
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            # A corrupt or partially-written journal must never crash the
+            # installer that depends on it, and must not be silently replaced
+            # by the next write either: whatever it said about pending
+            # promotions is kept in a `.corrupt-<time>` file next to it.
+            self._preserve(move=True)
+            return {}
+        records_raw = raw.get("promotions", {}) if isinstance(raw, dict) else None
+        if not isinstance(records_raw, dict):
+            self._preserve(move=True)
+            return {}
+        records: dict[str, PromotionRecord] = {}
+        skipped = False
+        for key, value in records_raw.items():
+            try:
+                records[key] = PromotionRecord.from_dict(value)
+            except (KeyError, ValueError, TypeError, AttributeError):
+                skipped = True
+        if skipped:
+            self._preserve(move=False)
+        return records
 
     def _save(self, records: dict[str, PromotionRecord]) -> None:
         payload = {"schema_version": "1.0", "promotions": {key: record.to_dict() for key, record in records.items()}}
@@ -229,16 +282,20 @@ def check_service_health(url: str, *, timeout: float = 5.0) -> tuple[bool, str]:
     Returns (healthy, reason) - reason is always a real, human-readable
     fact (the status code, or the real connection failure), never a
     guess."""
+    if urlsplit(url).scheme not in ("http", "https"):
+        return False, "only http and https health checks are supported"
     try:
         with urllib.request.urlopen(url, timeout=timeout) as response:
             status = response.getcode()
+            if not isinstance(status, int):
+                return False, "no HTTP status in the response"
             return (200 <= status < 300), f"HTTP {status}"
     except urllib.error.HTTPError as exc:
         return False, f"HTTP {exc.code}"
     except urllib.error.URLError as exc:
         return False, str(exc.reason)
-    except (TimeoutError, OSError) as exc:
-        return False, str(exc)
+    except Exception as exc:  # the function promises never to raise
+        return False, str(exc) or type(exc).__name__
 
 
 def recover(journal: PromotionJournal) -> list[str]:
@@ -250,11 +307,13 @@ def recover(journal: PromotionJournal) -> list[str]:
     the same call stack.
 
     For each pending record:
-      - phase STARTED: no filesystem mutation had happened yet when the
-        journal was last updated - nothing to undo. The caller (not this
-        function) decides whether to retry the promotion from scratch;
-        this only marks the stale record complete so it stops being
-        reported as pending forever.
+      - phase STARTED: the record is written before the first rename, so
+        this only proves the promotion began. If `target_path` still exists
+        nothing was touched and the stale record is just completed (the
+        caller decides whether to retry from scratch). If it is missing and
+        `backup_path` exists, the crash came between the rename and
+        `advance()`: the backup is restored. If neither exists (a first
+        install that never created anything) the stale record is completed.
       - phase BACKED_UP: `target_path` was renamed to `backup_path`, but
         staging was never promoted - `target_path` is genuinely missing.
         Restores `backup_path` back to `target_path`, exactly reversing
@@ -278,42 +337,61 @@ def recover(journal: PromotionJournal) -> list[str]:
     or surface exactly what recovery did.
     """
     actions: list[str] = []
+    for preserved in getattr(journal, "preserved_files", []):
+        actions.append(f"journal: an unreadable journal or record was kept at {preserved} for a human to review")
     for record in journal.pending():
         target = Path(record.target_path)
         backup = Path(record.backup_path)
-        if record.phase == PromotionPhase.STARTED:
-            actions.append(f"{record.project}: promotion {record.promotion_id} never reached a filesystem change - marking stale record complete")
-        elif record.phase == PromotionPhase.BACKED_UP:
-            if target.exists():
-                actions.append(
-                    f"{record.project}: promotion {record.promotion_id} recorded BACKED_UP but {target} already "
-                    "exists - not touching it; marking complete without restoring backup"
-                )
-            elif not backup.exists():
-                actions.append(
-                    f"{record.project}: promotion {record.promotion_id} recorded BACKED_UP but neither {target} "
-                    f"nor {backup} exist - nothing this journal can recover; leaving the record pending for a human"
-                )
-                continue  # do NOT mark complete - a human needs to see this, not have it silently pruned
-            else:
-                backup.rename(target)
-                actions.append(f"{record.project}: restored {backup} -> {target} (interrupted promotion, phase was BACKED_UP)")
-        elif record.phase == PromotionPhase.PROMOTED:
-            if record.health_check_url:
-                healthy, reason = check_service_health(record.health_check_url)
-                if healthy:
+        try:
+            if record.phase == PromotionPhase.STARTED:
+                # The record is written before the first rename, so STARTED
+                # does not prove that nothing moved: a crash between the
+                # rename and `advance()` leaves it here with the live
+                # directory already set aside. Look at the disk.
+                if not target.exists() and backup.exists():
+                    backup.rename(target)
                     actions.append(
-                        f"{record.project}: promotion {record.promotion_id} had already reached {target}; "
-                        f"its pending health check now passes ({reason}) - completing"
+                        f"{record.project}: restored {backup} -> {target} (interrupted promotion, phase was STARTED "
+                        "but the live directory had already been set aside)"
                     )
                 else:
+                    actions.append(f"{record.project}: promotion {record.promotion_id} never reached a filesystem change - marking stale record complete")
+            elif record.phase == PromotionPhase.BACKED_UP:
+                if target.exists():
                     actions.append(
-                        f"{record.project}: promotion {record.promotion_id} had already reached {target}, but its "
-                        f"pending health check still fails ({reason}) - leaving pending for a human/next run, not "
-                        "announcing success"
+                        f"{record.project}: promotion {record.promotion_id} recorded BACKED_UP but {target} already "
+                        "exists - not touching it; marking complete without restoring backup"
                     )
-                    continue  # do NOT mark complete - same precedent as the BACKED_UP branch above
-            else:
-                actions.append(f"{record.project}: promotion {record.promotion_id} had already reached {target} before the interruption - nothing to recover")
+                elif not backup.exists():
+                    actions.append(
+                        f"{record.project}: promotion {record.promotion_id} recorded BACKED_UP but neither {target} "
+                        f"nor {backup} exist - nothing this journal can recover; leaving the record pending for a human"
+                    )
+                    continue  # do NOT mark complete - a human needs to see this, not have it silently pruned
+                else:
+                    backup.rename(target)
+                    actions.append(f"{record.project}: restored {backup} -> {target} (interrupted promotion, phase was BACKED_UP)")
+            elif record.phase == PromotionPhase.PROMOTED:
+                if record.health_check_url:
+                    healthy, reason = check_service_health(record.health_check_url)
+                    if healthy:
+                        actions.append(
+                            f"{record.project}: promotion {record.promotion_id} had already reached {target}; "
+                            f"its pending health check now passes ({reason}) - completing"
+                        )
+                    else:
+                        actions.append(
+                            f"{record.project}: promotion {record.promotion_id} had already reached {target}, but its "
+                            f"pending health check still fails ({reason}) - leaving pending for a human/next run, not "
+                            "announcing success"
+                        )
+                        continue  # do NOT mark complete - same precedent as the BACKED_UP branch above
+                else:
+                    actions.append(f"{record.project}: promotion {record.promotion_id} had already reached {target} before the interruption - nothing to recover")
+        except OSError as exc:
+            # One record that cannot be restored (permissions, another
+            # volume) must not stop the others from being processed.
+            actions.append(f"{record.project}: could not restore promotion {record.promotion_id}: {exc} - leaving the record pending for a human")
+            continue
         journal.complete(record.promotion_id)
     return actions

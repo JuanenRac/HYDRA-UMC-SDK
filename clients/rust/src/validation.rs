@@ -203,12 +203,10 @@ pub fn known_contracts() -> Vec<&'static str> {
 /// JSON Schema, so it has no `validate()` entry point of its own;
 /// [`verify_contract_manifest`] checks it directly instead.
 pub fn load_contract_manifest() -> Result<ContractManifest, ContractValidationError> {
-    // The real, canonical contracts/json-schema/v1/manifest.json (unlike
-    // the *.schema.json files) is saved with a leading UTF-8 byte order
-    // mark (U+FEFF). serde_json does not skip it, so it is stripped
-    // explicitly here rather than "fixed" by re-encoding the normative
-    // file this crate only vendors a copy of - the same handling Go's
-    // utf8BOM trim and TypeScript's stripBom() give their own languages.
+    // The published manifest.json carries no byte order mark today, but an
+    // editor on some platforms adds one (U+FEFF) when the file is saved.
+    // serde_json does not skip it, so it is stripped here - the same handling
+    // Go's utf8BOM trim and TypeScript's stripBom() give their own languages.
     let text = MANIFEST_JSON
         .strip_prefix('\u{FEFF}')
         .unwrap_or(MANIFEST_JSON);

@@ -30,6 +30,28 @@ class SettingsFromEnvTests(unittest.TestCase):
         settings = settings_from_env({"HYDRA_MQTT_USERNAME": " bridge ", "HYDRA_MQTT_PASSWORD": "s3cret", "HYDRA_MQTT_TLS_CA": "/etc/ca.pem"})
         self.assertEqual((settings.username, settings.password, settings.tls_ca_path), ("bridge", "s3cret", "/etc/ca.pem"))
 
+    def test_system_ca_tls_and_a_client_certificate(self):
+        self.assertTrue(settings_from_env({"HYDRA_MQTT_TLS": "1"}).tls)
+        self.assertFalse(settings_from_env({"HYDRA_MQTT_TLS": "0"}).tls)
+        mutual = settings_from_env({"HYDRA_MQTT_TLS_CERT": "/c.pem", "HYDRA_MQTT_TLS_KEY": "/k.pem"})
+        self.assertTrue(mutual.tls)
+        self.assertEqual((mutual.tls_cert_path, mutual.tls_key_path), ("/c.pem", "/k.pem"))
+        with self.assertRaises(ValueError):
+            settings_from_env({"HYDRA_MQTT_TLS_CERT": "/c.pem"})
+
+    def test_a_missing_password_file_is_a_clear_error(self):
+        with self.assertRaises(ValueError) as caught:
+            settings_from_env({"HYDRA_MQTT_USERNAME": "u", "HYDRA_MQTT_PASSWORD_FILE": "/does/not/exist"})
+        self.assertIn("HYDRA_MQTT_PASSWORD_FILE", str(caught.exception))
+
+    def test_a_password_alone_is_refused_when_applying(self):
+        class Client:
+            def username_pw_set(self, *args):
+                raise AssertionError("must not be called")
+
+        with self.assertRaises(ValueError):
+            apply_connection_settings(Client(), settings_from_env({}), password="x")
+
     def test_password_without_user_is_refused(self):
         with self.assertRaises(ValueError):
             settings_from_env({"HYDRA_MQTT_PASSWORD": "s3cret"})
