@@ -30,6 +30,15 @@ CC BY-SA 4.0 - ver LICENCIA.md
 
 # HYDRA-UMC-SDK
 
+## 📋 De un vistazo
+
+| | |
+|---|---|
+| Versión | `0.3.3` |
+| Madurez | Establecido |
+| Tecnología | Python / TypeScript / Go / Rust / JSON Schema |
+| En hardware real | Todavía no: no consta ninguna ejecución en hardware real para esta versión |
+
 ## 🧩 Contratos compartidos y kit de herramientas de integración para HYDRA-UMC
 
 HYDRA-UMC-SDK define el lenguaje estable compartido por los servicios de HYDRA-UMC,

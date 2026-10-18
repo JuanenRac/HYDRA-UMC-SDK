@@ -30,6 +30,15 @@ CC BY-SA 4.0 - see LICENSE.md
 
 # HYDRA-UMC-SDK
 
+## 📋 Num relance
+
+| | |
+|---|---|
+| Versão | `0.3.3` |
+| Maturidade | Estabelecido |
+| Tecnologia | Python / TypeScript / Go / Rust / JSON Schema |
+| Em hardware real | Ainda não: não há registo de execução em hardware real para esta versão |
+
 ## 🧩 Contratos partilhados e kit de integração para o HYDRA-UMC
 
 O HYDRA-UMC-SDK define a linguagem estável partilhada pelos serviços, clientes, adaptadores CM5 e integrações URTC do HYDRA-UMC. É dono dos contratos normativos, de um validador de referência em Python sem dependências, de fixtures de conformidade e de orientações de integração. Não substitui as APIs oficiais do Raspberry Pi OS, do Hailo, do ROS 2, do MQTT, do OPC-UA nem do MTConnect.

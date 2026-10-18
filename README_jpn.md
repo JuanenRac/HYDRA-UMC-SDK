@@ -30,6 +30,15 @@ CC BY-SA 4.0 - LICENSE.md を参照
 
 # HYDRA-UMC-SDK
 
+## 📋 ひと目で
+
+| | |
+|---|---|
+| バージョン | `0.3.3` |
+| 成熟度 | 確立 |
+| 技術 | Python / TypeScript / Go / Rust / JSON Schema |
+| 実機での確認 | まだです：このバージョンについて実機での動作記録はありません |
+
 ## 🧩 HYDRA-UMC の共有コントラクトと統合ツールキット
 
 HYDRA-UMC-SDK は、HYDRA-UMC サービス、クライアント、CM5 アダプター、および
