@@ -80,6 +80,10 @@ def on_message(message):
 
 A job refused by the gate keeps its key: to try again, the sender uses a new one.
 
+### The shared transport
+
+`hydra_umc_sdk.bridge_transport` holds what every command and state bridge needs of MQTT: the retry of the first connection, the dispatcher that keeps a stop command from waiting behind a slow one and ignores retained replays, and the client that sets the Last Will on `availability`, subscribes to `cmd/#` and announces `online` after every connect. A bridge keeps only what its topics mean.
+
 ### Connecting to the broker: credentials and TLS
 
 A production HYDRA-UMC-MQTT-BROKER demands a user and a password, and evaluates its ACL for the identity of the credential (its `clientIdPrefix`), not for the client ID the

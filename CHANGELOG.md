@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+- **`hydra_umc_sdk.bridge_transport`.** The MQTT transport that the CNC, laser, OpenPnP, 3D-printer and ROS 2 bridges each carried their own copy of: `MqttPublish`, `connect_with_retry` (retries a refused connection, never a TLS failure), `MessageDispatcher` (commands in order on one lane, stop verbs on a second lane, a retained replay never taken as a request) and `open_bridge_client` (credentials and TLS from the environment, Last Will on `availability`, subscribe and announce after every connect). Eighteen tests; a mutation of the stop lane and of the retained check each make a test fail. The five bridges were migrated locally against it and their existing tests pass unchanged; they move to it once a release carries this module.
+- **`contracts/trust/release_key.pub`.** The public key that signs the component packages of the CM5 (the private key is never in a repository).
+
 ## [0.3.5] - One place for the shared tooling of the repositories
 
 - **`tools/sync_repo_tools.py`.** Keeps the files every repository must carry identical: `bump_manifest_version.py`, `tools/hydra_project_tool.py` and `.github/workflows/dashboard-dispatch.yml` have ONE canonical copy in `tools/canonical/`; `--check` fails when a repository differs, a plain run rewrites them. `tools/ci_validate.py`, `tools/build_test.py` and `.github/workflows/ci.yml` legitimately differ by technology, so they are only grouped into families (the fingerprint ignores line endings, the licence line and the repository name in the banner) and printed, which makes a stray one-off copy visible. `--all` runs the three older sync scripts in the same mode.
