@@ -49,7 +49,7 @@ class ObservedStateTests(unittest.TestCase):
 
     def test_without_an_observation_the_claim_is_still_used(self):
         self.assertFalse(evaluate_job(self.job(MachineState.RUNNING), CellState.READY).allowed)
-        self.assertTrue(evaluate_job(self.job(MachineState.IDLE), CellState.READY).allowed)
+        self.assertTrue(evaluate_job(self.job(MachineState.IDLE), CellState.READY, allow_unobserved=True).allowed)
 
     def test_an_observation_that_is_not_a_state_is_an_error(self):
         with self.assertRaises(BridgeError):

@@ -112,7 +112,13 @@ class GateDecision:
     reason: str
 
 
-def evaluate_job(job: BridgeJob, cell_state: CellState, observed_machine_state: MachineState | None = None) -> GateDecision:
+def evaluate_job(
+    job: BridgeJob,
+    cell_state: CellState,
+    observed_machine_state: MachineState | None = None,
+    *,
+    allow_unobserved: bool = False,
+) -> GateDecision:
     """Apply the minimum common safety rule before a bridge forwards a job.
 
     Abort is always allowed so that an external integration can request a
@@ -124,8 +130,10 @@ def evaluate_job(job: BridgeJob, cell_state: CellState, observed_machine_state: 
     when it is given. `job.machine_state` is only what the requester CLAIMS:
     it arrives in a message anybody on the broker may publish, so a gate that
     trusted it would let "machine_state": "IDLE" through while the machine runs.
-    Without an observation the claim is used, for bridges that cannot observe
-    their machine yet; every bridge that can must pass what it observed.
+    Without an observation the job is REFUSED (the gate fails closed): a bridge that
+    cannot read its machine yet has no state to trust, and the claim of the requester
+    is not one. `allow_unobserved=True` is the explicit, temporary opt-in of such a
+    bridge to use the claim again; every bridge that can observe must pass what it saw.
     """
 
     if job.phase is JobPhase.ABORT:
@@ -134,6 +142,8 @@ def evaluate_job(job: BridgeJob, cell_state: CellState, observed_machine_state: 
         return GateDecision(False, f"cell is {cell_state.value}, not READY")
     if observed_machine_state is not None and not isinstance(observed_machine_state, MachineState):
         raise BridgeError(f"observed_machine_state must be a real MachineState member, got {observed_machine_state!r}")
+    if observed_machine_state is None and not allow_unobserved:
+        return GateDecision(False, "the bridge did not read the state of its machine: the job is refused (read it and pass it as observed_machine_state)")
     machine_state = observed_machine_state if observed_machine_state is not None else job.machine_state
     if machine_state is not MachineState.IDLE:
         return GateDecision(False, f"external machine is {machine_state.value}, not IDLE")

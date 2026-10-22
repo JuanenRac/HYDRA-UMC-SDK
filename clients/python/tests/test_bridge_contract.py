@@ -25,10 +25,26 @@ def job(phase=JobPhase.LOAD, machine_state=MachineState.IDLE):
 
 class BridgeContractTests(unittest.TestCase):
     def test_ready_cell_and_idle_machine_permit_productive_phase(self):
-        self.assertTrue(evaluate_job(job(), CellState.READY).allowed)
+        self.assertTrue(evaluate_job(job(), CellState.READY, MachineState.IDLE).allowed)
+
+    def test_a_bridge_that_did_not_observe_its_machine_is_refused(self):
+        decision = evaluate_job(job(), CellState.READY)
+        self.assertFalse(decision.allowed)
+        self.assertIn("did not read the state", decision.reason)
+        # the claim of the requester is not a way in, whatever it says
+        self.assertFalse(evaluate_job(job(machine_state=MachineState.IDLE), CellState.READY).allowed)
+
+    def test_the_explicit_opt_in_uses_the_claim_again(self):
+        self.assertTrue(evaluate_job(job(), CellState.READY, allow_unobserved=True).allowed)
+        self.assertFalse(evaluate_job(job(machine_state=MachineState.RUNNING), CellState.READY, allow_unobserved=True).allowed)
+        # an observation always wins over the opt-in
+        self.assertFalse(evaluate_job(job(), CellState.READY, MachineState.RUNNING, allow_unobserved=True).allowed)
+
+    def test_abort_does_not_need_an_observation(self):
+        self.assertTrue(evaluate_job(job(phase=JobPhase.ABORT), CellState.READY).allowed)
 
     def test_busy_machine_is_not_reused(self):
-        decision = evaluate_job(job(machine_state=MachineState.RUNNING), CellState.READY)
+        decision = evaluate_job(job(machine_state=MachineState.IDLE), CellState.READY, MachineState.RUNNING)
         self.assertFalse(decision.allowed)
         self.assertIn("RUNNING", decision.reason)
 

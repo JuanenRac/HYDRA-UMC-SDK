@@ -44,9 +44,11 @@ gate and pass it:
 decision = evaluate_job(job, cell_state, observed_machine_state=machine.state_now())
 ```
 
-`evaluate_job` then ignores the claim. Without an observation it falls back to
-the claim, which is only acceptable for a bridge that has no way to observe its
-machine yet.
+`evaluate_job` then ignores the claim. **Without an observation the gate refuses
+the job** (it fails closed): the claim arrives in a message anybody on the broker
+may publish, so it is not a state to trust. A bridge that has no way to observe its
+machine yet is blocked until it does; `allow_unobserved=True` is the explicit,
+temporary opt-in that makes the gate use the claim again, and it should not stay.
 
 ### Job intake: retained messages and repeated keys
 
