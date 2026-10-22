@@ -10,7 +10,7 @@ ecosystem found by hand).
 
 The original idea for this check proposed a NEW markup convention
 (`<!-- canonical:start:NAME --> ... <!-- canonical:end:NAME -->` wrapped
-around every section, in all 7 languages) plus a verifier reading those
+around every section, in all 8 languages) plus a verifier reading those
 markers. This module reaches the same real goal - "does every
 translation have the same section STRUCTURE as English, never mind the
 prose" - without inventing that markup at all: every README in this

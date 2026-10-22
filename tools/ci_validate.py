@@ -66,7 +66,7 @@ SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:\.\d+)?$")
 # today: version `X.Y.Z`", "Status: vX.Y.Z", a `<project> vX.Y.Z` CLI
 # example line) is never re-derived from any of those and can silently
 # go stale. This checks for a semver-shaped token sitting next to a known
-# "current version" label word (in any of the 7 languages) or right
+# "current version" label word (in any of the 8 languages) or right
 # after this project's own name, and fails if it disagrees with the real
 # manifest version. It skips lines describing the odometer versioning
 # scheme itself (those always show an arrow between two version numbers,
