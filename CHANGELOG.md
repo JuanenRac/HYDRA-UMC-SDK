@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.5] - One place for the shared tooling of the repositories
+
+- **`tools/sync_repo_tools.py`.** Keeps the files every repository must carry identical: `bump_manifest_version.py`, `tools/hydra_project_tool.py` and `.github/workflows/dashboard-dispatch.yml` have ONE canonical copy in `tools/canonical/`; `--check` fails when a repository differs, a plain run rewrites them. `tools/ci_validate.py`, `tools/build_test.py` and `.github/workflows/ci.yml` legitimately differ by technology, so they are only grouped into families (the fingerprint ignores line endings, the licence line and the repository name in the banner) and printed, which makes a stray one-off copy visible. `--all` runs the three older sync scripts in the same mode.
+- **`tools/canonical/hydra_project_tool.py`.** The same commands in every repository: `validate` (the CI baseline), `test` (the build and tests), `ci` (both), `version`, `status` (clean tree, version not older than the last tag) and `bump`. The checks run with `HYDRA_UMC_CI=1` and fail if the manifest version changed while they ran; `bump` is the only command that changes the version, refuses a dirty tree unless told otherwise, and follows the repository's own bump script when it has one.
+- **`tools/pin_sdk.py`.** Moves every reference to this SDK (the dependency line of `pyproject.toml` and the `ref:` of the contract checkout in `ci.yml`) from a branch, a commit or an older tag to the newest release tag; `--check` lists what is not on it. All twenty references in the family are on `v0.3.4`.
+- The canonical `bump_manifest_version.py` carries the `GPL-3.0-or-later` notice like the repositories that hold it; sixteen test cases cover the three tools against throwaway repositories (`test_repo_tools.py`, `test_project_tool.py`), and the README `tools/` row says what they do in the eight languages.
+
 ## [0.3.4] - The Python validator refuses malformed values instead of crashing
 
 - A list or an object where an enumerated value belongs (`status`, `phase`, `observed.outcome`, `state`, `ecosystem`, `role`, `deployment_target`, `maturity`, `result.origin`, `result.outcome`, `last_check_outcome`) made the Python validator raise `TypeError` instead of `ContractValidationError`, so a service that catches the contract error crashed on a hostile payload. Every enumerated field now goes through one check that accepts only a string from the allowed set.

@@ -85,7 +85,7 @@ Protobuf の公開はその後の互換性マイルストーンです。Go、Typ
 | `conformance/` |互換性テストで使用される有効な v1 フィクスチャと無効な v1 フィクスチャ。 |
 | `docs/` |契約、API、開発仕様。 |
 | `examples/` |実行可能な Python の例。 |
-| `tools/` |`verify_contract_matrix.py`(スキーマ/バリデータ互換性マトリクス)、`verify_openapi.py`(依存関係のない OpenAPI 構造検証)、そして変更を加えない `build-test` エンジン。 |
+| `tools/` |`verify_contract_matrix.py`(スキーマ/バリデータ互換性マトリクス)、`verify_openapi.py`(依存関係のない OpenAPI 構造検証)、そして変更を加えない `build-test` エンジン。`sync_repo_tools.py` は全リポジトリの共有ツールを同一に保ち、`pin_sdk.py` は SDK の利用側をリリースタグに固定し、`canonical/` は複製元となる唯一のコピー（検証・テストを行い、求められたときだけバージョンを上げる `hydra_project_tool.py` コマンドを含む）を保持します。 |
 
 新しいメッセージを定義する前に、[契約ガイド](docs/CONTRACTS.md) をお読みください。
 

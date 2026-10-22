@@ -82,7 +82,7 @@ OpenAPI v1 切片(`contracts/openapi/v1/server.openapi.json` - 参见
 | `conformance/` |兼容性测试使用的有效和无效 v1 fixture。 |
 | `docs/` |合约、API 和开发规范文档。 |
 | `examples/` |可运行的 Python 示例。 |
-| `tools/` |`verify_contract_matrix.py`(架构/验证器兼容性矩阵)、`verify_openapi.py`(无依赖的 OpenAPI 结构校验)以及不做修改的 `build-test` 引擎。 |
+| `tools/` |`verify_contract_matrix.py`(架构/验证器兼容性矩阵)、`verify_openapi.py`(无依赖的 OpenAPI 结构校验)以及不做修改的 `build-test` 引擎。`sync_repo_tools.py` 使所有仓库的共享工具保持一致，`pin_sdk.py` 将 SDK 的使用方固定到某个发布标签，`canonical/` 保存被分发的唯一副本（包括 `hydra_project_tool.py` 命令：它负责校验、测试，只有在明确要求时才提升版本号）。 |
 
 在定义新消息之前，请阅读[合约指南](docs/CONTRACTS.md)。
 

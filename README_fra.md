@@ -120,7 +120,7 @@ une invalide, vérifiées par la matrice de compatibilité ci-dessus.
 | `conformance/` | Fixtures v1 valides et invalides utilisées par les tests de compatibilité. |
 | `docs/` | Spécifications du contrat, de l’API et du développement. |
 | `examples/` | Exemples Python exécutables. |
-| `tools/` | `verify_contract_matrix.py` (matrice de compatibilité schéma/validateur), `verify_openapi.py` (validation structurelle OpenAPI sans dépendance) et le moteur non destructif de `build-test`. |
+| `tools/` | `verify_contract_matrix.py` (matrice de compatibilité schéma/validateur), `verify_openapi.py` (validation structurelle OpenAPI sans dépendance) et le moteur non destructif de `build-test`. `sync_repo_tools.py` maintient identiques les outils partagés de tous les dépôts, `pin_sdk.py` fixe les consommateurs du SDK sur une étiquette de version, et `canonical/` contient les copies uniques qui sont répliquées (dont la commande `hydra_project_tool.py`, qui valide, teste et ne change la version que sur demande). |
 
 Lisez [le guide du contrat](docs/CONTRACTS.md) avant de définir un nouveau message.
 

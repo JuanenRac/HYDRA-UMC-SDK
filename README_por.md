@@ -74,7 +74,7 @@ Desde então foram publicados mais contratos para além dos quatro do primeiro m
 | `conformance/` | Fixtures v1 válidas e inválidas usadas pelos testes de compatibilidade. |
 | `docs/` | Especificações de contratos, API e desenvolvimento. |
 | `examples/` | Exemplos executáveis em Python. |
-| `tools/` | `verify_contract_matrix.py` (matriz de compatibilidade esquema/validador), `verify_openapi.py` (porta estrutural de OpenAPI sem dependências) e o motor `build-test` que não altera nada. |
+| `tools/` | `verify_contract_matrix.py` (matriz de compatibilidade esquema/validador), `verify_openapi.py` (porta estrutural de OpenAPI sem dependências) e o motor `build-test` que não altera nada. `sync_repo_tools.py` mantém idênticas as ferramentas partilhadas de todos os repositórios, `pin_sdk.py` fixa os consumidores do SDK a uma etiqueta de versão e `canonical/` guarda as cópias únicas que são replicadas (entre elas o comando `hydra_project_tool.py`, que valida, testa e só sobe a versão quando lhe é pedido). |
 
 Leia [o guia de contratos](docs/CONTRACTS.md) antes de definir uma mensagem nova.
 
