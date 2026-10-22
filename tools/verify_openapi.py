@@ -53,7 +53,9 @@ def collect_refs(node: object, refs: list[str]) -> None:
 def resolve_pointer(document: dict, pointer: str) -> bool:
     """Reports whether a '#/a/b/c' JSON Pointer resolves inside document."""
     node: object = document
-    for segment in pointer.lstrip("#/").split("/"):
+    for raw_segment in pointer.lstrip("#/").split("/"):
+        # RFC 6901: ~1 stands for "/" and ~0 for "~" (decode ~1 first).
+        segment = raw_segment.replace("~1", "/").replace("~0", "~")
         if not isinstance(node, dict) or segment not in node:
             return False
         node = node[segment]
@@ -78,6 +80,25 @@ def verify_document(path: Path) -> tuple[int, int]:
     for route, item in paths.items():
         if not (HTTP_METHODS & item.keys()):
             fail(f"{path.relative_to(ROOT)}: path {route!r} declares no real HTTP method")
+
+    operation_ids: dict[str, str] = {}
+    for route, item in paths.items():
+        for method in sorted(HTTP_METHODS & item.keys()):
+            operation = item[method]
+            where = f"{method.upper()} {route}"
+            operation_id = operation.get("operationId")
+            if operation_id is not None:
+                if operation_id in operation_ids:
+                    fail(f"{path.relative_to(ROOT)}: operationId {operation_id!r} is used by both {operation_ids[operation_id]} and {where}")
+                operation_ids[operation_id] = where
+            for status, response in (operation.get("responses") or {}).items():
+                if not (str(status).startswith("2") and isinstance(response, dict) and "$ref" not in response):
+                    continue
+                if str(status) == "204":
+                    continue
+                for media_type, media in (response.get("content") or {}).items():
+                    if not isinstance(media, dict) or "schema" not in media:
+                        fail(f"{path.relative_to(ROOT)}: {where} response {status} ({media_type}) declares no schema")
 
     refs: list[str] = []
     collect_refs(document, refs)

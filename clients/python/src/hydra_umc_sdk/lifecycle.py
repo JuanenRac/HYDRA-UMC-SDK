@@ -22,6 +22,7 @@ a different, complementary concern, not a duplicate of either.
 """
 from __future__ import annotations
 
+from collections import deque
 from dataclasses import dataclass, replace
 from enum import Enum
 from typing import Any
@@ -93,14 +94,13 @@ class BoundedLog:
         if max_entries <= 0:
             raise ValueError("max_entries must be a positive integer")
         self.max_entries = max_entries
-        self._entries: list[StructuredLogEntry] = []
+        self._entries: deque[StructuredLogEntry] = deque(maxlen=max_entries)
         self.dropped_count = 0
 
     def append(self, entry: StructuredLogEntry) -> None:
-        self._entries.append(entry)
-        if len(self._entries) > self.max_entries:
-            self._entries.pop(0)
+        if len(self._entries) == self.max_entries:
             self.dropped_count += 1
+        self._entries.append(entry)
 
     def entries(self) -> tuple[StructuredLogEntry, ...]:
         return tuple(self._entries)

@@ -13,7 +13,10 @@ from .bridge_contract import (
     GateDecision,
     JobPhase,
     MachineState,
+    decision_to_dict,
     evaluate_job,
+    job_from_dict,
+    job_to_dict,
 )
 from .job_intake import IdempotencyStore, Intake, JobIntake
 from .capability import (
@@ -40,6 +43,7 @@ from .lifecycle import (
     StructuredLogEntry,
     trace_first_failure,
 )
+from .mqtt_connection import MqttConnectionSettings, apply_connection_settings, settings_from_env
 from .promotion_journal import PromotionJournal, PromotionPhase, PromotionRecord, check_service_health, recover
 from .scenario import ScenarioComparison, compare_runs
 from .validation import ContractValidationError, validate
@@ -51,7 +55,13 @@ __all__ = [
     "GateDecision",
     "JobPhase",
     "MachineState",
+    "decision_to_dict",
     "evaluate_job",
+    "job_from_dict",
+    "job_to_dict",
+    "MqttConnectionSettings",
+    "apply_connection_settings",
+    "settings_from_env",
     "IdempotencyStore",
     "Intake",
     "JobIntake",

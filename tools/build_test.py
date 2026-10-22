@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -56,6 +57,31 @@ def run_contract_checks() -> None:
     run(sys.executable, "tools/verify_openapi.py", env=environment)
 
 
+def run_native_clients() -> None:
+    """Runs the Go, TypeScript and Rust client tests when their toolchain exists."""
+    clients = ROOT / "clients"
+    npm = "npm.cmd" if os.name == "nt" else "npm"
+    plans = (
+        ("go", clients / "go" / "go.mod", ("go", "test", "./..."), clients / "go"),
+        ("npm", clients / "typescript" / "package.json", None, clients / "typescript"),
+        ("cargo", clients / "rust" / "Cargo.toml", ("cargo", "test", "--all-targets"), clients / "rust"),
+    )
+    for tool, marker, command, directory in plans:
+        label = {"go": "GO_CLIENT", "npm": "TYPESCRIPT_CLIENT", "cargo": "RUST_CLIENT"}[tool]
+        if not marker.is_file():
+            continue
+        if shutil.which(tool if tool != "npm" else npm) is None:
+            print(f"{label}=SKIPPED {tool} is not installed on this host")
+            continue
+        if tool == "npm":
+            if not (directory / "node_modules").is_dir():
+                run(npm, "ci", "--ignore-scripts", cwd=directory)
+            run(npm, "test", "--if-present", cwd=directory)
+        else:
+            run(*command, cwd=directory)
+        print(f"{label}=PASS")
+
+
 def main() -> int:
     try:
         manifest = json.loads((ROOT / "hydra-umc.project.json").read_text(encoding="utf-8"))
@@ -71,6 +97,7 @@ def main() -> int:
         compile_python_sources()
         if (ROOT / "clients" / "python" / "tests").is_dir():
             run_contract_checks()
+        run_native_clients()
     elif stack == "node":
         npm = "npm.cmd" if os.name == "nt" else "npm"
         # Reuse an existing local dependency tree so a running editor/linter

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,7 +7,17 @@ name = "hydra-umc-sdk"
 version = "0.3.5"
 description = "Versioned contracts and lightweight Python validation for HYDRA-UMC"
 requires-python = ">=3.11"
-license = {text = "GPL-3.0-or-later"}
+license = "GPL-3.0-or-later"
+keywords = ["hydra-umc", "contracts", "robotics", "validation"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/JuanenRac/HYDRA-UMC-SDK"
+Issues = "https://github.com/JuanenRac/HYDRA-UMC-SDK/issues"
 
 [project.scripts]
 hydra-umc-contract-validate = "hydra_umc_sdk.validation:main"
@@ -15,3 +25,6 @@ hydra-umc-sdk-mock-server = "hydra_umc_sdk.mock_server:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+hydra_umc_sdk = ["py.typed"]

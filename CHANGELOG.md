@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+- **Python package metadata.** `py.typed` ships with the package, `pyproject.toml` declares the licence with the SPDX expression, keywords, classifiers and project URLs, and the package root now exports `job_to_dict`, `job_from_dict`, `decision_to_dict` and the MQTT connection helpers.
+- **`BoundedLog` keeps its entries in a `collections.deque`,** so dropping the oldest entry no longer costs a list shift; the drop counter behaves as before.
+- **`tools/verify_openapi.py` also checks** that every `operationId` is unique and that every 2xx response with content declares a schema, and it decodes the `~0` and `~1` escapes of JSON Pointers; `test_verify_openapi.py` damages a document in each of those ways.
+- **`tools/build_test.py` runs the Go, TypeScript and Rust client tests** when the toolchain is installed and says so when it is skipped.
 - **`hydra_umc_sdk.bridge_transport`.** The MQTT transport that the CNC, laser, OpenPnP, 3D-printer and ROS 2 bridges each carried their own copy of: `MqttPublish`, `connect_with_retry` (retries a refused connection, never a TLS failure), `MessageDispatcher` (commands in order on one lane, stop verbs on a second lane, a retained replay never taken as a request) and `open_bridge_client` (credentials and TLS from the environment, Last Will on `availability`, subscribe and announce after every connect). Eighteen tests; a mutation of the stop lane and of the retained check each make a test fail. The five bridges were migrated locally against it and their existing tests pass unchanged; they move to it once a release carries this module.
 - **`contracts/trust/release_key.pub`.** The public key that signs the component packages of the CM5 (the private key is never in a repository).
 
