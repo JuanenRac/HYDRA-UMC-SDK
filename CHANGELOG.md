@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- The banner follows the animated style of the ecosystem banners, with the name, the kind and the technologies of the project.
 - **The bridge gate fails closed.** `evaluate_job` refuses a productive job when the bridge did not pass the state it read from its machine (`observed_machine_state`): the `machine_state` of a job is a claim in a message anybody on the broker may publish, so it no longer lets a job through on its own. `allow_unobserved=True` is the explicit, temporary opt-in of a bridge that cannot observe its machine yet; abort is always forwarded.
 - **Python package metadata.** `py.typed` ships with the package, `pyproject.toml` declares the licence with the SPDX expression, keywords, classifiers and project URLs, and the package root now exports `job_to_dict`, `job_from_dict`, `decision_to_dict` and the MQTT connection helpers.
 - **`BoundedLog` keeps its entries in a `collections.deque`,** so dropping the oldest entry no longer costs a list shift; the drop counter behaves as before.
