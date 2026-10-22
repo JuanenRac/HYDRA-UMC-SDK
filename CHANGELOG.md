@@ -75,16 +75,6 @@ All notable changes to this project are documented here.
 - The shared version tooling used by the sibling repositories is kept here under
   `tools/canonical/` and pushed out with `tools/sync_version_tools.py`.
 
-## Client package versions
-
-Only the Python client (`clients/python`) tracks this repository's own
-version. The Rust (`clients/rust`) and TypeScript (`clients/typescript`,
-`@hydra-umc/sdk`) clients keep their own `0.1.0` and the Go client is tagged
-by module path: none of them is published to a package registry from here,
-so those numbers do not gate anything today. The day one of them is
-published, it gets its own independent version and this note is replaced by
-the real release policy.
-
 ## [0.2.6] - real cross-language contract round-trip tests
 
 New round-trip tests in all 4 reference clients (Python, Go, Rust,
@@ -308,8 +298,6 @@ defaulting to `None`.
 
 ## [0.1.8] - A durable, transactional promotion journal
 
-### Added
-
 - **`clients/python/src/hydra_umc_sdk/promotion_journal.py`** - the real,
   durable version of the mitigation HYDRA-UMC-UPDATER's own
   `install.py` already carries inline (previously an honest, bounded
@@ -340,8 +328,6 @@ defaulting to `None`.
   (`examples/python/recover_interrupted_promotion.py`).
 
 ## [0.1.7] - Cross-service failure tracing + a real observability toolkit
-
-### Added
 
 - **`clients/python/src/hydra_umc_sdk/lifecycle.py`** - a real observability
   deliverable. `ProcessLifecycleState` (`alive`/`ready`/`degraded`/
@@ -378,8 +364,6 @@ defaulting to `None`.
 
 ## [0.1.6] - New `Operation` contract: shared, strict, versioned lifecycle
 
-### Added
-
 - **`contracts/json-schema/v1/operation.schema.json`** - a shared shape for anything crossing
   a service boundary in this ecosystem (SERVER, ORCHESTRATOR, DEV-SERVER,
   OPS-AGENT, ...) to report its own real progress through 6 genuinely
@@ -410,8 +394,6 @@ defaulting to `None`.
   Rust conformance test (embedded schema), 4 new TypeScript fixture tests,
   1 new Go fixture round-trip.
 
-### Fixed
-
 - **Real cross-client drift found while adding this contract**:
   `ScenarioOutcome` (added in 0.1.5) had a published schema and a working
   Python validator entry, but was never added to the Go client's
@@ -428,8 +410,6 @@ defaulting to `None`.
   `Operation` row.
 
 ## [0.1.5] - New `ScenarioOutcome` contract + a real before/after check
-
-### Added
 
 - **`contracts/json-schema/v1/scenario-outcome.schema.json`** - one run
   of a fixed reproduction scenario, `before` or `after` a candidate fix:
@@ -460,8 +440,6 @@ defaulting to `None`.
 
 ## [0.1.4] - docs/BRIDGE_CONTRACT.md: list all 8 bridges that actually use it
 
-### Fixed
-
 - `docs/BRIDGE_CONTRACT.md`'s own scope line only listed 5 of the 8
   bridges that genuinely import `bridge_contract.py`/call
   `evaluate_job()` - `HYDRA-UMC-BRIDGE-AMR`, `HYDRA-UMC-BRIDGE-DROIDS`
@@ -475,8 +453,6 @@ defaulting to `None`.
 
 ## [0.1.3] - ProjectManifest: new `deployment_target` value `dev-server`
 
-### Added
-
 - `clients/python/src/hydra_umc_sdk/validation.py` - `"dev-server"` added
   to `PROJECT_MANIFEST_ENUMS["deployment_target"]` for the new
   HYDRA-UMC-DEV-SERVER project (a Raspberry Pi 5/CM5 host dedicated to
@@ -486,8 +462,6 @@ defaulting to `None`.
   change. New test `test_accepts_dev_server_deployment_target`.
 
 ## [0.1.2] - BridgeJob's direct constructor now validates `parameters` before using it
-
-### Fixed
 
 - **`clients/python/src/hydra_umc_sdk/bridge_contract.py`'s `BridgeJob`**
   (found in a second review pass; same class of gap as
@@ -517,8 +491,6 @@ defaulting to `None`.
 
 ## [0.1.1] - Enforce real enum membership at the BridgeJob constructor
 
-### Fixed
-
 - **`clients/python/src/hydra_umc_sdk/bridge_contract.py`'s `BridgeJob`:**
   `phase`/`machine_state` are typed as `JobPhase`/`MachineState` in the
   dataclass annotation, but Python never enforces that at runtime -
@@ -536,8 +508,6 @@ defaulting to `None`.
   passing.
 
 ## [0.1.0] - Real first OpenAPI v1 slice for HYDRA-UMC-SERVER's own HTTP surface
-
-### Added
 
 - **`contracts/openapi/v1/server.openapi.json`** (new) - the SDK's own charter
   (`docs/API_DESIGN.md`) commits to publishing "the OpenAPI source and typed
@@ -568,8 +538,6 @@ defaulting to `None`.
   dependency here, to keep this repository's own tooling dependency-free).
   Wired into both `tools/build_test.py` and `.github/workflows/ci.yml`.
 
-### Fixed
-
 - **`.github/workflows/ci.yml`** - found while wiring in the check above:
   `tools/verify_contract_matrix.py` was already documented
   (`docs/CONTRACTS.md`) as this SDK's "mandatory compatibility gate", but
@@ -584,8 +552,6 @@ defaulting to `None`.
   ran the script mechanically without hand-editing the stub first).
 
 ## [0.0.9] - Fix the TypeScript client's real CI failure on Node 20
-
-### Fixed
 
 - **`clients/typescript`** - the real GitHub Actions run for `[0.0.8]`
   failed: `npm test` executed `tests/*.test.mts` directly via `node
@@ -605,8 +571,6 @@ defaulting to `None`.
   `npm test` (22/22), and `npm run lint --if-present` all pass.
 
 ## [0.0.8] - Go, TypeScript and Rust reference clients
-
-### Added
 
 - **`clients/go`** - real, tested Go reference client: hand-written struct
   types field-for-field from the v1 schemas (`types.go`), a custom
@@ -633,8 +597,6 @@ defaulting to `None`.
   `conformance/fixtures/v1/*.valid.json`/`*.invalid.json` - the same
   fixtures the Python reference client's own tests already use.
 
-### Fixed
-
 - **`.github/workflows/ci.yml`** - the Node/TypeScript, Rust and Go
   validation steps only ever looked for `package.json`/`Cargo.toml`/`go.mod`
   at the repository root (`hashFiles('package.json')` etc. are not
@@ -653,8 +615,6 @@ defaulting to `None`.
 
 ## [0.0.7] - Real JSON wire shape for BridgeJob/GateDecision
 
-### Added
-
 - **`bridge_contract.py`** - `job_to_dict()`/`job_from_dict()`/
   `decision_to_dict()`, the real shared JSON shape for a `BridgeJob`/
   `GateDecision` now that `HYDRA-UMC-BRIDGE-CNC`/`-LASER`/`-OPENPNP`/
@@ -668,8 +628,6 @@ defaulting to `None`.
   round-trip and every rejected-input case.
 
 ## [0.0.6] - Dependency-free mock server for testing without hardware
-
-### Added
 
 - **`hydra-umc-sdk-mock-server`** (`mock_server.py`, new) - a real,
   stdlib-only HTTP server that serves one example payload per known
@@ -692,16 +650,12 @@ defaulting to `None`.
 
 ## [0.0.5] - Strict semver enforcement on UpdateManifest.version, wider fixture coverage
 
-### Fixed
-
 - **`validation.py`** - `UpdateManifest.version` was only checked for a
   matching `sha256`; a value like `"latest"` or `"v1"` passed straight
   through. It's now validated against the same `SEMVER_PATTERN` already
   used elsewhere in this file, and `update-manifest.schema.json` gained
   the matching JSON Schema `pattern`, so the reference validator and the
   published schema agree again.
-
-### Added
 
 - **Invalid conformance fixtures for every contract that was missing
   one** (`device-descriptor.invalid.json`, `event-envelope.invalid.json`,
@@ -714,14 +668,44 @@ defaulting to `None`.
   `tools/verify_contract_matrix.py` proves the non-semver rejection
   directly. 35/35 tests passing, 14/14 fixtures across all 7 contracts.
 
-## External machine bridge contract (no odometer bump)
+## [0.0.4] - Automatic contract/validator compatibility matrix
+
+- **`tools/verify_contract_matrix.py`** (new) - a real, automatic compatibility matrix between the published v1 JSON Schema files and this SDK's own Python reference validator. It discovers every real `*.schema.json` under `contracts/json-schema/v1/`, cross-checks that each one has a matching `validate()` entry (and vice versa - a stale validator entry with no real schema file is flagged too), runs every conformance fixture through `validate()` and confirms it's judged the way its own `.valid.json`/`.invalid.json` filename claims, and proves the two negative cases this matrix specifically guards: an unknown contract name and an incompatible `schema_version`.
+- **`ProjectManifest` contract validation** (`validation.py`) - the matrix immediately found a real, concrete gap it was built to catch: `project-manifest.schema.json` (the `hydra-umc.project.json` contract every repository in this ecosystem publishes) had no corresponding entry in the Python validator at all - it could never actually be validated. Added the real required-field/enum/pattern checks mirroring the schema (`ecosystem`, `name` pattern, semver `version`, `role`/`deployment_target`/`maturity` enums, non-empty unique `technologies`, nullable `parent`, `native_version`'s string-or-component `pattern`), plus real conformance fixtures (`project-manifest.valid.json`/`.invalid.json`).
+- 22 new tests (`test_validation.py`) = 30 total.
+
+- `tools/build_test.py`'s non-mutating `build-test.sh` check compiled Python sources but never actually ran the real conformance test suite (`clients/python/tests`) or the new contract matrix - both are now wired in, so the "test" step genuinely tests something.
+
+- Automated build version increment from 0.0.3.
+
+## [0.0.3]
+
+- Automated build version increment from 0.0.2.
+
+## [0.0.2]
+
+- JSON Schema v1 for `DeviceDescriptor`, `HealthReport`, `SafetyState`, and
+  `UpdateManifest`.
+- Dependency-free Python reference validator and command-line entry point.
+- Valid and invalid conformance fixtures plus four host-side validation tests.
+- Runnable Python example for `HealthReport` validation.
+
+- Protobuf, OpenAPI, package publication, and non-Python clients are not part
+  of this initial contract release.
+
+## [0.0.1]
+
+- Initial SDK documentation, multilingual README files, and target layout.
+- Contract, API, conformance, and adapter-boundary specifications.
+
+## Earlier history
+
+### External machine bridge contract (no odometer bump)
 
 Landed after [0.0.4] and before [0.0.5] above without going through the
 odometer build script - `evaluate_job()` and `BridgeJob` were already in
 use by [0.0.5]'s "all 7 contracts" fixture count, and [0.0.7] later
 extends this same contract with its real JSON wire shape.
-
-### Added
 
 - Public, dependency-free Python v0 external-machine bridge contract:
   `BridgeJob`, bridge/machine/cell state enums and `evaluate_job()` safety
@@ -730,8 +714,6 @@ extends this same contract with its real JSON wire shape.
 - `docs/BRIDGE_CONTRACT.md` and five focused unit tests proving productive
   work is rejected when either side is not ready while `ABORT` remains
   requestable through the authorised safety path.
-
-### Fixed
 
 - UpdateManifest validation now requires an HTTPS artifact URL with a real
   hostname, rejecting malformed strings such as `https:///artifact.deb`.
@@ -742,25 +724,7 @@ extends this same contract with its real JSON wire shape.
   treats `bool` as an `int` subclass, which previously let invalid contract
   payloads pass reference validation.
 
-## [0.0.4] - Automatic contract/validator compatibility matrix
-
-### Added
-
-- **`tools/verify_contract_matrix.py`** (new) - a real, automatic compatibility matrix between the published v1 JSON Schema files and this SDK's own Python reference validator. It discovers every real `*.schema.json` under `contracts/json-schema/v1/`, cross-checks that each one has a matching `validate()` entry (and vice versa - a stale validator entry with no real schema file is flagged too), runs every conformance fixture through `validate()` and confirms it's judged the way its own `.valid.json`/`.invalid.json` filename claims, and proves the two negative cases this matrix specifically guards: an unknown contract name and an incompatible `schema_version`.
-- **`ProjectManifest` contract validation** (`validation.py`) - the matrix immediately found a real, concrete gap it was built to catch: `project-manifest.schema.json` (the `hydra-umc.project.json` contract every repository in this ecosystem publishes) had no corresponding entry in the Python validator at all - it could never actually be validated. Added the real required-field/enum/pattern checks mirroring the schema (`ecosystem`, `name` pattern, semver `version`, `role`/`deployment_target`/`maturity` enums, non-empty unique `technologies`, nullable `parent`, `native_version`'s string-or-component `pattern`), plus real conformance fixtures (`project-manifest.valid.json`/`.invalid.json`).
-- 22 new tests (`test_validation.py`) = 30 total.
-
-### Fixed
-
-- `tools/build_test.py`'s non-mutating `build-test.sh` check compiled Python sources but never actually ran the real conformance test suite (`clients/python/tests`) or the new contract matrix - both are now wired in, so the "test" step genuinely tests something.
-
-### Changed
-
-- Automated build version increment from 0.0.3.
-
-## Documentation
-
-### Added
+### Documentation
 
 - `docs/PYTHON_CLIENT.md` - full reference for the `validate()` function
   and `hydra-umc-contract-validate` CLI in `clients/python`: the exact
@@ -770,31 +734,3 @@ extends this same contract with its real JSON wire shape.
   `validation.py`'s own source. Verified live against the real function
   and CLI. Linked from `docs/CONTRACTS.md`. Documentation-only - no code
   changed, no version bump.
-
-## [0.0.3]
-
-### Changed
-
-- Automated build version increment from 0.0.2.
-
-## [0.0.2]
-
-### Added
-
-- JSON Schema v1 for `DeviceDescriptor`, `HealthReport`, `SafetyState`, and
-  `UpdateManifest`.
-- Dependency-free Python reference validator and command-line entry point.
-- Valid and invalid conformance fixtures plus four host-side validation tests.
-- Runnable Python example for `HealthReport` validation.
-
-### Limits
-
-- Protobuf, OpenAPI, package publication, and non-Python clients are not part
-  of this initial contract release.
-
-## [0.0.1]
-
-### Added
-
-- Initial SDK documentation, multilingual README files, and target layout.
-- Contract, API, conformance, and adapter-boundary specifications.
