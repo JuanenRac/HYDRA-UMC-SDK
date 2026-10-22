@@ -39,7 +39,7 @@ The version always follows the odometer rule: three components up to 0.7.9, four
 A repository that depends on this SDK names a release tag, never a branch or a bare commit:
 
 ```
-hydra-umc-sdk @ git+https://github.com/JuanenRac/HYDRA-UMC-SDK.git@v0.3.5#subdirectory=clients/python
+hydra-umc-sdk @ git+https://github.com/JuanenRac/HYDRA-UMC-SDK.git@v0.3.6#subdirectory=clients/python
 ```
 
 After publishing a new SDK release, run `python tools/pin_sdk.py` to move every consumer to it and
