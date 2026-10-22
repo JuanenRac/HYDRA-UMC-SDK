@@ -61,11 +61,25 @@ _CANONICAL_BODY_MARKER = "from __future__ import annotations"
 
 # The exact call-site snippet that replaces each repo's own previously
 # duplicated inline doc-policy block inside ci_validate.py.
-CALL_SITE = '''    doc_policy_error = check_public_private_boundary(ROOT)
+PREVIOUS_CALL_SITE = '''    doc_policy_error = check_public_private_boundary(ROOT)
     if doc_policy_error:
         fail(doc_policy_error)
 '''
-IMPORT_LINE = "from _doc_policy import check_public_private_boundary\n"
+CALL_SITE = PREVIOUS_CALL_SITE + '''    build_bump_error = check_build_scripts_do_not_bump(ROOT)
+    if build_bump_error:
+        fail(build_bump_error)
+    venv_activate_error = check_scripts_do_not_activate_venv(ROOT)
+    if venv_activate_error:
+        fail(venv_activate_error)
+'''
+PREVIOUS_IMPORT_LINE = "from _doc_policy import check_public_private_boundary\n"
+IMPORT_LINE = (
+    "from _doc_policy import (\n"
+    "    check_build_scripts_do_not_bump,\n"
+    "    check_public_private_boundary,\n"
+    "    check_scripts_do_not_activate_venv,\n"
+    ")\n"
+)
 
 # Matches the start of the old inline block (either "private_marker ="
 # for a single-marker repo, or "private_markers =" for the 2-marker
@@ -112,6 +126,10 @@ def sync_one(repo: Path, check_only: bool) -> str:
     if IMPORT_LINE in ci_text:
         ci_changed = False
         new_ci_text = ci_text
+    elif PREVIOUS_IMPORT_LINE in ci_text and PREVIOUS_CALL_SITE in ci_text:
+        # Already on the shared module: add the build-script guard next to the boundary check.
+        new_ci_text = ci_text.replace(PREVIOUS_IMPORT_LINE, IMPORT_LINE, 1).replace(PREVIOUS_CALL_SITE, CALL_SITE, 1)
+        ci_changed = True
     else:
         match = _BLOCK_RE.search(ci_text)
         if match is None:

@@ -136,6 +136,32 @@ class ProjectToolTests(unittest.TestCase):
         self.assertEqual(TOOL.bump(self.root), 0)
         self.assertEqual(TOOL.declared_version(self.root), "0.1.5")
 
+    def test_bump_also_raises_the_android_version_code_when_the_repository_has_one(self):
+        (self.root / "versionCode.txt").write_text("7\n", encoding="utf-8")
+        (self.root / "bump_version_code.py").write_text(
+            "import pathlib\np = pathlib.Path(__file__).resolve().parent / 'versionCode.txt'\n"
+            "p.write_text(str(int(p.read_text()) + 1) + '\\n')\n",
+            encoding="utf-8",
+        )
+        self.commit("android style")
+        self.assertEqual(TOOL.bump(self.root), 0)
+        self.assertEqual((self.root / "versionCode.txt").read_text().strip(), "8")
+        self.assertEqual(TOOL.declared_version(self.root), "0.1.5")
+
+    def test_a_flutter_app_is_bumped_by_its_dart_script_and_then_synchronised(self):
+        (self.root / "tool").mkdir()
+        (self.root / "tool" / "bump_version.dart").write_text("void main() {}\n", encoding="utf-8")
+        self.commit("flutter style")
+        seen = []
+        original = TOOL._run
+        TOOL._run = lambda command, root, env=None: seen.append(command) or 0
+        try:
+            TOOL.bump(self.root)
+        finally:
+            TOOL._run = original
+        self.assertEqual(seen[0][1:], ["run", "tool/bump_version.dart"])
+        self.assertIn("--sync", seen[1])
+
     def test_status_flags_a_dirty_tree_and_a_version_behind_the_tag(self):
         self.assertEqual(TOOL.status(self.root), 0)
         self.git("tag", "v0.1.4")
