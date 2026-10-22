@@ -1,5 +1,7 @@
 # Changelog
 
+All notable changes to this project are documented here.
+
 ## [0.3.6] - The bridge gate fails closed, and the bridges share one MQTT transport
 
 - The banner follows the animated style of the ecosystem banners, with the name, the kind and the technologies of the project.
