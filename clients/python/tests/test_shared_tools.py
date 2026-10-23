@@ -241,6 +241,47 @@ class ExtraHooksTests(unittest.TestCase):
         self.assertLess(text.index("extra_build_steps.py"), text.index("BUILD_TEST=PASS"))
 
 
+class VersionProseLabelTests(unittest.TestCase):
+    """A README line that names the status in French or Japanese is held to the real version like the others."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.root = Path(self._tmp.name)
+        sys.path.insert(0, str(SDK / "tools"))
+        self.addCleanup(sys.path.remove, str(SDK / "tools"))
+        self.validate = _load("canonical_ci_validate_labels", SDK / "tools" / "canonical" / "ci_validate.py")
+        self.validate.ROOT = self.root
+
+    def readme_says(self, line):
+        for name in self.validate.REQUIRED_DOCUMENTS:
+            if name.startswith("README"):
+                (self.root / name).write_text("# Demo\n\n" + line + "\n", encoding="utf-8")
+        import contextlib
+        import io
+
+        captured = io.StringIO()
+        with contextlib.redirect_stderr(captured):
+            try:
+                self.validate.validate_readme_version_prose({"name": "HYDRA-UMC-DEMO", "version": "0.1.8"})
+            except SystemExit:
+                return captured.getvalue()
+        return ""
+
+    def test_the_labels_of_every_language_are_there(self):
+        for label in ("Statut :", "Statut:", "状態:", "状態：", "État :", "ステータス", "Estado:", "Stato:", "状态："):
+            self.assertIn(label, self.validate.VERSION_PROSE_LABELS)
+
+    def test_a_stale_french_or_japanese_status_line_fails(self):
+        self.assertIn("0.1.1", self.readme_says("Statut : v0.1.1 (fonctionnel)"))
+        self.assertIn("0.1.1", self.readme_says("状態: v0.1.1(機能的)"))
+        self.assertIn("0.1.1", self.readme_says("状態：v0.1.1"))
+
+    def test_the_current_version_passes(self):
+        self.assertEqual(self.readme_says("Statut : v0.1.8"), "")
+        self.assertEqual(self.readme_says("状態: v0.1.8"), "")
+
+
 class PerRepositoryCopyTests(Workspace):
     def test_the_redaction_copies_are_checked_and_written(self):
         name = "HYDRA-UMC-OPS-AGENT"
