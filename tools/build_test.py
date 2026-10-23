@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # =============================================================================
-# HYDRA-UMC-SDK - tools/build_test.py
+# HYDRA-UMC - tools/build_test.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """Run a non-versioning build check for this repository.
 
@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -47,41 +46,6 @@ def compile_python_sources() -> None:
     print(f"PYTHON_COMPILE=PASS files={len(files)}")
 
 
-def run_contract_checks() -> None:
-    environment = dict(os.environ)
-    client_source = str(ROOT / "clients" / "python" / "src")
-    existing_python_path = environment.get("PYTHONPATH")
-    environment["PYTHONPATH"] = client_source if not existing_python_path else os.pathsep.join((client_source, existing_python_path))
-    run(sys.executable, "-m", "unittest", "discover", "-s", "clients/python/tests", "-v", env=environment)
-    run(sys.executable, "tools/verify_contract_matrix.py", env=environment)
-    run(sys.executable, "tools/verify_openapi.py", env=environment)
-
-
-def run_native_clients() -> None:
-    """Runs the Go, TypeScript and Rust client tests when their toolchain exists."""
-    clients = ROOT / "clients"
-    npm = "npm.cmd" if os.name == "nt" else "npm"
-    plans = (
-        ("go", clients / "go" / "go.mod", ("go", "test", "./..."), clients / "go"),
-        ("npm", clients / "typescript" / "package.json", None, clients / "typescript"),
-        ("cargo", clients / "rust" / "Cargo.toml", ("cargo", "test", "--all-targets"), clients / "rust"),
-    )
-    for tool, marker, command, directory in plans:
-        label = {"go": "GO_CLIENT", "npm": "TYPESCRIPT_CLIENT", "cargo": "RUST_CLIENT"}[tool]
-        if not marker.is_file():
-            continue
-        if shutil.which(tool if tool != "npm" else npm) is None:
-            print(f"{label}=SKIPPED {tool} is not installed on this host")
-            continue
-        if tool == "npm":
-            if not (directory / "node_modules").is_dir():
-                run(npm, "ci", "--ignore-scripts", cwd=directory)
-            run(npm, "test", "--if-present", cwd=directory)
-        else:
-            run(*command, cwd=directory)
-        print(f"{label}=PASS")
-
-
 def main() -> int:
     try:
         manifest = json.loads((ROOT / "hydra-umc.project.json").read_text(encoding="utf-8"))
@@ -95,9 +59,6 @@ def main() -> int:
 
     if stack in {"python", "python-bare"}:
         compile_python_sources()
-        if (ROOT / "clients" / "python" / "tests").is_dir():
-            run_contract_checks()
-        run_native_clients()
     elif stack == "node":
         npm = "npm.cmd" if os.name == "nt" else "npm"
         # Reuse an existing local dependency tree so a running editor/linter
@@ -156,6 +117,13 @@ def main() -> int:
             run("bash", "build_firmware.sh", env=environment)
     else:
         fail(f"unsupported stack: {stack}")
+
+    # The steps a repository has of its own (its tests, its verifiers, a second toolchain) live in
+    # tools/extra_build_steps.py, so this file stays identical everywhere. It runs from the repository root with the
+    # same environment, after the build of the stack above, and a non-zero exit fails the build test.
+    extra_steps = ROOT / "tools" / "extra_build_steps.py"
+    if extra_steps.is_file():
+        run(sys.executable, str(extra_steps))
 
     print("BUILD_TEST=PASS versioning=unchanged changelog=unchanged")
     return 0

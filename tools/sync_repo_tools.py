@@ -79,6 +79,16 @@ OTHER_SYNCS = ("sync_doc_policy.py", "sync_readme_parity.py", "sync_version_tool
 NL = chr(10)
 UNIFIED_FILE = "tools/ci_validate.py"
 UNIFIED_CANONICAL = "ci_validate.py"
+# The same rule for the build test. What a repository has of its own (its tests, its verifiers, a second toolchain)
+# goes in `tools/extra_build_steps.py`, which the canonical build test runs when it exists; what a repository checks
+# of its own besides the shared validator goes in `tools/extra_checks.py`, which the canonical validator runs.
+UNIFIED_FILES = (
+    (UNIFIED_FILE, UNIFIED_CANONICAL),
+    ("tools/build_test.py", "build_test.py"),
+)
+# The text a canonical file had before its latest change, kept in `tools/canonical/previous/`: a copy that holds
+# nothing but those older lines is a stale copy of the canonical file (it is rewritten), not an adaptation.
+PREVIOUS_DIR = CANONICAL_DIR / "previous"
 
 _LICENCE = re.compile(r"GPL-3\.0(?:-or-later|-only)?")
 _BANNER_NAME = re.compile(r"(?m)^((?:#|//) )(?:HYDRA-UMC|ELECTRO-HOBBY-3D)[A-Za-z0-9-]*( - )")
@@ -205,22 +215,34 @@ def own_lines(text: str) -> set[str]:
     return lines
 
 
-def adopts_unified(current: str, canonical: str) -> bool:
-    """True when a copy has no line of its own beyond the canonical validator."""
-    return own_lines(current) <= own_lines(canonical)
+def adopts_unified(current: str, canonical: str, previous: str = "") -> bool:
+    """True when a copy has no line of its own beyond the canonical file (or the text it had before its last change)."""
+    return own_lines(current) <= own_lines(canonical) | (own_lines(previous) if previous else set())
 
 
-def unified_status(workspace: Path, canonical_dir: Path = CANONICAL_DIR) -> tuple[list[str], list[str]]:
-    """(repositories that adopt the canonical validator but differ from it, repositories with an own adaptation)."""
-    wanted, _ = read_text(canonical_dir / UNIFIED_CANONICAL)
+def previous_text(canonical_name: str, previous_dir: Path | None = None) -> str:
+    """The text the canonical file had before its latest change, or '' when there is none."""
+    path = (previous_dir if previous_dir is not None else PREVIOUS_DIR) / canonical_name
+    return read_text(path)[0] if path.is_file() else ""
+
+
+def unified_status(
+    workspace: Path,
+    canonical_dir: Path = CANONICAL_DIR,
+    relative: str = UNIFIED_FILE,
+    canonical_name: str = UNIFIED_CANONICAL,
+) -> tuple[list[str], list[str]]:
+    """(repositories that adopt the canonical file but differ from it, repositories with an own adaptation)."""
+    wanted, _ = read_text(canonical_dir / canonical_name)
+    previous = previous_text(canonical_name, canonical_dir / "previous")
     stale: list[str] = []
     adapted: list[str] = []
     for repo in repos(workspace):
-        target = repo / UNIFIED_FILE
+        target = repo / relative
         if not target.is_file():
             continue
         current, _ = read_text(target)
-        if adopts_unified(current, wanted):
+        if adopts_unified(current, wanted, previous):
             if own_lines(current) != own_lines(wanted):
                 stale.append(repo.name)
         else:
@@ -228,16 +250,21 @@ def unified_status(workspace: Path, canonical_dir: Path = CANONICAL_DIR) -> tupl
     return stale, adapted
 
 
-def write_unified(workspace: Path, canonical_dir: Path = CANONICAL_DIR) -> list[str]:
-    """Give the canonical validator to every repository that holds nothing of its own in its copy."""
-    wanted, _ = read_text(canonical_dir / UNIFIED_CANONICAL)
-    stale, _ = unified_status(workspace, canonical_dir)
+def write_unified(
+    workspace: Path,
+    canonical_dir: Path = CANONICAL_DIR,
+    relative: str = UNIFIED_FILE,
+    canonical_name: str = UNIFIED_CANONICAL,
+) -> list[str]:
+    """Give the canonical file to every repository that holds nothing of its own in its copy."""
+    wanted, _ = read_text(canonical_dir / canonical_name)
+    stale, _ = unified_status(workspace, canonical_dir, relative, canonical_name)
     changed: list[str] = []
     for name in stale:
-        target = workspace / name / UNIFIED_FILE
+        target = workspace / name / relative
         _, newline = read_text(target)
         target.write_bytes((wanted.rstrip("\n").replace("\n", newline) + newline).encode("utf-8"))
-        changed.append(f"{name}/{UNIFIED_FILE}")
+        changed.append(f"{name}/{relative}")
     return changed
 
 
@@ -278,21 +305,27 @@ def main(argv: list[str] | None = None) -> int:
     status = 0
     if args.check:
         drift = check_canonical(workspace) + check_per_repository(workspace)
-        stale, _ = unified_status(workspace)
+        stale: list[str] = []
+        for relative, canonical_name in UNIFIED_FILES:
+            stale += [f"{name}/{relative}" for name in unified_status(workspace, CANONICAL_DIR, relative, canonical_name)[0]]
         for line in drift:
             print("differs from the canonical copy: " + line)
-        for name in stale:
-            print(f"differs from the canonical copy: {name}/{UNIFIED_FILE} (holds nothing of its own)")
+        for label in stale:
+            print(f"differs from the canonical copy: {label} (holds nothing of its own)")
         drift = drift + stale
         verdict = "FAIL" if drift else "PASS"
         print(f"CANONICAL_TOOLS={verdict} drift={len(drift)} repositories={len(repos(workspace))}")
         status = 1 if drift else 0
     else:
-        for line in write_canonical(workspace) + write_per_repository(workspace) + write_unified(workspace):
+        rewritten = write_canonical(workspace) + write_per_repository(workspace)
+        for relative, canonical_name in UNIFIED_FILES:
+            rewritten += write_unified(workspace, CANONICAL_DIR, relative, canonical_name)
+        for line in rewritten:
             print("rewritten: " + line)
         print(f"CANONICAL_TOOLS=WRITTEN repositories={len(repos(workspace))}")
-    _, adapted = unified_status(workspace)
-    print(f"{UNIFIED_FILE}: {len(adapted)} repositories keep an adaptation of their own: " + ", ".join(adapted))
+    for relative, canonical_name in UNIFIED_FILES:
+        _, adapted = unified_status(workspace, CANONICAL_DIR, relative, canonical_name)
+        print(f"{relative}: {len(adapted)} repositories keep an adaptation of their own: " + ", ".join(adapted))
     report_families(workspace)
 
     if args.all:

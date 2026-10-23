@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -153,6 +154,91 @@ class ValidatorAdoptionTests(Workspace):
         self.put("HYDRA-UMC-A", self.CANONICAL + "    check_own()\n")
         self.assertEqual(SYNC.unified_status(self.workspace, self.canonical), ([], ["HYDRA-UMC-A"]))
         self.assertEqual(SYNC.write_unified(self.workspace, self.canonical), [])
+
+
+class PreviousCanonicalTests(ValidatorAdoptionTests):
+    def test_a_copy_of_the_previous_canonical_text_is_stale_not_an_adaptation(self):
+        previous = self.canonical / "previous"
+        previous.mkdir()
+        (previous / "ci_validate.py").write_text(self.CANONICAL.replace("check_b", "check_old"), encoding="utf-8")
+        # without the previous text the old lines would look like an adaptation of the repository
+        self.put("HYDRA-UMC-A", self.CANONICAL.replace("check_b", "check_old"))
+        stale, adapted = SYNC.unified_status(self.workspace, self.canonical)
+        self.assertEqual((stale, adapted), (["HYDRA-UMC-A"], []))
+        self.assertEqual(SYNC.write_unified(self.workspace, self.canonical), ["HYDRA-UMC-A/tools/ci_validate.py"])
+        self.assertEqual(SYNC.unified_status(self.workspace, self.canonical), ([], []))
+
+    def test_without_the_previous_text_old_lines_are_the_repositorys_own(self):
+        self.put("HYDRA-UMC-A", self.CANONICAL.replace("check_b", "check_old"))
+        self.assertEqual(SYNC.unified_status(self.workspace, self.canonical), ([], ["HYDRA-UMC-A"]))
+
+
+class BuildTestUnificationTests(Workspace):
+    """The build test follows the same rule as the validator, in the same run."""
+
+    def test_both_files_are_handled_in_one_run(self):
+        self.assertEqual([relative for relative, _ in SYNC.UNIFIED_FILES], ["tools/ci_validate.py", "tools/build_test.py"])
+        canonical = self.workspace / "_canonical"
+        canonical.mkdir()
+        (canonical / "build_test.py").write_text("import sys\ndef main():\n    run()\n    extra()\n", encoding="utf-8")
+        repo = self.workspace / "HYDRA-UMC-A"
+        (repo / "tools").mkdir(parents=True)
+        (repo / "hydra-umc.project.json").write_text("{}", encoding="utf-8")
+        (repo / "tools" / "build_test.py").write_text("import sys\ndef main():\n    run()\n", encoding="utf-8")
+        relative, name = SYNC.UNIFIED_FILES[1]
+        self.assertEqual(SYNC.unified_status(self.workspace, canonical, relative, name), (["HYDRA-UMC-A"], []))
+        self.assertEqual(SYNC.write_unified(self.workspace, canonical, relative, name), ["HYDRA-UMC-A/tools/build_test.py"])
+        self.assertEqual(SYNC.unified_status(self.workspace, canonical, relative, name), ([], []))
+
+
+class ExtraHooksTests(unittest.TestCase):
+    """The canonical validator and build test run the steps a repository keeps in tools/extra_*.py."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.root = Path(self._tmp.name)
+        (self.root / "tools").mkdir()
+        # the canonical validator imports _doc_policy and _readme_parity from the tools folder next to it
+        sys.path.insert(0, str(SDK / "tools"))
+        self.addCleanup(sys.path.remove, str(SDK / "tools"))
+        self.validate = _load("canonical_ci_validate", SDK / "tools" / "canonical" / "ci_validate.py")
+        self.validate.ROOT = self.root
+
+    def extra(self, text):
+        (self.root / "tools" / "extra_checks.py").write_text(text, encoding="utf-8")
+
+    def test_no_extra_file_is_no_extra_check(self):
+        self.validate.run_extra_checks()
+
+    def test_a_clean_extra_check_passes(self):
+        self.extra("def check(root):\n    return []\n")
+        self.validate.run_extra_checks()
+
+    def test_a_problem_of_the_extra_check_fails_the_validation_with_its_words(self):
+        self.extra("def check(root):\n    return ['the catalogue is out of date', 'a second problem']\n")
+        import contextlib
+        import io
+
+        captured = io.StringIO()
+        with contextlib.redirect_stderr(captured), self.assertRaises(SystemExit):
+            self.validate.run_extra_checks()
+        self.assertIn("the catalogue is out of date; a second problem", captured.getvalue())
+        self.assertIn("CI_VALIDATION=FAIL", captured.getvalue())
+
+    def test_an_extra_file_without_check_is_refused(self):
+        self.extra("x = 1\n")
+        with self.assertRaises(SystemExit):
+            self.validate.run_extra_checks()
+
+    def test_the_extra_check_receives_the_repository_root(self):
+        self.extra("def check(root):\n    return [] if (root / 'tools').is_dir() else ['no tools folder']\n")
+        self.validate.run_extra_checks()
+
+    def test_the_canonical_build_test_names_the_extra_steps_hook(self):
+        text = (SDK / "tools" / "canonical" / "build_test.py").read_text(encoding="utf-8")
+        self.assertIn('ROOT / "tools" / "extra_build_steps.py"', text)
+        self.assertLess(text.index("extra_build_steps.py"), text.index("BUILD_TEST=PASS"))
 
 
 class PerRepositoryCopyTests(Workspace):
