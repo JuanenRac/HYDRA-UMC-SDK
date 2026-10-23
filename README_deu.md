@@ -122,7 +122,7 @@ durch die obige Kompatibilitätsmatrix.
 | `conformance/` | Gültige und ungültige v1-Fixtures, die von Kompatibilitätstests verwendet werden. |
 | `docs/` | Vertrags-, API- und Entwicklungsspezifikationen. |
 | `examples/` | Ausführbare Python-Beispiele. |
-| `tools/` | `verify_contract_matrix.py` (Schema-/Validator-Kompatibilitätsmatrix), `verify_openapi.py` (abhängigkeitsfreie OpenAPI-Strukturprüfung) und die nicht verändernde `build-test`-Engine. `sync_repo_tools.py` hält die gemeinsamen Werkzeuge aller Repositories identisch, `pin_sdk.py` bindet die Verbraucher des SDK an ein Release-Tag, und `canonical/` enthält die einzigen Vorlagen, die verteilt werden (darunter der Befehl `hydra_project_tool.py`, der prüft, testet und die Version nur auf ausdrücklichen Wunsch erhöht). |
+| `tools/` | `verify_contract_matrix.py` (Schema-/Validator-Kompatibilitätsmatrix), `verify_openapi.py` (abhängigkeitsfreie OpenAPI-Strukturprüfung) und die nicht verändernde `build-test`-Engine. `sync_repo_tools.py` hält die gemeinsamen Werkzeuge aller Repositories identisch, `pin_sdk.py` bindet die Verbraucher des SDK an ein Release-Tag, und `canonical/` enthält die einzigen Vorlagen, die verteilt werden (darunter der Befehl `hydra_project_tool.py`, der prüft, testet und die Version nur auf ausdrücklichen Wunsch erhöht). `sync_ports.py` erzeugt und prüft `contracts/ports.yaml`, das Verzeichnis von Port, Health-Pfad und systemd-Unit jedes Dienstes; die gemeinsame Schwärzung von Geheimnissen (`canonical/redaction.py`, mit ihren Fällen in `contracts/redaction/vectors.json`) wird in die Projekte übernommen, die Text nach außen senden. |
 
 Lesen Sie [den Vertragsleitfaden](docs/CONTRACTS.md), bevor Sie eine neue Nachricht definieren.
 

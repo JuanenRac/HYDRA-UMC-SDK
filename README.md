@@ -117,7 +117,7 @@ matrix above.
 | `conformance/` | Valid and invalid v1 fixtures used by compatibility tests. |
 | `docs/` | Contract, API, and development specifications. |
 | `examples/` | Runnable Python examples. |
-| `tools/` | `verify_contract_matrix.py` (schema/validator compatibility matrix), `verify_openapi.py` (dependency-free OpenAPI structural gate), and the non-mutating `build-test` engine. `sync_repo_tools.py` keeps the shared tooling of every repository identical, `pin_sdk.py` pins the consumers of the SDK to a release tag, and `canonical/` holds the single copies they vendor (including the `hydra_project_tool.py` command that validates, tests and, only when asked, bumps the version). |
+| `tools/` | `verify_contract_matrix.py` (schema/validator compatibility matrix), `verify_openapi.py` (dependency-free OpenAPI structural gate), and the non-mutating `build-test` engine. `sync_repo_tools.py` keeps the shared tooling of every repository identical, `pin_sdk.py` pins the consumers of the SDK to a release tag, and `canonical/` holds the single copies they vendor (including the `hydra_project_tool.py` command that validates, tests and, only when asked, bumps the version). `sync_ports.py` generates and checks `contracts/ports.yaml`, the registry of the port, health path and systemd unit of every service; the shared secret redaction (`canonical/redaction.py`, with its cases in `contracts/redaction/vectors.json`) is vendored into the projects that send text out. |
 
 Read [the contract guide](docs/CONTRACTS.md) before defining a new message.
 

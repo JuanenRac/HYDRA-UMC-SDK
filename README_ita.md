@@ -121,7 +121,7 @@ valida, verificate dalla matrice di compatibilità sopra.
 | `conformance/` | Fixture v1 valide e non valide utilizzate dai test di compatibilità. |
 | `docs/` | Specifiche di contratto, API e sviluppo. |
 | `examples/` | Esempi Python eseguibili. |
-| `tools/` | `verify_contract_matrix.py` (matrice di compatibilità schema/validatore), `verify_openapi.py` (validazione strutturale OpenAPI senza dipendenze) e il motore non distruttivo di `build-test`. `sync_repo_tools.py` mantiene identici gli strumenti condivisi di tutti i repository, `pin_sdk.py` fissa i consumatori dell'SDK a un tag di versione e `canonical/` contiene le copie uniche che vengono replicate (tra cui il comando `hydra_project_tool.py`, che convalida, collauda e cambia la versione solo se richiesto). |
+| `tools/` | `verify_contract_matrix.py` (matrice di compatibilità schema/validatore), `verify_openapi.py` (validazione strutturale OpenAPI senza dipendenze) e il motore non distruttivo di `build-test`. `sync_repo_tools.py` mantiene identici gli strumenti condivisi di tutti i repository, `pin_sdk.py` fissa i consumatori dell'SDK a un tag di versione e `canonical/` contiene le copie uniche che vengono replicate (tra cui il comando `hydra_project_tool.py`, che convalida, collauda e cambia la versione solo se richiesto). `sync_ports.py` genera e controlla `contracts/ports.yaml`, il registro di porta, percorso di salute e unità systemd di ogni servizio; l'oscuramento condiviso dei segreti (`canonical/redaction.py`, con i suoi casi in `contracts/redaction/vectors.json`) è copiato nei progetti che inviano testo all'esterno. |
 
 Leggi [la guida al contratto](docs/CONTRACTS.md) prima di definire un nuovo messaggio.
 
