@@ -1,0 +1,44 @@
+{
+  "description": "Request and error cases for the claim, release, jog-arm, claims, safety-limits and command routes of HYDRA-UMC-SERVER. Every client of the SDK (Python, Go, TypeScript, Rust) replays the same cases; the Python tests also check each route against the OpenAPI copies.",
+  "requests": [
+    {"name": "claim-minimal", "call": "claim", "args": {"robotId": 1}, "expect": {"method": "POST", "path": "/api/robot/1/claim", "body": {}}},
+    {"name": "claim-full", "call": "claim", "args": {"robotId": 2, "ttlMs": 60000, "force": true, "reason": "maintenance", "controllerId": "tab-1"}, "expect": {"method": "POST", "path": "/api/robot/2/claim", "body": {"ttlMs": 60000, "force": true, "reason": "maintenance", "controllerId": "tab-1"}}},
+    {"name": "release-minimal", "call": "release", "args": {"robotId": 1}, "expect": {"method": "POST", "path": "/api/robot/1/release", "body": {}}},
+    {"name": "release-with-controller", "call": "release", "args": {"robotId": 4, "reason": "done", "controllerId": "phone:7"}, "expect": {"method": "POST", "path": "/api/robot/4/release", "body": {"reason": "done", "controllerId": "phone:7"}}},
+    {"name": "jog-arm-on", "call": "jogArm", "args": {"robotId": 3, "armed": true, "ttlMs": 30000, "controllerId": "tab-1"}, "expect": {"method": "POST", "path": "/api/robot/3/jog-arm", "body": {"armed": true, "ttlMs": 30000, "controllerId": "tab-1"}}},
+    {"name": "jog-arm-off", "call": "jogArm", "args": {"robotId": 3, "armed": false}, "expect": {"method": "POST", "path": "/api/robot/3/jog-arm", "body": {"armed": false}}},
+    {"name": "claims-list", "call": "listClaims", "args": {}, "expect": {"method": "GET", "path": "/api/claims", "body": null}},
+    {"name": "safety-limits", "call": "getSafetyLimits", "args": {}, "expect": {"method": "GET", "path": "/api/safety-limits", "body": null}},
+    {"name": "safety-limits-robot", "call": "getSafetyLimits", "args": {"robotId": 3}, "expect": {"method": "GET", "path": "/api/safety-limits?robotId=3", "body": null}},
+    {"name": "safety-limits-update", "call": "updateSafetyLimits", "args": {"patch": {"jog": {"armRequired": true, "armTtlMs": 20000}}}, "expect": {"method": "PUT", "path": "/api/admin/safety-limits", "body": {"jog": {"armRequired": true, "armTtlMs": 20000}}}},
+    {"name": "command-plain", "call": "command", "args": {"robotId": 1, "command": "stop"}, "expect": {"method": "POST", "path": "/api/robot/1/command", "body": {"command": "stop"}}},
+    {"name": "command-jog-with-controller", "call": "command", "args": {"robotId": 1, "command": "jog", "params": {"axis": "x", "amount": 12.5}, "controllerId": "tab-1"}, "expect": {"method": "POST", "path": "/api/robot/1/command", "body": {"command": "jog", "params": {"axis": "x", "amount": 12.5}, "controllerId": "tab-1"}}}
+  ],
+  "invalidRequests": [
+    {"name": "controller-id-with-space", "call": "claim", "args": {"robotId": 1, "controllerId": "bad id"}},
+    {"name": "controller-id-too-long", "call": "release", "args": {"robotId": 1, "controllerId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}},
+    {"name": "controller-id-slash", "call": "jogArm", "args": {"robotId": 1, "armed": true, "controllerId": "a/b"}},
+    {"name": "controller-id-empty", "call": "command", "args": {"robotId": 1, "command": "stop", "controllerId": ""}},
+    {"name": "command-empty", "call": "command", "args": {"robotId": 1, "command": ""}}
+  ],
+  "errors": [
+    {"name": "other-account", "status": 409, "body": {"error": "robot is already claimed by alice", "code": "other-account", "reservation": {"ownerId": 1, "ownerUsername": "alice", "claimedAt": 1000, "expiresAt": 301000}}, "expect": {"kind": "claim-conflict", "code": "other-account", "hasReservation": true}},
+    {"name": "other-controller", "status": 409, "body": {"error": "robot is claimed by alice on another controller (tab-1)", "code": "other-controller", "reservation": {"ownerId": 1, "ownerUsername": "alice", "claimedAt": 1000, "expiresAt": 301000, "controllerId": "tab-1"}}, "expect": {"kind": "claim-conflict", "code": "other-controller", "hasReservation": true}},
+    {"name": "controller-id-required-409", "status": 409, "body": {"error": "robot is claimed by alice on controller tab-1; send that controllerId", "code": "controller-id-required", "reservation": {"ownerId": 1, "ownerUsername": "alice", "claimedAt": 1000, "expiresAt": 301000, "controllerId": "tab-1"}}, "expect": {"kind": "controller-id-required", "code": "controller-id-required", "hasReservation": true}},
+    {"name": "controller-id-required-400", "status": 400, "body": {"error": "this server requires a controllerId to claim a robot", "code": "controller-id-required"}, "expect": {"kind": "controller-id-required", "code": "controller-id-required", "hasReservation": false}},
+    {"name": "invalid-controller-id", "status": 400, "body": {"error": "controllerId must be 1 to 64 characters: letters, digits, . _ : -", "code": "invalid-controller-id"}, "expect": {"kind": "invalid-controller-id", "code": "invalid-controller-id", "hasReservation": false}},
+    {"name": "jog-not-armed", "status": 403, "body": {"error": "the jog is not armed for this robot: arm it first (POST /api/robot/:id/jog-arm)", "code": "jog-not-armed"}, "expect": {"kind": "jog-not-armed", "code": "jog-not-armed", "hasReservation": false}},
+    {"name": "claim-conflict-from-older-server", "status": 409, "body": {"error": "robot is already claimed by alice", "reservation": {"ownerId": 1, "ownerUsername": "alice", "claimedAt": 1000, "expiresAt": 301000}}, "expect": {"kind": "claim-conflict", "code": null, "hasReservation": true}},
+    {"name": "settings-revision-conflict", "status": 409, "body": {"error": "settings changed", "revision": "abc"}, "expect": {"kind": "api-error", "code": null, "hasReservation": false}},
+    {"name": "unknown-code-kept", "status": 400, "body": {"error": "something new", "code": "future-code"}, "expect": {"kind": "api-error", "code": "future-code", "hasReservation": false}},
+    {"name": "plain-403", "status": 403, "body": {"error": "Access denied: admin privileges required"}, "expect": {"kind": "api-error", "code": null, "hasReservation": false}},
+    {"name": "not-json", "status": 502, "body": null, "expect": {"kind": "api-error", "code": null, "hasReservation": false}}
+  ],
+  "responses": {
+    "claim": {"success": true, "reservation": {"ownerId": 1, "ownerUsername": "alice", "claimedAt": 1000, "expiresAt": 301000, "controllerId": "tab-1"}, "reservationHistory": [{"at": 1000, "action": "claimed", "byUserId": 1, "byUsername": "alice"}]},
+    "jogArmOn": {"success": true, "armed": true, "expiresAt": 31000, "ttlMs": 30000},
+    "jogArmOff": {"success": true, "armed": false},
+    "claims": {"claims": [{"robotId": 1, "robotName": "A1", "cellId": "c1", "ownerId": 1, "ownerUsername": "alice", "controllerId": "tab-1", "claimedAt": 1000, "expiresAt": 301000}, {"robotId": 2, "robotName": null, "cellId": "c1", "ownerId": 2, "ownerUsername": "bob", "controllerId": null, "claimedAt": 2000, "expiresAt": 302000}]},
+    "safetyLimits": {"limits": {"jog": {"default": {"maxAmount": 100, "maxAbsolute": 1000}, "models": {}, "armRequired": false, "armTtlMs": 60000}, "temperature": {"default": {"bedMaxC": 110}, "models": {}}, "claims": {"requireControllerId": false}}, "defaults": {"jog": {"armRequired": false}}, "hardLimits": {"armTtlMs": {"min": 1000, "max": 600000}}, "robot": {"id": 3, "model": "Parol6 (6-DOF)", "jog": {"maxAmount": 100, "maxAbsolute": 1000}, "temperature": {"bedMaxC": 110}, "jogArmedUntil": 31000}}
+  }
+}

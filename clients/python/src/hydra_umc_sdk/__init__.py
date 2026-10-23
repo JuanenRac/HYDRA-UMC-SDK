@@ -46,6 +46,21 @@ from .lifecycle import (
 from .mqtt_connection import MqttConnectionSettings, apply_connection_settings, settings_from_env
 from .promotion_journal import PromotionJournal, PromotionPhase, PromotionRecord, check_service_health, recover
 from .scenario import ScenarioComparison, compare_runs
+from .server_api import (
+    ApiError,
+    ClaimConflictError,
+    ClaimEntry,
+    ClaimResult,
+    ControllerIdRequiredError,
+    InvalidControllerIdError,
+    JogArmResult,
+    JogNotArmedError,
+    Reservation,
+    SafetyLimitsView,
+    ServerClient,
+    ServerRequestError,
+    parse_api_error,
+)
 from .validation import ContractValidationError, validate
 
 __all__ = [
@@ -90,6 +105,19 @@ __all__ = [
     "recover",
     "ScenarioComparison",
     "compare_runs",
+    "ApiError",
+    "ClaimConflictError",
+    "ClaimEntry",
+    "ClaimResult",
+    "ControllerIdRequiredError",
+    "InvalidControllerIdError",
+    "JogArmResult",
+    "JogNotArmedError",
+    "Reservation",
+    "SafetyLimitsView",
+    "ServerClient",
+    "ServerRequestError",
+    "parse_api_error",
     "ContractValidationError",
     "validate",
 ]

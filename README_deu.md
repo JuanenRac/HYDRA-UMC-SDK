@@ -130,6 +130,7 @@ Lesen Sie [den Vertragsleitfaden](docs/CONTRACTS.md), bevor Sie eine neue Nachri
 
 - **[docs/CONTRACTS.md](docs/CONTRACTS.md)** — der normative Vertragsleitfaden: vor dem Definieren einer neuen Nachricht lesen.
 - **[docs/PYTHON_CLIENT.md](docs/PYTHON_CLIENT.md)** — vollständige Referenz für die Funktion `validate()` und die CLI `hydra-umc-contract-validate`, mit der Tabelle der Pflichtfelder und Zusatzregeln je Vertrag.
+- **[docs/SERVER_CLIENT.md](docs/SERVER_CLIENT.md)** — die Clients (Python, TypeScript, Go, Rust) für die Server-Routen claim, release, jog-arm, claims und Sicherheitsgrenzen: die optionale `controllerId`, die typisierten Fehler (`other-account`, `other-controller`, `controller-id-required`, `invalid-controller-id`, `jog-not-armed`) und die gemeinsamen Konformitätsfälle.
 - **[docs/CONFORMANCE.md](docs/CONFORMANCE.md)** — was ein gültiges/abwärtskompatibles/fehlerhaftes/unsicheres Fixture-Set je Vertrag abdecken muss, und was die implementierte v1-Suite heute abdeckt.
 - **[docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)** — die gemeinsame v0-Grenze `BridgeJob`/`GateDecision`, genutzt von `HYDRA-UMC-BRIDGE-ROS2`, `-OPENPNP`, `-PRINTER3D`, `-CNC` und `-LASER`.
 - **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — die CM5-MCU/URTC-Adaptergrenze: Transport-, Framing-, Protokoll- und Service-Schichten, und warum der MCU für physische Grenzen und den sicheren Halt maßgeblich bleiben soll (Entwurfsregel: noch keine Firmware setzt Grenzen oder einen sicheren Halt durch).

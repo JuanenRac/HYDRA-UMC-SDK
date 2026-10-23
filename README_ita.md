@@ -129,6 +129,7 @@ Leggi [la guida al contratto](docs/CONTRACTS.md) prima di definire un nuovo mess
 
 - **[docs/CONTRACTS.md](docs/CONTRACTS.md)** — la guida normativa ai contratti: da leggere prima di definire un nuovo messaggio.
 - **[docs/PYTHON_CLIENT.md](docs/PYTHON_CLIENT.md)** — riferimento completo per la funzione `validate()` e la CLI `hydra-umc-contract-validate`, con la tabella dei campi richiesti e delle regole extra per ogni contratto.
+- **[docs/SERVER_CLIENT.md](docs/SERVER_CLIENT.md)** — i client (Python, TypeScript, Go, Rust) delle rotte del server claim, release, jog-arm, claims e limiti di sicurezza: il `controllerId` facoltativo, gli errori tipizzati (`other-account`, `other-controller`, `controller-id-required`, `invalid-controller-id`, `jog-not-armed`) e i casi di conformità condivisi.
 - **[docs/CONFORMANCE.md](docs/CONFORMANCE.md)** — cosa deve coprire un set di fixture valide/retrocompatibili/malformate/non sicure per contratto, e cosa copre oggi la suite v1 implementata.
 - **[docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)** — il confine condiviso v0 `BridgeJob`/`GateDecision` usato da `HYDRA-UMC-BRIDGE-ROS2`, `-OPENPNP`, `-PRINTER3D`, `-CNC` e `-LASER`.
 - **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — il confine dell'adattatore CM5-MCU/URTC: livelli di trasporto, framing, protocollo e servizio, e perché l'MCU deve restare l'autorità per i limiti fisici e l'arresto sicuro (regola di progetto: nessun firmware impone ancora limiti o un arresto sicuro).

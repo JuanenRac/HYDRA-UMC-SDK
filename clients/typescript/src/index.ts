@@ -7,3 +7,4 @@
 export * from "./types";
 export { validate, isValid, knownContracts, ContractValidationError } from "./validation";
 export { loadContractManifest, verifyContractManifest } from "./manifest";
+export * from "./serverApi";

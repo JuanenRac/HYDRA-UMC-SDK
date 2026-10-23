@@ -89,8 +89,11 @@ schema version. Consumers must reject a missing or unsupported
 3.1 description of HYDRA-UMC-SERVER's own public HTTP surface - discovery
 (`GET /api/hydra-info`), authentication (`POST /api/login`), the fleet roster
 (`GET`/`POST /api/settings`), and the real-time command plane
-(`POST /api/robot/{id}/command`, all 13 real command types). It deliberately
-covers only that SDK-contract surface, not every route in `server.ts` -
+(`POST /api/robot/{id}/command`, all 13 real command types), and the control
+routes of the server contract v2, block 1: `claim`, `release`, `jog-arm`,
+`GET /api/claims`, `GET /api/safety-limits` and `PUT /api/admin/safety-limits`,
+with the optional `controllerId` and the stable error codes (see
+[SERVER_CLIENT.md](SERVER_CLIENT.md)). It deliberately covers only that SDK-contract surface, not every route in `server.ts` -
 admin-only account/log/integration management, camera process supervision,
 CAN-OTA transfer, and power/system-service control are real but operational
 rather than contract material, and are left for a later slice. It also
@@ -106,3 +109,8 @@ resolves) wired into both `tools/build_test.py` and CI; a full OpenAPI 3.1
 validation (via `openapi-spec-validator`) was run by hand while authoring it
 but is not vendored as a dependency here, matching this repository's
 dependency-free tooling convention.
+
+`contracts/openapi/v1/server.full.openapi.json` is a copy of the OpenAPI that
+the server generates from its routes (every route, with the status codes and
+the names of the body fields). The typed slice above never invents a route
+that this copy does not have; the tests check it.

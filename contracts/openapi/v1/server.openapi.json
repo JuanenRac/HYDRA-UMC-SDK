@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "HYDRA-UMC-SERVER API",
-    "version": "1.1.0",
-    "description": "OpenAPI description of the part of HYDRA-UMC-SERVER's HTTP surface that a typed client needs to discover a server, sign in, read and write its fleet roster and dispatch a robot command. It is a subset: the server's own docs/openapi.json is generated from the server and lists every route (administration, cameras, CAN OTA, system services and more), so use that one when a route is not here. Response objects may gain fields: a client must ignore the ones it does not know. Every route except GET /api/hydra-info, POST /api/login, POST /api/refresh and POST /api/logout needs `Authorization: Bearer <token>`. One disclosed difference with docs/API_DESIGN.md: that design describes command results as ACCEPTED/REJECTED/RUNNING/COMPLETED/FAILED with a correlation identifier, while POST /api/robot/{id}/command replies with a plain {success, affectedCount} once the change has been applied and broadcast.",
+    "version": "1.2.0",
+    "description": "OpenAPI description of the part of HYDRA-UMC-SERVER's HTTP surface that a typed client needs to discover a server, sign in, read and write its fleet roster and dispatch a robot command. It is a subset: the server's own docs/openapi.json is generated from the server and lists every route (administration, cameras, CAN OTA, system services and more), so use that one when a route is not here. Response objects may gain fields: a client must ignore the ones it does not know. Every route except GET /api/hydra-info, POST /api/login, POST /api/refresh and POST /api/logout needs `Authorization: Bearer <token>`. One disclosed difference with docs/API_DESIGN.md: that design describes command results as ACCEPTED/REJECTED/RUNNING/COMPLETED/FAILED with a correlation identifier, while POST /api/robot/{id}/command replies with a plain {success, affectedCount} once the change has been applied and broadcast. Contract v2, block 1 (claims by controller, jog arming and the server-side safety limits) is described by the routes tagged `claims` and `safety`; a client that sends no `controllerId` gets the v1 behaviour.",
     "license": {
       "name": "CC-BY-SA-4.0",
       "url": "https://creativecommons.org/licenses/by-sa/4.0/"
@@ -31,6 +31,14 @@
     {
       "name": "command",
       "description": "Real-time, per-robot atomic commands - the command plane docs/API_DESIGN.md describes."
+    },
+    {
+      "name": "claims",
+      "description": "Exclusive, time-limited control of a robot by an account and, optionally, by one controller of that account."
+    },
+    {
+      "name": "safety",
+      "description": "Limits kept in the server (jog size, bed temperature) and the explicit arming of the jog."
     }
   ],
   "paths": {
@@ -280,7 +288,7 @@
         ],
         "operationId": "sendRobotCommand",
         "summary": "Dispatch one real, atomic, broadcast command to a robot (and its combined sibling, where the command type fans out)",
-        "description": "Real command plane: mutates in-memory state, queues a debounced full-settings write, and broadcasts a small per-robot delta to every other connected client via the same request/response cycle - there is no separate polling step. See this document's own top-level description for the real (not the aspirational ACCEPTED/REJECTED/... ) response shape. A command that is recognised but whose parameters were discarded still answers 200 and lists the discarded field in `warnings`.",
+        "description": "Real command plane: mutates in-memory state, queues a debounced full-settings write, and broadcasts a small per-robot delta to every other connected client via the same request/response cycle - there is no separate polling step. See this document's own top-level description for the real (not the aspirational ACCEPTED/REJECTED/... ) response shape. A command that is recognised but whose parameters were discarded still answers 200 and lists the discarded field in `warnings`. The optional controller id (`X-Controller-Id` header or `controllerId` in the body) names the client that sends it; while `jog.armRequired` is on a `jog` needs the robot to be armed first.",
         "security": [
           {
             "bearerAuth": []
@@ -295,6 +303,9 @@
               "type": "integer"
             },
             "description": "A real robot's own numeric id (distinct from a controller's own, sometimes string, id - see HYDRA-UMC-TOOL-CLI's own robots.go for that real, confirmed API inconsistency)."
+          },
+          {
+            "$ref": "#/components/parameters/ControllerIdHeader"
           }
         ],
         "requestBody": {
@@ -407,11 +418,21 @@
             }
           },
           "409": {
-            "description": "A robot this command would move is claimed by another account (`stop` is never blocked).",
+            "description": "A robot this command would move is claimed by another account (`other-account`), by another controller of your account (`other-controller`) or by a controller you did not name (`controller-id-required`). `stop` is never blocked.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ReservationConflict"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The jog is not armed for this robot (`jog-not-armed`); arm it with `POST /api/robot/{id}/jog-arm`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -514,6 +535,448 @@
           }
         }
       }
+    },
+    "/api/robot/{id}/claim": {
+      "post": {
+        "tags": [
+          "claims"
+        ],
+        "operationId": "claimRobot",
+        "summary": "Take exclusive, time-limited control of a robot",
+        "description": "Re-claiming your own claim renews it. With a controller id the claim belongs to that controller of the account.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "A robot own numeric id."
+          },
+          {
+            "$ref": "#/components/parameters/ControllerIdHeader"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The claim is yours.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid-controller-id`, or `controller-id-required` when the server demands one to claim.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No robot with this id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Claimed by another account (`other-account`) or by another controller of your account (`other-controller`).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservationConflict"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/robot/{id}/release": {
+      "post": {
+        "tags": [
+          "claims"
+        ],
+        "operationId": "releaseRobot",
+        "summary": "Give up the claim on a robot",
+        "description": "Idempotent: releasing a robot nobody claims succeeds. Only the holder (same account and, when the claim has one, same controller) or an administrator may release.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "A robot own numeric id."
+          },
+          {
+            "$ref": "#/components/parameters/ControllerIdHeader"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReleaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The robot is not claimed any more.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid-controller-id`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No robot with this id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Held by another account, by another controller or by a controller that must be named (`other-account`, `other-controller`, `controller-id-required`).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservationConflict"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/robot/{id}/jog-arm": {
+      "post": {
+        "tags": [
+          "safety"
+        ],
+        "operationId": "armRobotJog",
+        "summary": "Arm or disarm the jog of a robot",
+        "description": "The arming belongs to the account and controller that made it, lasts at most `jog.armTtlMs` and is only demanded while `jog.armRequired` is on. `stop`, the global stop and `release` clear it.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "A robot own numeric id."
+          },
+          {
+            "$ref": "#/components/parameters/ControllerIdHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JogArmRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Armed or disarmed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JogArmResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`armed` is not a boolean, or `invalid-controller-id`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No robot with this id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another account or controller holds the claim.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservationConflict"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/claims": {
+      "get": {
+        "tags": [
+          "claims"
+        ],
+        "operationId": "listClaims",
+        "summary": "Who controls which robot",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Every active claim.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/safety-limits": {
+      "get": {
+        "tags": [
+          "safety"
+        ],
+        "operationId": "getSafetyLimits",
+        "summary": "The safety limits every client is held to",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "robotId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Adds the limits of that robot model and its jog arming."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The limits in force.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SafetyLimitsView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`robotId` is not an integer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No robot with this id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/safety-limits": {
+      "put": {
+        "tags": [
+          "safety"
+        ],
+        "operationId": "updateSafetyLimits",
+        "summary": "Change the safety limits (administrator)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SafetyLimitsPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved; the answer carries the limits now in force.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SafetyLimitsUpdateResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "An unknown key, a wrong type or a value beyond the hard ceilings.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Administrator role required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -534,6 +997,10 @@
         "properties": {
           "error": {
             "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "description": "Stable refusal codes: `other-account`, `other-controller`, `controller-id-required`, `invalid-controller-id`, `jog-not-armed`. A client must keep an unknown code as a plain error."
           }
         },
         "additionalProperties": true
@@ -1267,13 +1734,304 @@
           "error": {
             "type": "string"
           },
+          "code": {
+            "type": "string",
+            "description": "`other-account`, `other-controller` or `controller-id-required`; absent on a server that predates the codes."
+          },
           "reservation": {
+            "$ref": "#/components/schemas/Reservation"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ControllerId": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+        "description": "Chosen by one control client for its session."
+      },
+      "Reservation": {
+        "type": "object",
+        "required": [
+          "ownerId",
+          "ownerUsername",
+          "claimedAt",
+          "expiresAt"
+        ],
+        "properties": {
+          "ownerId": {},
+          "ownerUsername": {
+            "type": "string"
+          },
+          "claimedAt": {
+            "type": "number",
+            "description": "Milliseconds since the epoch."
+          },
+          "expiresAt": {
+            "type": "number",
+            "description": "Milliseconds since the epoch."
+          },
+          "controllerId": {
+            "$ref": "#/components/schemas/ControllerId"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ClaimRequest": {
+        "type": "object",
+        "properties": {
+          "ttlMs": {
+            "type": "number"
+          },
+          "force": {
+            "type": "boolean",
+            "description": "An administrator may take over an active claim."
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "controllerId": {
+            "$ref": "#/components/schemas/ControllerId"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ReleaseRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "controllerId": {
+            "$ref": "#/components/schemas/ControllerId"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ClaimResponse": {
+        "type": "object",
+        "required": [
+          "success"
+        ],
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "reservation": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Reservation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reservationHistory": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      },
+      "JogArmRequest": {
+        "type": "object",
+        "required": [
+          "armed"
+        ],
+        "properties": {
+          "armed": {
+            "type": "boolean"
+          },
+          "ttlMs": {
+            "type": "number"
+          },
+          "controllerId": {
+            "$ref": "#/components/schemas/ControllerId"
+          }
+        },
+        "additionalProperties": true
+      },
+      "JogArmResponse": {
+        "type": "object",
+        "required": [
+          "success",
+          "armed"
+        ],
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "armed": {
+            "type": "boolean"
+          },
+          "expiresAt": {
+            "type": "number"
+          },
+          "ttlMs": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ClaimListEntry": {
+        "type": "object",
+        "required": [
+          "robotId",
+          "ownerId",
+          "ownerUsername",
+          "claimedAt",
+          "expiresAt"
+        ],
+        "properties": {
+          "robotId": {
+            "type": "integer"
+          },
+          "robotName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cellId": {},
+          "ownerId": {},
+          "ownerUsername": {
+            "type": "string"
+          },
+          "controllerId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The controller that holds the claim, null for a claim made without one. This is not the cell id of the settings tree."
+          },
+          "claimedAt": {
+            "type": "number"
+          },
+          "expiresAt": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ClaimList": {
+        "type": "object",
+        "required": [
+          "claims"
+        ],
+        "properties": {
+          "claims": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClaimListEntry"
+            }
+          }
+        },
+        "additionalProperties": true
+      },
+      "SafetyLimitsView": {
+        "type": "object",
+        "required": [
+          "limits",
+          "defaults",
+          "hardLimits"
+        ],
+        "properties": {
+          "limits": {
             "type": "object",
-            "description": "The active claim that blocks the command.",
+            "additionalProperties": true,
+            "description": "The limits in force: `jog` (armRequired, armTtlMs, default, models), `temperature` (default, models) and `claims` (requireControllerId)."
+          },
+          "defaults": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "hardLimits": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Ceilings that no setting can pass."
+          },
+          "robot": {
+            "type": "object",
+            "description": "Present with `robotId`: the limits that apply to that robot model and, when its jog is armed, `jogArmedUntil`.",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "model": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "jog": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "temperature": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "jogArmedUntil": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
             "additionalProperties": true
           }
         },
         "additionalProperties": true
+      },
+      "SafetyLimitsUpdateResult": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SafetyLimitsView"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean"
+              }
+            }
+          }
+        ]
+      },
+      "SafetyLimitsPatch": {
+        "type": "object",
+        "description": "A partial change, validated by the server. An object under `models` replaces the whole table of that section; models are keyed by name without the parenthesis and without case.",
+        "properties": {
+          "jog": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "temperature": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "claims": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "parameters": {
+      "ControllerIdHeader": {
+        "name": "X-Controller-Id",
+        "in": "header",
+        "required": false,
+        "description": "The identity one control client (a window, a tab, a phone) picked for its session: 1 to 64 characters of letters, digits and `. _ : -`. The same value may be sent as `controllerId` in the JSON body; the header wins when both are present. Omitted, the request behaves as in v1.",
+        "schema": {
+          "$ref": "#/components/schemas/ControllerId"
+        }
       }
     }
   }

@@ -126,6 +126,7 @@ Lea [la guía del contrato](docs/CONTRACTS.md) antes de definir un nuevo mensaje
 
 - **[docs/CONTRACTS.md](docs/CONTRACTS.md)** — la guía normativa de contratos: léela antes de definir un nuevo mensaje.
 - **[docs/PYTHON_CLIENT.md](docs/PYTHON_CLIENT.md)** — referencia completa de la función `validate()` y la CLI `hydra-umc-contract-validate`, con la tabla de campos requeridos y reglas extra por contrato.
+- **[docs/SERVER_CLIENT.md](docs/SERVER_CLIENT.md)** — los clientes (Python, TypeScript, Go, Rust) de las rutas del servidor claim, release, jog-arm, claims y límites de seguridad: el `controllerId` opcional, los errores tipados (`other-account`, `other-controller`, `controller-id-required`, `invalid-controller-id`, `jog-not-armed`) y los casos de conformidad compartidos.
 - **[docs/CONFORMANCE.md](docs/CONFORMANCE.md)** — qué debe cubrir un conjunto de accesorios válido/retrocompatible/mal formado/inseguro por contrato, y qué cubre hoy la suite v1 implementada.
 - **[docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)** — el límite compartido v0 `BridgeJob`/`GateDecision` usado por `HYDRA-UMC-BRIDGE-ROS2`, `-OPENPNP`, `-PRINTER3D`, `-CNC` y `-LASER`.
 - **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — el límite de adaptadores CM5-MCU/URTC: capas de transporte, framing, protocolo y servicio, y por qué el MCU debe seguir siendo autoritativo para los límites físicos y la parada segura (regla de diseño: ningún firmware aplica todavía límites ni parada segura).

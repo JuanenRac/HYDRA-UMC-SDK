@@ -29,3 +29,5 @@ Run the host suite from `clients/python/`:
 ```text
 PYTHONPATH=src python -m unittest discover -s tests -v
 ```
+
+`conformance/server-routes/cases.json` is the shared case file of the server control clients (claim, release, jog-arm, claims, safety limits and the optional `controllerId`): the requests each client must build, the requests it must refuse before sending, the error answers it must tell apart and the response bodies it must read. The Python, TypeScript, Go and Rust tests replay the same file; see [SERVER_CLIENT.md](SERVER_CLIENT.md).

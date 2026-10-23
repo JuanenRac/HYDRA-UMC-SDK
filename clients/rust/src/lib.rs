@@ -12,6 +12,7 @@
 //! third language. The published JSON Schema files under
 //! `contracts/json-schema/v1/` remain the normative source.
 
+pub mod server_api;
 pub mod types;
 pub mod validation;
 

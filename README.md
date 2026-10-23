@@ -125,6 +125,7 @@ Read [the contract guide](docs/CONTRACTS.md) before defining a new message.
 
 - **[docs/CONTRACTS.md](docs/CONTRACTS.md)** — the normative contract guide: read this before defining a new message.
 - **[docs/PYTHON_CLIENT.md](docs/PYTHON_CLIENT.md)** — full reference for the `validate()` function and the `hydra-umc-contract-validate` CLI, with the required-fields/extra-validation table for every contract.
+- **[docs/SERVER_CLIENT.md](docs/SERVER_CLIENT.md)** — the clients (Python, TypeScript, Go, Rust) of the server's claim, release, jog-arm, claims and safety-limit routes: the optional `controllerId`, the typed errors (`other-account`, `other-controller`, `controller-id-required`, `invalid-controller-id`, `jog-not-armed`) and the shared conformance cases.
 - **[docs/CONFORMANCE.md](docs/CONFORMANCE.md)** — what a valid/backward-compatible/malformed/unsafe fixture set must cover per contract, and what the implemented v1 suite covers today.
 - **[docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)** — the shared v0 `BridgeJob`/`GateDecision` boundary used by `HYDRA-UMC-BRIDGE-ROS2`, `-OPENPNP`, `-PRINTER3D`, `-CNC` and `-LASER`.
 - **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — the CM5-MCU/URTC adapter boundary: transport, framing, protocol and service layers, and why the MCU is meant to stay authoritative for physical limits and safe stop (a design rule: no firmware enforces limits or a safe stop yet).
