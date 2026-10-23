@@ -7,7 +7,10 @@
 robot and how far a jog may go: ``claim``, ``release``, ``jog-arm``,
 ``GET /api/claims``, ``GET /api/safety-limits`` and
 ``PUT /api/admin/safety-limits``, plus the optional ``controllerId`` of
-``command``.
+``command``. The second block of the contract is here too: ``GET /api/robot/:id``
+with its revision, ``If-Match`` on ``command``/``claim``/``release`` (and the
+``412`` it can answer), the atomic ``table`` command, ``GET /api/audit`` and the
+``claims`` message of the WebSocket.
 
 Two layers, both dependency-free:
 
@@ -40,12 +43,21 @@ CODE_OTHER_CONTROLLER = "other-controller"
 CODE_CONTROLLER_ID_REQUIRED = "controller-id-required"
 CODE_INVALID_CONTROLLER_ID = "invalid-controller-id"
 CODE_JOG_NOT_ARMED = "jog-not-armed"
+CODE_REVISION_MISMATCH = "revision-mismatch"
+CODE_TABLE_INVALID = "table-invalid"
+CODE_TABLE_OUT_OF_LIMIT = "table-out-of-limit"
+CODE_TABLE_MISSING = "table-missing"
+TABLE_MODES: tuple[str, ...] = ("absolute", "relative")
 KNOWN_ERROR_CODES: tuple[str, ...] = (
     CODE_OTHER_ACCOUNT,
     CODE_OTHER_CONTROLLER,
     CODE_CONTROLLER_ID_REQUIRED,
     CODE_INVALID_CONTROLLER_ID,
     CODE_JOG_NOT_ARMED,
+    CODE_REVISION_MISMATCH,
+    CODE_TABLE_INVALID,
+    CODE_TABLE_OUT_OF_LIMIT,
+    CODE_TABLE_MISSING,
 )
 
 
@@ -93,6 +105,20 @@ class JogNotArmedError(ApiError):
     ``jog_arm_request`` / ``ServerClient.jog_arm`` first."""
 
 
+class RevisionMismatchError(ApiError):
+    """``If-Match`` did not agree with the robot (412): it changed since it was
+    read. ``revision`` is the current one; read the robot again and retry."""
+
+    def __init__(self, status: int, message: str, code: str | None, body: Any, revision: str | None):
+        super().__init__(status, message, code, body)
+        self.revision = revision
+
+
+class TableMoveError(ApiError):
+    """A table move was refused as a whole and nothing changed (400): ``code``
+    is ``table-invalid``, ``table-out-of-limit`` or ``table-missing``."""
+
+
 # --------------------------------------------------------------------------
 # Values
 # --------------------------------------------------------------------------
@@ -109,6 +135,7 @@ class Reservation:
 class ClaimResult:
     reservation: Reservation | None
     history: tuple[Mapping[str, Any], ...] = ()
+    revision: str | None = None
 
 
 @dataclass(frozen=True)
@@ -128,6 +155,58 @@ class ClaimEntry:
     controller_id: str | None
     claimed_at: int | float
     expires_at: int | float
+    jog_armed_until: int | float | None = None
+
+
+@dataclass(frozen=True)
+class RobotView:
+    """``GET /api/robot/:id``: the robot as the server holds it (the credentials of the
+    cameras are left out unless the caller is an administrator), its revision (the
+    ``ETag``) and the cell it belongs to."""
+
+    robot: Mapping[str, Any]
+    revision: str
+    cell_id: Any = None
+
+
+@dataclass(frozen=True)
+class TableApplied:
+    robot_id: int
+    x: int | float
+    y: int | float
+    rz: int | float | None = None
+
+
+@dataclass(frozen=True)
+class CommandResult:
+    success: bool
+    affected_count: int | None = None
+    revision: str | None = None
+    applied: TableApplied | None = None
+    warnings: tuple[Mapping[str, Any], ...] = ()
+
+
+@dataclass(frozen=True)
+class AuditEntry:
+    seq: int
+    ts: str
+    type: str
+    outcome: str
+    prev: str
+    hash: str
+    username: str | None = None
+    controller_id: str | None = None
+    ip: str | None = None
+    robot_id: int | None = None
+    detail: Mapping[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class AuditView:
+    enabled: bool
+    locked_off: bool
+    entries: tuple[AuditEntry, ...]
+    verification: Mapping[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -183,6 +262,17 @@ def _number(value: object, name: str) -> int | float:
     return value
 
 
+def _if_match(value: str | None) -> dict[str, str]:
+    """The ``If-Match`` header for a revision (as ``GET /api/robot/:id`` gave it, quoted or not)
+    or for ``*``; nothing when there is none."""
+    if value is None:
+        return {}
+    if not isinstance(value, str) or not value.strip() or any(ch in value for ch in "\r\n"):
+        raise ServerRequestError("if_match must be a revision string")
+    text = value.strip()
+    return {"If-Match": text if text == "*" or text.startswith(('"', "W/")) else f'"{text}"'}
+
+
 def claim_request(
     robot_id: int,
     *,
@@ -190,6 +280,7 @@ def claim_request(
     force: bool | None = None,
     reason: str | None = None,
     controller_id: str | None = None,
+    if_match: str | None = None,
 ) -> Request:
     body: dict[str, Any] = {}
     if ttl_ms is not None:
@@ -201,17 +292,19 @@ def claim_request(
     controller = _controller(controller_id)
     if controller is not None:
         body["controllerId"] = controller
-    return Request("POST", f"/api/robot/{_robot_id(robot_id)}/claim", body)
+    return Request("POST", f"/api/robot/{_robot_id(robot_id)}/claim", body, _if_match(if_match))
 
 
-def release_request(robot_id: int, *, reason: str | None = None, controller_id: str | None = None) -> Request:
+def release_request(
+    robot_id: int, *, reason: str | None = None, controller_id: str | None = None, if_match: str | None = None
+) -> Request:
     body: dict[str, Any] = {}
     if reason is not None:
         body["reason"] = str(reason)
     controller = _controller(controller_id)
     if controller is not None:
         body["controllerId"] = controller
-    return Request("POST", f"/api/robot/{_robot_id(robot_id)}/release", body)
+    return Request("POST", f"/api/robot/{_robot_id(robot_id)}/release", body, _if_match(if_match))
 
 
 def jog_arm_request(
@@ -255,6 +348,7 @@ def command_request(
     params: Mapping[str, Any] | None = None,
     *,
     controller_id: str | None = None,
+    if_match: str | None = None,
 ) -> Request:
     if not isinstance(command, str) or not command:
         raise ServerRequestError("command must be a non-empty string")
@@ -264,7 +358,56 @@ def command_request(
     controller = _controller(controller_id)
     if controller is not None:
         body["controllerId"] = controller
-    return Request("POST", f"/api/robot/{_robot_id(robot_id)}/command", body)
+    return Request("POST", f"/api/robot/{_robot_id(robot_id)}/command", body, _if_match(if_match))
+
+
+def table_command_request(
+    robot_id: int,
+    x: int | float,
+    y: int | float,
+    *,
+    rz: int | float | None = None,
+    mode: str = "absolute",
+    controller_id: str | None = None,
+    if_match: str | None = None,
+) -> Request:
+    """One move of the XY table in one request. The server checks it as a whole
+    against the limits of the robot's model and applies all of it or none."""
+    if mode not in TABLE_MODES:
+        raise ServerRequestError('mode must be "absolute" or "relative"')
+    params: dict[str, Any] = {"x": _number(x, "x"), "y": _number(y, "y"), "mode": mode}
+    if rz is not None:
+        params["rz"] = _number(rz, "rz")
+    return command_request(robot_id, "table", params, controller_id=controller_id, if_match=if_match)
+
+
+def get_robot_request(robot_id: int) -> Request:
+    return Request("GET", f"/api/robot/{_robot_id(robot_id)}")
+
+
+def audit_request(
+    *,
+    limit: int | None = None,
+    after_seq: int | None = None,
+    type: str | None = None,  # noqa: A002 - the name of the query parameter
+    robot_id: int | None = None,
+    verify: bool = False,
+) -> Request:
+    """``GET /api/audit`` (administrators): the newest entries of the audit record, oldest first."""
+    query: list[str] = []
+    if limit is not None:
+        query.append(f"limit={int(_number(limit, 'limit'))}")
+    if after_seq is not None:
+        query.append(f"afterSeq={int(_number(after_seq, 'after_seq'))}")
+    if type is not None:
+        if not re.fullmatch(r"[A-Za-z0-9._-]{1,40}", type):
+            raise ServerRequestError("type must be a short plain name")
+        query.append(f"type={type}")
+    if robot_id is not None:
+        query.append(f"robotId={_robot_id(robot_id)}")
+    if verify:
+        query.append("verify=1")
+    return Request("GET", "/api/audit" + ("?" + "&".join(query) if query else ""))
 
 
 # --------------------------------------------------------------------------
@@ -296,9 +439,11 @@ def parse_claim_result(body: Any) -> ClaimResult:
     after a release)."""
     data = _object(body, "claim answer")
     history = data.get("reservationHistory")
+    revision = data.get("revision")
     return ClaimResult(
         reservation=parse_reservation(data.get("reservation")),
         history=tuple(entry for entry in history if isinstance(entry, Mapping)) if isinstance(history, list) else (),
+        revision=revision if isinstance(revision, str) else None,
     )
 
 
@@ -330,9 +475,76 @@ def parse_claims(body: Any) -> tuple[ClaimEntry, ...]:
                 controller_id=controller if isinstance(controller, str) else None,
                 claimed_at=item.get("claimedAt", 0),
                 expires_at=item.get("expiresAt", 0),
+                jog_armed_until=item.get("jogArmedUntil"),
             )
         )
     return tuple(entries)
+
+
+def parse_claims_event(message: Any) -> tuple[ClaimEntry, ...] | None:
+    """The ``claims`` message of the WebSocket (sent to the clients that opened ``/ws`` with
+    ``?remoteApiVersion=2``): the same list as ``GET /api/claims``. ``None`` for any other message."""
+    if not isinstance(message, Mapping) or message.get("type") != "claims":
+        return None
+    return parse_claims(message)
+
+
+def parse_robot(body: Any) -> RobotView:
+    data = _object(body, "robot answer")
+    revision = data.get("revision")
+    if not isinstance(revision, str) or not revision:
+        raise ServerRequestError("robot answer has no 'revision'")
+    return RobotView(robot=_object(data.get("robot"), "robot"), revision=revision, cell_id=data.get("cellId"))
+
+
+def parse_command_result(body: Any) -> CommandResult:
+    """The answer of ``command``: ``revision`` is the robot's new one, ``applied`` is set after a ``table`` move."""
+    data = _object(body, "command answer")
+    applied = data.get("applied")
+    parsed_applied = None
+    if isinstance(applied, Mapping):
+        parsed_applied = TableApplied(
+            robot_id=applied.get("robotId"), x=applied.get("x"), y=applied.get("y"), rz=applied.get("rz"),
+        )
+    warnings = data.get("warnings")
+    revision = data.get("revision")
+    count = data.get("affectedCount")
+    return CommandResult(
+        success=data.get("success") is True,
+        affected_count=count if isinstance(count, int) and not isinstance(count, bool) else None,
+        revision=revision if isinstance(revision, str) else None,
+        applied=parsed_applied,
+        warnings=tuple(w for w in warnings if isinstance(w, Mapping)) if isinstance(warnings, list) else (),
+    )
+
+
+def parse_audit(body: Any) -> AuditView:
+    data = _object(body, "audit answer")
+    entries = []
+    for raw in data.get("entries", []) if isinstance(data.get("entries"), list) else []:
+        item = _object(raw, "audit entry")
+        entries.append(
+            AuditEntry(
+                seq=item.get("seq"),
+                ts=str(item.get("ts", "")),
+                type=str(item.get("type", "")),
+                outcome=str(item.get("outcome", "")),
+                prev=str(item.get("prev", "")),
+                hash=str(item.get("hash", "")),
+                username=item.get("username") if isinstance(item.get("username"), str) else None,
+                controller_id=item.get("controllerId") if isinstance(item.get("controllerId"), str) else None,
+                ip=item.get("ip") if isinstance(item.get("ip"), str) else None,
+                robot_id=item.get("robotId") if isinstance(item.get("robotId"), int) else None,
+                detail=item.get("detail") if isinstance(item.get("detail"), Mapping) else {},
+            )
+        )
+    verification = data.get("verification")
+    return AuditView(
+        enabled=data.get("enabled") is True,
+        locked_off=data.get("lockedOff") is True,
+        entries=tuple(entries),
+        verification=verification if isinstance(verification, Mapping) else None,
+    )
 
 
 def parse_safety_limits(body: Any) -> SafetyLimitsView:
@@ -376,6 +588,11 @@ def parse_api_error(status: int, body: Any) -> ApiError:
         return InvalidControllerIdError(status, message, code, body)
     if code == CODE_JOG_NOT_ARMED:
         return JogNotArmedError(status, message, code, body)
+    if code == CODE_REVISION_MISMATCH or status == 412:
+        revision = data.get("revision")
+        return RevisionMismatchError(status, message, code, body, revision if isinstance(revision, str) else None)
+    if code in (CODE_TABLE_INVALID, CODE_TABLE_OUT_OF_LIMIT, CODE_TABLE_MISSING):
+        return TableMoveError(status, message, code, body)
     if status == 409 and reservation is not None:
         return ClaimConflictError(status, message, code, body, reservation)
     return ApiError(status, message, code, body)
@@ -440,12 +657,14 @@ class ServerClient:
     def _controller_for(self, controller_id: str | None) -> str | None:
         return controller_id if controller_id is not None else self.controller_id
 
-    def claim(self, robot_id: int, *, ttl_ms=None, force=None, reason=None, controller_id=None) -> ClaimResult:
-        request = claim_request(robot_id, ttl_ms=ttl_ms, force=force, reason=reason, controller_id=self._controller_for(controller_id))
+    def claim(self, robot_id: int, *, ttl_ms=None, force=None, reason=None, controller_id=None, if_match=None) -> ClaimResult:
+        request = claim_request(
+            robot_id, ttl_ms=ttl_ms, force=force, reason=reason, controller_id=self._controller_for(controller_id), if_match=if_match,
+        )
         return parse_claim_result(self._send(request))
 
-    def release(self, robot_id: int, *, reason=None, controller_id=None) -> ClaimResult:
-        request = release_request(robot_id, reason=reason, controller_id=self._controller_for(controller_id))
+    def release(self, robot_id: int, *, reason=None, controller_id=None, if_match=None) -> ClaimResult:
+        request = release_request(robot_id, reason=reason, controller_id=self._controller_for(controller_id), if_match=if_match)
         return parse_claim_result(self._send(request))
 
     def jog_arm(self, robot_id: int, armed: bool, *, ttl_ms=None, controller_id=None) -> JogArmResult:
@@ -461,7 +680,24 @@ class ServerClient:
     def update_safety_limits(self, patch: Mapping[str, Any]) -> SafetyLimitsView:
         return parse_safety_limits(self._send(update_safety_limits_request(patch)))
 
-    def command(self, robot_id: int, command: str, params: Mapping[str, Any] | None = None, *, controller_id=None) -> Any:
+    def command(self, robot_id: int, command: str, params: Mapping[str, Any] | None = None, *, controller_id=None, if_match=None) -> Any:
         """Sends a robot command and returns the decoded answer unchanged."""
-        request = command_request(robot_id, command, params, controller_id=self._controller_for(controller_id))
+        request = command_request(robot_id, command, params, controller_id=self._controller_for(controller_id), if_match=if_match)
         return self._send(request)
+
+    def command_result(self, robot_id: int, command: str, params: Mapping[str, Any] | None = None, *, controller_id=None, if_match=None) -> CommandResult:
+        """Like ``command`` but parsed: the new revision of the robot, the warnings, the applied table position."""
+        return parse_command_result(self.command(robot_id, command, params, controller_id=controller_id, if_match=if_match))
+
+    def move_table(self, robot_id: int, x, y, *, rz=None, mode="absolute", controller_id=None, if_match=None) -> CommandResult:
+        request = table_command_request(
+            robot_id, x, y, rz=rz, mode=mode, controller_id=self._controller_for(controller_id), if_match=if_match,
+        )
+        return parse_command_result(self._send(request))
+
+    def robot(self, robot_id: int) -> RobotView:
+        """One robot with its revision, to send back as ``if_match``."""
+        return parse_robot(self._send(get_robot_request(robot_id)))
+
+    def audit(self, **query) -> AuditView:
+        return parse_audit(self._send(audit_request(**query)))

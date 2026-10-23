@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "HYDRA-UMC-SERVER API",
-    "version": "1.2.0",
-    "description": "OpenAPI description of the part of HYDRA-UMC-SERVER's HTTP surface that a typed client needs to discover a server, sign in, read and write its fleet roster and dispatch a robot command. It is a subset: the server's own docs/openapi.json is generated from the server and lists every route (administration, cameras, CAN OTA, system services and more), so use that one when a route is not here. Response objects may gain fields: a client must ignore the ones it does not know. Every route except GET /api/hydra-info, POST /api/login, POST /api/refresh and POST /api/logout needs `Authorization: Bearer <token>`. One disclosed difference with docs/API_DESIGN.md: that design describes command results as ACCEPTED/REJECTED/RUNNING/COMPLETED/FAILED with a correlation identifier, while POST /api/robot/{id}/command replies with a plain {success, affectedCount} once the change has been applied and broadcast. Contract v2, block 1 (claims by controller, jog arming and the server-side safety limits) is described by the routes tagged `claims` and `safety`; a client that sends no `controllerId` gets the v1 behaviour.",
+    "version": "1.3.0",
+    "description": "OpenAPI description of the part of HYDRA-UMC-SERVER's HTTP surface that a typed client needs to discover a server, sign in, read and write its fleet roster and dispatch a robot command. It is a subset: the server's own docs/openapi.json is generated from the server and lists every route (administration, cameras, CAN OTA, system services and more), so use that one when a route is not here. Response objects may gain fields: a client must ignore the ones it does not know. Every route except GET /api/hydra-info, POST /api/login, POST /api/refresh and POST /api/logout needs `Authorization: Bearer <token>`. One disclosed difference with docs/API_DESIGN.md: that design describes command results as ACCEPTED/REJECTED/RUNNING/COMPLETED/FAILED with a correlation identifier, while POST /api/robot/{id}/command replies with a plain {success, affectedCount} once the change has been applied and broadcast. Contract v2, block 1 (claims by controller, jog arming and the server-side safety limits) is described by the routes tagged `claims` and `safety`; a client that sends no `controllerId` gets the v1 behaviour. Contract v2, blocks 2 to 5: `GET /api/robot/{id}` answers one robot with its revision (the `ETag`), `If-Match` on `command`, `claim` and `release` is answered with `412` when the robot changed, the `table` command moves the XY table in one request, `GET /api/audit` (administrators) reads the audit record, and the WebSocket message `claims` (clients that opened `/ws` with `?remoteApiVersion=2`) pushes the list of `GET /api/claims`.",
     "license": {
       "name": "CC-BY-SA-4.0",
       "url": "https://creativecommons.org/licenses/by-sa/4.0/"
@@ -306,6 +306,9 @@
           },
           {
             "$ref": "#/components/parameters/ControllerIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/IfMatchHeader"
           }
         ],
         "requestBody": {
@@ -352,6 +355,9 @@
                   },
                   {
                     "$ref": "#/components/schemas/CommandVision"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandTable"
                   }
                 ],
                 "discriminator": {
@@ -369,7 +375,8 @@
                     "pump": "#/components/schemas/CommandPump",
                     "speed": "#/components/schemas/CommandSpeed",
                     "trajectory": "#/components/schemas/CommandTrajectory",
-                    "vision": "#/components/schemas/CommandVision"
+                    "vision": "#/components/schemas/CommandVision",
+                    "table": "#/components/schemas/CommandTable"
                   }
                 }
               }
@@ -388,7 +395,7 @@
             }
           },
           "400": {
-            "description": "The command is unknown, or its parameters are invalid (a trajectory outside 1-10000 points, for example).",
+            "description": "The command is unknown, or its parameters are invalid (a trajectory outside 1-10000 points, for example). A refused `table` move is `400` with `table-invalid`, `table-out-of-limit` or `table-missing`, and nothing changed.",
             "content": {
               "application/json": {
                 "schema": {
@@ -433,6 +440,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "`If-Match` did not agree with the robot (`revision-mismatch`): read it again with `GET /api/robot/{id}` and retry.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionConflict"
                 }
               }
             }
@@ -561,6 +578,9 @@
           },
           {
             "$ref": "#/components/parameters/ControllerIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/IfMatchHeader"
           }
         ],
         "requestBody": {
@@ -623,6 +643,16 @@
                 }
               }
             }
+          },
+          "412": {
+            "description": "`If-Match` did not agree with the robot (`revision-mismatch`): read it again with `GET /api/robot/{id}` and retry.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionConflict"
+                }
+              }
+            }
           }
         }
       }
@@ -652,6 +682,9 @@
           },
           {
             "$ref": "#/components/parameters/ControllerIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/IfMatchHeader"
           }
         ],
         "requestBody": {
@@ -711,6 +744,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ReservationConflict"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "`If-Match` did not agree with the robot (`revision-mismatch`): read it again with `GET /api/robot/{id}` and retry.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionConflict"
                 }
               }
             }
@@ -977,6 +1020,189 @@
           }
         }
       }
+    },
+    "/api/robot/{id}": {
+      "get": {
+        "tags": [
+          "fleet"
+        ],
+        "operationId": "getRobot",
+        "summary": "One robot with its revision",
+        "description": "Send the revision back as `If-Match` on `command`, `claim` or `release` to be refused when the robot changed in between.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "A robot own numeric id."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The robot, its revision and the header `ETag`.",
+            "headers": {
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "The revision, quoted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RobotView"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No robot with this id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/audit": {
+      "get": {
+        "tags": [
+          "safety"
+        ],
+        "operationId": "getAudit",
+        "summary": "The audit record (administrators)",
+        "description": "The newest entries, oldest first. `format=jsonl` downloads the lines as stored.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 100
+            }
+          },
+          {
+            "name": "afterSeq",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "robotId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "verify",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "true"
+              ]
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "jsonl"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditView"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not an administrator.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`audit-unavailable`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1000,7 +1226,7 @@
           },
           "code": {
             "type": "string",
-            "description": "Stable refusal codes: `other-account`, `other-controller`, `controller-id-required`, `invalid-controller-id`, `jog-not-armed`. A client must keep an unknown code as a plain error."
+            "description": "Stable refusal codes: `other-account`, `other-controller`, `controller-id-required`, `invalid-controller-id`, `jog-not-armed`, `revision-mismatch`, `table-invalid`, `table-out-of-limit`, `table-missing`. A client must keep an unknown code as a plain error."
           }
         },
         "additionalProperties": true
@@ -1226,6 +1452,34 @@
               },
               "additionalProperties": true
             }
+          },
+          "revision": {
+            "type": "string",
+            "description": "The new revision of the robot the command was sent to (also the `ETag`)."
+          },
+          "applied": {
+            "type": "object",
+            "description": "Only after a `table` move: the position the table ended in.",
+            "required": [
+              "robotId",
+              "x",
+              "y"
+            ],
+            "properties": {
+              "robotId": {
+                "type": "integer"
+              },
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "rz": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": true
           }
         },
         "additionalProperties": true
@@ -1834,6 +2088,10 @@
               "type": "object",
               "additionalProperties": true
             }
+          },
+          "revision": {
+            "type": "string",
+            "description": "The new revision of the robot (also the `ETag`)."
           }
         },
         "additionalProperties": true
@@ -1914,6 +2172,13 @@
           },
           "expiresAt": {
             "type": "number"
+          },
+          "jogArmedUntil": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "When the arming of the jog of this robot ends, null when it is not armed."
           }
         },
         "additionalProperties": true
@@ -2021,6 +2286,198 @@
           }
         },
         "additionalProperties": false
+      },
+      "RevisionConflict": {
+        "type": "object",
+        "required": [
+          "error",
+          "code",
+          "revision"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "const": "revision-mismatch"
+          },
+          "revision": {
+            "type": "string",
+            "description": "The current revision of the robot."
+          }
+        },
+        "additionalProperties": true
+      },
+      "RobotView": {
+        "type": "object",
+        "required": [
+          "robot",
+          "revision"
+        ],
+        "properties": {
+          "robot": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "The robot as the server holds it; the credentials of the cameras are left out unless the caller is an administrator."
+          },
+          "revision": {
+            "type": "string",
+            "description": "Fingerprint of the robot, also the `ETag` of the answer. The record of past claims, the times of a claim and the step counter of a running playback are not part of it."
+          },
+          "cellId": {
+            "description": "The cell (controller of the settings tree) the robot belongs to."
+          }
+        },
+        "additionalProperties": true
+      },
+      "CommandTable": {
+        "type": "object",
+        "description": "One move of the XY table of a robot in one request. It is checked as a whole before anything changes (finite numbers; a relative move within the largest jog of the model, an absolute one and the position a move ends in within the largest absolute position) and needs the claim like every command but `stop`, and the arming while it is demanded. The robot must have a configured XY table. It touches the robot it is sent to, never its combined siblings.",
+        "required": [
+          "command",
+          "params"
+        ],
+        "properties": {
+          "command": {
+            "const": "table"
+          },
+          "params": {
+            "type": "object",
+            "required": [
+              "x",
+              "y"
+            ],
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "rz": {
+                "type": "number"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "absolute",
+                  "relative"
+                ],
+                "default": "absolute"
+              }
+            },
+            "additionalProperties": false
+          },
+          "controllerId": {
+            "$ref": "#/components/schemas/ControllerId"
+          }
+        }
+      },
+      "AuditEntry": {
+        "type": "object",
+        "required": [
+          "seq",
+          "ts",
+          "type",
+          "outcome",
+          "prev",
+          "hash"
+        ],
+        "properties": {
+          "seq": {
+            "type": "integer"
+          },
+          "ts": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "description": "`claim`, `force-claim`, `release`, `force-release`, `jog-arm`, `safety-limits` or `stop-all`."
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "refused",
+              "failed"
+            ]
+          },
+          "username": {
+            "type": "string"
+          },
+          "controllerId": {
+            "type": "string"
+          },
+          "ip": {
+            "type": "string"
+          },
+          "robotId": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "prev": {
+            "type": "string",
+            "description": "SHA-256 of the previous line (64 zeros for the first)."
+          },
+          "hash": {
+            "type": "string",
+            "description": "SHA-256 of this line without this field."
+          }
+        },
+        "additionalProperties": true
+      },
+      "AuditView": {
+        "type": "object",
+        "required": [
+          "enabled",
+          "entries"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "lockedOff": {
+            "type": "boolean",
+            "description": "True when the environment of the deployment switched the record off."
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuditEntry"
+            }
+          },
+          "verification": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Only with `verify=1`: whether the hash chain of every file is intact."
+          }
+        },
+        "additionalProperties": true
+      },
+      "ClaimsEvent": {
+        "type": "object",
+        "description": "WebSocket message pushed to the clients that opened `/ws` with `?remoteApiVersion=2` after a claim, a release, an arming or a stop changed. A claim that merely expires is not announced.",
+        "required": [
+          "type",
+          "claims"
+        ],
+        "properties": {
+          "type": {
+            "const": "claims"
+          },
+          "schema": {
+            "const": 2
+          },
+          "claims": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClaimListEntry"
+            }
+          }
+        }
       }
     },
     "parameters": {
@@ -2031,6 +2488,15 @@
         "description": "The identity one control client (a window, a tab, a phone) picked for its session: 1 to 64 characters of letters, digits and `. _ : -`. The same value may be sent as `controllerId` in the JSON body; the header wins when both are present. Omitted, the request behaves as in v1.",
         "schema": {
           "$ref": "#/components/schemas/ControllerId"
+        }
+      },
+      "IfMatchHeader": {
+        "name": "If-Match",
+        "in": "header",
+        "required": false,
+        "description": "The revision of the robot as `GET /api/robot/{id}` (or the last answer) gave it, quoted or not; `*` always agrees. When the robot changed since, the answer is `412` with the current revision. A `stop` is never conditional. Without the header the request is unconditional, as in v1.",
+        "schema": {
+          "type": "string"
         }
       }
     }

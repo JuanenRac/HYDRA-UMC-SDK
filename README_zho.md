@@ -90,7 +90,7 @@ OpenAPI v1 切片(`contracts/openapi/v1/server.openapi.json` - 参见
 
 - **[docs/CONTRACTS.md](docs/CONTRACTS.md)** — 规范性合约指南:在定义新消息之前请阅读。
 - **[docs/PYTHON_CLIENT.md](docs/PYTHON_CLIENT.md)** — `validate()` 函数与 `hydra-umc-contract-validate` CLI 的完整参考,含每个合约的必填字段与额外校验规则表。
-- **[docs/SERVER_CLIENT.md](docs/SERVER_CLIENT.md)** — 服务器 claim、release、jog-arm、claims 与安全限制路由的客户端(Python、TypeScript、Go、Rust):可选的 `controllerId`、类型化错误(`other-account`、`other-controller`、`controller-id-required`、`invalid-controller-id`、`jog-not-armed`)以及共享的一致性用例。
+- **[docs/SERVER_CLIENT.md](docs/SERVER_CLIENT.md)** — 服务器 claim、release、jog-arm、claims 与安全限制路由的客户端(Python、TypeScript、Go、Rust):可选的 `controllerId`、类型化错误(`other-account`、`other-controller`、`controller-id-required`、`invalid-controller-id`、`jog-not-armed`)以及共享的一致性用例。 同样的客户端现在还覆盖带 `If-Match` 的机器人修订号、原子的工作台命令、审计记录以及 WebSocket 的 `claims` 消息（`conformance/server-routes/cases_v2.json`）。
 - **[docs/CONFORMANCE.md](docs/CONFORMANCE.md)** — 每个合约的有效/向后兼容/格式错误/不安全 fixture 集必须覆盖的内容,以及当前已实现的 v1 套件实际覆盖的内容。
 - **[docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)** — `HYDRA-UMC-BRIDGE-ROS2`、`-OPENPNP`、`-PRINTER3D`、`-CNC` 和 `-LASER` 共用的 v0 `BridgeJob`/`GateDecision` 边界。
 - **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — CM5-MCU/URTC 适配器边界:传输、成帧、协议与服务各层,以及为何 MCU 应始终对物理限位和安全停止拥有最终权威(设计规则:目前还没有任何固件强制执行限位或安全停止)。

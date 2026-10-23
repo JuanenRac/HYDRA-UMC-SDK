@@ -37,6 +37,7 @@ fn build(call: &str, args: &Value) -> Result<ServerRequest, ServerRequestError> 
                 force: args.get("force").and_then(Value::as_bool),
                 reason: text(args, "reason"),
                 controller_id: controller,
+                ..Default::default()
             },
         ),
         "release" => release_request(robot, text(args, "reason"), controller),
@@ -105,6 +106,8 @@ fn every_error_case_gets_its_typed_error() {
             ApiError::ControllerIdRequired { .. } => "controller-id-required",
             ApiError::InvalidControllerId { .. } => "invalid-controller-id",
             ApiError::JogNotArmed { .. } => "jog-not-armed",
+            ApiError::RevisionMismatch { .. } => "revision-mismatch",
+            ApiError::TableMove { .. } => "table-move",
             ApiError::Other { .. } => "api-error",
         };
         assert_eq!(kind, expect["kind"].as_str().unwrap(), "{name}");

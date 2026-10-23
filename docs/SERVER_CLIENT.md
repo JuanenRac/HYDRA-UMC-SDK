@@ -75,8 +75,26 @@ try {
 }
 ```
 
+## Blocks 2 to 5 of the second contract
+
+The same four clients cover the rest of the second contract of the server (see its `docs/CONTRACT_V2.md`):
+
+- **The revision of a robot.** `GET /api/robot/{id}` (`get_robot_request` / `getRobotRequest` / `GetRobotRequest` / `get_robot_request`, `robot()` on the client) answers the robot, its `revision` (also the `ETag`) and its cell.
+- **Conditional writes.** `if_match` / `ifMatch` / `IfMatch` on `claim`, `release` and `command` sends `If-Match` (the revision quoted for you, or `*`). A robot that changed in between is a `412`: `RevisionMismatchError` (Rust: `ApiError::RevisionMismatch`) carries the current revision; read the robot again and retry. A `stop` is never conditional. The answers of `claim`, `release` and `command` carry the new `revision`.
+- **The table command.** `table_command_request(robot, x, y, rz=None, mode="absolute"|"relative")` (client method `move_table` / `moveTable` / `MoveTable`) moves the XY table in one request and answers the position it ended in (`applied`). The server checks the move as a whole; a refusal is a `TableMoveError` (`table-invalid`, `table-out-of-limit`, `table-missing`) and nothing changed.
+- **The audit record.** `audit_request(limit, after_seq, type, robot_id, verify)` and `audit()` read `GET /api/audit` (administrators) into entries with the account, controller id, address, robot and detail, plus the optional verification of the hash chain.
+- **The `claims` message of the WebSocket.** For a client that opened `/ws` with `?remoteApiVersion=2`, `parse_claims_event` / `parseClaimsEvent` / `ParseClaimsEvent` reads the message into the same entries as `GET /api/claims` (now with `jogArmedUntil`) and answers nothing for any other message.
+
+```python
+view = client.robot(1)
+try:
+    client.move_table(1, 50, 60, if_match=view.revision)
+except RevisionMismatchError as stale:
+    view = client.robot(1)   # stale.revision is the current one
+```
+
 ## Contract and tests
 
-- `contracts/openapi/v1/server.openapi.json` (the typed slice, document version 1.2.0) describes the seven routes, the `X-Controller-Id` parameter, the `Reservation`, claim, arming and safety-limit schemas and the stable error codes. `contracts/openapi/v1/server.full.openapi.json` is a copy of the openapi that the server generates from its routes; the typed slice never invents a route the full copy does not have.
-- `conformance/server-routes/cases.json` holds the request, invalid-request, error and response cases. The Python, TypeScript, Go and Rust tests replay the same file, so the four clients build the same requests and tell the same errors apart. The Python tests also check every route against both OpenAPI documents, the body fields against the typed slice, the controller-id pattern against the client and that the stable codes are documented.
+- `contracts/openapi/v1/server.openapi.json` (the typed slice, document version 1.3.0) describes the nine routes, the `X-Controller-Id` parameter, the `Reservation`, claim, arming and safety-limit schemas and the stable error codes. `contracts/openapi/v1/server.full.openapi.json` is a copy of the openapi that the server generates from its routes; the typed slice never invents a route the full copy does not have.
+- `conformance/server-routes/cases.json` holds the request, invalid-request, error and response cases. `conformance/server-routes/cases_v2.json` does the same for blocks 2 to 5 (revision, `If-Match`, the table command, the audit record and the `claims` message). The Python, TypeScript, Go and Rust tests replay the same files, so the four clients build the same requests and tell the same errors apart. The Python tests also check every route against both OpenAPI documents, the body fields against the typed slice, the controller-id pattern against the client and that the stable codes are documented.
 - The server's generated copy lists only `ttlMs`, `force` and `reason` for `claim` and does not list `controllerId` there; the typed slice does, because the server reads it.

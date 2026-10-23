@@ -9,7 +9,10 @@ package hydraumc
 // Typed access to the routes of HYDRA-UMC-SERVER that decide who controls a
 // robot and how far a jog may go: claim, release, jog-arm, GET /api/claims,
 // GET /api/safety-limits and PUT /api/admin/safety-limits, plus the optional
-// controllerId of command. Request builders and response parsers never touch
+// controllerId of command. The second block of the contract is here too (see
+// serverapi_v2.go): GET /api/robot/:id with its revision, If-Match, the atomic
+// table command, GET /api/audit and the claims message of the WebSocket.
+// Request builders and response parsers never touch
 // the network; ServerClient carries them over net/http (or any Doer).
 // Everything is additive: a request without a controller id is the v1
 // request, unknown response fields are ignored and an unknown error code
@@ -37,6 +40,10 @@ const (
 	CodeControllerIDRequired = "controller-id-required"
 	CodeInvalidControllerID  = "invalid-controller-id"
 	CodeJogNotArmed          = "jog-not-armed"
+	CodeRevisionMismatch     = "revision-mismatch"
+	CodeTableInvalid         = "table-invalid"
+	CodeTableOutOfLimit      = "table-out-of-limit"
+	CodeTableMissing         = "table-missing"
 )
 
 var controllerIDPattern = regexp.MustCompile(`^[A-Za-z0-9._:-]{1,64}$`)
@@ -103,6 +110,8 @@ type Reservation struct {
 type ClaimResult struct {
 	Reservation *Reservation     `json:"reservation"`
 	History     []map[string]any `json:"reservationHistory"`
+	// Revision is the new revision of the robot, empty when the server sent none.
+	Revision string `json:"revision,omitempty"`
 }
 
 // JogArmResult is the answer of jog-arm.
@@ -123,6 +132,8 @@ type ClaimEntry struct {
 	ControllerID  *string         `json:"controllerId"`
 	ClaimedAt     float64         `json:"claimedAt"`
 	ExpiresAt     float64         `json:"expiresAt"`
+	// JogArmedUntil is when the arming of the jog of this robot ends, nil when it is not armed.
+	JogArmedUntil *float64 `json:"jogArmedUntil"`
 }
 
 // RobotSafety is the part of the safety limits that applies to one robot.
@@ -148,6 +159,8 @@ type ServerRequest struct {
 	Method string
 	Path   string
 	Body   map[string]any
+	// Headers are the extra headers of the request (If-Match); nil when there are none.
+	Headers map[string]string
 }
 
 func checkController(controllerID string) error {
@@ -163,6 +176,7 @@ type ClaimOptions struct {
 	Force        *bool
 	Reason       *string
 	ControllerID string // empty: none
+	IfMatch      string // empty: unconditional
 }
 
 // ClaimRequest builds POST /api/robot/{id}/claim.
@@ -183,22 +197,16 @@ func ClaimRequest(robotID int, o ClaimOptions) (ServerRequest, error) {
 	if o.ControllerID != "" {
 		body["controllerId"] = o.ControllerID
 	}
-	return ServerRequest{"POST", fmt.Sprintf("/api/robot/%d/claim", robotID), body}, nil
+	headers, err := ifMatchHeaders(o.IfMatch)
+	if err != nil {
+		return ServerRequest{}, err
+	}
+	return ServerRequest{Method: "POST", Path: fmt.Sprintf("/api/robot/%d/claim", robotID), Body: body, Headers: headers}, nil
 }
 
 // ReleaseRequest builds POST /api/robot/{id}/release.
 func ReleaseRequest(robotID int, reason *string, controllerID string) (ServerRequest, error) {
-	if err := checkController(controllerID); err != nil {
-		return ServerRequest{}, err
-	}
-	body := map[string]any{}
-	if reason != nil {
-		body["reason"] = *reason
-	}
-	if controllerID != "" {
-		body["controllerId"] = controllerID
-	}
-	return ServerRequest{"POST", fmt.Sprintf("/api/robot/%d/release", robotID), body}, nil
+	return ReleaseRequestWith(robotID, ReleaseOptions{Reason: reason, ControllerID: controllerID})
 }
 
 // JogArmRequest builds POST /api/robot/{id}/jog-arm.
@@ -213,11 +221,11 @@ func JogArmRequest(robotID int, armed bool, ttlMs *float64, controllerID string)
 	if controllerID != "" {
 		body["controllerId"] = controllerID
 	}
-	return ServerRequest{"POST", fmt.Sprintf("/api/robot/%d/jog-arm", robotID), body}, nil
+	return ServerRequest{Method: "POST", Path: fmt.Sprintf("/api/robot/%d/jog-arm", robotID), Body: body}, nil
 }
 
 // ListClaimsRequest builds GET /api/claims.
-func ListClaimsRequest() ServerRequest { return ServerRequest{"GET", "/api/claims", nil} }
+func ListClaimsRequest() ServerRequest { return ServerRequest{Method: "GET", Path: "/api/claims"} }
 
 // SafetyLimitsRequest builds GET /api/safety-limits, with ?robotId= when robotID is not nil.
 func SafetyLimitsRequest(robotID *int) ServerRequest {
@@ -225,7 +233,7 @@ func SafetyLimitsRequest(robotID *int) ServerRequest {
 	if robotID != nil {
 		path += fmt.Sprintf("?robotId=%d", *robotID)
 	}
-	return ServerRequest{"GET", path, nil}
+	return ServerRequest{Method: "GET", Path: path}
 }
 
 // UpdateSafetyLimitsRequest builds PUT /api/admin/safety-limits.
@@ -237,25 +245,12 @@ func UpdateSafetyLimitsRequest(patch map[string]any) (ServerRequest, error) {
 	for k, v := range patch {
 		body[k] = v
 	}
-	return ServerRequest{"PUT", "/api/admin/safety-limits", body}, nil
+	return ServerRequest{Method: "PUT", Path: "/api/admin/safety-limits", Body: body}, nil
 }
 
 // CommandRequest builds POST /api/robot/{id}/command with the optional controller id.
 func CommandRequest(robotID int, command string, params map[string]any, controllerID string) (ServerRequest, error) {
-	if command == "" {
-		return ServerRequest{}, &ServerRequestError{"command must be a non-empty string"}
-	}
-	if err := checkController(controllerID); err != nil {
-		return ServerRequest{}, err
-	}
-	body := map[string]any{"command": command}
-	if params != nil {
-		body["params"] = params
-	}
-	if controllerID != "" {
-		body["controllerId"] = controllerID
-	}
-	return ServerRequest{"POST", fmt.Sprintf("/api/robot/%d/command", robotID), body}, nil
+	return CommandRequestWith(robotID, command, params, CommandOptions{ControllerID: controllerID})
 }
 
 // ParseClaimResult decodes the answer of claim and release.
@@ -310,6 +305,7 @@ func ParseAPIError(status int, body []byte) error {
 		Error       string          `json:"error"`
 		Code        string          `json:"code"`
 		Reservation json.RawMessage `json:"reservation"`
+		Revision    string          `json:"revision"`
 	}
 	_ = json.Unmarshal(body, &data) // a body that is not a JSON object leaves the zero values
 	message := data.Error
@@ -333,6 +329,10 @@ func ParseAPIError(status int, body []byte) error {
 		return &InvalidControllerIDError{base}
 	case data.Code == CodeJogNotArmed:
 		return &JogNotArmedError{base}
+	case data.Code == CodeRevisionMismatch || status == http.StatusPreconditionFailed:
+		return &RevisionMismatchError{APIError: base, Revision: data.Revision}
+	case data.Code == CodeTableInvalid || data.Code == CodeTableOutOfLimit || data.Code == CodeTableMissing:
+		return &TableMoveError{base}
 	case status == http.StatusConflict && reservation != nil:
 		return &ClaimConflictError{base, reservation}
 	}
@@ -383,6 +383,9 @@ func (c *ServerClient) send(request ServerRequest) ([]byte, error) {
 		return nil, err
 	}
 	httpRequest.Header.Set("Accept", "application/json")
+	for name, value := range request.Headers {
+		httpRequest.Header.Set(name, value)
+	}
 	if c.Token != "" {
 		httpRequest.Header.Set("Authorization", "Bearer "+c.Token)
 	}
@@ -424,7 +427,13 @@ func (c *ServerClient) Claim(robotID int, o ClaimOptions) (ClaimResult, error) {
 
 // Release calls POST /api/robot/{id}/release.
 func (c *ServerClient) Release(robotID int, reason *string, controllerID string) (ClaimResult, error) {
-	request, err := ReleaseRequest(robotID, reason, c.controllerFor(controllerID))
+	return c.ReleaseWith(robotID, ReleaseOptions{Reason: reason, ControllerID: controllerID})
+}
+
+// ReleaseWith calls POST /api/robot/{id}/release with the options (the revision for If-Match among them).
+func (c *ServerClient) ReleaseWith(robotID int, o ReleaseOptions) (ClaimResult, error) {
+	o.ControllerID = c.controllerFor(o.ControllerID)
+	request, err := ReleaseRequestWith(robotID, o)
 	if err != nil {
 		return ClaimResult{}, err
 	}
@@ -481,11 +490,7 @@ func (c *ServerClient) UpdateSafetyLimits(patch map[string]any) (SafetyLimitsVie
 
 // Command calls POST /api/robot/{id}/command and returns the raw answer.
 func (c *ServerClient) Command(robotID int, command string, params map[string]any, controllerID string) ([]byte, error) {
-	request, err := CommandRequest(robotID, command, params, c.controllerFor(controllerID))
-	if err != nil {
-		return nil, err
-	}
-	return c.send(request)
+	return c.CommandWith(robotID, command, params, CommandOptions{ControllerID: controllerID})
 }
 
 // AsAPIError returns the *APIError inside err (every typed error contains one).

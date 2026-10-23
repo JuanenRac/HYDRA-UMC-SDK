@@ -7,7 +7,10 @@
 // Typed access to the routes of HYDRA-UMC-SERVER that decide who controls a
 // robot and how far a jog may go: claim, release, jog-arm, GET /api/claims,
 // GET /api/safety-limits and PUT /api/admin/safety-limits, plus the optional
-// controllerId of command. Request builders and response parsers never touch
+// controllerId of command. The second block of the contract is here too: GET
+// /api/robot/:id with its revision, If-Match on command/claim/release (and the
+// 412 it can answer), the atomic table command, GET /api/audit and the claims
+// message of the WebSocket. Request builders and response parsers never touch
 // the network; HydraServerClient carries them over an injectable transport
 // (fetch by default). Everything is additive: a request without a controller
 // id is the v1 request, unknown response fields are ignored and an unknown
@@ -22,12 +25,22 @@ export const CODE_OTHER_CONTROLLER = "other-controller";
 export const CODE_CONTROLLER_ID_REQUIRED = "controller-id-required";
 export const CODE_INVALID_CONTROLLER_ID = "invalid-controller-id";
 export const CODE_JOG_NOT_ARMED = "jog-not-armed";
+export const CODE_REVISION_MISMATCH = "revision-mismatch";
+export const CODE_TABLE_INVALID = "table-invalid";
+export const CODE_TABLE_OUT_OF_LIMIT = "table-out-of-limit";
+export const CODE_TABLE_MISSING = "table-missing";
+export const TABLE_MODES = ["absolute", "relative"] as const;
+export type TableMode = (typeof TABLE_MODES)[number];
 export const KNOWN_ERROR_CODES = [
   CODE_OTHER_ACCOUNT,
   CODE_OTHER_CONTROLLER,
   CODE_CONTROLLER_ID_REQUIRED,
   CODE_INVALID_CONTROLLER_ID,
   CODE_JOG_NOT_ARMED,
+  CODE_REVISION_MISMATCH,
+  CODE_TABLE_INVALID,
+  CODE_TABLE_OUT_OF_LIMIT,
+  CODE_TABLE_MISSING,
 ] as const;
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number];
 
@@ -44,6 +57,8 @@ export interface Reservation {
 export interface ClaimResult {
   reservation: Reservation | null;
   history: Array<Record<string, unknown>>;
+  /** The new revision of the robot, when the server sent one. */
+  revision: string | null;
 }
 
 export interface JogArmResult {
@@ -61,6 +76,50 @@ export interface ClaimEntry {
   controllerId: string | null;
   claimedAt: number;
   expiresAt: number;
+  jogArmedUntil: number | null;
+}
+
+/** GET /api/robot/:id: the robot, its revision (the ETag) and its cell. */
+export interface RobotView {
+  robot: Record<string, unknown>;
+  revision: string;
+  cellId: unknown;
+}
+
+export interface TableApplied {
+  robotId: number;
+  x: number;
+  y: number;
+  rz: number | null;
+}
+
+export interface CommandResult {
+  success: boolean;
+  affectedCount: number | null;
+  revision: string | null;
+  applied: TableApplied | null;
+  warnings: Array<Record<string, unknown>>;
+}
+
+export interface AuditEntry {
+  seq: number;
+  ts: string;
+  type: string;
+  outcome: string;
+  prev: string;
+  hash: string;
+  username: string | null;
+  controllerId: string | null;
+  ip: string | null;
+  robotId: number | null;
+  detail: Record<string, unknown>;
+}
+
+export interface AuditView {
+  enabled: boolean;
+  lockedOff: boolean;
+  entries: AuditEntry[];
+  verification: Record<string, unknown> | null;
 }
 
 export interface RobotSafety {
@@ -82,6 +141,8 @@ export interface ServerRequest {
   method: "GET" | "POST" | "PUT";
   path: string;
   body: Record<string, unknown> | null;
+  /** Extra headers of the request (If-Match); empty when there are none. */
+  headers: Record<string, string>;
 }
 
 // ---- Errors ---------------------------------------------------------------
@@ -138,6 +199,22 @@ export class JogNotArmedError extends ApiError {
   }
 }
 
+/** If-Match failed (412): the robot changed since it was read; `revision` is the current one. */
+export class RevisionMismatchError extends ApiError {
+  constructor(status: number, message: string, code: string | null, body: unknown, readonly revision: string | null) {
+    super(status, message, code, body);
+    this.name = "RevisionMismatchError";
+  }
+}
+
+/** A table move was refused as a whole and nothing changed (400): table-invalid, table-out-of-limit or table-missing. */
+export class TableMoveError extends ApiError {
+  constructor(status: number, message: string, code: string | null, body: unknown) {
+    super(status, message, code, body);
+    this.name = "TableMoveError";
+  }
+}
+
 // ---- Request builders -----------------------------------------------------
 
 export function isValidControllerId(value: unknown): value is string {
@@ -160,11 +237,20 @@ function finite(value: unknown, name: string): number {
   return value;
 }
 
+/** The If-Match header for a revision (quoted or not) or for "*"; none when there is no revision. */
+function ifMatchHeaders(value: string | undefined): Record<string, string> {
+  if (value === undefined) return {};
+  if (typeof value !== "string" || value.trim() === "" || /[\r\n]/.test(value)) throw new ServerRequestError("ifMatch must be a revision string");
+  const text = value.trim();
+  return { "If-Match": text === "*" || text.startsWith('"') || text.startsWith("W/") ? text : `"${text}"` };
+}
+
 export interface ClaimOptions {
   ttlMs?: number;
   force?: boolean;
   reason?: string;
   controllerId?: string;
+  ifMatch?: string;
 }
 
 export function claimRequest(id: number, options: ClaimOptions = {}): ServerRequest {
@@ -174,12 +260,13 @@ export function claimRequest(id: number, options: ClaimOptions = {}): ServerRequ
   if (options.reason !== undefined) body.reason = String(options.reason);
   const controllerId = controller(options.controllerId);
   if (controllerId !== undefined) body.controllerId = controllerId;
-  return { method: "POST", path: `/api/robot/${robotId(id)}/claim`, body };
+  return { method: "POST", path: `/api/robot/${robotId(id)}/claim`, body, headers: ifMatchHeaders(options.ifMatch) };
 }
 
 export interface ReleaseOptions {
   reason?: string;
   controllerId?: string;
+  ifMatch?: string;
 }
 
 export function releaseRequest(id: number, options: ReleaseOptions = {}): ServerRequest {
@@ -187,7 +274,7 @@ export function releaseRequest(id: number, options: ReleaseOptions = {}): Server
   if (options.reason !== undefined) body.reason = String(options.reason);
   const controllerId = controller(options.controllerId);
   if (controllerId !== undefined) body.controllerId = controllerId;
-  return { method: "POST", path: `/api/robot/${robotId(id)}/release`, body };
+  return { method: "POST", path: `/api/robot/${robotId(id)}/release`, body, headers: ifMatchHeaders(options.ifMatch) };
 }
 
 export interface JogArmOptions {
@@ -201,25 +288,26 @@ export function jogArmRequest(id: number, armed: boolean, options: JogArmOptions
   if (options.ttlMs !== undefined) body.ttlMs = finite(options.ttlMs, "ttlMs");
   const controllerId = controller(options.controllerId);
   if (controllerId !== undefined) body.controllerId = controllerId;
-  return { method: "POST", path: `/api/robot/${robotId(id)}/jog-arm`, body };
+  return { method: "POST", path: `/api/robot/${robotId(id)}/jog-arm`, body, headers: {} };
 }
 
 export function listClaimsRequest(): ServerRequest {
-  return { method: "GET", path: "/api/claims", body: null };
+  return { method: "GET", path: "/api/claims", body: null, headers: {} };
 }
 
 export function safetyLimitsRequest(id?: number): ServerRequest {
-  return { method: "GET", path: id === undefined ? "/api/safety-limits" : `/api/safety-limits?robotId=${robotId(id)}`, body: null };
+  return { method: "GET", path: id === undefined ? "/api/safety-limits" : `/api/safety-limits?robotId=${robotId(id)}`, body: null, headers: {} };
 }
 
 export function updateSafetyLimitsRequest(patch: Record<string, unknown>): ServerRequest {
   if (typeof patch !== "object" || patch === null || Array.isArray(patch)) throw new ServerRequestError("patch must be an object");
-  return { method: "PUT", path: "/api/admin/safety-limits", body: { ...patch } };
+  return { method: "PUT", path: "/api/admin/safety-limits", body: { ...patch }, headers: {} };
 }
 
 export interface CommandOptions {
   params?: Record<string, unknown>;
   controllerId?: string;
+  ifMatch?: string;
 }
 
 export function commandRequest(id: number, command: string, options: CommandOptions = {}): ServerRequest {
@@ -228,7 +316,49 @@ export function commandRequest(id: number, command: string, options: CommandOpti
   if (options.params !== undefined) body.params = { ...options.params };
   const controllerId = controller(options.controllerId);
   if (controllerId !== undefined) body.controllerId = controllerId;
-  return { method: "POST", path: `/api/robot/${robotId(id)}/command`, body };
+  return { method: "POST", path: `/api/robot/${robotId(id)}/command`, body, headers: ifMatchHeaders(options.ifMatch) };
+}
+
+export interface TableOptions {
+  rz?: number;
+  mode?: TableMode;
+  controllerId?: string;
+  ifMatch?: string;
+}
+
+/** One move of the XY table in one request; the server checks it as a whole and applies all of it or none. */
+export function tableCommandRequest(id: number, x: number, y: number, options: TableOptions = {}): ServerRequest {
+  const mode = options.mode ?? "absolute";
+  if (!(TABLE_MODES as readonly string[]).includes(mode)) throw new ServerRequestError('mode must be "absolute" or "relative"');
+  const params: Record<string, unknown> = { x: finite(x, "x"), y: finite(y, "y"), mode };
+  if (options.rz !== undefined) params.rz = finite(options.rz, "rz");
+  return commandRequest(id, "table", { params, controllerId: options.controllerId, ifMatch: options.ifMatch });
+}
+
+export function getRobotRequest(id: number): ServerRequest {
+  return { method: "GET", path: `/api/robot/${robotId(id)}`, body: null, headers: {} };
+}
+
+export interface AuditQuery {
+  limit?: number;
+  afterSeq?: number;
+  type?: string;
+  robotId?: number;
+  verify?: boolean;
+}
+
+/** GET /api/audit (administrators): the newest entries of the audit record, oldest first. */
+export function auditRequest(query: AuditQuery = {}): ServerRequest {
+  const parts: string[] = [];
+  if (query.limit !== undefined) parts.push(`limit=${Math.trunc(finite(query.limit, "limit"))}`);
+  if (query.afterSeq !== undefined) parts.push(`afterSeq=${Math.trunc(finite(query.afterSeq, "afterSeq"))}`);
+  if (query.type !== undefined) {
+    if (!/^[A-Za-z0-9._-]{1,40}$/.test(query.type)) throw new ServerRequestError("type must be a short plain name");
+    parts.push(`type=${query.type}`);
+  }
+  if (query.robotId !== undefined) parts.push(`robotId=${robotId(query.robotId)}`);
+  if (query.verify) parts.push("verify=1");
+  return { method: "GET", path: "/api/audit" + (parts.length ? `?${parts.join("&")}` : ""), body: null, headers: {} };
 }
 
 // ---- Response parsers -----------------------------------------------------
@@ -261,6 +391,7 @@ export function parseClaimResult(body: unknown): ClaimResult {
   return {
     reservation: parseReservation(data.reservation),
     history: history.filter((entry): entry is Record<string, unknown> => typeof entry === "object" && entry !== null && !Array.isArray(entry)),
+    revision: typeof data.revision === "string" ? data.revision : null,
   };
 }
 
@@ -288,8 +419,61 @@ export function parseClaims(body: unknown): ClaimEntry[] {
       controllerId: typeof item.controllerId === "string" ? item.controllerId : null,
       claimedAt: Number(item.claimedAt ?? 0),
       expiresAt: Number(item.expiresAt ?? 0),
+      jogArmedUntil: typeof item.jogArmedUntil === "number" ? item.jogArmedUntil : null,
     };
   });
+}
+
+/** The `claims` message of the WebSocket (clients that opened /ws with ?remoteApiVersion=2): the list of GET /api/claims. Null for any other message. */
+export function parseClaimsEvent(message: unknown): ClaimEntry[] | null {
+  if (typeof message !== "object" || message === null || Array.isArray(message) || (message as Record<string, unknown>).type !== "claims") return null;
+  return parseClaims(message);
+}
+
+export function parseRobot(body: unknown): RobotView {
+  const data = asObject(body, "robot answer");
+  if (typeof data.revision !== "string" || data.revision === "") throw new ServerRequestError("robot answer has no 'revision'");
+  return { robot: asObject(data.robot, "robot"), revision: data.revision, cellId: data.cellId };
+}
+
+/** The answer of command: `revision` is the robot's new one, `applied` is set after a table move. */
+export function parseCommandResult(body: unknown): CommandResult {
+  const data = asObject(body, "command answer");
+  let applied: TableApplied | null = null;
+  if (typeof data.applied === "object" && data.applied !== null && !Array.isArray(data.applied)) {
+    const item = data.applied as Record<string, unknown>;
+    applied = { robotId: Number(item.robotId), x: Number(item.x), y: Number(item.y), rz: typeof item.rz === "number" ? item.rz : null };
+  }
+  const warnings = Array.isArray(data.warnings) ? data.warnings : [];
+  return {
+    success: data.success === true,
+    affectedCount: typeof data.affectedCount === "number" ? data.affectedCount : null,
+    revision: typeof data.revision === "string" ? data.revision : null,
+    applied,
+    warnings: warnings.filter((w): w is Record<string, unknown> => typeof w === "object" && w !== null && !Array.isArray(w)),
+  };
+}
+
+export function parseAudit(body: unknown): AuditView {
+  const data = asObject(body, "audit answer");
+  const entries = (Array.isArray(data.entries) ? data.entries : []).map((raw) => {
+    const item = asObject(raw, "audit entry");
+    return {
+      seq: Number(item.seq),
+      ts: String(item.ts ?? ""),
+      type: String(item.type ?? ""),
+      outcome: String(item.outcome ?? ""),
+      prev: String(item.prev ?? ""),
+      hash: String(item.hash ?? ""),
+      username: typeof item.username === "string" ? item.username : null,
+      controllerId: typeof item.controllerId === "string" ? item.controllerId : null,
+      ip: typeof item.ip === "string" ? item.ip : null,
+      robotId: typeof item.robotId === "number" ? item.robotId : null,
+      detail: typeof item.detail === "object" && item.detail !== null && !Array.isArray(item.detail) ? (item.detail as Record<string, unknown>) : {},
+    };
+  });
+  const verification = typeof data.verification === "object" && data.verification !== null && !Array.isArray(data.verification) ? (data.verification as Record<string, unknown>) : null;
+  return { enabled: data.enabled === true, lockedOff: data.lockedOff === true, entries, verification };
 }
 
 /** The answer of GET and PUT of the safety limits; the sections stay as the server sent them. */
@@ -324,6 +508,10 @@ export function parseApiError(status: number, body: unknown): ApiError {
   if (code === CODE_OTHER_ACCOUNT || code === CODE_OTHER_CONTROLLER) return new ClaimConflictError(status, message, code, body, reservation);
   if (code === CODE_INVALID_CONTROLLER_ID) return new InvalidControllerIdError(status, message, code, body);
   if (code === CODE_JOG_NOT_ARMED) return new JogNotArmedError(status, message, code, body);
+  if (code === CODE_REVISION_MISMATCH || status === 412) {
+    return new RevisionMismatchError(status, message, code, body, typeof data.revision === "string" ? data.revision : null);
+  }
+  if (code === CODE_TABLE_INVALID || code === CODE_TABLE_OUT_OF_LIMIT || code === CODE_TABLE_MISSING) return new TableMoveError(status, message, code, body);
   if (status === 409 && reservation !== null) return new ClaimConflictError(status, message, code, body, reservation);
   return new ApiError(status, message, code, body);
 }
@@ -362,7 +550,7 @@ export class HydraServerClient {
   }
 
   private async send(request: ServerRequest): Promise<unknown> {
-    const headers: Record<string, string> = { Accept: "application/json" };
+    const headers: Record<string, string> = { Accept: "application/json", ...request.headers };
     if (this.token) headers.Authorization = `Bearer ${this.token}`;
     let body: string | null = null;
     if (request.body !== null) {
@@ -411,5 +599,23 @@ export class HydraServerClient {
   /** Sends a robot command and returns the decoded answer unchanged. */
   async command(id: number, command: string, options: CommandOptions = {}): Promise<unknown> {
     return this.send(commandRequest(id, command, { ...options, controllerId: this.controllerFor(options.controllerId) }));
+  }
+
+  /** Like command, but parsed: the new revision of the robot, the warnings, the applied table position. */
+  async commandResult(id: number, command: string, options: CommandOptions = {}): Promise<CommandResult> {
+    return parseCommandResult(await this.command(id, command, options));
+  }
+
+  async moveTable(id: number, x: number, y: number, options: TableOptions = {}): Promise<CommandResult> {
+    return parseCommandResult(await this.send(tableCommandRequest(id, x, y, { ...options, controllerId: this.controllerFor(options.controllerId) })));
+  }
+
+  /** One robot with its revision, to send back as ifMatch. */
+  async robot(id: number): Promise<RobotView> {
+    return parseRobot(await this.send(getRobotRequest(id)));
+  }
+
+  async audit(query: AuditQuery = {}): Promise<AuditView> {
+    return parseAudit(await this.send(auditRequest(query)));
   }
 }

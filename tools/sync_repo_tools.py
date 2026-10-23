@@ -53,10 +53,12 @@ PER_REPOSITORY_FILES = {
     "tools/canonical/redaction.py": {
         "HYDRA-UMC-OPS-AGENT": "src/hydra_umc_ops_agent/log_redaction.py",
         "HYDRA-UMC-LOCAL-TECHNICIAN": "src/hydra_umc_local_technician/knowledge/redaction.py",
+        "HYDRA-UMC-VISION-STREAMER": "src/hydra_umc_vision_streamer/log_redaction.py",
     },
     "contracts/redaction/vectors.json": {
         "HYDRA-UMC-OPS-AGENT": "tests/redaction_vectors.json",
         "HYDRA-UMC-LOCAL-TECHNICIAN": "tests/redaction_vectors.json",
+        "HYDRA-UMC-VISION-STREAMER": "tests/redaction_vectors.json",
     },
 }
 # only repositories that already carry the file get it (the eight bridges keep their own bump script)

@@ -93,7 +93,7 @@ Protobuf の公開はその後の互換性マイルストーンです。Go、Typ
 
 - **[docs/CONTRACTS.md](docs/CONTRACTS.md)** — 規範となる契約ガイド。新しいメッセージを定義する前に読むこと。
 - **[docs/PYTHON_CLIENT.md](docs/PYTHON_CLIENT.md)** — `validate()` 関数と `hydra-umc-contract-validate` CLI の完全なリファレンス。契約ごとの必須フィールドと追加検証ルールの表を含む。
-- **[docs/SERVER_CLIENT.md](docs/SERVER_CLIENT.md)** — サーバーの claim、release、jog-arm、claims、安全制限ルート用のクライアント(Python、TypeScript、Go、Rust)。任意の `controllerId`、型付きエラー(`other-account`、`other-controller`、`controller-id-required`、`invalid-controller-id`、`jog-not-armed`)、共通の適合ケース。
+- **[docs/SERVER_CLIENT.md](docs/SERVER_CLIENT.md)** — サーバーの claim、release、jog-arm、claims、安全制限ルート用のクライアント(Python、TypeScript、Go、Rust)。任意の `controllerId`、型付きエラー(`other-account`、`other-controller`、`controller-id-required`、`invalid-controller-id`、`jog-not-armed`)、共通の適合ケース。 同じクライアントが、`If-Match` によるロボットのリビジョン、テーブルのアトミックなコマンド、監査記録、WebSocket の `claims` メッセージもカバーするようになりました(`conformance/server-routes/cases_v2.json`)。
 - **[docs/CONFORMANCE.md](docs/CONFORMANCE.md)** — 契約ごとに有効/後方互換/不正/安全でないフィクスチャ集が何をカバーすべきか、そして実装済みのv1スイートが現在何をカバーしているか。
 - **[docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)** — `HYDRA-UMC-BRIDGE-ROS2`、`-OPENPNP`、`-PRINTER3D`、`-CNC`、`-LASER` が共有するv0 `BridgeJob`/`GateDecision` 境界。
 - **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — CM5-MCU/URTCアダプタ境界:トランスポート、フレーミング、プロトコル、サービスの各層、そしてMCUが物理的な限界と安全停止について権威であり続けるべき理由(設計上の規則:現時点では限界や安全停止を強制するファームウェアはありません)。

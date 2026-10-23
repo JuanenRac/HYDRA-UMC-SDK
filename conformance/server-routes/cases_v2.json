@@ -1,0 +1,44 @@
+{
+  "description": "Request, error and response cases for the blocks 2 to 5 of the second contract of HYDRA-UMC-SERVER: GET /api/robot/:id with its revision, If-Match on command, claim and release (and the 412 it can answer), the atomic table command, GET /api/audit and the claims message of the WebSocket. Every client of the SDK (Python, Go, TypeScript, Rust) replays the same cases.",
+  "requests": [
+    {"name": "get-robot", "call": "getRobot", "args": {"robotId": 3}, "expect": {"method": "GET", "path": "/api/robot/3", "body": null, "headers": {}}},
+    {"name": "claim-if-match-bare", "call": "claim", "args": {"robotId": 1, "ifMatch": "abc123def4567890"}, "expect": {"method": "POST", "path": "/api/robot/1/claim", "body": {}, "headers": {"If-Match": "\"abc123def4567890\""}}},
+    {"name": "claim-if-match-quoted", "call": "claim", "args": {"robotId": 1, "ifMatch": "\"abc123def4567890\""}, "expect": {"method": "POST", "path": "/api/robot/1/claim", "body": {}, "headers": {"If-Match": "\"abc123def4567890\""}}},
+    {"name": "release-if-match-star", "call": "release", "args": {"robotId": 2, "ifMatch": "*"}, "expect": {"method": "POST", "path": "/api/robot/2/release", "body": {}, "headers": {"If-Match": "*"}}},
+    {"name": "command-if-match", "call": "command", "args": {"robotId": 1, "command": "jog", "params": {"axis": "x", "amount": 5}, "ifMatch": "r1"}, "expect": {"method": "POST", "path": "/api/robot/1/command", "body": {"command": "jog", "params": {"axis": "x", "amount": 5}}, "headers": {"If-Match": "\"r1\""}}},
+    {"name": "table-absolute-default", "call": "table", "args": {"robotId": 1, "x": 50, "y": 60}, "expect": {"method": "POST", "path": "/api/robot/1/command", "body": {"command": "table", "params": {"x": 50, "y": 60, "mode": "absolute"}}, "headers": {}}},
+    {"name": "table-relative-full", "call": "table", "args": {"robotId": 1, "x": -10, "y": 5, "rz": 15, "mode": "relative", "controllerId": "tab-1", "ifMatch": "r2"}, "expect": {"method": "POST", "path": "/api/robot/1/command", "body": {"command": "table", "params": {"x": -10, "y": 5, "mode": "relative", "rz": 15}, "controllerId": "tab-1"}, "headers": {"If-Match": "\"r2\""}}},
+    {"name": "audit-plain", "call": "audit", "args": {}, "expect": {"method": "GET", "path": "/api/audit", "body": null, "headers": {}}},
+    {"name": "audit-filtered", "call": "audit", "args": {"limit": 50, "afterSeq": 10, "type": "force-release", "robotId": 2, "verify": true}, "expect": {"method": "GET", "path": "/api/audit?limit=50&afterSeq=10&type=force-release&robotId=2&verify=1", "body": null, "headers": {}}}
+  ],
+  "invalidRequests": [
+    {"name": "table-bad-mode", "call": "table", "args": {"robotId": 1, "x": 1, "y": 1, "mode": "diagonal"}},
+    {"name": "table-x-not-a-number", "call": "table", "args": {"robotId": 1, "x": "1", "y": 1}},
+    {"name": "if-match-empty", "call": "claim", "args": {"robotId": 1, "ifMatch": "  "}},
+    {"name": "if-match-with-line-break", "call": "release", "args": {"robotId": 1, "ifMatch": "a\r\nX-Evil: 1"}},
+    {"name": "audit-bad-type", "call": "audit", "args": {"type": "a b&c"}},
+    {"name": "get-robot-bad-id", "call": "getRobot", "args": {"robotId": "3"}}
+  ],
+  "errors": [
+    {"name": "revision-mismatch", "status": 412, "body": {"error": "the robot changed since you read it; read it again (GET /api/robot/:id) and retry", "code": "revision-mismatch", "revision": "0123456789abcdef"}, "expect": {"kind": "revision-mismatch", "code": "revision-mismatch", "revision": "0123456789abcdef"}},
+    {"name": "revision-mismatch-without-code", "status": 412, "body": {"error": "precondition failed"}, "expect": {"kind": "revision-mismatch", "code": null, "revision": null}},
+    {"name": "table-invalid", "status": 400, "body": {"error": "mode must be \"absolute\" or \"relative\"", "code": "table-invalid"}, "expect": {"kind": "table-move", "code": "table-invalid", "revision": null}},
+    {"name": "table-out-of-limit", "status": 400, "body": {"error": "x 1001 is outside +-1000", "code": "table-out-of-limit"}, "expect": {"kind": "table-move", "code": "table-out-of-limit", "revision": null}},
+    {"name": "table-missing", "status": 400, "body": {"error": "the table command requires a configured XY table", "code": "table-missing"}, "expect": {"kind": "table-move", "code": "table-missing", "revision": null}}
+  ],
+  "responses": {
+    "robot": {"robot": {"id": 3, "name": "B", "pos": {"x": 1, "y": 2, "z": 3}, "hasXYTable": true}, "revision": "0123456789abcdef", "cellId": "c1"},
+    "commandPlain": {"success": true, "affectedCount": 1, "revision": "fedcba9876543210"},
+    "commandTable": {"success": true, "affectedCount": 1, "revision": "fedcba9876543210", "applied": {"robotId": 1, "x": 40, "y": 65, "rz": 15}},
+    "claimWithRevision": {"success": true, "reservation": {"ownerId": "u1", "ownerUsername": "alice", "claimedAt": 1000, "expiresAt": 61000, "controllerId": "tab-1"}, "reservationHistory": [], "revision": "0123456789abcdef"},
+    "audit": {"enabled": true, "lockedOff": false, "entries": [
+      {"seq": 1, "ts": "2000-01-02T03:04:05.000Z", "prev": "0000000000000000000000000000000000000000000000000000000000000000", "hash": "aa11", "type": "claim", "outcome": "ok", "username": "alice", "controllerId": "tab-1", "ip": "10.0.0.9", "robotId": 1, "detail": {"action": "claimed"}},
+      {"seq": 2, "ts": "2000-01-02T03:04:06.000Z", "prev": "aa11", "hash": "bb22", "type": "stop-all", "outcome": "ok"}
+    ], "verification": {"ok": true, "entries": 2}},
+    "claimsEvent": {"type": "claims", "schema": 2, "claims": [
+      {"robotId": 1, "robotName": "A1", "cellId": "c1", "ownerId": "u1", "ownerUsername": "alice", "controllerId": "tab-1", "claimedAt": 1000, "expiresAt": 61000, "jogArmedUntil": 31000},
+      {"robotId": 2, "robotName": null, "cellId": "c1", "ownerId": "u2", "ownerUsername": "bob", "controllerId": null, "claimedAt": 2000, "expiresAt": 62000, "jogArmedUntil": null}
+    ]},
+    "otherMessage": {"type": "delta", "schema": 2, "robotId": 1, "patch": {}}
+  }
+}

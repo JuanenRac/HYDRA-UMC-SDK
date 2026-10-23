@@ -31,3 +31,5 @@ PYTHONPATH=src python -m unittest discover -s tests -v
 ```
 
 `conformance/server-routes/cases.json` is the shared case file of the server control clients (claim, release, jog-arm, claims, safety limits and the optional `controllerId`): the requests each client must build, the requests it must refuse before sending, the error answers it must tell apart and the response bodies it must read. The Python, TypeScript, Go and Rust tests replay the same file; see [SERVER_CLIENT.md](SERVER_CLIENT.md).
+
+`conformance/server-routes/cases_v2.json` is the shared case file of the blocks 2 to 5 of the second server contract (the revision of a robot, `If-Match` and its `412`, the atomic `table` command, the audit record and the `claims` message of the WebSocket). The four clients replay it the same way.
