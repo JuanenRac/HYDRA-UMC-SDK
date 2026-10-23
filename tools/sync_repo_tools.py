@@ -60,6 +60,10 @@ PER_REPOSITORY_FILES = {
         "HYDRA-UMC-LOCAL-TECHNICIAN": "tests/redaction_vectors.json",
         "HYDRA-UMC-VISION-STREAMER": "tests/redaction_vectors.json",
     },
+    # The installers of the OS read the port, the health route and the unit of a service from this registry.
+    "contracts/ports.yaml": {
+        "HYDRA-UMC-OS": "provisioning/ports.yaml",
+    },
 }
 # only repositories that already carry the file get it (the eight bridges keep their own bump script)
 ONLY_WHERE_PRESENT = frozenset({"bump_manifest_version.py"})
