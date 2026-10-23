@@ -4,6 +4,7 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- The port registry now carries the health path of the orchestrator, the swarm sync and the VLA engine, whose manifests declare it.
 - **Clients for blocks 2 to 5 of the second server contract, in Python, TypeScript, Go and Rust.** `GET /api/robot/{id}` with its revision, `If-Match` on `command`, `claim` and `release` (the `412` is a `RevisionMismatchError` that carries the current revision), the atomic `table` command with its refusals (`TableMoveError`), `GET /api/audit` and the `claims` message of the WebSocket; `claim`, `release` and `command` answers carry the new `revision` and the claims carry `jogArmedUntil`. Purely additive.
 - **Shared conformance cases for them**: `conformance/server-routes/cases_v2.json`, replayed by the four clients (requests with their headers, invalid requests, errors, responses).
 - **OpenAPI 1.3.0** of the typed slice (the new routes, `IfMatchHeader`, `RevisionConflict`, `CommandTable`, `AuditView`, `ClaimsEvent` and the new stable codes) and a new copy of the server's generated openapi.

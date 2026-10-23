@@ -51,7 +51,7 @@ services:
     systemd_unit: null
   - name: HYDRA-UMC-ORCHESTRATOR
     port: 8114
-    health_path: null
+    health_path: /health
     systemd_unit: hydra-umc-orchestrator.service
   - name: HYDRA-UMC-PRODUCTION-REPORTS
     port: 8099
@@ -71,7 +71,7 @@ services:
     systemd_unit: hydra-umc-server.service
   - name: HYDRA-UMC-SWARM-SYNC
     port: 8112
-    health_path: null
+    health_path: /health
     systemd_unit: hydra-umc-swarm-sync.service
   - name: HYDRA-UMC-TELEMETRY-COLLECTOR
     port: 8092
@@ -91,7 +91,7 @@ services:
     systemd_unit: hydra-umc-visual-servoing-api.service
   - name: HYDRA-UMC-VLA-ENGINE
     port: 8098
-    health_path: null
+    health_path: /health
     systemd_unit: hydra-umc-vla-engine.service
   - name: HYDRA-UMC-VOICE-UI
     port: 8091
