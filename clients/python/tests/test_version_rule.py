@@ -78,6 +78,12 @@ class NativePatternTests(unittest.TestCase):
         self.assertNotEqual(once, PACKAGE_JSON_PATTERN)
         self.assertEqual(self.m.with_optional_fourth_group(once), once)
 
+    def test_widening_a_pattern_stored_in_separate_fields_returns_it_unchanged(self):
+        fields = {"major": r"MAJOR (\d+)", "minor": r"MINOR (\d+)", "patch": r"PATCH (\d+)"}
+        self.assertIs(self.m.widen_pattern(fields), fields)
+        self.assertEqual(self.m.widen_pattern(PACKAGE_JSON_PATTERN), self.m.with_optional_fourth_group(PACKAGE_JSON_PATTERN))
+        self.assertEqual(self.m.read_version("MAJOR 0\nMINOR 7\nPATCH 9\n", fields), "0.7.9")
+
 
 class EndToEndTests(unittest.TestCase):
     """Runs the copied utility inside a throw-away project, the way a build does."""
