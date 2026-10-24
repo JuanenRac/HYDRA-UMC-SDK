@@ -86,6 +86,14 @@ A job refused by the gate keeps its key: to try again, the sender uses a new one
 
 `hydra_umc_sdk.bridge_transport` holds what every command and state bridge needs of MQTT: the retry of the first connection, the dispatcher that keeps a stop command from waiting behind a slow one and ignores retained replays, and the client that sets the Last Will on `availability`, subscribes to `cmd/#` and announces `online` after every connect. A bridge keeps only what its topics mean.
 
+### The shared phase coordinator
+
+`hydra_umc_sdk.phase_coordinator.PhaseCoordinator` is the one place that maps a job phase onto the named action of a bridge: it looks the action up, checks the parameters the action needs (a validator says what they mean and returns the values to forward), asks `evaluate_job` (the fail-closed gate), lets the actions that bring the machine to a safe state through whatever the gate said, and describes the static vocabulary without opening a transport. The UAV, AMR and droid bridges use it and keep only their own table of actions, their parameters and what they do with the answer. It never relaxes the gate: an action that is not in `safe_actions` is refused exactly as before, and a de-escalation that has no phase (sit, land, disarm, pause) is `always_forwarded`, while a productive standalone request (stand up) is `gated_request` and goes through the same gate as a job.
+
+### The shared GRBL serial link
+
+`hydra_umc_sdk.serial_link` is what the CNC and laser bridges need to talk to a GRBL controller: `SerialLike`, the one lazy import of `pyserial` (the port is opened closed and with the control lines off, so an Arduino-based board is not reset), `resolve_serial_device_path` / `open_serial_port_by_id` to find a device by a stable id, `ReconnectingSerialConnection` to reopen it after a replug, `read_status_line` (sends `?` and returns the report that answers that query, not an old line), `parse_status_report` (the fields of a report: state, positions, feed, spindle or laser speed, overrides) and `send_realtime` (writes one real-time byte and says whether it really went out). It never streams a G-code program.
+
 ### Connecting to the broker: credentials and TLS
 
 A production HYDRA-UMC-MQTT-BROKER demands a user and a password, and evaluates its ACL for the identity of the credential (its `clientIdPrefix`), not for the client ID the
