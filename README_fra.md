@@ -41,6 +41,19 @@ CC BY-SA 4.0 - voir LICENSE.md
 | Technologie | Python / TypeScript / Go / Rust / JSON Schema |
 | Sur matériel réel | Pas encore : aucune exécution sur du matériel réel n'est consignée pour cette version |
 
+## 🚦 État du projet
+
+Chaque ligne est une partie de ce dépôt et le feu dit où elle en est aujourd'hui. Elle est écrite d'après ce que le dépôt peut montrer (tests, compilations, exécutions), pas d'après ce qui est prévu.
+
+🟢 Fait et vérifié · 🟡 Fonctionne, avec des limites connues · 🟠 À moitié fait ou pas encore vérifié · 🔴 Pas fait ou ne fonctionne pas
+
+| Domaine | État | Ce que cela veut dire ici |
+|---|---|---|
+| Logiciel | 🟢 | Complet pour son usage et stable ; la vérification d'honnêteté ci-dessus liste les limites connues |
+| Tests | 🟠 | Aucun nombre de tests n'est encore consigné pour ce dépôt |
+| Matériel réel | 🔴 | Pas encore : aucune exécution sur du matériel réel n'est consignée pour cette version |
+| Documentation | 🟢 | README en huit langues, vérifié par rapport au manifeste à chaque modification |
+
 ## 🧩 Contrats partagés et boîte à outils d'intégration pour HYDRA-UMC
 
 HYDRA-UMC-SDK définit le langage stable partagé par les services HYDRA-UMC,

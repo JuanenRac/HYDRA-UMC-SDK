@@ -41,6 +41,19 @@ CC BY-SA 4.0 - see LICENSE.md
 | Stack | Python / TypeScript / Go / Rust / JSON Schema |
 | On real hardware | Not yet: no run on real hardware is recorded for this version |
 
+## 🚦 Project status
+
+Each line is one part of this repository and the light says how far it is today. It is written from what the repository can show (tests, builds, runs), not from what is planned.
+
+🟢 Done and verified · 🟡 Works, with known limits · 🟠 Partly done or not verified yet · 🔴 Not done or not working
+
+| Area | State | What it means here |
+|---|---|---|
+| Software | 🟢 | Complete for its purpose and stable; the honesty check above lists the known limits |
+| Tests | 🟠 | No test count is recorded for this repository yet |
+| Real hardware | 🔴 | Not yet: no run on real hardware is recorded for this version |
+| Documentation | 🟢 | README in eight languages, checked against the manifest on every change |
+
 ## 🧩 Shared contracts and integration toolkit for HYDRA-UMC
 
 HYDRA-UMC-SDK defines the stable language shared by HYDRA-UMC services,
