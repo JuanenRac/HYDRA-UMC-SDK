@@ -36,7 +36,7 @@ CC BY-SA 4.0 - 参见 LICENSE.md
 
 | | |
 |---|---|
-| 版本 | `0.3.6` |
+| 版本 | `0.3.7` |
 | 成熟度 | 成熟 |
 | 技术栈 | Python / TypeScript / Go / Rust / JSON Schema |
 | 真实硬件 | 尚未：此版本没有在真实硬件上运行的记录 |

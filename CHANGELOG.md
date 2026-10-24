@@ -1,8 +1,14 @@
 # Changelog
 
+## [0.3.7]
+
+### Changed
+
+- Automated build version increment from 0.3.6.
+
 All notable changes to this project are documented here.
 
-## [Unreleased]
+## [0.3.7] - A shared phase coordinator and a shared GRBL serial link
 
 - **A shared phase coordinator** (`hydra_umc_sdk.phase_coordinator`): the mapping of a job phase onto a named action, the parameter checks, the fail-closed gate, the actions that are always forwarded to reach a safe state, and the static action vocabulary, once, for the UAV, AMR and droid bridges. The gate is unchanged. Tests in `test_phase_coordinator.py`.
 - **A shared GRBL serial link** (`hydra_umc_sdk.serial_link`): `SerialLike`, the lazy pyserial open without a reset, lookup of a device by a stable id, the reconnecting connection, the status query that returns the answer to its own `?`, the parser of a status report and the real-time byte writer that tells a short or untrusted write from a sent one, moved out of the CNC bridge so that the laser bridge reads GRBL with the same code. Tests in `test_serial_link.py`.

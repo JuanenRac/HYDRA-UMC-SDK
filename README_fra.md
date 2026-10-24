@@ -36,7 +36,7 @@ CC BY-SA 4.0 - voir LICENSE.md
 
 | | |
 |---|---|
-| Version | `0.3.6` |
+| Version | `0.3.7` |
 | Maturité | Établi |
 | Technologie | Python / TypeScript / Go / Rust / JSON Schema |
 | Sur matériel réel | Pas encore : aucune exécution sur du matériel réel n'est consignée pour cette version |
