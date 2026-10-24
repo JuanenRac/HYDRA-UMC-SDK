@@ -12,7 +12,9 @@ from pathlib import Path
 
 from hydra_umc_sdk.readme_parity import (
     check_readme_section_parity,
+    check_readme_tree,
     readme_section_signature,
+    readme_tree_names,
 )
 
 EN = """## 🎯 Overview
@@ -159,3 +161,68 @@ class ReadmeLinkParityTests(unittest.TestCase):
         self._write("README.md", _doc("## 🎯 A", "", "[c](CONTRIBUTING.md)"))
         self._write("README_fra.md", _doc("## 🎯 A", "", "[c](docs/CONTRIBUTING.md)"))
         self.assertEqual(check_readme_section_parity(self.root, required=()), [])
+
+
+TREE = "\n".join([
+    "## 📂 Structure",
+    "",
+    "```text",
+    "HYDRA-UMC-TEST/",
+    "├── src/            # code",
+    "├── tools/",
+    "│   └── ci_validate.py",
+    "├── build.sh / build.bat",
+    "├── update.sh/.bat  # the updater",
+    "├── a.sh / .bat, sdkconfig.board.*",
+    "└── README.md",
+    "```",
+    "",
+])
+
+
+class ReadmeTreeTests(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.root = Path(self._tmp.name)
+
+    def _write(self, name: str, content: str) -> Path:
+        path = self.root / name
+        path.write_text(content, encoding="utf-8")
+        return path
+
+    def test_the_first_level_names_are_read_from_the_tree(self):
+        names = readme_tree_names(self._write("README.md", TREE))
+        self.assertTrue({"src", "tools", "update.sh", "update.bat", "a.sh", "a.bat", "sdkconfig.board.*", "README.md"} <= names)
+        self.assertNotIn("ci_validate.py", names)
+
+    def test_the_tree_is_the_code_block_with_the_most_tree_rows(self):
+        text = "## A\n\n```text\n├── sample/   (one row of an example)\n```\n\n" + TREE
+        names = readme_tree_names(self._write("README.md", text))
+        self.assertIn("tools", names)
+        self.assertNotIn("sample", names)
+
+    def test_a_readme_without_a_tree_has_no_names(self):
+        self.assertIsNone(readme_tree_names(self._write("README.md", "## 🎯 A\n\ntext\n")))
+
+    def test_a_complete_tree_passes(self):
+        self._write("README.md", TREE)
+        tracked = ["src", "tools", "update.sh", "update.bat", "sdkconfig.board.s3", "README.md", "LICENSE", ".github", "build.sh", "images", "pyproject.toml"]
+        self.assertEqual(check_readme_tree(self.root, tracked=tracked), [])
+
+    def test_a_versioned_entry_the_tree_leaves_out_is_named_for_each_file(self):
+        self._write("README.md", TREE)
+        self._write("README_spa.md", TREE)
+        problems = check_readme_tree(self.root, tracked=["src", "schemas", "tests"])
+        self.assertEqual(len(problems), 2)
+        self.assertIn("README.md file tree does not list: schemas, tests", problems[0])
+        self.assertIn("README_spa.md", problems[1])
+
+    def test_the_parity_check_reports_it_too(self):
+        self._write("README.md", TREE)
+        problems = check_readme_section_parity(self.root, required=())
+        self.assertEqual(problems, [])  # a folder that Git cannot read is skipped
+
+    def test_a_folder_that_git_cannot_read_is_skipped(self):
+        self._write("README.md", TREE)
+        self.assertEqual(check_readme_tree(self.root), [])
