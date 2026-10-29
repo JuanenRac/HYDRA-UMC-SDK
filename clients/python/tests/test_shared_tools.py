@@ -282,6 +282,98 @@ class VersionProseLabelTests(unittest.TestCase):
         self.assertEqual(self.readme_says("状態: v0.1.8"), "")
 
 
+class SharedChecksOfTheValidatorTests(unittest.TestCase):
+    """Test counts in the notes, the note under the CHANGELOG heading of the version, the glance check."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.workspace = Path(self._tmp.name)
+        sys.path.insert(0, str(SDK / "tools"))
+        self.addCleanup(sys.path.remove, str(SDK / "tools"))
+        self.validate = _load("canonical_ci_validate_shared", SDK / "tools" / "canonical" / "ci_validate.py")
+
+    def test_a_hand_written_test_count_in_the_notes_is_refused(self):
+        for notes in ("Done. 70 Vitest and 11 unittest tests.", "adds 32 direct unit tests", "tests: 142", "142 passing", "1,204 tests"):
+            self.assertTrue(self.validate.check_notes_have_no_test_counts({"notes": notes}), notes)
+
+    def test_notes_without_a_count_pass(self):
+        for notes in ("The tests use net/http/httptest.", "Exit 1. The tests cover it.", "v0.6.9: POST adds 2 routes", "", "test harness"):
+            self.assertEqual(self.validate.check_notes_have_no_test_counts({"notes": notes}), [], notes)
+        self.assertEqual(self.validate.check_notes_have_no_test_counts({}), [])
+
+    CHANGELOG = "# Changelog\n\n## [Unreleased]\n\n- later\n\n## [0.2.0] - x\n\n### Added\n\n- a thing\n\n## [0.1.0]\n\n- first\n"
+
+    def test_the_section_of_a_version_is_found(self):
+        section = self.validate.changelog_version_section(self.CHANGELOG, "0.2.0")
+        self.assertIn("a thing", section)
+        self.assertNotIn("first", section)
+        self.assertIsNone(self.validate.changelog_version_section(self.CHANGELOG, "9.9.9"))
+
+    def test_a_heading_with_a_note_passes(self):
+        self.assertEqual(self.validate.check_changelog_note(self.CHANGELOG, "0.2.0", {}), [])
+
+    def test_a_heading_without_a_note_is_refused(self):
+        empty = "# Changelog\n\n## [0.2.0] - x\n\n### Added\n\n## [0.1.0]\n\n- first\n"
+        self.assertIn("no note", self.validate.check_changelog_note(empty, "0.2.0", {})[0])
+
+    def test_a_missing_heading_is_refused(self):
+        self.assertIn("no heading", self.validate.check_changelog_note(self.CHANGELOG, "0.3.0", {})[0])
+
+    def test_a_tag_build_needs_the_tag_to_name_the_version(self):
+        ok = {"GITHUB_REF_TYPE": "tag", "GITHUB_REF": "refs/tags/v0.2.0"}
+        self.assertEqual(self.validate.check_changelog_note(self.CHANGELOG, "0.2.0", ok), [])
+        bad = {"GITHUB_REF_TYPE": "tag", "GITHUB_REF": "refs/tags/v0.1.0"}
+        self.assertIn("does not name", self.validate.check_changelog_note(self.CHANGELOG, "0.2.0", bad)[0])
+        branch = {"GITHUB_REF_TYPE": "branch", "GITHUB_REF": "refs/heads/main"}
+        self.assertEqual(self.validate.check_changelog_note(self.CHANGELOG, "0.2.0", branch), [])
+
+    def fake_docs(self, script_body: str, listed: tuple[str, ...]) -> Path:
+        docs = self.workspace / "HYDRA-UMC-DOCS"
+        (docs / "tools").mkdir(parents=True)
+        (docs / "data").mkdir()
+        (docs / "tools" / "make_glance.py").write_text(script_body, encoding="utf-8")
+        (docs / "data" / "glance.json").write_text(json.dumps({"repos": {name: {} for name in listed}}), encoding="utf-8")
+        return docs
+
+    def test_no_documentation_checkout_means_no_glance_check(self):
+        repo = self.workspace / "HYDRA-UMC-A"
+        repo.mkdir()
+        self.assertEqual(self.validate.check_glance(repo, {}), [])
+
+    def test_a_repository_that_the_glance_data_does_not_list_is_skipped(self):
+        self.fake_docs("import sys\nsys.exit(1)\n", ("HYDRA-UMC-B",))
+        repo = self.workspace / "HYDRA-UMC-A"
+        repo.mkdir()
+        self.assertEqual(self.validate.check_glance(repo, {}), [])
+
+    def test_a_failing_glance_check_is_reported_and_a_passing_one_is_not(self):
+        self.fake_docs("import sys\nprint('x/README.md: the section is stale', file=sys.stderr)\nsys.exit(1)\n", ("HYDRA-UMC-A",))
+        repo = self.workspace / "HYDRA-UMC-A"
+        repo.mkdir()
+        problems = self.validate.check_glance(repo, {})
+        self.assertEqual(len(problems), 1)
+        self.assertIn("stale", problems[0])
+        (self.workspace / "HYDRA-UMC-DOCS" / "tools" / "make_glance.py").write_text(
+            "import sys\nassert '--repo' in sys.argv and 'HYDRA-UMC-A' in sys.argv\n", encoding="utf-8")
+        self.assertEqual(self.validate.check_glance(repo, {}), [])
+
+    def test_the_documentation_folder_can_be_named_by_the_environment(self):
+        elsewhere = self.workspace / "elsewhere"
+        elsewhere.mkdir()
+        docs = self.fake_docs("import sys\nsys.exit(1)\n", ("HYDRA-UMC-A",))
+        docs.rename(elsewhere / "docs")
+        repo = self.workspace / "HYDRA-UMC-A"
+        repo.mkdir()
+        self.assertEqual(len(self.validate.check_glance(repo, {"HYDRA_UMC_DOCS_DIR": str(elsewhere / "docs")})), 1)
+
+    def test_the_canonical_validator_runs_every_shared_check(self):
+        text = (SDK / "tools" / "canonical" / "ci_validate.py").read_text(encoding="utf-8")
+        for call in ("check_notes_have_no_test_counts(manifest)", "check_changelog_note(changelog", "check_glance(ROOT)", "run_extra_checks()", "_universal_readme_ci(ROOT)"):
+            self.assertIn(call, text)
+        self.assertLess(text.index("check_glance(ROOT)"), text.rindex("run_extra_checks()"))
+
+
 class PerRepositoryCopyTests(Workspace):
     def test_the_redaction_copies_are_checked_and_written(self):
         name = "HYDRA-UMC-OPS-AGENT"
