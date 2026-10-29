@@ -1,36 +1,38 @@
-<!--
-=============================================================================
-HYDRA-UMC-SDK - Public contract and integration toolkit overview
-Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-CC BY-SA 4.0 - see LICENSE.md
-=============================================================================
--->
+<!-- =============================================================================
+HYDRA-UMC-SDK - Shared contracts and integration toolkit
+Copyright (C) JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
+GPL-3.0-or-later - see LICENSE
+============================================================================= -->
 
 <p align="center">
   <img src="images/HYDRA_UMC_BANNER.svg" alt="HYDRA-UMC-SDK banner" width="100%">
 </p>
 
-<p align="center">
-  <a href="README.md">🇺🇸 English</a> |
-  <a href="README_spa.md">🇪🇸 Español</a> |
-  <a href="README_fra.md">🇫🇷 Français</a> |
-  <a href="README_ita.md">🇮🇹 Italiano</a> |
-  <a href="README_deu.md">🇩🇪 Deutsch</a> |
-  <a href="README_zho.md">🇨🇳 简体中文</a> |
-  <a href="README_jpn.md">🇯🇵 日本語</a> |
-  🇵🇹 <b>Português</b>
-</p>
+# 🧰 HYDRA-UMC-SDK
+
+<p align="center"><a href="README.md">🇺🇸 English</a> | <a href="README_spa.md">🇪🇸 Español</a> | <a href="README_fra.md">🇫🇷 Français</a> | <a href="README_ita.md">🇮🇹 Italiano</a> | <a href="README_deu.md">🇩🇪 Deutsch</a> | <a href="README_zho.md">🇨🇳 简体中文</a> | <a href="README_jpn.md">🇯🇵 日本語</a> | 🇵🇹 <b>Português</b></p>
+
+### 🧰 Contratos partilhados, clientes de referência e ferramentas de integração para o HYDRA-UMC
 
 <p align="center">
-  <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="License: GPL 3.0">
-  <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts: JSON Schema | OpenAPI">
-  <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference clients: Python | Go | TypeScript | Rust">
-  <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration: CM5 | URTC">
+  <img src="https://img.shields.io/badge/License-GPL%203.0--or--later-blue.svg" alt="GPL 3.0 or later">
+  <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
+  <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
+  <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
+  <img src="https://img.shields.io/badge/Tests-463%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Version-0.3.8-0f6cbd.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
-# HYDRA-UMC-SDK
+---
+
+> **Verificação de honestidade - o que realmente funciona hoje:** os dez contratos JSON Schema v1 com uma fixture válida e outra inválida cada um, o validador Python, a primeira fatia OpenAPI v1 do HYDRA-UMC-SERVER, os clientes Go, TypeScript e Rust que aplicam os mesmos esquemas, os auxiliares de ponte e a matriz de compatibilidade são reais e testados num computador (463 testes Python, mais as suites dos outros três clientes). O Protobuf ainda não está publicado, a porta de trabalhos é uma função de software partilhada e não uma função de segurança certificada, e nada disto correu em hardware real.
+
+---
 
 > **Estado de segurança (safety e security):** este ecossistema não é um sistema de segurança certificado. Ainda não existe um caminho de E-STOP por hardware, nem limites ou interlocks impostos pelo firmware, nem um comando de movimento verificado; as imagens de firmware são verificadas com CRC32 e um HMAC-SHA256 de chave partilhada, não com uma assinatura assimétrica; TLS e TLS mútuo são opcionais e estão desativados por defeito; nenhuma placa própria foi ainda montada ou testada. Leia a [base de segurança](https://github.com/JuanenRac/HYDRA-UMC-DOCS/blob/main/docs/SECURITY_BASELINE.md) e o [modelo de ameaças](https://github.com/JuanenRac/HYDRA-UMC-DOCS/blob/main/docs/THREAT_MODEL.md) antes de confiar em qualquer afirmação aqui para a segurança de uma pessoa.
+
+---
 
 ## 📋 Num relance
 
@@ -38,8 +40,11 @@ CC BY-SA 4.0 - see LICENSE.md
 |---|---|
 | Versão | `0.3.8` |
 | Maturidade | Estabelecido |
+| Testes | 463 (`python -m unittest discover -s clients/python/tests`) |
 | Tecnologia | Python / TypeScript / Go / Rust / JSON Schema |
 | Em hardware real | Ainda não: não há registo de execução em hardware real para esta versão |
+
+**Ir para:** [Visão geral](#-visão-geral) · [Arquitetura](#-arquitetura) · [Funcionalidades](#-funcionalidades) · [Segurança e proteção](#-segurança-e-proteção) · [Interfaces](#-interfaces) · [Configuração](#-configuração) · [Início rápido](#-início-rápido) · [Testes](#-testes) · [Resolução de problemas](#-resolução-de-problemas) · [Estrutura do repositório](#-estrutura-do-repositório) · [Projetos relacionados](#-projetos-relacionados)
 
 ## 🚦 Estado do projeto
 
@@ -50,15 +55,27 @@ Cada linha é uma parte deste repositório e a luz diz até onde chega hoje. É 
 | Área | Estado | O que significa aqui |
 |---|---|---|
 | Software | 🟢 | Completo para o seu propósito e estável; a verificação de honestidade acima lista os limites conhecidos |
-| Testes | 🟠 | Ainda não há registo do número de testes deste repositório |
+| Testes | 🟢 | 463 testes automáticos, executados a cada alteração |
 | Hardware real | 🔴 | Ainda não: não há registo de execução em hardware real para esta versão |
 | Documentação | 🟢 | README em oito idiomas, verificado contra o manifesto a cada alteração |
 
-## 🧩 Contratos partilhados e kit de integração para o HYDRA-UMC
+## 🎯 Visão geral
 
 O HYDRA-UMC-SDK define a linguagem estável partilhada pelos serviços, clientes, adaptadores CM5 e integrações URTC do HYDRA-UMC. É dono dos contratos normativos, de um validador de referência em Python sem dependências, de fixtures de conformidade e de orientações de integração. Não substitui as APIs oficiais do Raspberry Pi OS, do Hailo, do ROS 2, do MQTT, do OPC-UA nem do MTConnect.
 
-## 🚧 Estado
+## 🧩 Papel no HYDRA-UMC
+
+O **HYDRA-UMC-SDK** é a língua comum do ecossistema: os contratos JSON Schema v1, a primeira fatia OpenAPI do servidor, clientes de referência em Python, Go, TypeScript e Rust, os auxiliares de ponte que todas as pontes e o concentrador de conectores usam, e as ferramentas que mantêm idênticas as ferramentas de cada repositório. Não corre nenhum serviço próprio nem substitui nenhuma API oficial.
+
+## 🏛️ Arquitetura
+
+<p align="center">
+  <img src="images/architecture.svg" alt="HYDRA-UMC-SDK architecture" width="100%">
+</p>
+
+## ✨ Funcionalidades
+
+### Estado
 
 Estão implementados os contratos JSON Schema v1, fixtures válidas/inválidas, um cliente de validação em Python, testes no anfitrião e uma primeira fatia real de OpenAPI v1 para a superfície HTTP do próprio HYDRA-UMC-SERVER (`contracts/openapi/v1/server.openapi.json`; ver [docs/CONTRACTS.md](docs/CONTRACTS.md#openapi-v1)). A publicação em Protobuf é um marco de compatibilidade posterior; os clientes Go, TypeScript e Rust já existem.
 
@@ -66,46 +83,57 @@ Uma matriz de compatibilidade real e automática (`tools/verify_contract_matrix.
 
 Desde então foram publicados mais contratos para além dos quatro do primeiro marco abaixo: um contrato público `BridgeJob`/`GateDecision` de bridge para máquinas externas (ver [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), partilhado por `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER`/`-AMR`/`-DROIDS`/`-UAV` e com o seu próprio formato JSON real (`job_to_dict()`/`job_from_dict()`/`decision_to_dict()`), a que se juntam o estado da máquina que o próprio bridge observa, que a porta usa em vez do declarado por quem pede, e uma admissão de trabalhos (`JobIntake`/`IdempotencyStore`) que ignora mensagens retidas e não repete uma chave de idempotência; um contrato `ScenarioOutcome` mais `compare_runs()`, uma verificação partilhada de «foi mesmo corrigido» que devolve `apparent-success` (não `regression-fixed`) quando uma falha deixou de se reproduzir mas a impressão digital de base nunca se moveu; um contrato `Operation` mais `validate_status_transition()`, o ciclo de vida partilhado de objetivo/trabalho/operação (`received`/`authorized`/`queued`/`sent`/`confirmed`/`terminated`/`rejected`, nunca um único saco colapsado de «executado»); um `result` opcional em `Operation` mais `concludes_success()`, evidência real (`run_id`/`origin`/`observers_enabled`/`outcome`) que se recusa a concluir sucesso a partir de um resultado obsoleto/repetido ou de uma execução com a observação desativada; um contrato autónomo `Capability` mais `is_capability_usable()`, em que o facto de um alvo sequer *declarar* suporte para um tipo de operação (`kind`) se modela como dado distinto de esse suporte ter sido *verificado recentemente de facto* (`last_checked_at_utc`/`checked_configuration`/`max_age_seconds`), de modo que uma capacidade declarada mas nunca verificada, ou já obsoleta, nunca é tratada em silêncio como utilizável; e um `hydra-umc-sdk-mock-server` (`mock_server.py`) que serve um exemplo de carga válida por contrato conhecido em HTTP simples, para que uma interface ou adaptador se desenvolva contra ele antes de existir qualquer hardware real de CM5/robô/MCU. Todos os 10 contratos têm pelo menos uma fixture válida e uma inválida, verificadas pela matriz de compatibilidade acima.
 
-## 🎯 Primeiro marco
+## 🔒 Segurança e proteção
 
-1. Publicar `DeviceDescriptor`, `HealthReport`, `SafetyState` e `UpdateManifest` em JSON Schema v1.
-2. Validar fixtures válidas e inválidas com o cliente de referência em Python.
-3. Acrescentar ao CI uma matriz de compatibilidade produtor/consumidor.
-4. Publicar representações Protobuf/OpenAPI onde a integração as exija (a primeira fatia real de OpenAPI, que cobre as rotas de descoberta/autenticação/frota/comandos do HYDRA-UMC-SERVER, está concluída; o Protobuf continua pendente).
-5. Acrescentar clientes reais e testados em TypeScript, Go e Rust que validem os contratos v1 estáveis.
+| Ameaça | Defesa | Onde |
+|---|---|---|
+| Um comando de ponte fora do seu contrato | Um trabalho leva no máximo 32 parâmetros, nomes de 64 caracteres, valores de 1024 e identificadores de 128; usa-se o estado da máquina que a ponte observa, não o que o requerente afirma | `bridge_contract.py` |
+| O mesmo comando executado duas vezes, ou uma mensagem retida repetida | A admissão de trabalhos ignora mensagens retidas e nunca executa duas vezes uma chave de idempotência | `job_intake.py` |
+| Uma paragem à espera atrás de um comando longo | Os comandos normais correm um de cada vez numa faixa e os verbos de paragem numa segunda faixa | `bridge_transport.py` |
+| Credenciais do broker num ficheiro de configuração, ou broker não verificado | Utilizador e palavra-passe vêm do ambiente ou de um ficheiro, o TLS pode verificar o broker contra uma CA, e um certificado de cliente com a sua chave ativa o TLS mútuo | `mqtt_connection.py` |
+| Um esquema alterado sem que o validador o acompanhe | Uma matriz de compatibilidade verifica cada esquema publicado contra a lista de contratos do validador e julga cada fixture pelo que o nome do ficheiro afirma | `tools/verify_contract_matrix.py` |
 
-## 📂 Estrutura do repositório
+**O que nunca faz:** servir de função de segurança certificada. A porta de trabalhos é uma implementação de software partilhada pelas pontes, não uma certificação de segurança.
 
-<p align="center">
-  <img src="images/REPOSITORY_LAYOUT.svg" alt="Mapa visual da estrutura do repositório HYDRA-UMC-SDK" width="100%">
-</p>
+## 🔌 Interfaces
 
-| Caminho | Finalidade |
-| --- | --- |
-| `contracts/` | Fontes normativas de JSON Schema v1, mais uma fatia real de OpenAPI v1 (`openapi/v1/server.openapi.json`) para a superfície HTTP do próprio HYDRA-UMC-SERVER. |
-| `clients/` | Clientes de referência reais e testados em Python, Go, TypeScript e Rust, cada um a validar os mesmos esquemas v1 publicados. |
-| `conformance/` | Fixtures v1 válidas e inválidas usadas pelos testes de compatibilidade. |
-| `docs/` | Especificações de contratos, API e desenvolvimento. |
-| `examples/` | Exemplos executáveis em Python. |
-| `tools/` | `verify_contract_matrix.py` (matriz de compatibilidade esquema/validador), `verify_openapi.py` (porta estrutural de OpenAPI sem dependências) e o motor `build-test` que não altera nada. `sync_repo_tools.py` mantém idênticas as ferramentas partilhadas de todos os repositórios, `pin_sdk.py` fixa os consumidores do SDK a uma etiqueta de versão e `canonical/` guarda as cópias únicas que são replicadas (entre elas o comando `hydra_project_tool.py`, que valida, testa e só sobe a versão quando lhe é pedido). `sync_ports.py` gera e verifica `contracts/ports.yaml`, o registo da porta, do caminho de saúde e da unidade systemd de cada serviço; a redação partilhada de segredos (`canonical/redaction.py`, com os casos em `contracts/redaction/vectors.json`) é copiada para os projetos que enviam texto para fora. |
+| Tópico ou rota | O que leva |
+|---|---|
+| `contracts/json-schema/v1/` | dez contratos JSON Schema v1: capacidade, descritor de dispositivo, envelope de evento, relatório de saúde, operação, manifesto de projeto, estado de segurança, resultado de cenário, descoberta de servidor, manifesto de atualização |
+| `contracts/openapi/v1/server.openapi.json` | a primeira fatia OpenAPI v1 do HYDRA-UMC-SERVER: descoberta, início de sessão, definições e comandos (um subconjunto do `docs/openapi.json` do próprio servidor) |
+| `contracts/ports.yaml` | o registo de porta, caminho de saúde e unidade systemd de cada serviço, gerado por `tools/sync_ports.py` |
+| `hydra/bridges/<name>/cmd/#` | onde uma ponte escuta; responde em `.../<verbo>/result` |
+| `hydra-umc-contract-validate`, `hydra-umc-sdk-mock-server` | o validador na linha de comandos (código de saída 2 em caso de falha) e um servidor simulado em `127.0.0.1:8790` que serve um exemplo válido por contrato |
 
-Leia [o guia de contratos](docs/CONTRACTS.md) antes de definir uma mensagem nova.
+## ⚙️ Configuração
 
-## 📖 Documentação adicional
+| Variável | Predefinição | O que define |
+|---|---|---|
+| `HYDRA_MQTT_USERNAME`, `HYDRA_MQTT_PASSWORD` | sem credencial | a credencial do broker; a palavra-passe só junto com o utilizador |
+| `HYDRA_MQTT_PASSWORD_FILE` | - | a palavra-passe lida de um ficheiro (um segredo do Docker ou systemd); ignorada se a variável acima estiver definida |
+| `HYDRA_MQTT_TLS`, `HYDRA_MQTT_TLS_CA` | sem TLS | `HYDRA_MQTT_TLS=1` verifica o broker com as CA do sistema; `HYDRA_MQTT_TLS_CA` indica o ficheiro da CA que assinou o seu certificado |
+| `HYDRA_MQTT_TLS_CERT`, `HYDRA_MQTT_TLS_KEY` | - | o certificado de cliente e a chave para um broker que exige TLS mútuo; são precisos os dois e ativam o TLS |
+| `--host`, `--port` | `127.0.0.1`, `8790` | onde escuta o servidor simulado |
+| `HYDRA_UMC_SDK_ROOT` | a pasta ao lado | onde os testes dos outros repositórios encontram este |
 
-- **[docs/CONTRACTS.md](docs/CONTRACTS.md)** — o guia normativo de contratos: leia-o antes de definir uma mensagem nova.
-- **[docs/PYTHON_CLIENT.md](docs/PYTHON_CLIENT.md)** — referência completa da função `validate()` e da CLI `hydra-umc-contract-validate`, com a tabela de campos obrigatórios/validação extra de cada contrato.
-- **[docs/SERVER_CLIENT.md](docs/SERVER_CLIENT.md)** — os clientes (Python, TypeScript, Go, Rust) das rotas do servidor claim, release, jog-arm, claims e limites de segurança: o `controllerId` opcional, os erros tipados (`other-account`, `other-controller`, `controller-id-required`, `invalid-controller-id`, `jog-not-armed`) e os casos de conformidade partilhados. Os mesmos clientes cobrem agora também a revisão de um robô com `If-Match`, o comando atómico da mesa, o registo de auditoria e a mensagem `claims` do WebSocket (`conformance/server-routes/cases_v2.json`).
-- **[docs/CONFORMANCE.md](docs/CONFORMANCE.md)** — o que um conjunto de fixtures válidas/retrocompatíveis/malformadas/inseguras tem de cobrir por contrato e o que cobre hoje o conjunto v1 implementado.
-- **[docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)** — a fronteira partilhada v0 `BridgeJob`/`GateDecision` usada por `HYDRA-UMC-BRIDGE-ROS2`, `-OPENPNP`, `-PRINTER3D`, `-CNC` e `-LASER`.
-- **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — a fronteira de adaptadores CM5-MCU/URTC: camadas de transporte, enquadramento, protocolo e serviço, e porque o MCU deve continuar a ser a autoridade sobre os limites físicos e a paragem segura (regra de desenho: nenhum firmware impõe ainda limites nem paragem segura).
-- **[docs/API_DESIGN.md](docs/API_DESIGN.md)** — as convenções que a API HTTP/WebSocket pública do próprio HYDRA-UMC-SERVER segue: o objetivo de rotas `/api/v1` versionadas (hoje as rotas não são versionadas) e o formato de resultado de comando `ACCEPTED`/`REJECTED`/`RUNNING`/`COMPLETED`/`FAILED`.
-- **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** — o fluxo de trabalho «esquema primeiro» com que se desenvolvem os contratos deste SDK e o que exige uma alteração de contrato (entrada no changelog, decisão de compatibilidade, exemplos, testes).
-- **[docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md)** — os níveis de teste partilhados, a matriz de plataformas, a evidência mínima por resultado, os objetivos de campanhas reproduzíveis, a independência das fixtures e as convenções de custo/armazenamento com que cada repositório se pode comparar.
-- **[docs/PROJECT_MANIFEST.md](docs/PROJECT_MANIFEST.md)** — o contrato `hydra-umc.project.json` que cada repositório deste ecossistema publica.
-- **[docs/HEADER_CONVENTION.md](docs/HEADER_CONVENTION.md)** — o cabeçalho obrigatório de direitos de autor/licença para novos ficheiros de código e documentação em todo este ecossistema.
+## 🚀 Início rápido
 
-## 🛠️ COMPILAR E EXECUTAR
+Requer Python 3.11 ou superior. Os clientes Go, TypeScript e Rust também são compilados e testados se a sua cadeia de ferramentas estiver instalada.
+
+```bash
+PYTHONPATH=clients/python/src python -m unittest discover -s clients/python/tests  # the Python client tests
+python tools/verify_contract_matrix.py                                             # every schema against the validator and every fixture
+PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help            # the contract validator on the command line
+./build-test.sh                                                                    # the non-mutating build check (build-test.bat on Windows)
+```
+
+## 🧪 Testes
+
+463 testes automáticos correm com `python -m unittest discover -s clients/python/tests`. Os outros clientes têm as suas próprias suites: 26 testes em Go (`go test ./...`), 104 em TypeScript (`npm test`) e 28 em Rust (`cargo test`), executados por `tools/extra_build_steps.py` se a cadeia de ferramentas estiver instalada. Nenhum precisa de hardware.
+
+A CI executa `HYDRA_UMC_CI=1 python tools/ci_validate.py`, que verifica o manifesto, os documentos, os oito README e as imagens.
+
+## 🏗️ Compilação e publicação
 
 Use a verificação de compilação que não altera versões antes de uma compilação de lançamento:
 
@@ -115,6 +143,61 @@ Use a verificação de compilação que não altera versões antes de uma compil
 | Executar / desenvolvimento (quando existir) | `run*.bat` ou `dev*.bat` | `./run*.sh` ou `./dev*.sh` |
 
 `build-test.bat` e `build-test.sh` compilam ou validam a pilha do projeto sem incrementar `hydra-umc.project.json` nem modificar `CHANGELOG.md`. Podem criar a saída normal do compilador. Os scripts `build*.bat`, `build*.sh`, `run*` e `dev*` existentes mantêm o seu comportamento próprio do projeto, versionado ou de execução; use-os quando esse comportamento for necessário.
+
+## 🩺 Resolução de problemas
+
+| Vê | Porque | Faça |
+|---|---|---|
+| `hydra-umc-contract-validate: missing required field: ...` | A carga viola o contrato; o comando termina com código de saída 2 | Compare o ficheiro com o exemplo que o servidor simulado serve para esse contrato |
+| `verify_contract_matrix.py` falha | Um esquema foi adicionado ou alterado e a lista de contratos do validador ou uma fixture não foi atualizada | Adicione a entrada do validador e uma fixture válida e outra inválida |
+| `go test ./...` é ignorado | A verificação de compilação só corre os clientes Go, TypeScript e Rust se `go`, `npm` e `cargo` estiverem no PATH | Instale a cadeia de ferramentas; a verificação imprime que cliente foi ignorado |
+
+## 📂 Estrutura do repositório
+
+<p align="center">
+  <img src="images/repository-structure.svg" alt="Repository structure of HYDRA-UMC-SDK" width="100%">
+</p>
+
+<details>
+<summary>Versão em texto da árvore</summary>
+
+```text
+HYDRA-UMC-SDK/
+├── contracts/                 fontes JSON Schema v1, a fatia OpenAPI e o registo de portas
+├── clients/                   os clientes de referência em Python, Go, TypeScript e Rust
+├── conformance/               fixtures válidas e inválidas de cada contrato
+├── docs/                      guias de contratos, API e desenvolvimento
+├── examples/                  exemplos Python executáveis
+├── tools/                     matriz de contratos, porta OpenAPI, sincronização de ferramentas, verificação de compilação
+├── .github/                   fluxo de CI e modelos de problemas
+├── images/                    faixa e imagens do README
+├── CHANGELOG.md               o que mudou em cada versão
+├── build-test.sh              verificação de compilação sem alterações
+├── build.sh                   compila e verifica; nunca muda a versão
+├── bump_manifest_version.py   sincroniza a versão do manifesto
+├── bump_version.py            subida de versão explícita
+├── hydra-umc.project.json     manifesto: versão, maturidade, família
+├── run.sh                     arranca o programa
+└── test.sh                    executa os testes
+```
+
+</details>
+
+`tools/`: `verify_contract_matrix.py` (matriz de compatibilidade esquema/validador), `verify_openapi.py` (porta estrutural de OpenAPI sem dependências) e o motor `build-test` que não altera nada. `sync_repo_tools.py` mantém idênticas as ferramentas partilhadas de todos os repositórios, `pin_sdk.py` fixa os consumidores do SDK a uma etiqueta de versão e `canonical/` guarda as cópias únicas que são replicadas (entre elas o comando `hydra_project_tool.py`, que valida, testa e só sobe a versão quando lhe é pedido). `sync_ports.py` gera e verifica `contracts/ports.yaml`, o registo da porta, do caminho de saúde e da unidade systemd de cada serviço; a redação partilhada de segredos (`canonical/redaction.py`, com os casos em `contracts/redaction/vectors.json`) é copiada para os projetos que enviam texto para fora.
+
+## 🗺️ Roteiro e limites conhecidos
+
+**Limites conhecidos hoje**
+
+* O Protobuf ainda não está publicado, e a fatia OpenAPI cobre só descoberta, início de sessão, definições e comandos.
+* As rotas do servidor não estão versionadas hoje; `/api/v1` é o objetivo de desenho descrito em `docs/API_DESIGN.md`.
+* Nada disto correu em hardware real, e a porta de trabalhos é uma função de software, não uma função de segurança certificada.
+
+**A seguir:** publicar o Protobuf onde uma integração precisar e alargar a fatia OpenAPI ao resto das rotas do servidor.
+
+## 🌍 Idiomas
+
+Este README e os documentos do repositório existem em oito idiomas: inglês, espanhol, alemão, francês, italiano, japonês, chinês e português (Portugal). São escritos em conjunto e a CI verifica que os oito ficheiros têm as mesmas secções e as mesmas ligações. Este repositório não tem ecrã nem catálogo de mensagens próprios, por isso não há textos de interface para traduzir.
 
 ## 🔗 Projetos relacionados
 
@@ -206,20 +289,26 @@ Este projeto faz parte do ecossistema de robótica HYDRA-UMC do mesmo autor (Jua
 - **[URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK)** — firmware de um rack de montagem de placas com descodificação real do ID da ferramenta e lógica de pré-aquecimento Smart Idle.
 - **[URTC-VISION-TOOL](https://github.com/JuanenRac/URTC-VISION-TOOL)** — firmware mais um companheiro de visão em Python real para uma cabeça de ferramenta de inspeção térmica/RGB.
 
----
+## 📚 Documentação
 
-## 📚 Documentação e comunidade
+Onde ler mais:
 
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** — pilha tecnológica e diretrizes de código para um pull request.
-- **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** — as normas de comportamento esperadas nesta comunidade.
-- **[SECURITY.md](SECURITY.md)** — como comunicar uma vulnerabilidade e as áreas de segurança em que este projeto se concentra.
-- **[SUPPORT.md](SUPPORT.md)** — onde fazer perguntas e comunicar erros.
+* [Base de segurança do ecossistema](https://github.com/JuanenRac/HYDRA-UMC-DOCS/blob/main/docs/SECURITY_BASELINE.md)
+* [Modelo de ameaças do ecossistema](https://github.com/JuanenRac/HYDRA-UMC-DOCS/blob/main/docs/THREAT_MODEL.md)
+* [Registo de alterações deste repositório](CHANGELOG.md)
+* [Licença deste repositório](LICENSE.md)
+
+## 🤝 Contribuir e comunidade
+
+* Antes de um pull request execute `HYDRA_UMC_CI=1 py -3 tools/ci_validate.py` (ou `HYDRA_UMC_CI=1 python3 tools/ci_validate.py`): tem de imprimir `CI_VALIDATION=PASS`. Não execute `build.sh` nem `build.bat` para esta verificação; compilar não é verificar.
+* Os oito README são escritos a partir de uma única fonte em HYDRA-UMC-DOCS; não os edite à mão. Altere a fonte e escreva-os de novo com `tools/make_readmes.py`.
+* Não afirme num README o que não foi executado: diga «simulado» ou «não testado em hardware» quando for a verdade.
+* Consulte [CONTRIBUTING.md](CONTRIBUTING.md), o [código de conduta](CODE_OF_CONDUCT.md), [SECURITY.md](SECURITY.md) e [SUPPORT.md](SUPPORT.md).
 
 ## 👤 AUTOR
-**JuanenRac** (Electro Hobby 3D)
-📧 electrohobby3d@gmail.com
-📺 [youtube.com/@electrohobby3d](https://youtube.com/@electrohobby3d)
+
+**JuanenRac (Electro Hobby 3D)** · electrohobby3d@gmail.com
 
 ## 📜 LICENÇA
 
-O código é GPL-3.0-or-later; a documentação é CC BY-SA 4.0. Ver [LICENSE](LICENSE).
+GPL-3.0-or-later - [LICENSE](LICENSE).

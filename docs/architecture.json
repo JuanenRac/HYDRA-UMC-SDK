@@ -1,0 +1,225 @@
+{
+  "repo": "HYDRA-UMC-SDK",
+  "ecosystem": "hydra",
+  "tagline": "One set of contracts, four clients that enforce them, and the tools that keep every repository the same.",
+  "description": "HYDRA-UMC-SDK holds the schemas and the OpenAPI slice, the clients that validate against them, the bridge helpers built on the contract, and the tools that check the schemas against the validator and copy the shared tooling into every repository.",
+  "columns": [
+    "WHO USES IT",
+    "THIS REPOSITORY",
+    "WHAT IT CHECKS"
+  ],
+  "nodes": [
+    {
+      "id": "brg",
+      "column": 0,
+      "level": "tested",
+      "title": "Bridges and hub",
+      "lines": [
+        "jobs, the gate decision,",
+        "intake and transport"
+      ],
+      "code": [
+        "clients/python/src/hydra_umc_sdk/bridge_contract.py",
+        "clients/python/src/hydra_umc_sdk/job_intake.py",
+        "clients/python/src/hydra_umc_sdk/bridge_transport.py"
+      ]
+    },
+    {
+      "id": "app",
+      "column": 0,
+      "level": "tested",
+      "title": "SERVER and apps",
+      "lines": [
+        "typed routes of the server",
+        "in four languages"
+      ],
+      "code": [
+        "clients/python/src/hydra_umc_sdk/server_api.py",
+        "clients/go/serverapi.go"
+      ]
+    },
+    {
+      "id": "fix",
+      "column": 2,
+      "level": "tested",
+      "title": "conformance fixtures",
+      "lines": [
+        "valid and invalid cases",
+        "for every contract"
+      ],
+      "code": [
+        "conformance/fixtures"
+      ]
+    },
+    {
+      "id": "rep",
+      "column": 2,
+      "level": "config",
+      "title": "every repository",
+      "lines": [
+        "receives the same tools",
+        "and the port registry"
+      ],
+      "code": [
+        "contracts/ports.yaml"
+      ]
+    },
+    {
+      "id": "mq",
+      "column": 2,
+      "level": "contract",
+      "title": "MQTT broker",
+      "lines": [
+        "bridges listen on",
+        "hydra/bridges/<name>/cmd/#"
+      ]
+    },
+    {
+      "id": "nat",
+      "column": 1,
+      "level": "tested",
+      "title": "Go, TypeScript, Rust",
+      "lines": [
+        "the same schemas, the",
+        "same fixtures"
+      ],
+      "code": [
+        "clients/go/validation.go",
+        "clients/typescript/src",
+        "clients/rust/src"
+      ]
+    },
+    {
+      "id": "con",
+      "column": 1,
+      "level": "tested",
+      "title": "contracts",
+      "lines": [
+        "ten JSON Schema v1",
+        "files and the OpenAPI slice"
+      ],
+      "code": [
+        "contracts/json-schema/v1/manifest.json",
+        "contracts/openapi/v1/server.openapi.json"
+      ]
+    },
+    {
+      "id": "pyc",
+      "column": 1,
+      "level": "tested",
+      "title": "Python client",
+      "lines": [
+        "validate(), the command",
+        "line and the mock server"
+      ],
+      "code": [
+        "clients/python/src/hydra_umc_sdk/validation.py",
+        "clients/python/src/hydra_umc_sdk/mock_server.py"
+      ]
+    },
+    {
+      "id": "tls",
+      "column": 1,
+      "level": "tested",
+      "title": "tools",
+      "lines": [
+        "matrix and OpenAPI gates;",
+        "sync of shared tooling"
+      ],
+      "code": [
+        "tools/verify_contract_matrix.py",
+        "tools/verify_openapi.py",
+        "tools/sync_repo_tools.py"
+      ]
+    },
+    {
+      "id": "brd",
+      "column": 1,
+      "level": "tested",
+      "title": "bridge helpers",
+      "lines": [
+        "MQTT settings, two",
+        "command lanes"
+      ],
+      "code": [
+        "clients/python/src/hydra_umc_sdk/mqtt_connection.py",
+        "clients/python/src/hydra_umc_sdk/bridge_transport.py"
+      ]
+    },
+    {
+      "id": "lif",
+      "column": 1,
+      "level": "tested",
+      "title": "lifecycle",
+      "lines": [
+        "operation, capability,",
+        "scenario, journal"
+      ],
+      "code": [
+        "clients/python/src/hydra_umc_sdk/operation.py",
+        "clients/python/src/hydra_umc_sdk/capability.py",
+        "clients/python/src/hydra_umc_sdk/scenario.py",
+        "clients/python/src/hydra_umc_sdk/promotion_journal.py"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "brg",
+      "to": "brd",
+      "level": "tested"
+    },
+    {
+      "from": "app",
+      "to": "pyc",
+      "level": "tested"
+    },
+    {
+      "from": "con",
+      "to": "nat",
+      "level": "tested"
+    },
+    {
+      "from": "tls",
+      "to": "con",
+      "level": "tested"
+    },
+    {
+      "from": "tls",
+      "to": "pyc",
+      "level": "tested"
+    },
+    {
+      "from": "pyc",
+      "to": "brd",
+      "level": "tested"
+    },
+    {
+      "from": "brd",
+      "to": "lif",
+      "level": "tested"
+    },
+    {
+      "from": "pyc",
+      "to": "fix",
+      "level": "tested"
+    },
+    {
+      "from": "nat",
+      "to": "fix",
+      "level": "tested"
+    },
+    {
+      "from": "tls",
+      "to": "rep",
+      "level": "config",
+      "label": "sync"
+    },
+    {
+      "from": "brd",
+      "to": "mq",
+      "level": "contract"
+    }
+  ],
+  "footer": "Tried on a computer; no robot, board or broker besides the test ones was used."
+}

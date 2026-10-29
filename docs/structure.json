@@ -1,0 +1,323 @@
+{
+  "repo": "HYDRA-UMC-SDK",
+  "ecosystem": "hydra",
+  "svg": "en",
+  "exempt": [
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "SUPPORT.md",
+    "LICENSE",
+    "LICENSE.md",
+    "build-test.bat",
+    "build.bat",
+    "run.bat",
+    "test.bat"
+  ],
+  "cards": [
+    {
+      "name": {
+        "en": "folders",
+        "es": "carpetas",
+        "de": "Ordner",
+        "fr": "dossiers",
+        "it": "cartelle",
+        "ja": "フォルダ",
+        "zh": "文件夹",
+        "pt": "pastas"
+      },
+      "kind": "group",
+      "span": 3,
+      "accent": "b",
+      "columns": 2,
+      "rows": [
+        {
+          "name": "contracts/",
+          "desc": {
+            "en": "JSON Schema v1 sources",
+            "es": "fuentes JSON Schema v1",
+            "de": "JSON-Schema-v1-Quellen",
+            "fr": "sources JSON Schema v1",
+            "it": "sorgenti JSON Schema v1",
+            "ja": "JSON Schema v1 のソース",
+            "zh": "JSON Schema v1 源文件",
+            "pt": "fontes JSON Schema v1"
+          },
+          "tree_desc": {
+            "en": "JSON Schema v1 sources, the OpenAPI slice and the port registry",
+            "es": "fuentes JSON Schema v1, el corte OpenAPI y el registro de puertos",
+            "de": "JSON-Schema-v1-Quellen, OpenAPI-Ausschnitt und Port-Register",
+            "fr": "sources JSON Schema v1, tranche OpenAPI et registre des ports",
+            "it": "sorgenti JSON Schema v1, porzione OpenAPI e registro delle porte",
+            "ja": "JSON Schema v1 のソース、OpenAPI 部分、ポート一覧",
+            "zh": "JSON Schema v1 源文件、OpenAPI 部分和端口登记表",
+            "pt": "fontes JSON Schema v1, a fatia OpenAPI e o registo de portas"
+          }
+        },
+        {
+          "name": "clients/",
+          "desc": {
+            "en": "the Python, Go, TypeScript and Rust",
+            "es": "los clientes de referencia de Python",
+            "de": "die Referenz-Clients in Python",
+            "fr": "les clients de référence Python",
+            "it": "i client di riferimento in Python",
+            "ja": "Python・Go・TypeScript・R",
+            "zh": "Python、Go、TypeScript 和",
+            "pt": "os clientes de referência em Python"
+          },
+          "tree_desc": {
+            "en": "the Python, Go, TypeScript and Rust reference clients",
+            "es": "los clientes de referencia de Python, Go, TypeScript y Rust",
+            "de": "die Referenz-Clients in Python, Go, TypeScript und Rust",
+            "fr": "les clients de référence Python, Go, TypeScript et Rust",
+            "it": "i client di riferimento in Python, Go, TypeScript e Rust",
+            "ja": "Python・Go・TypeScript・Rust のリファレンスクライアント",
+            "zh": "Python、Go、TypeScript 和 Rust 参考客户端",
+            "pt": "os clientes de referência em Python, Go, TypeScript e Rust"
+          }
+        },
+        {
+          "name": "conformance/",
+          "desc": {
+            "en": "valid and invalid fixtures for every",
+            "es": "fixtures válidos e inválidos de cada",
+            "de": "gültige und ungültige Fixtures für jeden",
+            "fr": "fixtures valides et invalides pour chaque",
+            "it": "fixture valide e non valide per ogni",
+            "ja": "各契約の有効・無効のフィクスチャ",
+            "zh": "每个契约的有效和无效夹具",
+            "pt": "fixtures válidas e inválidas de cada"
+          },
+          "tree_desc": {
+            "en": "valid and invalid fixtures for every contract",
+            "es": "fixtures válidos e inválidos de cada contrato",
+            "de": "gültige und ungültige Fixtures für jeden Vertrag",
+            "fr": "fixtures valides et invalides pour chaque contrat",
+            "it": "fixture valide e non valide per ogni contratto",
+            "ja": "各契約の有効・無効のフィクスチャ",
+            "zh": "每个契约的有效和无效夹具",
+            "pt": "fixtures válidas e inválidas de cada contrato"
+          }
+        },
+        {
+          "name": "docs/",
+          "desc": {
+            "en": "contract, API and development guides",
+            "es": "guías de contratos, API y desarrollo",
+            "de": "Leitfäden zu Verträgen, API und Entwicklung",
+            "fr": "guides des contrats",
+            "it": "guide su contratti, API e sviluppo",
+            "ja": "契約・API・開発のガイド",
+            "zh": "契约、API 和开发指南",
+            "pt": "guias de contratos, API e desenvolvimento"
+          },
+          "tree_desc": {
+            "en": "contract, API and development guides",
+            "es": "guías de contratos, API y desarrollo",
+            "de": "Leitfäden zu Verträgen, API und Entwicklung",
+            "fr": "guides des contrats, de l'API et du développement",
+            "it": "guide su contratti, API e sviluppo",
+            "ja": "契約・API・開発のガイド",
+            "zh": "契约、API 和开发指南",
+            "pt": "guias de contratos, API e desenvolvimento"
+          }
+        },
+        {
+          "name": "examples/",
+          "desc": {
+            "en": "runnable Python examples",
+            "es": "ejemplos de Python ejecutables",
+            "de": "lauffähige Python-Beispiele",
+            "fr": "exemples Python exécutables",
+            "it": "esempi Python eseguibili",
+            "ja": "実行できる Python の例",
+            "zh": "可运行的 Python 示例",
+            "pt": "exemplos Python executáveis"
+          },
+          "tree_desc": {
+            "en": "runnable Python examples",
+            "es": "ejemplos de Python ejecutables",
+            "de": "lauffähige Python-Beispiele",
+            "fr": "exemples Python exécutables",
+            "it": "esempi Python eseguibili",
+            "ja": "実行できる Python の例",
+            "zh": "可运行的 Python 示例",
+            "pt": "exemplos Python executáveis"
+          }
+        },
+        {
+          "name": "tools/",
+          "desc": {
+            "en": "contract matrix",
+            "es": "matriz de contratos",
+            "de": "Vertragsmatrix",
+            "fr": "matrice des contrats",
+            "it": "matrice dei contratti",
+            "ja": "契約マトリクス、OpenAPI ゲート、ツー",
+            "zh": "契约矩阵、OpenAPI 闸门、工具同步、构",
+            "pt": "matriz de contratos"
+          },
+          "tree_desc": {
+            "en": "contract matrix, OpenAPI gate, tooling sync, build check",
+            "es": "matriz de contratos, puerta OpenAPI, sincronización de herramientas, comprobación de compilación",
+            "de": "Vertragsmatrix, OpenAPI-Gate, Tooling-Sync, Build-Prüfung",
+            "fr": "matrice des contrats, porte OpenAPI, synchro des outils, vérification de build",
+            "it": "matrice dei contratti, gate OpenAPI, sincronizzazione degli strumenti, controllo di build",
+            "ja": "契約マトリクス、OpenAPI ゲート、ツール同期、ビルド確認",
+            "zh": "契约矩阵、OpenAPI 闸门、工具同步、构建检查",
+            "pt": "matriz de contratos, porta OpenAPI, sincronização de ferramentas, verificação de compilação"
+          }
+        },
+        {
+          "name": ".github/",
+          "desc": {
+            "en": "CI workflow and issue templates",
+            "es": "flujo de CI y plantillas de incidencias",
+            "de": "CI-Workflow und Issue-Vorlagen",
+            "fr": "workflow de CI et modèles de tickets",
+            "it": "workflow di CI e modelli di segnalazione",
+            "ja": "CI ワークフローと Issue テンプレート",
+            "zh": "CI 工作流和 Issue 模板",
+            "pt": "fluxo de CI e modelos de problemas"
+          }
+        },
+        {
+          "name": "images/",
+          "desc": {
+            "en": "banner and the pictures of the README",
+            "es": "banner e imágenes del README",
+            "de": "Banner und Bilder der README",
+            "fr": "bannière et images du README",
+            "it": "banner e immagini del README",
+            "ja": "バナーと README の図",
+            "zh": "横幅和 README 的图片",
+            "pt": "faixa e imagens do README"
+          }
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "project files",
+        "es": "ficheros del proyecto",
+        "de": "Projektdateien",
+        "fr": "fichiers du projet",
+        "it": "file del progetto",
+        "ja": "プロジェクトのファイル",
+        "zh": "项目文件",
+        "pt": "ficheiros do projeto"
+      },
+      "kind": "group",
+      "span": 3,
+      "accent": "c",
+      "columns": 2,
+      "rows": [
+        {
+          "name": "CHANGELOG.md",
+          "desc": {
+            "en": "what changed in each version",
+            "es": "qué cambió en cada versión",
+            "de": "was sich in jeder Version geändert hat",
+            "fr": "ce qui a changé à chaque version",
+            "it": "cosa è cambiato in ogni versione",
+            "ja": "各バージョンの変更点",
+            "zh": "每个版本的变更",
+            "pt": "o que mudou em cada versão"
+          }
+        },
+        {
+          "name": "build-test.sh",
+          "desc": {
+            "en": "non-mutating build check",
+            "es": "comprobación de compilación sin cambios",
+            "de": "Build-Prüfung ohne Änderungen",
+            "fr": "vérification de build sans modification",
+            "it": "controllo di build senza modifiche",
+            "ja": "変更を伴わないビルド確認",
+            "zh": "不修改内容的构建检查",
+            "pt": "verificação de compilação sem alterações"
+          }
+        },
+        {
+          "name": "build.sh",
+          "desc": {
+            "en": "builds and checks; never changes the version",
+            "es": "compila y comprueba; nunca cambia la versión",
+            "de": "baut und prüft; ändert nie die Version",
+            "fr": "construit et vérifie ; ne change jamais la version",
+            "it": "compila e controlla; non cambia mai la versione",
+            "ja": "ビルドと検査。バージョンは変更しない",
+            "zh": "构建并检查；从不改变版本",
+            "pt": "compila e verifica; nunca muda a versão"
+          }
+        },
+        {
+          "name": "bump_manifest_version.py",
+          "desc": {
+            "en": "syncs the manifest version",
+            "es": "sincroniza la versión del manifiesto",
+            "de": "gleicht die Manifest-Version an",
+            "fr": "synchronise la version du manifeste",
+            "it": "sincronizza la versione del manifesto",
+            "ja": "マニフェストのバージョンを同期",
+            "zh": "同步清单版本",
+            "pt": "sincroniza a versão do manifesto"
+          }
+        },
+        {
+          "name": "bump_version.py",
+          "desc": {
+            "en": "explicit version bump",
+            "es": "subida de versión explícita",
+            "de": "ausdrückliche Versionserhöhung",
+            "fr": "montée de version explicite",
+            "it": "aumento di versione esplicito",
+            "ja": "明示的なバージョン更新",
+            "zh": "显式提升版本",
+            "pt": "subida de versão explícita"
+          }
+        },
+        {
+          "name": "hydra-umc.project.json",
+          "desc": {
+            "en": "manifest: version, maturity, family",
+            "es": "manifiesto: versión, madurez, familia",
+            "de": "Manifest: Version, Reifegrad, Familie",
+            "fr": "manifeste : version, maturité, famille",
+            "it": "manifesto: versione, maturità, famiglia",
+            "ja": "マニフェスト：バージョン、成熟度、ファミリー",
+            "zh": "清单：版本、成熟度、系列",
+            "pt": "manifesto: versão, maturidade, família"
+          }
+        },
+        {
+          "name": "run.sh",
+          "desc": {
+            "en": "starts the program",
+            "es": "arranca el programa",
+            "de": "startet das Programm",
+            "fr": "démarre le programme",
+            "it": "avvia il programma",
+            "ja": "プログラムを起動",
+            "zh": "启动程序",
+            "pt": "arranca o programa"
+          }
+        },
+        {
+          "name": "test.sh",
+          "desc": {
+            "en": "runs the tests",
+            "es": "ejecuta las pruebas",
+            "de": "führt die Tests aus",
+            "fr": "lance les tests",
+            "it": "esegue i test",
+            "ja": "テストを実行",
+            "zh": "运行测试",
+            "pt": "executa os testes"
+          }
+        }
+      ]
+    }
+  ]
+}

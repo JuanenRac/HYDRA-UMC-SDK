@@ -1,36 +1,38 @@
-<!--
-=====================================================================
-HYDRA-UMC-SDK - 公的契約および統合ツールキットの概要
-Copyright (C) 2026 JuanenRac (エレクトロホビー 3D) <electrohobby3d@gmail.com>
-CC BY-SA 4.0 - LICENSE.md を参照
-=====================================================================
--->
+<!-- =============================================================================
+HYDRA-UMC-SDK - Shared contracts and integration toolkit
+Copyright (C) JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
+GPL-3.0-or-later - see LICENSE
+============================================================================= -->
 
 <p align="center">
-  <img src="images/HYDRA_UMC_BANNER.svg" alt="HYDRA-UMC-SDK バナー" width="100%">
+  <img src="images/HYDRA_UMC_BANNER.svg" alt="HYDRA-UMC-SDK banner" width="100%">
 </p>
+
+# 🧰 HYDRA-UMC-SDK
+
+<p align="center"><a href="README.md">🇺🇸 English</a> | <a href="README_spa.md">🇪🇸 Español</a> | <a href="README_fra.md">🇫🇷 Français</a> | <a href="README_ita.md">🇮🇹 Italiano</a> | <a href="README_deu.md">🇩🇪 Deutsch</a> | <a href="README_zho.md">🇨🇳 简体中文</a> | 🇯🇵 <b>日本語</b> | <a href="README_por.md">🇵🇹 Português</a></p>
+
+### 🧰 HYDRA-UMC の共有契約、リファレンスクライアント、統合ツール
 
 <p align="center">
-  <a href="README.md">🇺🇸 English</a> |
-  <a href="README_spa.md">🇪🇸スペイン語</a> |
-  <a href="README_fra.md">🇫🇷 フランス語</a> |
-  <a href="README_ita.md">🇮🇹 イタリアーノ</a> |
-  <a href="README_deu.md">🇩🇪 ドイツ語</a> |
-  <a href="README_zho.md">🇨🇳 简体中文</a> |
-  <a href="README_jpn.md">🇯🇵 日本語</a> |
-  <a href="README_por.md">🇵🇹 Português</a>
+  <img src="https://img.shields.io/badge/License-GPL%203.0--or--later-blue.svg" alt="GPL 3.0 or later">
+  <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
+  <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
+  <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
+  <img src="https://img.shields.io/badge/Tests-463%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Version-0.3.8-0f6cbd.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="ライセンス: GPL 3.0">
-  <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="契約: JSON スキーマ | OpenAPI">
-  <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="リファレンス クライアント: Python | Go | TypeScript | Rust">
-  <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="統合: CM5 | URTC">
-</p>
+---
 
-# HYDRA-UMC-SDK
+> **誠実性チェック - 今日実際に動くもの:** JSON Schema v1 の 10 件の契約（それぞれ有効・無効のフィクスチャ付き）、Python の検証器、HYDRA-UMC-SERVER の最初の OpenAPI v1 部分、同じスキーマを強制する Go・TypeScript・Rust のクライアント、ブリッジ用ヘルパー、互換性マトリクスは実在し、コンピューター上でテスト済みです（Python のテスト 463 件と、他の 3 つのクライアントのスイート）。Protobuf はまだ公開されておらず、ジョブゲートは共有のソフトウェア機能であって認証済みの安全機能ではなく、ここにあるものは実機では動かしていません。
+
+---
 
 > **安全性とセキュリティの現状:** このエコシステムは認証された安全システムではありません。ハードウェアの E-STOP 経路、ファームウェアが強制する制限やインターロック、検証済みの動作コマンドはまだありません。ファームウェアイメージは CRC32 と共有鍵の HMAC-SHA256 で検査しており、非対称署名ではありません。TLS と相互 TLS は任意で、既定では無効です。独自基板はまだ実装も試験もされていません。ここに書かれた内容を人の安全のために頼る前に、[セキュリティベースライン](https://github.com/JuanenRac/HYDRA-UMC-DOCS/blob/main/docs/SECURITY_BASELINE.md)と[脅威モデル](https://github.com/JuanenRac/HYDRA-UMC-DOCS/blob/main/docs/THREAT_MODEL.md)をお読みください。
+
+---
 
 ## 📋 ひと目で
 
@@ -38,8 +40,11 @@ CC BY-SA 4.0 - LICENSE.md を参照
 |---|---|
 | バージョン | `0.3.8` |
 | 成熟度 | 確立 |
+| テスト | 463 (`python -m unittest discover -s clients/python/tests`) |
 | 技術 | Python / TypeScript / Go / Rust / JSON Schema |
 | 実機での確認 | まだです：このバージョンについて実機での動作記録はありません |
+
+**移動：** [概要](#-概要) · [アーキテクチャ](#-アーキテクチャ) · [機能](#-機能) · [セキュリティと安全](#-セキュリティと安全) · [インターフェース](#-インターフェース) · [設定](#-設定) · [クイックスタート](#-クイックスタート) · [テスト](#-テスト) · [トラブルシューティング](#-トラブルシューティング) · [リポジトリの構成](#-リポジトリの構成) · [関連プロジェクト](#-関連プロジェクト)
 
 ## 🚦 プロジェクトの状況
 
@@ -50,11 +55,11 @@ CC BY-SA 4.0 - LICENSE.md を参照
 | 領域 | 状態 | ここでの意味 |
 |---|---|---|
 | ソフトウェア | 🟢 | 目的に対して完成していて安定しています。既知の制限は上の正直さの確認に書かれています |
-| テスト | 🟠 | このリポジトリのテスト件数はまだ記録されていません |
+| テスト | 🟢 | 自動テスト 463 件。変更のたびに実行されます |
 | 実機 | 🔴 | まだです：このバージョンについて実機での動作記録はありません |
 | ドキュメント | 🟢 | 8 言語の README。変更のたびにマニフェストと照合されます |
 
-## 🧩 HYDRA-UMC の共有コントラクトと統合ツールキット
+## 🎯 概要
 
 HYDRA-UMC-SDK は、HYDRA-UMC サービス、クライアント、CM5 アダプター、および
 URTC 統合によって共有される安定した言語を定義します。規範的な契約、
@@ -62,7 +67,19 @@ URTC 統合によって共有される安定した言語を定義します。規
 統合ガイダンスを備えています。Raspberry Pi OS、Hailo、ROS 2、MQTT、OPC-UA、
 MTConnect の公式 API を置き換えるものではありません。
 
-## 🚧 ステータス
+## 🧩 HYDRA-UMC での役割
+
+**HYDRA-UMC-SDK** はエコシステム共通の言語です。JSON Schema v1 の契約、サーバーの最初の OpenAPI 部分、Python・Go・TypeScript・Rust のリファレンスクライアント、すべてのブリッジとコネクターハブが使うブリッジ用ヘルパー、そして各リポジトリのツールを同一に保つツールを提供します。独自のサービスは動かさず、公式 API の代わりにもなりません。
+
+## 🏛️ アーキテクチャ
+
+<p align="center">
+  <img src="images/architecture.svg" alt="HYDRA-UMC-SDK architecture" width="100%">
+</p>
+
+## ✨ 機能
+
+### ステータス
 
 JSON スキーマ v1 コントラクト、有効/無効なフィクスチャ、Python 検証クライアント、
 ホスト側のテスト、そして HYDRA-UMC-SERVER 自身の HTTP サーフェスに対する実際の
@@ -74,49 +91,57 @@ Protobuf の公開はその後の互換性マイルストーンです。Go、Typ
 
 下記の最初のマイルストーン以降、さらにコントラクトが追加されました(現在10件)。外部マシン連携のための公開コントラクト `BridgeJob`/`GateDecision`(詳細は [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md))は `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER`/`-AMR`/`-DROIDS`/`-UAV` で共有され、独自の実データJSONワイヤー形式(`job_to_dict()`/`job_from_dict()`/`decision_to_dict()`)を持ちます。加えて、リクエスト側が主張する状態の代わりにゲートが使う、ブリッジ自身が観測した機器の状態と、保持メッセージを無視し同じ冪等キーを二度実行しないジョブ受付（`JobIntake`/`IdempotencyStore`）があります。`ScenarioOutcome` コントラクトと `compare_runs()` は、共有の「本当に直ったか」チェックで、障害が再現しなくなってもベースのフィンガープリントが変わっていなければ `apparent-success`(`regression-fixed` ではなく)を返します。`Operation` コントラクトと `validate_status_transition()` は、共有の目標/ジョブ/操作ライフサイクル - `received`/`authorized`/`queued`/`sent`/`confirmed`/`terminated`/`rejected` を表し、単一の「実行済み」の器にまとめることは決してありません。`Operation` のオプション `result` と `concludes_success()` は、実際の証拠(`run_id`/`origin`/`observers_enabled`/`outcome`)により、古い/再送された結果や観測が無効化された実行から成功を結論づけることを拒否します。独立した `Capability` コントラクトと `is_capability_usable()` は、あるターゲットが操作 `kind` のサポートを*宣言している*かどうかを、その裏付けが*最近実際に検証された*かどうか(`last_checked_at_utc`/`checked_configuration`/`max_age_seconds`)とは別のデータとしてモデル化し、宣言されただけで一度も検証されていない、または古くなった能力が黙って利用可能と扱われることを防ぎます。また `hydra-umc-sdk-mock-server`(`mock_server.py`)は、実際のCM5・ロボット・MCUハードウェアが無くてもUIやアダプタを開発できるよう、既知の各コントラクトについて有効なサンプルペイロードを単純なHTTP経由で提供します。10個すべてのコントラクトが、上記の互換性マトリクスで検証済みの有効・無効な適合フィクスチャを少なくとも1つずつ持っています。
 
-## 🎯 最初のマイルストーン
+## 🔒 セキュリティと安全
 
-1. `DeviceDescriptor`、`HealthReport`、`SafetyState`、および
-   `UpdateManifest` の JSON スキーマ v1 を公開します。
-2. Python リファレンス クライアントを使用して、有効なフィクスチャと無効なフィクスチャを検証します。
-3. CI にプロデューサー/コンシューマー互換性マトリックスを追加します。
-4. 統合で必要な場合は、Protobuf/OpenAPI 表現を公開します(HYDRA-UMC-SERVER の
-   discovery/auth/fleet/command ルートを対象とする OpenAPI の実際の最初の
-   スライスは完了、Protobuf は未着手)。
-5. 安定した v1 契約を検証する、実際にテスト済みの TypeScript、Go、Rust クライアントを追加します。
+| 脅威 | 防御 | 場所 |
+|---|---|---|
+| 契約から外れたブリッジコマンド | ジョブのパラメーターは最大 32 個、名前は 64 文字、値は 1024 文字、識別子は 128 文字まで。要求側が主張する状態ではなく、ブリッジが観測した機械状態を使います | `bridge_contract.py` |
+| 同じコマンドの二重実行、または保持メッセージの再生 | ジョブ受付は保持メッセージを無視し、同じ冪等キーを二度実行しません | `job_intake.py` |
+| 長いコマンドの後ろで待たされる停止 | 通常のコマンドは 1 本のレーンで順に、停止の動詞は 2 本目のレーンで実行されます | `bridge_transport.py` |
+| 設定ファイルにブローカーの認証情報がある、またはブローカーが未検証 | ユーザーとパスワードは環境変数かファイルから取り、TLS は CA でブローカーを検証でき、クライアント証明書と鍵で相互 TLS になります | `mqtt_connection.py` |
+| スキーマだけが変わり検証器が追従していない | 互換性マトリクスが、公開された各スキーマを検証器の契約一覧と照合し、各フィクスチャをファイル名の主張どおりに判定します | `tools/verify_contract_matrix.py` |
 
-## 📂 リポジトリのレイアウト
+**絶対にしないこと：** 認証済みの安全機能として働くこと。ジョブゲートはブリッジが共有するソフトウェア実装であり、安全認証ではありません。
 
-<p align="center">
-  <img src="images/REPOSITORY_LAYOUT.svg" alt="HYDRA-UMC-SDK リポジトリ レイアウトのビジュアル マップ" width="100%">
-</p>
+## 🔌 インターフェース
 
-|パス |目的 |
-| --- | --- |
-| `contracts/` |標準的な JSON スキーマ v1 ソースに加え、HYDRA-UMC-SERVER 自身の HTTP サーフェスに対する実際の OpenAPI v1 スライス(`openapi/v1/server.openapi.json`)。 |
-| `clients/` |実際にテスト済みの Python、Go、TypeScript、Rust のリファレンス クライアント。いずれも同じ公開済み v1 スキーマを検証します。 |
-| `conformance/` |互換性テストで使用される有効な v1 フィクスチャと無効な v1 フィクスチャ。 |
-| `docs/` |契約、API、開発仕様。 |
-| `examples/` |実行可能な Python の例。 |
-| `tools/` |`verify_contract_matrix.py`(スキーマ/バリデータ互換性マトリクス)、`verify_openapi.py`(依存関係のない OpenAPI 構造検証)、そして変更を加えない `build-test` エンジン。`sync_repo_tools.py` は全リポジトリの共有ツールを同一に保ち、`pin_sdk.py` は SDK の利用側をリリースタグに固定し、`canonical/` は複製元となる唯一のコピー（検証・テストを行い、求められたときだけバージョンを上げる `hydra_project_tool.py` コマンドを含む）を保持します。 `sync_ports.py` は各サービスのポート、ヘルスパス、systemd ユニットの登録簿 `contracts/ports.yaml` を生成・検査します。共通の秘密情報マスキング(`canonical/redaction.py`、ケースは `contracts/redaction/vectors.json`)は、テキストを外部に送るプロジェクトに同梱されます。 |
+| トピックまたはルート | 内容 |
+|---|---|
+| `contracts/json-schema/v1/` | JSON Schema v1 の契約 10 件：能力、デバイス記述子、イベントエンベロープ、ヘルスレポート、オペレーション、プロジェクトマニフェスト、安全状態、シナリオ結果、サーバー探索、更新マニフェスト |
+| `contracts/openapi/v1/server.openapi.json` | HYDRA-UMC-SERVER の最初の OpenAPI v1 部分：探索、サインイン、設定、コマンド（サーバー自身の `docs/openapi.json` の一部） |
+| `contracts/ports.yaml` | 各サービスのポート、ヘルスパス、systemd ユニットの一覧。`tools/sync_ports.py` が生成 |
+| `hydra/bridges/<name>/cmd/#` | ブリッジが待ち受ける場所。応答は `.../<動詞>/result` |
+| `hydra-umc-contract-validate`, `hydra-umc-sdk-mock-server` | コマンドラインの検証器（失敗時の終了コードは 2）と、契約ごとに有効な例を返す `127.0.0.1:8790` のモックサーバー |
 
-新しいメッセージを定義する前に、[契約ガイド](docs/CONTRACTS.md) をお読みください。
+## ⚙️ 設定
 
-## 📖 その他のドキュメント
+| 変数 | 既定値 | 設定する内容 |
+|---|---|---|
+| `HYDRA_MQTT_USERNAME`, `HYDRA_MQTT_PASSWORD` | 認証情報なし | ブローカーの認証情報。パスワードはユーザー名と併せてのみ |
+| `HYDRA_MQTT_PASSWORD_FILE` | - | ファイルから読むパスワード（Docker や systemd のシークレット）。上の変数があれば無視されます |
+| `HYDRA_MQTT_TLS`, `HYDRA_MQTT_TLS_CA` | TLS なし | `HYDRA_MQTT_TLS=1` はシステムの CA でブローカーを検証し、`HYDRA_MQTT_TLS_CA` は証明書に署名した CA のファイルを指します |
+| `HYDRA_MQTT_TLS_CERT`, `HYDRA_MQTT_TLS_KEY` | - | 相互 TLS を要求するブローカー用のクライアント証明書と鍵。両方が必要で、TLS が有効になります |
+| `--host`, `--port` | `127.0.0.1`, `8790` | モックサーバーの待ち受け先 |
+| `HYDRA_UMC_SDK_ROOT` | 隣のフォルダー | 他のリポジトリのテストがこのリポジトリを見つける場所 |
 
-- **[docs/CONTRACTS.md](docs/CONTRACTS.md)** — 規範となる契約ガイド。新しいメッセージを定義する前に読むこと。
-- **[docs/PYTHON_CLIENT.md](docs/PYTHON_CLIENT.md)** — `validate()` 関数と `hydra-umc-contract-validate` CLI の完全なリファレンス。契約ごとの必須フィールドと追加検証ルールの表を含む。
-- **[docs/SERVER_CLIENT.md](docs/SERVER_CLIENT.md)** — サーバーの claim、release、jog-arm、claims、安全制限ルート用のクライアント(Python、TypeScript、Go、Rust)。任意の `controllerId`、型付きエラー(`other-account`、`other-controller`、`controller-id-required`、`invalid-controller-id`、`jog-not-armed`)、共通の適合ケース。 同じクライアントが、`If-Match` によるロボットのリビジョン、テーブルのアトミックなコマンド、監査記録、WebSocket の `claims` メッセージもカバーするようになりました(`conformance/server-routes/cases_v2.json`)。
-- **[docs/CONFORMANCE.md](docs/CONFORMANCE.md)** — 契約ごとに有効/後方互換/不正/安全でないフィクスチャ集が何をカバーすべきか、そして実装済みのv1スイートが現在何をカバーしているか。
-- **[docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)** — `HYDRA-UMC-BRIDGE-ROS2`、`-OPENPNP`、`-PRINTER3D`、`-CNC`、`-LASER` が共有するv0 `BridgeJob`/`GateDecision` 境界。
-- **[docs/ADAPTERS.md](docs/ADAPTERS.md)** — CM5-MCU/URTCアダプタ境界:トランスポート、フレーミング、プロトコル、サービスの各層、そしてMCUが物理的な限界と安全停止について権威であり続けるべき理由(設計上の規則:現時点では限界や安全停止を強制するファームウェアはありません)。
-- **[docs/API_DESIGN.md](docs/API_DESIGN.md)** — HYDRA-UMC-SERVER自身の公開HTTP/WebSocket APIが従う規約:バージョン管理された `/api/v1` ルートという設計目標（現在のルートはバージョン管理されていません）、コマンド結果の `ACCEPTED`/`REJECTED`/`RUNNING`/`COMPLETED`/`FAILED` 形式。
-- **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** — このSDK自身の契約が開発されているスキーマファーストのワークフロー、そして契約変更に必要なもの(変更履歴のエントリ、互換性の判断、例、テスト)。
-- **[docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md)** — どのリポジトリも自己点検できる、共有のテストレベル、プラットフォームマトリクス、結果ごとの最低限のエビデンス、再現可能なキャンペーンの目標、フィクスチャの独立性、コスト/ストレージの規約。
-- **[docs/PROJECT_MANIFEST.md](docs/PROJECT_MANIFEST.md)** — このエコシステムの各リポジトリが公開する `hydra-umc.project.json` 契約。
-- **[docs/HEADER_CONVENTION.md](docs/HEADER_CONVENTION.md)** — このエコシステム全体で新しいソース・ドキュメントファイルに必要な著作権/ライセンスヘッダー。
+## 🚀 クイックスタート
 
-## 🛠️ ビルドと実行
+Python 3.11 以上が必要です。Go・TypeScript・Rust のクライアントも、ツールチェーンがあればビルドとテストを行います。
+
+```bash
+PYTHONPATH=clients/python/src python -m unittest discover -s clients/python/tests  # the Python client tests
+python tools/verify_contract_matrix.py                                             # every schema against the validator and every fixture
+PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help            # the contract validator on the command line
+./build-test.sh                                                                    # the non-mutating build check (build-test.bat on Windows)
+```
+
+## 🧪 テスト
+
+`python -m unittest discover -s clients/python/tests` で自動テスト 463 件を実行します。 他のクライアントには独自のスイートがあります。Go は 26 件（`go test ./...`）、TypeScript は 104 件（`npm test`）、Rust は 28 件（`cargo test`）で、ツールチェーンがあれば `tools/extra_build_steps.py` が実行します。ハードウェアは不要です。
+
+CI は `HYDRA_UMC_CI=1 python tools/ci_validate.py` を実行し、マニフェスト、文書、8 つの README、図を検査します。
+
+## 🏗️ ビルドとリリース
 
 リリースビルドの前に、バージョンを変更しないビルドチェックを使用してください。
 
@@ -126,6 +151,61 @@ Protobuf の公開はその後の互換性マイルストーンです。Go、Typ
 | 実行 / 開発（提供されている場合） | `run*.bat` または `dev*.bat` | `./run*.sh` または `./dev*.sh` |
 
 `build-test.bat` と `build-test.sh` は、`hydra-umc.project.json` をインクリメントせず、`CHANGELOG.md` も変更せずにプロジェクトのスタックをコンパイルまたは検証します。通常のコンパイラ出力だけが作成される場合があります。既存の `build*.bat`、`build*.sh`、`run*`、`dev*` は、各プロジェクト固有のバージョン化または実行時の動作を維持します。その動作が必要な場合はそれらを使用してください。
+
+## 🩺 トラブルシューティング
+
+| 表示 | 原因 | 対処 |
+|---|---|---|
+| `hydra-umc-contract-validate: missing required field: ...` | ペイロードが契約に違反しています。コマンドは終了コード 2 で終わります | そのファイルを、モックサーバーがその契約用に返す例と比べる |
+| `verify_contract_matrix.py` が失敗する | スキーマが追加・変更されたが、検証器の契約一覧かフィクスチャが更新されていない | 検証器のエントリーと、有効・無効のフィクスチャを 1 つずつ追加 |
+| `go test ./...` がスキップされる | ビルド確認は `go`・`npm`・`cargo` が PATH にあるときだけ Go・TypeScript・Rust のクライアントを実行します | ツールチェーンを入れる。どのクライアントがスキップされたかは出力に出ます |
+
+## 📂 リポジトリの構成
+
+<p align="center">
+  <img src="images/repository-structure.svg" alt="Repository structure of HYDRA-UMC-SDK" width="100%">
+</p>
+
+<details>
+<summary>ツリーのテキスト版</summary>
+
+```text
+HYDRA-UMC-SDK/
+├── contracts/                 JSON Schema v1 のソース、OpenAPI 部分、ポート一覧
+├── clients/                   Python・Go・TypeScript・Rust のリファレンスクライアント
+├── conformance/               各契約の有効・無効のフィクスチャ
+├── docs/                      契約・API・開発のガイド
+├── examples/                  実行できる Python の例
+├── tools/                     契約マトリクス、OpenAPI ゲート、ツール同期、ビルド確認
+├── .github/                   CI ワークフローと Issue テンプレート
+├── images/                    バナーと README の図
+├── CHANGELOG.md               各バージョンの変更点
+├── build-test.sh              変更を伴わないビルド確認
+├── build.sh                   ビルドと検査。バージョンは変更しない
+├── bump_manifest_version.py   マニフェストのバージョンを同期
+├── bump_version.py            明示的なバージョン更新
+├── hydra-umc.project.json     マニフェスト：バージョン、成熟度、ファミリー
+├── run.sh                     プログラムを起動
+└── test.sh                    テストを実行
+```
+
+</details>
+
+`tools/`: `verify_contract_matrix.py`(スキーマ/バリデータ互換性マトリクス)、`verify_openapi.py`(依存関係のない OpenAPI 構造検証)、そして変更を加えない `build-test` エンジン。`sync_repo_tools.py` は全リポジトリの共有ツールを同一に保ち、`pin_sdk.py` は SDK の利用側をリリースタグに固定し、`canonical/` は複製元となる唯一のコピー（検証・テストを行い、求められたときだけバージョンを上げる `hydra_project_tool.py` コマンドを含む）を保持します。 `sync_ports.py` は各サービスのポート、ヘルスパス、systemd ユニットの登録簿 `contracts/ports.yaml` を生成・検査します。共通の秘密情報マスキング(`canonical/redaction.py`、ケースは `contracts/redaction/vectors.json`)は、テキストを外部に送るプロジェクトに同梱されます。
+
+## 🗺️ ロードマップと既知の制限
+
+**現時点の既知の制限**
+
+* Protobuf はまだ公開されておらず、OpenAPI 部分が扱うのは探索・サインイン・設定・コマンドだけです。
+* サーバーのルートは現在バージョン管理されておらず、`/api/v1` は `docs/API_DESIGN.md` に書かれた設計上の目標です。
+* ここにあるものは実機では動かしておらず、ジョブゲートはソフトウェア機能であって認証済みの安全機能ではありません。
+
+**次：** 統合が必要とする箇所で Protobuf を公開し、OpenAPI 部分をサーバーの残りのルートへ広げます。
+
+## 🌍 言語
+
+この README とリポジトリの文書は、英語・スペイン語・ドイツ語・フランス語・イタリア語・日本語・中国語・ポルトガル語（ポルトガル）の 8 言語で提供されています。8 つのファイルは同時に書かれ、同じ節と同じリンクを持つことを CI が確認します。 このリポジトリには独自の画面もメッセージカタログもないため、翻訳すべきインターフェース文字列はありません。
 
 ## 🔗 関連プロジェクト
 
@@ -217,20 +297,26 @@ Protobuf の公開はその後の互換性マイルストーンです。Go、Typ
 - **[URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK)** — 実際の工具 ID デコードと Smart Idle 予熱ロジックを備えた、基板搭載ラック用ファームウェア。
 - **[URTC-VISION-TOOL](https://github.com/JuanenRac/URTC-VISION-TOOL)** — サーマル/RGB 検査ツールヘッド向けの、ファームウェアと実際の Python ビジョンコンパニオン。
 
----
+## 📚 ドキュメント
 
-## 📚 ドキュメント & コミュニティ
+さらに読むには：
 
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** —— プルリクエストのための技術スタックとコーディング指針。
-- **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** —— このコミュニティで期待される行動規範。
-- **[SECURITY.md](SECURITY.md)** —— 脆弱性の報告方法と、このプロジェクトの実際のセキュリティ重点領域。
-- **[SUPPORT.md](SUPPORT.md)** —— 質問の投稿先とバグの報告先。
+* [エコシステムのセキュリティ基準](https://github.com/JuanenRac/HYDRA-UMC-DOCS/blob/main/docs/SECURITY_BASELINE.md)
+* [エコシステムの脅威モデル](https://github.com/JuanenRac/HYDRA-UMC-DOCS/blob/main/docs/THREAT_MODEL.md)
+* [このリポジトリの変更履歴](CHANGELOG.md)
+* [このリポジトリのライセンス](LICENSE.md)
+
+## 🤝 コントリビュートとコミュニティ
+
+* プルリクエストの前に `HYDRA_UMC_CI=1 py -3 tools/ci_validate.py`（または `HYDRA_UMC_CI=1 python3 tools/ci_validate.py`）を実行してください。`CI_VALIDATION=PASS` と表示される必要があります。この確認に `build.sh` や `build.bat` は使わないでください。ビルドは検査ではありません。
+* 8 つの README は HYDRA-UMC-DOCS の 1 つのソースから書かれます。手で編集しないでください。ソースを変更し、`tools/make_readmes.py` で書き直します。
+* 実行していないことを README に書かないでください。事実であれば「シミュレーションのみ」「実機では未確認」と書きます。
+* [CONTRIBUTING.md](CONTRIBUTING.md)、[行動規範](CODE_OF_CONDUCT.md)、[SECURITY.md](SECURITY.md)、[SUPPORT.md](SUPPORT.md) を参照してください。
 
 ## 👤 作者
-**JuanenRac** (Electro Hobby 3D)
-📧 electrohobby3d@gmail.com
-📺 [youtube.com/@electrohobby3d](https://youtube.com/@electrohobby3d)
+
+**JuanenRac (Electro Hobby 3D)** · electrohobby3d@gmail.com
 
 ## 📜 ライセンス
 
-コードは GPL-3.0 以降です。ドキュメントは CC BY-SA 4.0 です。[LICENSE](LICENSE) を参照してください。
+GPL-3.0-or-later - [LICENSE](LICENSE).

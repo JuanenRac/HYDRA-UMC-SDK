@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- **README in the universal layout:** the README and its seven translations follow the layout that the four families share (22 sections in a fixed order), with an architecture picture and a repository-structure picture drawn from `docs/architecture.json` and `docs/structure.json`; the CI validator checks both pictures and the file tree.
+
 ## [0.3.8] - The shared bridge answers keep their QoS, and the manifest accepts mcu
 
 - **The project manifest accepts `mcu` as a deployment target:** the firmware that runs on a microcontroller (an STM32 board) can say so instead of using the nearest value. It is a compatible extension: no existing value changed meaning. The schema of every client and the validation of the Python client know it.
