@@ -9,7 +9,7 @@
 Two kinds of files are handled.
 
 * Files with ONE canonical copy in `tools/canonical/` (`bump_manifest_version.py`,
-  `tools/hydra_project_tool.py`, `tools/universal_readme_check.py`, `.github/workflows/dashboard-dispatch.yml`): every repository must carry exactly
+  `tools/hydra_project_tool.py`, `tools/universal_readme_check.py`, `tools/pretty_run.py`, `.github/workflows/dashboard-dispatch.yml`): every repository must carry exactly
   that text (line endings are the repository's own). `--check` fails when one
   differs, the default run rewrites them.
 * Files that legitimately differ by technology (`tools/ci_validate.py`,
@@ -46,6 +46,7 @@ CANONICAL_FILES = {
     ".github/workflows/dashboard-dispatch.yml": "dashboard-dispatch.yml",
     "tools/hydra_project_tool.py": "hydra_project_tool.py",
     "tools/universal_readme_check.py": "universal_readme_check.py",
+    "tools/pretty_run.py": "pretty_run.py",
 }
 # Files with one canonical copy that only some repositories carry, each at its own path:
 # canonical file (relative to the SDK root) -> {repository: path inside it}. The secret redaction is vendored into

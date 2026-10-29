@@ -124,6 +124,7 @@ class SyncCanonicalTests(WorkspaceFixture):
         (self.canonical / "dashboard-dispatch.yml").write_text("name: notify\n", encoding="utf-8")
         (self.canonical / "hydra_project_tool.py").write_text("x = 1\n", encoding="utf-8")
         (self.canonical / "universal_readme_check.py").write_text("y = 2\n", encoding="utf-8")
+        (self.canonical / "pretty_run.py").write_text("z = 3\n", encoding="utf-8")
 
     def test_matching_copies_pass_whatever_their_line_endings(self):
         files = {
@@ -131,6 +132,7 @@ class SyncCanonicalTests(WorkspaceFixture):
             ".github/workflows/dashboard-dispatch.yml": "name: notify\n",
             "tools/hydra_project_tool.py": "x = 1\n",
             "tools/universal_readme_check.py": "y = 2\n",
+            "tools/pretty_run.py": "z = 3\n",
         }
         self.repo("HYDRA-UMC-A", files)
         self.assertEqual(SYNC.check_canonical(self.workspace, self.canonical), [])
@@ -143,12 +145,13 @@ class SyncCanonicalTests(WorkspaceFixture):
             "HYDRA-UMC-A/.github/workflows/dashboard-dispatch.yml (missing)",
             "HYDRA-UMC-A/tools/hydra_project_tool.py (missing)",
             "HYDRA-UMC-A/tools/universal_readme_check.py (missing)",
+            "HYDRA-UMC-A/tools/pretty_run.py (missing)",
         ])
 
     def test_write_fixes_them_keeps_crlf_and_is_idempotent(self):
         repo = self.repo("HYDRA-UMC-A", {"bump_manifest_version.py": "print('old')\r\nx\r\n"})
         changed = SYNC.write_canonical(self.workspace, self.canonical)
-        self.assertEqual(len(changed), 4)
+        self.assertEqual(len(changed), 5)
         self.assertEqual((repo / "bump_manifest_version.py").read_bytes(), b"print('bump')\r\n")
         self.assertEqual((repo / ".github/workflows/dashboard-dispatch.yml").read_bytes(), b"name: notify\n")
         self.assertEqual(SYNC.write_canonical(self.workspace, self.canonical), [])
@@ -160,6 +163,7 @@ class SyncCanonicalTests(WorkspaceFixture):
             ".github/workflows/dashboard-dispatch.yml": "name: notify\n",
             "tools/hydra_project_tool.py": "x = 1\n",
             "tools/universal_readme_check.py": "y = 2\n",
+            "tools/pretty_run.py": "z = 3\n",
         })
         self.assertEqual(SYNC.check_canonical(self.workspace, self.canonical), [])
         SYNC.write_canonical(self.workspace, self.canonical)
