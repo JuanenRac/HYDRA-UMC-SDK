@@ -193,8 +193,16 @@ class ReconnectingSerialConnection:
         """Throw away what the controller has sent that nobody asked for (when the underlying port can)."""
         connection = self._ensure_connected()
         discard = getattr(connection, "reset_input_buffer", None)
-        if discard is not None:
+        if discard is None:
+            return
+        try:
             discard()
+        except OSError:
+            # a cable pulled out since the last use: reopen the device once and discard on the new connection
+            connection = self._reconnect(connection)
+            discard = getattr(connection, "reset_input_buffer", None)
+            if discard is not None:
+                discard()
 
     @property
     def in_waiting(self) -> int:

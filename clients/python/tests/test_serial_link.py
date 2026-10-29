@@ -216,6 +216,18 @@ class ReconnectingSerialConnectionTests(unittest.TestCase):
         link = ReconnectingSerialConnection(lambda: connections.pop(0))
         self.assertEqual(link.readline(), b"<Idle|MPos:0,0,0>\n")
 
+    def test_a_failure_while_discarding_reconnects_once_and_retries(self):
+        class Unplugged(FakeSerial):
+            def reset_input_buffer(self):
+                raise OSError("the device is gone")
+
+        first, second = Unplugged(), FakeSerial()
+        ports = iter([first, second])
+        link = ReconnectingSerialConnection(lambda: next(ports))
+        link.reset_input_buffer()
+        self.assertEqual(second.discarded, 1)
+        self.assertTrue(first.closed)
+
     def test_a_failed_reconnect_is_an_oserror(self):
         first = FakeSerial()
         first.raise_on_write = OSError("device disconnected")
