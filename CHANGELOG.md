@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- The shared bridge dispatcher publishes an answer with the QoS the bridge gave it (an answer without one stays at QoS 0), so a bridge can ask for QoS 1 on its results.
+
 ## [0.3.7]
 
 ### Changed

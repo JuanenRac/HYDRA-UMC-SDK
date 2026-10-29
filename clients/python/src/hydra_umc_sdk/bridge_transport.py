@@ -113,7 +113,7 @@ class MessageDispatcher:
     def _handle(self, client: object, topic: str, payload: bytes) -> None:
         try:
             for publish in self._bridge.handle_message(topic, payload, retained=False):
-                client.publish(publish.topic, publish.payload, retain=publish.retain)  # type: ignore[attr-defined]
+                client.publish(publish.topic, publish.payload, qos=getattr(publish, "qos", 0), retain=publish.retain)  # type: ignore[attr-defined]
         except Exception:  # noqa: BLE001 - one bad message never ends the loop
             _LOG.exception("could not answer %s", topic)
 

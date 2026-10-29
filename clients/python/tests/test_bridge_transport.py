@@ -151,6 +151,27 @@ class DispatcherTests(unittest.TestCase):
         self.assertEqual(client.published, [(PREFIX + "cmd/status/result", "ok", 0, False)])
         self.assertEqual(bridge.seen, [(PREFIX + "cmd/status", b"{}", False)])
 
+    def test_the_qos_of_an_answer_is_kept(self):
+        class QosPublish(MqttPublish):
+            __slots__ = ("qos",)
+
+            def __init__(self, topic, payload, retain=False, qos=1):
+                super().__init__(topic, payload, retain)
+                self.qos = qos
+
+        class QosBridge(FakeBridge):
+            def handle_message(self, topic, payload, *, retained=False):
+                return [QosPublish(topic + "/result", "ok", retain=True, qos=1), MqttPublish(topic + "/plain", "ok")]
+
+        dispatcher = MessageDispatcher(QosBridge(), PREFIX)
+        client = FakeClient()
+        dispatcher.on_message(client, None, FakeMessage(PREFIX + "cmd/status"))
+        dispatcher.close(wait=True)
+        self.assertEqual(
+            client.published,
+            [(PREFIX + "cmd/status/result", "ok", 1, True), (PREFIX + "cmd/status/plain", "ok", 0, False)],
+        )
+
     def test_a_retained_replay_is_never_a_request(self):
         bridge = FakeBridge()
         dispatcher = MessageDispatcher(bridge, PREFIX)
