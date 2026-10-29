@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- **The project manifest accepts `mcu` as a deployment target:** the firmware that runs on a microcontroller (an STM32 board) can say so instead of using the nearest value. It is a compatible extension: no existing value changed meaning. The schema of every client and the validation of the Python client know it.
 - **The layout of the README is checked in the CI:** the validator runs `tools/universal_readme_check.py` and lists, as a warning, what differs from the universal layout of the README.
 - **The shared tools sync also carries `tools/universal_readme_check.py`** (one canonical copy in `tools/canonical/`), so every repository has the same README check.
 - The shared bridge dispatcher publishes an answer with the QoS the bridge gave it (an answer without one stays at QoS 0), so a bridge can ask for QoS 1 on its results.

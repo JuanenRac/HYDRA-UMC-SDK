@@ -50,7 +50,7 @@
       "uniqueItems": true
     },
     "deployment_target": {
-      "enum": ["cm5", "user-pc", "mobile", "wearable", "dev-server"]
+      "enum": ["cm5", "user-pc", "mobile", "wearable", "dev-server", "mcu"]
     },
     "maturity": {
       "enum": ["scaffolding", "functional", "established", "production"]

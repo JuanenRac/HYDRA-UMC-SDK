@@ -49,9 +49,10 @@ PROJECT_MANIFEST_ENUMS = {
     # "dev-server" added for HYDRA-UMC-DEV-SERVER - a Raspberry Pi 5/CM5
     # host dedicated to development and task execution, distinct from
     # "cm5" (the operational node that talks to real machines/robots).
+    # "mcu" is the firmware that runs on a microcontroller (an STM32 board), which is not a computer of the cell either.
     # A compatible manifest extension: no existing value changed meaning,
     # no consumer needs to change.
-    "deployment_target": {"cm5", "user-pc", "mobile", "wearable", "dev-server"},
+    "deployment_target": {"cm5", "user-pc", "mobile", "wearable", "dev-server", "mcu"},
     "maturity": {"scaffolding", "functional", "established", "production"},
 }
 PROJECT_NAME_PATTERN = re.compile(r"^(HYDRA-UMC|URTC)(-[A-Z0-9-]+)?$")

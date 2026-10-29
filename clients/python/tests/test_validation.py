@@ -229,6 +229,12 @@ class ValidationTests(unittest.TestCase):
         payload["deployment_target"] = "dev-server"
         validate("ProjectManifest", payload)  # must not raise
 
+    def test_accepts_mcu_deployment_target(self):
+        # For the firmware that runs on a microcontroller (an STM32 board), which is not a computer of the cell.
+        payload = self._valid_project_manifest()
+        payload["deployment_target"] = "mcu"
+        validate("ProjectManifest", payload)  # must not raise
+
     def test_rejects_unsupported_maturity(self):
         payload = self._valid_project_manifest()
         payload["maturity"] = "beta"
