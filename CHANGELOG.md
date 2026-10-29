@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.3.8] - The shared bridge answers keep their QoS, and the manifest accepts mcu
 
 - **The project manifest accepts `mcu` as a deployment target:** the firmware that runs on a microcontroller (an STM32 board) can say so instead of using the nearest value. It is a compatible extension: no existing value changed meaning. The schema of every client and the validation of the Python client know it.
 - **The layout of the README is checked in the CI:** the validator runs `tools/universal_readme_check.py` and lists, as a warning, what differs from the universal layout of the README.
