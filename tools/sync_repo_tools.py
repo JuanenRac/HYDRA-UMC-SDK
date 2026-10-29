@@ -144,6 +144,43 @@ def check_canonical(workspace: Path, canonical_dir: Path = CANONICAL_DIR) -> lis
     return drift
 
 
+def drift_of_repository(repo: Path) -> list[str]:
+    """What differs from the shared tooling in ONE repository: the same rules as `--check`, for the `doctor` command.
+
+    Paths are relative to the repository. The unified files (`ci_validate.py`, `build_test.py`) only count when the
+    copy holds nothing of its own (an adaptation is legitimate and is not drift).
+    """
+    drift: list[str] = []
+    for relative, canonical_name in CANONICAL_FILES.items():
+        wanted, _ = read_text(CANONICAL_DIR / canonical_name)
+        target = repo / relative
+        if not target.is_file():
+            if relative not in ONLY_WHERE_PRESENT:
+                drift.append(f"{relative} (missing)")
+        elif read_text(target)[0].rstrip(NL) != wanted.rstrip(NL):
+            drift.append(relative)
+    for canonical, targets in PER_REPOSITORY_FILES.items():
+        relative = targets.get(repo.name)
+        if relative is None:
+            continue
+        wanted, _ = read_text(SDK_ROOT / canonical)
+        target = repo / relative
+        if not target.is_file():
+            drift.append(f"{relative} (missing)")
+        elif read_text(target)[0].rstrip(NL) != wanted.rstrip(NL):
+            drift.append(relative)
+    for relative, canonical_name in UNIFIED_FILES:
+        target = repo / relative
+        if not target.is_file():
+            continue
+        wanted, _ = read_text(CANONICAL_DIR / canonical_name)
+        current, _ = read_text(target)
+        previous = previous_text(canonical_name)
+        if adopts_unified(current, wanted, previous) and own_lines(current) != own_lines(wanted):
+            drift.append(f"{relative} (holds nothing of its own)")
+    return drift
+
+
 def per_repository_targets(workspace: Path, sdk_root: Path = SDK_ROOT):
     """(canonical text, target path, repository name) for every per-repository copy whose repository exists."""
     for canonical, targets in PER_REPOSITORY_FILES.items():

@@ -29,11 +29,56 @@ python tools/hydra_project_tool.py ci         # validate, then test
 python tools/hydra_project_tool.py version    # the declared version and the next one
 python tools/hydra_project_tool.py status     # clean tree? manifest not older than the last tag?
 python tools/hydra_project_tool.py bump       # the only command that changes the version
+python tools/hydra_project_tool.py doctor     # read-only: what is wrong here, and what to do about it
+python tools/hydra_project_tool.py coverage   # tests under a coverage tool, compared with a floor (a warning)
 ```
 
 `validate`, `test` and `ci` fail if the manifest version changed while they ran. `bump --dry-run` prints the
 version it would produce and writes nothing; `bump` refuses a dirty working tree unless `--allow-dirty` is given.
 The version always follows the odometer rule: three components up to 0.7.9, four from 0.8.0.0.
+
+## The doctor
+
+`python tools/hydra_project_tool.py doctor` checks one repository against the shared rules and writes nothing. It prints one
+line per problem with the fix under it, and ends with `DOCTOR=PASS` or `DOCTOR=FAIL <n>` (exit 1):
+
+```
+OK    manifest
+FIX   shared tools: tools/hydra_project_tool.py differs from the shared copy
+        -> python tools/sync_repo_tools.py in HYDRA-UMC-SDK, then commit here
+SKIP  glance: no HYDRA-UMC-DOCS checkout next to this repository (set HYDRA_UMC_DOCS_DIR)
+DOCTOR=FAIL 1
+```
+
+| Check | What it looks at |
+|---|---|
+| `manifest` | The required keys, the ecosystem, the name against the directory, the version, and the values of `role`, `deployment_target` and `maturity` |
+| `readme` | The universal layout (`tools/universal_readme_check.py`): the eight files, the sections, their order and the status table |
+| `glance` | The At a glance section, through `make_glance.py --check` of HYDRA-UMC-DOCS (skipped without that checkout) |
+| `changelog` | A heading for the manifest version with a note under it |
+| `shared tools` | The files of `tools/canonical/` and the per-repository copies, through `drift_of_repository()` of `sync_repo_tools.py` in the SDK checkout (skipped without it) |
+| `sdk pin` | Every reference to the SDK in `pyproject.toml`, the requirements files and `ci.yml` is a release tag, and the newest one of the SDK checkout |
+
+A sibling checkout is looked for next to the repository, or in `HYDRA_UMC_DOCS_DIR` and `HYDRA_UMC_SDK_DIR`. The doctor adds no
+rule of its own: each check is one the CI validator or `sync_repo_tools.py --check` already runs, gathered in one list.
+
+## The coverage floor
+
+`python tools/hydra_project_tool.py coverage` runs the tests of a repository under the coverage tool of the stack and compares the
+result with `tools/coverage_floor.json`, a list with one entry per stack:
+
+| Key | Meaning |
+|---|---|
+| `stack` | `python` (needs `coverage` and `pytest`), `go` or `node` (`--experimental-test-coverage`) |
+| `floor` | The percentage below which the command warns |
+| `workdir` | Where the tests run, relative to the repository (default `.`) |
+| `source`, `tests`, `pythonpath` | Python: the package measured, the test folder and the folder to put on `PYTHONPATH` |
+| `tests` | Node: the list of test files |
+
+Below the floor it prints `WARN` and still exits 0; `--strict` makes it exit 1. A repository without the file prints
+`COVERAGE=SKIP`; a tool that is not installed prints `SKIP` for that entry. The command is not part of `validate`, `test` or `ci`,
+and the CI does not run it. Rust has no entry because no coverage tool is installed on the workstation. Floors set so far, a few points
+under what was measured: Python client 90 (measured 94, with branches), Go client 75 (81), TypeScript client 90 (95).
 
 ## Pinning the SDK
 
@@ -68,7 +113,5 @@ Besides the manifest, the documents, the links and the README layout, `tools/can
 ## Designs that are not built yet
 
 * **One release file for the whole family** (`ecosystem-release.json`): a single file that names, for a release of the family, the version and the commit of every repository, written by the release tool and read by the installers and the dashboard, so that "which versions go together" has one answer. It needs a decision on who writes it and where it is published before any code.
-* **A `doctor` command in the project tool**: read-only checks of the workstation (interpreter versions, toolchains on the path, a sibling checkout of the documentation repository, the shared-tool drift) printed as one list with a fix per line. It adds no check that the CI does not already run; it only saves the round trip.
 * **Offscreen tests of the graphical tools**: run each Qt or Tk window with the offscreen platform, take its widget tree and compare it with a stored list of names. It needs a Qt platform plugin on the CI runner and a policy for what a harmless difference is.
-* **A coverage floor**: `hydra_project_tool.py test` would run the repository tests under a coverage tool and fail below a number kept in the manifest. The floor of each stack has to be measured first, otherwise the first run fails everywhere.
 * **Common templates** (issue and pull request templates, the security policy text): one canonical copy in `tools/canonical/` synced like `dashboard-dispatch.yml`. The texts differ today by repository name and contact; they need one agreed wording first.

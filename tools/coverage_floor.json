@@ -1,0 +1,5 @@
+[
+  {"stack": "python", "workdir": "clients/python", "source": "src/hydra_umc_sdk", "tests": "tests", "pythonpath": "clients/python/src", "floor": 90},
+  {"stack": "go", "workdir": "clients/go", "floor": 75},
+  {"stack": "node", "workdir": "clients/typescript", "tests": ["dist-tests/*.test.mjs"], "floor": 90}
+]

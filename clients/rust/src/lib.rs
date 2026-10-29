@@ -17,10 +17,13 @@ pub mod types;
 pub mod validation;
 
 pub use types::{
-    ContractManifest, ContractManifestEntry, DeviceDescriptor, EventEnvelope, HealthReport,
-    HealthState, NativeVersion, NativeVersionPattern, NativeVersionPatternComponents,
-    ProjectManifest, ProjectManifestDeploymentTarget, ProjectManifestMaturity, ProjectManifestRole,
-    SCHEMA_VERSION, SafetyState, SafetyStateValue, ServerDiscovery, UpdateManifest,
+    Capability, CapabilityCheckOutcome, ContractManifest, ContractManifestEntry, DeviceDescriptor,
+    EventEnvelope, HealthReport, HealthState, NativeVersion, NativeVersionPattern,
+    NativeVersionPatternComponents, Operation, OperationError, OperationOrigin, OperationOutcome,
+    OperationResult, OperationStatus, ProjectManifest, ProjectManifestDeploymentTarget,
+    ProjectManifestMaturity, ProjectManifestRole, SCHEMA_VERSION, SafetyState, SafetyStateValue,
+    ScenarioObserved, ScenarioObservedOutcome, ScenarioOutcome, ScenarioPhase, ServerDiscovery,
+    Target, UpdateManifest,
 };
 pub use validation::{
     ContractValidationError, known_contracts, load_contract_manifest, validate, validate_json,

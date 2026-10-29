@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+- **Typed `Operation`, `Capability` and `ScenarioOutcome` in the Go, Rust and TypeScript clients:** the three contracts that were handled as loose maps now have their own types (with the enums of status, origin, outcome, phase and check result), keep the fields they do not name, and go through the same shared conformance fixtures as the other contracts.
+- **The manifest `deployment_target` values `dev-server` and `mcu` exist in the Go, Rust and TypeScript types,** as the schema already allowed; a test now fails when a type file lacks a value of the schema enums.
+- **`hydra_project_tool.py doctor`:** a read-only check of one repository (manifest, README layout, At a glance, CHANGELOG note, shared tools and SDK pin) that prints the fix for every problem; `sync_repo_tools.py` gains `drift_of_repository()` for it.
+- **`hydra_project_tool.py coverage`:** measures the tests of the Python, Go and Node clients against `tools/coverage_floor.json` and warns below the floor; it is not part of the CI yet.
+
 ## [0.3.9] - The shared validator checks the notes, the glance and the changelog, and the serial link reconnects
 
 - **The shared validator checks three more things:** a hand-written test count in the manifest `notes` fails (the README holds the counts and they are checked against the code), the CHANGELOG must have a note under the heading of the manifest version (and, on a tag build, the tag must name that version), and the "At a glance" / "Project status" sections are checked with `make_glance.py --check --repo <name>` when the documentation repository is checked out next to the repository. The canonical validator also carries the README layout check that every repository already ran.

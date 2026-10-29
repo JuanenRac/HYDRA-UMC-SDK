@@ -12,8 +12,8 @@ use serde::de::DeserializeOwned;
 use serde_json::Value;
 
 use hydra_umc_sdk::{
-    DeviceDescriptor, EventEnvelope, HealthReport, ProjectManifest, SafetyState, ServerDiscovery,
-    UpdateManifest,
+    Capability, DeviceDescriptor, EventEnvelope, HealthReport, Operation, ProjectManifest,
+    SafetyState, ScenarioOutcome, ServerDiscovery, UpdateManifest,
 };
 
 /// Same fixtures every other language's own round-trip test uses - see
@@ -38,9 +38,10 @@ fn read_fixture(dir: &Path, name: &str) -> String {
 /// is structurally equivalent (compared as a generic `serde_json::Value`,
 /// so key order never counts as a mismatch) to the original fixture. `T`
 /// here is this client's own actual current representation for that
-/// contract - a hand-written struct for the 7 contracts that have one
+/// contract - a hand-written struct for each of the 10 contracts
 /// (`DeviceDescriptor`, `HealthReport`, `SafetyState`, `UpdateManifest`,
-/// `EventEnvelope`, `ServerDiscovery`, `ProjectManifest` - each with a
+/// `EventEnvelope`, `ServerDiscovery`, `ProjectManifest`, `Capability`,
+/// `Operation`, `ScenarioOutcome` - each with a
 /// `#[serde(flatten)] extra` field for any `additionalProperties: true`
 /// schema, so even fields this struct doesn't explicitly name still
 /// round-trip instead of being silently dropped).
@@ -62,16 +63,6 @@ fn assert_roundtrips_structurally<T: DeserializeOwned + Serialize>(contract: &st
         original, roundtripped,
         "{contract}: round trip did not structurally match the original fixture"
     );
-}
-
-/// The 3 newer contracts (Capability, Operation, ScenarioOutcome) have no
-/// dedicated struct in this client yet (see `src/types.rs`'s own doc
-/// comment) - validated generically instead (`src/validation.rs`). Their
-/// round trip is through the same generic `serde_json::Value`
-/// representation, still a real, honest test of this client's actual
-/// current behavior for those contracts, not an invented one.
-fn assert_generic_roundtrips_structurally(contract: &str, raw: &str) {
-    assert_roundtrips_structurally::<Value>(contract, raw);
 }
 
 macro_rules! roundtrip_test {
@@ -131,20 +122,31 @@ roundtrip_test!(
     ProjectManifest
 );
 
+roundtrip_test!(
+    capability_roundtrips,
+    "Capability",
+    "capability.valid.json",
+    Capability
+);
+roundtrip_test!(
+    operation_roundtrips,
+    "Operation",
+    "operation.valid.json",
+    Operation
+);
+roundtrip_test!(
+    scenario_outcome_roundtrips,
+    "ScenarioOutcome",
+    "scenario-outcome.valid.json",
+    ScenarioOutcome
+);
+
 #[test]
-fn generic_contracts_roundtrip() {
-    let Some(dir) = fixtures_dir() else {
-        eprintln!(
-            "conformance fixtures not found - skipping (expected inside a HYDRA-UMC-SDK checkout)"
-        );
-        return;
-    };
-    for (contract, fixture) in [
-        ("Capability", "capability.valid.json"),
-        ("Operation", "operation.valid.json"),
-        ("ScenarioOutcome", "scenario-outcome.valid.json"),
-    ] {
-        let raw = read_fixture(&dir, fixture);
-        assert_generic_roundtrips_structurally(contract, &raw);
-    }
+fn unknown_fields_survive_in_the_three_newer_contracts() {
+    let op = r#"{"schema_version":"1.0","operation_id":"o","correlation_id":"c","kind":"k","target":{"kind":"robot","id":"r","x":1},"status":"queued","requested_at_utc":"2024-01-01T00:00:00Z","updated_at_utc":"2024-01-01T00:00:00Z","params":{},"future":{"a":1}}"#;
+    assert_roundtrips_structurally::<Operation>("Operation+extra", op);
+    let cap = r#"{"schema_version":"1.0","target":{"kind":"robot","id":"r"},"kind":"k","declared":false,"future":[1,2]}"#;
+    assert_roundtrips_structurally::<Capability>("Capability+extra", cap);
+    let sc = r#"{"schema_version":"1.0","scenario_id":"s","run_id":"r","base_fingerprint":"f","phase":"before","repro_case":"c","observed":{"outcome":"reproduced","more":true},"timestamp_utc":"2024-01-01T00:00:00Z","future":1}"#;
+    assert_roundtrips_structurally::<ScenarioOutcome>("ScenarioOutcome+extra", sc);
 }

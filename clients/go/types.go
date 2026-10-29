@@ -122,10 +122,12 @@ const (
 type ProjectManifestDeploymentTarget string
 
 const (
-	DeploymentCM5      ProjectManifestDeploymentTarget = "cm5"
-	DeploymentUserPC   ProjectManifestDeploymentTarget = "user-pc"
-	DeploymentMobile   ProjectManifestDeploymentTarget = "mobile"
-	DeploymentWearable ProjectManifestDeploymentTarget = "wearable"
+	DeploymentCM5       ProjectManifestDeploymentTarget = "cm5"
+	DeploymentUserPC    ProjectManifestDeploymentTarget = "user-pc"
+	DeploymentMobile    ProjectManifestDeploymentTarget = "mobile"
+	DeploymentWearable  ProjectManifestDeploymentTarget = "wearable"
+	DeploymentDevServer ProjectManifestDeploymentTarget = "dev-server"
+	DeploymentMCU       ProjectManifestDeploymentTarget = "mcu"
 )
 
 // ProjectManifestMaturity is the project-manifest.schema.json "maturity"

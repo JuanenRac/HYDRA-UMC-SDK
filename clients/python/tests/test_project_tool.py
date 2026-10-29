@@ -8,8 +8,11 @@ canonical bump utility copied in, so `bump` is exercised for real."""
 
 from __future__ import annotations
 
+import contextlib
 import importlib.util
+import io
 import json
+import re
 import shutil
 import subprocess
 import tempfile
@@ -176,6 +179,159 @@ class ProjectToolTests(unittest.TestCase):
         for tag in ("v0.1.9", "v0.1.10", "v0.1.2"):
             self.git("tag", tag)
         self.assertEqual(TOOL.last_tag_version(self.root), "0.1.10")
+
+
+class DoctorTests(unittest.TestCase):
+    """`doctor` against throwaway repositories: it reports, it never writes."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.workspace = Path(self._tmp.name)
+        self.root = self.workspace / "HYDRA-UMC-DEMO"
+        self.root.mkdir()
+        (self.root / "tools").mkdir()
+        self.write_manifest()
+        (self.root / "CHANGELOG.md").write_text("# Changelog\n\n## [0.1.4] - first\n\n- the first note\n", encoding="utf-8")
+        self.env = {"HYDRA_UMC_DOCS_DIR": str(self.workspace / "none"), "HYDRA_UMC_SDK_DIR": str(self.workspace / "none")}
+
+    def write_manifest(self, **overrides) -> None:
+        manifest = {
+            "schema_version": "1.0", "ecosystem": "HYDRA-UMC", "name": "HYDRA-UMC-DEMO", "version": "0.1.4",
+            "role": "tool", "stack": "python", "technologies": ["python"], "deployment_target": "user-pc",
+            "maturity": "functional", "family": "tools", "parent": None, "build": "none", "notes": "demo",
+            "native_version": {"file": "VERSION.txt", "pattern": r"(\d+)\.(\d+)\.(\d+)"},
+        }
+        manifest.update(overrides)
+        (self.root / "hydra-umc.project.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    def findings(self, check):
+        return getattr(TOOL, "doctor_" + check)(self.root, self.env)
+
+    def test_a_good_manifest_has_no_finding(self):
+        self.assertEqual(self.findings("manifest"), [])
+
+    def test_manifest_enums_name_and_version_are_checked(self):
+        self.write_manifest(role="robot", deployment_target="mcu", maturity="done", name="OTHER", version="1.2")
+        text = " | ".join(problem for problem, _ in self.findings("manifest"))
+        for expected in ("role 'robot'", "maturity 'done'", "name 'OTHER'", "version '1.2'"):
+            self.assertIn(expected, text)
+        self.assertNotIn("deployment_target", text)
+
+    def test_a_missing_key_is_named(self):
+        manifest = json.loads((self.root / "hydra-umc.project.json").read_text(encoding="utf-8"))
+        del manifest["family"]
+        (self.root / "hydra-umc.project.json").write_text(json.dumps(manifest), encoding="utf-8")
+        self.assertIn("family", self.findings("manifest")[0][0])
+
+    def test_the_changelog_needs_the_heading_and_a_note(self):
+        self.assertEqual(self.findings("changelog"), [])
+        (self.root / "CHANGELOG.md").write_text("# Changelog\n\n## [0.1.3] - old\n\n- note\n", encoding="utf-8")
+        self.assertIn("0.1.3", self.findings("changelog")[0][0])
+        (self.root / "CHANGELOG.md").write_text("# Changelog\n\n## [0.1.4] - empty\n\n## [0.1.3]\n\n- note\n", encoding="utf-8")
+        self.assertIn("no note", self.findings("changelog")[0][0])
+
+    def test_a_missing_readme_checker_is_reported_with_its_fix(self):
+        problem, fix = self.findings("readme")[0]
+        self.assertIn("universal_readme_check.py", problem)
+        self.assertIn("sync_repo_tools.py", fix)
+
+    def test_checks_that_need_a_sibling_checkout_skip(self):
+        for check in ("glance", "shared_tools"):
+            with self.assertRaises(TOOL.Skipped):
+                self.findings(check)
+
+    def test_the_sdk_pin_must_be_a_tag_and_the_newest_one(self):
+        sdk = self.workspace / "HYDRA-UMC-SDK"
+        sdk.mkdir()
+        for args in (("init", "-q"), ("config", "user.email", "t@example.com"), ("config", "user.name", "T"),
+                     ("commit", "-q", "--allow-empty", "-m", "start"), ("tag", "v0.3.4"), ("tag", "v0.3.10")):
+            subprocess.run(["git", *args], cwd=sdk, check=True, capture_output=True)
+        self.env["HYDRA_UMC_SDK_DIR"] = str(sdk)
+        pyproject = self.root / "pyproject.toml"
+        line = '"hydra-umc-sdk @ git+https://github.com/JuanenRac/HYDRA-UMC-SDK.git@{}#subdirectory=clients/python"\n'
+        pyproject.write_text(line.format("v0.3.10"), encoding="utf-8")
+        self.assertEqual(self.findings("sdk_pin"), [])
+        pyproject.write_text(line.format("v0.3.4"), encoding="utf-8")
+        self.assertIn("newest release is v0.3.10", self.findings("sdk_pin")[0][0])
+        pyproject.write_text(line.format("main"), encoding="utf-8")
+        self.assertIn("not by a release tag", self.findings("sdk_pin")[0][0])
+
+    def test_doctor_reports_and_writes_nothing(self):
+        before = sorted(p.relative_to(self.root).as_posix() for p in self.root.rglob("*"))
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = TOOL.doctor(self.root, self.env)
+        self.assertEqual(code, 1)
+        self.assertIn("DOCTOR=FAIL", out.getvalue())
+        self.assertIn("-> ", out.getvalue())
+        self.assertIn("SKIP  glance", out.getvalue())
+        self.assertEqual(before, sorted(p.relative_to(self.root).as_posix() for p in self.root.rglob("*")))
+
+    def test_the_manifest_enums_match_the_published_schema(self):
+        schema = json.loads((CANONICAL.parents[1] / "contracts" / "json-schema" / "v1" / "project-manifest.schema.json").read_text(encoding="utf-8"))
+        for key, allowed in TOOL.MANIFEST_ENUMS.items():
+            self.assertEqual(set(allowed), set(schema["properties"][key]["enum"]), key)
+
+    def test_every_client_type_file_names_every_schema_enum_value(self):
+        sdk = CANONICAL.parents[1]
+        schema = json.loads((sdk / "contracts" / "json-schema" / "v1" / "project-manifest.schema.json").read_text(encoding="utf-8"))
+        files = [sdk / "clients" / "go" / "types.go", sdk / "clients" / "rust" / "src" / "types.rs", sdk / "clients" / "typescript" / "src" / "types.ts"]
+        for key in ("role", "deployment_target", "maturity"):
+            for value in schema["properties"][key]["enum"]:
+                for path in files:
+                    text = path.read_text(encoding="utf-8")
+                    variant = "".join(part.capitalize() for part in re.split(r"[-_]", value))   # serde rename_all spelling
+                    self.assertTrue(f'"{value}"' in text or f"{variant}," in text, f"{path.name} lacks {key} {value}")
+
+
+class CoverageTests(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.root = Path(self._tmp.name)
+        (self.root / "tools").mkdir()
+
+    def floor(self, *entries):
+        (self.root / "tools" / "coverage_floor.json").write_text(json.dumps(list(entries)), encoding="utf-8")
+
+    def run_coverage(self, value, strict=False):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = TOOL.coverage(self.root, strict, measure=lambda entry, root: value)
+        return code, out.getvalue()
+
+    def test_without_a_floor_file_it_skips(self):
+        code, out = self.run_coverage(50.0)
+        self.assertEqual(code, 0)
+        self.assertIn("COVERAGE=SKIP", out)
+
+    def test_at_or_above_the_floor_passes(self):
+        self.floor({"stack": "python", "floor": 90})
+        code, out = self.run_coverage(90.0)
+        self.assertEqual((code, "COVERAGE=PASS" in out), (0, True))
+
+    def test_below_the_floor_warns_and_only_strict_fails(self):
+        self.floor({"stack": "python", "floor": 90})
+        code, out = self.run_coverage(80.0)
+        self.assertEqual(code, 0)
+        self.assertIn("COVERAGE=WARN 1", out)
+        self.assertEqual(self.run_coverage(80.0, strict=True)[0], 1)
+
+    def test_no_figure_is_a_skip_not_a_failure(self):
+        self.floor({"stack": "go", "floor": 70})
+        code, out = self.run_coverage(None, strict=True)
+        self.assertEqual(code, 0)
+        self.assertIn("SKIP  go", out)
+
+    def test_the_go_profile_is_summed_by_statements(self):
+        profile = "mode: set\na.go:1.1,2.2 4 1\na.go:3.1,4.2 6 0\n"
+        self.assertAlmostEqual(TOOL.parse_go_profile(profile), 40.0)
+        self.assertIsNone(TOOL.parse_go_profile("mode: set\n"))
+
+    def test_the_node_total_is_read_from_the_all_files_row(self):
+        self.assertEqual(TOOL.parse_node_total("x\nℹ all files      |  95.07 |    83.67 |   85.42 | \n"), 95.07)
+        self.assertIsNone(TOOL.parse_node_total("nothing"))
 
 
 if __name__ == "__main__":

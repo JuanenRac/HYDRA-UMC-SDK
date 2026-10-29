@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-463%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-492%20passing-2ea44f.svg" alt="Tests">
   <img src="https://img.shields.io/badge/Version-0.3.9-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **Verificação de honestidade - o que realmente funciona hoje:** os dez contratos JSON Schema v1 com uma fixture válida e outra inválida cada um, o validador Python, a primeira fatia OpenAPI v1 do HYDRA-UMC-SERVER, os clientes Go, TypeScript e Rust que aplicam os mesmos esquemas, os auxiliares de ponte e a matriz de compatibilidade são reais e testados num computador (463 testes Python, mais as suites dos outros três clientes). O Protobuf ainda não está publicado, a porta de trabalhos é uma função de software partilhada e não uma função de segurança certificada, e nada disto correu em hardware real.
+> **Verificação de honestidade - o que realmente funciona hoje:** os dez contratos JSON Schema v1 com uma fixture válida e outra inválida cada um, o validador Python, a primeira fatia OpenAPI v1 do HYDRA-UMC-SERVER, os clientes Go, TypeScript e Rust que aplicam os mesmos esquemas, os auxiliares de ponte e a matriz de compatibilidade são reais e testados num computador (492 testes Python, mais as suites dos outros três clientes). O Protobuf ainda não está publicado, a porta de trabalhos é uma função de software partilhada e não uma função de segurança certificada, e nada disto correu em hardware real.
 
 ---
 
@@ -40,7 +40,7 @@ GPL-3.0-or-later - see LICENSE
 |---|---|
 | Versão | `0.3.9` |
 | Maturidade | Estabelecido |
-| Testes | 463 (`python -m unittest discover -s clients/python/tests`) |
+| Testes | 492 (`python -m unittest discover -s clients/python/tests`) |
 | Tecnologia | Python / TypeScript / Go / Rust / JSON Schema |
 | Em hardware real | Ainda não: não há registo de execução em hardware real para esta versão |
 
@@ -55,7 +55,7 @@ Cada linha é uma parte deste repositório e a luz diz até onde chega hoje. É 
 | Área | Estado | O que significa aqui |
 |---|---|---|
 | Software | 🟢 | Completo para o seu propósito e estável; a verificação de honestidade acima lista os limites conhecidos |
-| Testes | 🟢 | 463 testes automáticos, executados a cada alteração |
+| Testes | 🟢 | 492 testes automáticos, executados a cada alteração |
 | Hardware real | 🔴 | Ainda não: não há registo de execução em hardware real para esta versão |
 | Documentação | 🟢 | README em oito idiomas, verificado contra o manifesto a cada alteração |
 
@@ -129,7 +129,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 Testes
 
-463 testes automáticos correm com `python -m unittest discover -s clients/python/tests`. Os outros clientes têm as suas próprias suites: 26 testes em Go (`go test ./...`), 104 em TypeScript (`npm test`) e 28 em Rust (`cargo test`), executados por `tools/extra_build_steps.py` se a cadeia de ferramentas estiver instalada. Nenhum precisa de hardware.
+492 testes automáticos correm com `python -m unittest discover -s clients/python/tests`. Os outros clientes têm as suas próprias suites: 28 testes em Go (`go test ./...`), 105 em TypeScript (`npm test`) e 31 em Rust (`cargo test`), executados por `tools/extra_build_steps.py` se a cadeia de ferramentas estiver instalada. Nenhum precisa de hardware.
 
 A CI executa `HYDRA_UMC_CI=1 python tools/ci_validate.py`, que verifica o manifesto, os documentos, os oito README e as imagens.
 

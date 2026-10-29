@@ -102,7 +102,7 @@ export interface ServerDiscovery {
 export type ProjectManifestRole = "api" | "ui" | "cli" | "firmware" | "library" | "service" | "tool";
 
 /** project-manifest.schema.json "deployment_target" enum. */
-export type ProjectManifestDeploymentTarget = "cm5" | "user-pc" | "mobile" | "wearable";
+export type ProjectManifestDeploymentTarget = "cm5" | "user-pc" | "mobile" | "wearable" | "dev-server" | "mcu";
 
 /** project-manifest.schema.json "maturity" enum. */
 export type ProjectManifestMaturity = "scaffolding" | "functional" | "established" | "production";
@@ -162,7 +162,116 @@ export interface ContractManifest {
   contracts: ContractManifestEntry[];
 }
 
-/** The 7 contract names `validate()`/`isValid()` accept. */
+/** The `target` object shared by operation.schema.json and capability.schema.json. */
+export interface ContractTarget {
+  kind: string;
+  id: string;
+  [extra: string]: unknown;
+}
+
+/** operation.schema.json "status" enum. */
+export type OperationStatus =
+  | "received"
+  | "authorized"
+  | "queued"
+  | "sent"
+  | "confirmed"
+  | "terminated"
+  | "rejected";
+
+/** operation.schema.json "error" object. */
+export interface OperationError {
+  code: string;
+  message: string;
+  [extra: string]: unknown;
+}
+
+/** operation.schema.json "result.origin" enum. */
+export type OperationOrigin = "real" | "simulated";
+
+/** operation.schema.json "result.outcome" enum. */
+export type OperationOutcome = "success" | "failure" | "unknown";
+
+/**
+ * operation.schema.json "result" object: the evidence that an operation
+ * really was confirmed. `outcome_reason` is required unless the outcome is
+ * "success" (the JSON Schema enforces that; validate() checks it).
+ */
+export interface OperationResult {
+  run_id: string;
+  revision?: string;
+  origin: OperationOrigin;
+  observers_enabled: boolean;
+  accepted_at_utc?: string;
+  executed_at_utc?: string;
+  observed_at_utc?: string;
+  outcome: OperationOutcome;
+  outcome_reason?: string;
+  [extra: string]: unknown;
+}
+
+/** operation.schema.json */
+export interface Operation {
+  schema_version: "1.0";
+  operation_id: string;
+  correlation_id: string;
+  kind: string;
+  target: ContractTarget;
+  status: OperationStatus;
+  status_reason?: string;
+  requested_at_utc: string;
+  updated_at_utc: string;
+  params: Record<string, unknown>;
+  error?: OperationError;
+  result?: OperationResult;
+  [extra: string]: unknown;
+}
+
+/** capability.schema.json "last_check_outcome" enum. */
+export type CapabilityCheckOutcome = "verified" | "failed" | "unknown";
+
+/** capability.schema.json */
+export interface Capability {
+  schema_version: "1.0";
+  target: ContractTarget;
+  kind: string;
+  declared: boolean;
+  last_checked_at_utc?: string;
+  checked_configuration?: string;
+  max_age_seconds?: number;
+  last_check_outcome?: CapabilityCheckOutcome;
+  last_check_reason?: string;
+  [extra: string]: unknown;
+}
+
+/** scenario-outcome.schema.json "phase" enum. */
+export type ScenarioPhase = "before" | "after";
+
+/** scenario-outcome.schema.json "observed.outcome" enum. */
+export type ScenarioObservedOutcome = "reproduced" | "not-reproduced" | "error";
+
+/** scenario-outcome.schema.json "observed" object. */
+export interface ScenarioObserved {
+  outcome: ScenarioObservedOutcome;
+  exit_code?: number;
+  evidence?: string;
+  [extra: string]: unknown;
+}
+
+/** scenario-outcome.schema.json */
+export interface ScenarioOutcome {
+  schema_version: "1.0";
+  scenario_id: string;
+  run_id: string;
+  base_fingerprint: string;
+  phase: ScenarioPhase;
+  repro_case: string;
+  observed: ScenarioObserved;
+  timestamp_utc: string;
+  [extra: string]: unknown;
+}
+
+/** The 10 contract names `validate()`/`isValid()` accept. */
 export type ContractName =
   | "DeviceDescriptor"
   | "HealthReport"

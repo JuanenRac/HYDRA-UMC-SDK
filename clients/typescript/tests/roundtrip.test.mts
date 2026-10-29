@@ -11,11 +11,14 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 import type {
+  Capability,
   DeviceDescriptor,
   EventEnvelope,
   HealthReport,
+  Operation,
   ProjectManifest,
   SafetyState,
+  ScenarioOutcome,
   ServerDiscovery,
   UpdateManifest,
 } from "../dist/index.js";
@@ -75,26 +78,33 @@ test("ProjectManifest round-trips through JSON.stringify/JSON.parse", () => {
   assertRoundtrips<ProjectManifest>("project-manifest.valid.json");
 });
 
-// Capability/Operation/ScenarioOutcome have no dedicated interface in this
-// client yet (see types.ts's own ContractName union - they're validated
-// generically, same as clients/go and clients/rust today), so they
-// round-trip through the same generic `unknown` shape JSON.parse already
-// returns for them - still a real, honest test of this client's actual
-// current behavior for those 3 contracts, not an invented one.
 test("Capability round-trips through JSON.stringify/JSON.parse", () => {
-  assertRoundtrips<unknown>("capability.valid.json");
+  assertRoundtrips<Capability>("capability.valid.json");
 });
 
 test("Operation round-trips through JSON.stringify/JSON.parse", () => {
-  assertRoundtrips<unknown>("operation.valid.json");
+  assertRoundtrips<Operation>("operation.valid.json");
 });
 
 test("ScenarioOutcome round-trips through JSON.stringify/JSON.parse", () => {
-  assertRoundtrips<unknown>("scenario-outcome.valid.json");
+  assertRoundtrips<ScenarioOutcome>("scenario-outcome.valid.json");
 });
 
 test("round trip is stable under a second encode/decode pass", () => {
   const original = readFixture("device-descriptor.valid.json");
   const twice = JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(original))));
   assert.deepEqual(twice, original);
+});
+
+test("the typed shapes of Operation, Capability and ScenarioOutcome accept real payloads", () => {
+  const operation = readFixture("operation.valid.json") as Operation;
+  assert.equal(operation.status, "terminated");
+  assert.equal(operation.result?.origin, "real");
+  assert.equal(operation.target.id, "controller-1:robot-3");
+  const capability = readFixture("capability.valid.json") as Capability;
+  assert.equal(capability.last_check_outcome, "verified");
+  assert.equal(capability.max_age_seconds, 3600);
+  const outcome = readFixture("scenario-outcome.valid.json") as ScenarioOutcome;
+  assert.equal(outcome.observed.outcome, "not-reproduced");
+  assert.equal(outcome.phase, "after");
 });

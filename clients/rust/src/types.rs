@@ -162,6 +162,10 @@ pub enum ProjectManifestDeploymentTarget {
     Mobile,
     #[serde(rename = "wearable")]
     Wearable,
+    #[serde(rename = "dev-server")]
+    DevServer,
+    #[serde(rename = "mcu")]
+    Mcu,
 }
 
 /// `project-manifest.schema.json` "maturity" enum.
@@ -249,4 +253,173 @@ pub struct ContractManifestEntry {
 pub struct ContractManifest {
     pub schema_version: String,
     pub contracts: Vec<ContractManifestEntry>,
+}
+
+/// `target` object shared by `operation.schema.json` and
+/// `capability.schema.json`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Target {
+    pub kind: String,
+    pub id: String,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+/// `operation.schema.json` "status" enum.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum OperationStatus {
+    Received,
+    Authorized,
+    Queued,
+    Sent,
+    Confirmed,
+    Terminated,
+    Rejected,
+}
+
+/// `operation.schema.json` "error" object.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct OperationError {
+    pub code: String,
+    pub message: String,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+/// `operation.schema.json` "result.origin" enum.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum OperationOrigin {
+    Real,
+    Simulated,
+}
+
+/// `operation.schema.json` "result.outcome" enum.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum OperationOutcome {
+    Success,
+    Failure,
+    Unknown,
+}
+
+/// `operation.schema.json` "result" object: the evidence that an operation
+/// really was confirmed.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct OperationResult {
+    pub run_id: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub revision: Option<String>,
+    pub origin: OperationOrigin,
+    pub observers_enabled: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub accepted_at_utc: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub executed_at_utc: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub observed_at_utc: Option<String>,
+    pub outcome: OperationOutcome,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub outcome_reason: Option<String>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+/// `operation.schema.json`
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Operation {
+    pub schema_version: String,
+    pub operation_id: String,
+    pub correlation_id: String,
+    pub kind: String,
+    pub target: Target,
+    pub status: OperationStatus,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub status_reason: Option<String>,
+    pub requested_at_utc: String,
+    pub updated_at_utc: String,
+    pub params: serde_json::Map<String, serde_json::Value>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error: Option<OperationError>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub result: Option<OperationResult>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+/// `capability.schema.json` "last_check_outcome" enum.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum CapabilityCheckOutcome {
+    Verified,
+    Failed,
+    Unknown,
+}
+
+/// `capability.schema.json`
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Capability {
+    pub schema_version: String,
+    pub target: Target,
+    pub kind: String,
+    pub declared: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub last_checked_at_utc: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub checked_configuration: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_age_seconds: Option<serde_json::Number>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub last_check_outcome: Option<CapabilityCheckOutcome>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub last_check_reason: Option<String>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+/// `scenario-outcome.schema.json` "phase" enum.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ScenarioPhase {
+    Before,
+    After,
+}
+
+/// `scenario-outcome.schema.json` "observed.outcome" enum.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScenarioObservedOutcome {
+    #[serde(rename = "reproduced")]
+    Reproduced,
+    #[serde(rename = "not-reproduced")]
+    NotReproduced,
+    #[serde(rename = "error")]
+    Error,
+}
+
+/// `scenario-outcome.schema.json` "observed" object.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ScenarioObserved {
+    pub outcome: ScenarioObservedOutcome,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exit_code: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub evidence: Option<String>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_json::Value>,
+}
+
+/// `scenario-outcome.schema.json`
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ScenarioOutcome {
+    pub schema_version: String,
+    pub scenario_id: String,
+    pub run_id: String,
+    pub base_fingerprint: String,
+    pub phase: ScenarioPhase,
+    pub repro_case: String,
+    pub observed: ScenarioObserved,
+    pub timestamp_utc: String,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_json::Value>,
 }
