@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.3.9] - The shared validator checks the notes, the glance and the changelog, and the serial link reconnects
 
 - **The shared validator checks three more things:** a hand-written test count in the manifest `notes` fails (the README holds the counts and they are checked against the code), the CHANGELOG must have a note under the heading of the manifest version (and, on a tag build, the tag must name that version), and the "At a glance" / "Project status" sections are checked with `make_glance.py --check --repo <name>` when the documentation repository is checked out next to the repository. The canonical validator also carries the README layout check that every repository already ran.
 - The reconnecting serial link (`ReconnectingSerialConnection`) also reopens the device when discarding the input buffer fails, so a status query after the cable was pulled out reconnects instead of failing.
