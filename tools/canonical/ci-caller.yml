@@ -1,0 +1,19 @@
+# =============================================================================
+# HYDRA-UMC - CI baseline workflow (calls the shared reusable workflow)
+# Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
+# GPL-3.0-or-later - see LICENSE
+# =============================================================================
+name: HYDRA-UMC CI baseline
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    name: Validate project baseline
+    uses: JuanenRac/HYDRA-UMC-SDK/.github/workflows/reusable-ci.yml@SDK_TAG

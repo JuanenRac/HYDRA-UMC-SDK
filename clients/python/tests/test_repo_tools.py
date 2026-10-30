@@ -173,6 +173,28 @@ class SyncCanonicalTests(WorkspaceFixture):
         SYNC.write_canonical(self.workspace, self.canonical)
         self.assertFalse((repo / "bump_manifest_version.py").exists())
 
+    def test_a_community_form_is_kept_identical_when_its_canonical_copy_exists(self):
+        (self.canonical / "community").mkdir()
+        (self.canonical / "community" / "config.yml").write_text("# GPL-3.0-or-later\nblank: false\n", encoding="utf-8")
+        files = {
+            "bump_manifest_version.py": "print('bump')\n",
+            ".github/workflows/dashboard-dispatch.yml": "name: notify\n",
+            "tools/hydra_project_tool.py": "x = 1\n",
+            "tools/universal_readme_check.py": "y = 2\n",
+            "tools/pretty_run.py": "z = 3\n",
+            "tools/status_lights.py": "w = 4\n",
+            ".github/ISSUE_TEMPLATE/config.yml": "# GPL-3.0\nblank: false\n",
+        }
+        repo = self.repo("HYDRA-UMC-A", files)
+        self.assertEqual(
+            SYNC.check_canonical(self.workspace, self.canonical), ["HYDRA-UMC-A/.github/ISSUE_TEMPLATE/config.yml"]
+        )
+        SYNC.write_canonical(self.workspace, self.canonical)
+        self.assertEqual(
+            (repo / ".github/ISSUE_TEMPLATE/config.yml").read_text(encoding="utf-8"), "# GPL-3.0-or-later\nblank: false\n"
+        )
+        self.assertEqual(SYNC.check_canonical(self.workspace, self.canonical), [])
+
     def test_folders_that_are_not_family_repositories_are_ignored(self):
         (self.workspace / "HYDRA-UMC-NOT-A-REPO").mkdir()
         (self.workspace / "URTC").mkdir()

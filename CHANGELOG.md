@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+- **A reusable CI workflow:** `.github/workflows/reusable-ci.yml` is the CI baseline as a `workflow_call` workflow (Python, Node, Rust, Go, Flutter, Android and firmware steps, each switched on by the files the repository has, builds that never bump a version) and it validates through `python tools/hydra_project_tool.py validate`, the command a developer runs locally. `tools/canonical/ci-caller.yml` is the short `ci.yml` a repository would carry to call it; the repositories adopt it once the SDK carries a tag to pin.
+
+- **The issue forms and the pull request template are canonical:** the five issue forms and the pull request template are the same text in every repository, so `tools/sync_repo_tools.py` now keeps them identical (`tools/canonical/community/`) and `--check` reports a copy that drifts, such as the licence line of the 17 repositories that still said `GPL-3.0`.
+
+- **`contains_model_artifact`:** one probe of "does this models directory hold a real weight file" for the services that each had their own copy (a non-empty regular file with an accepted suffix, symbolic links never followed, a bound on the files inspected, a filesystem error counts as not present), with the suffix lists `ANY_WEIGHT_SUFFIXES` and `COMPILED_MODEL_SUFFIXES`.
+
 - **`MqttPublish` carries its QoS:** `MqttPublish(topic, payload, retain=False, qos=0)` takes 0, 1 or 2 (anything else, a boolean included, is refused), compares and hashes by it, and the shared dispatcher publishes each answer with it, so a bridge can ask for QoS 1 on its state and results. A publish without the field still goes out at QoS 0.
 
 - **The `ProductionEvent` contract:** one finished production cycle of one machine or robot (who, when it ended, how long it took in seconds and whether the part was good, plus an optional job and reject reason). It is what the production reports turn into OEE, and it is closed, so nothing else can slip in. The Python client validates it (`validate_production_event`) and gives the two numbers in the form the data lake stores them (`production_event_fields`: `good` as 1.0 or 0.0 and `cycleTimeS`); the schema is vendored and registered in the Go, Rust and TypeScript clients, the mock server serves an example and the conformance fixtures and the differential tests of the four copies cover it.

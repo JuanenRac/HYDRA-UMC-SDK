@@ -47,6 +47,7 @@ from .mqtt_connection import MqttConnectionSettings, apply_connection_settings, 
 from .promotion_journal import PromotionJournal, PromotionPhase, PromotionRecord, check_service_health, recover
 from .pose import FRAMES as POSE_FRAMES, Pose, Quaternion, pose_from_dict, pose_to_legacy_euler, validate_pose
 from .scenario import ScenarioComparison, compare_runs
+from .model_weights import ANY_WEIGHT_SUFFIXES, COMPILED_MODEL_SUFFIXES, contains_model_artifact
 from .production_event import production_event_fields, validate_production_event
 from .connection import ACTIONS as CONNECTION_ACTIONS, CLIENT_KINDS, validate_connection_client, validate_connection_event
 from .robot_state import STATES as ROBOT_STATES, validate_robot_state
@@ -84,6 +85,9 @@ __all__ = [
     "validate_connection_client",
     "validate_production_event",
     "production_event_fields",
+    "contains_model_artifact",
+    "ANY_WEIGHT_SUFFIXES",
+    "COMPILED_MODEL_SUFFIXES",
     "validate_connection_event",
     "validate_robot_state",
     "validate_twin_state",

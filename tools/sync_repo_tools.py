@@ -9,7 +9,7 @@
 Two kinds of files are handled.
 
 * Files with ONE canonical copy in `tools/canonical/` (`bump_manifest_version.py`,
-  `tools/hydra_project_tool.py`, `tools/universal_readme_check.py`, `tools/pretty_run.py`, `tools/status_lights.py`, `.github/workflows/dashboard-dispatch.yml`): every repository must carry exactly
+  `tools/hydra_project_tool.py`, `tools/universal_readme_check.py`, `tools/pretty_run.py`, `tools/status_lights.py`, `.github/workflows/dashboard-dispatch.yml`, the issue forms and the pull request template): every repository must carry exactly
   that text (line endings are the repository's own). `--check` fails when one
   differs, the default run rewrites them.
 * Files that legitimately differ by technology (`tools/ci_validate.py`,
@@ -48,6 +48,13 @@ CANONICAL_FILES = {
     "tools/universal_readme_check.py": "universal_readme_check.py",
     "tools/pretty_run.py": "pretty_run.py",
     "tools/status_lights.py": "status_lights.py",
+    # The issue forms and the pull request template are the same text in every repository.
+    ".github/ISSUE_TEMPLATE/bug-report.yml": "community/bug-report.yml",
+    ".github/ISSUE_TEMPLATE/config.yml": "community/config.yml",
+    ".github/ISSUE_TEMPLATE/documentation.yml": "community/documentation.yml",
+    ".github/ISSUE_TEMPLATE/hardware-validation.yml": "community/hardware-validation.yml",
+    ".github/ISSUE_TEMPLATE/improvement.yml": "community/improvement.yml",
+    ".github/PULL_REQUEST_TEMPLATE.md": "community/PULL_REQUEST_TEMPLATE.md",
 }
 # Files with one canonical copy that only some repositories carry, each at its own path:
 # canonical file (relative to the SDK root) -> {repository: path inside it}. The secret redaction is vendored into
@@ -101,6 +108,14 @@ _LICENCE = re.compile(r"GPL-3\.0(?:-or-later|-only)?")
 _BANNER_NAME = re.compile(r"(?m)^((?:#|//) )(?:HYDRA-UMC|ELECTRO-HOBBY-3D)[A-Za-z0-9-]*( - )")
 
 
+def canonical_items(canonical_dir: Path = CANONICAL_DIR):
+    """(repository path, canonical file name) pairs; a community form whose canonical copy is absent is skipped."""
+    for relative, canonical_name in CANONICAL_FILES.items():
+        if canonical_name.startswith("community/") and not (canonical_dir / canonical_name).is_file():
+            continue
+        yield relative, canonical_name
+
+
 def is_family_repo(path: Path) -> bool:
     name = path.name
     return (
@@ -131,7 +146,7 @@ def fingerprint(text: str) -> str:
 def check_canonical(workspace: Path, canonical_dir: Path = CANONICAL_DIR) -> list[str]:
     """Paths (repository/relative) whose text differs from the canonical copy or is missing."""
     drift: list[str] = []
-    for relative, canonical_name in CANONICAL_FILES.items():
+    for relative, canonical_name in canonical_items(canonical_dir):
         wanted, _ = read_text(canonical_dir / canonical_name)
         for repo in repos(workspace):
             target = repo / relative
@@ -152,7 +167,7 @@ def drift_of_repository(repo: Path) -> list[str]:
     copy holds nothing of its own (an adaptation is legitimate and is not drift).
     """
     drift: list[str] = []
-    for relative, canonical_name in CANONICAL_FILES.items():
+    for relative, canonical_name in canonical_items():
         wanted, _ = read_text(CANONICAL_DIR / canonical_name)
         target = repo / relative
         if not target.is_file():
@@ -219,7 +234,7 @@ def write_per_repository(workspace: Path, sdk_root: Path = SDK_ROOT) -> list[str
 def write_canonical(workspace: Path, canonical_dir: Path = CANONICAL_DIR) -> list[str]:
     """Rewrite every differing canonical file (keeping the repository's line endings)."""
     changed: list[str] = []
-    for relative, canonical_name in CANONICAL_FILES.items():
+    for relative, canonical_name in canonical_items(canonical_dir):
         wanted, _ = read_text(canonical_dir / canonical_name)
         for repo in repos(workspace):
             target = repo / relative
