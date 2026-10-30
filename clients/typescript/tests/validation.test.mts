@@ -36,15 +36,19 @@ const CONTRACT_FIXTURE_STEM: Record<ContractName, string> = {
   Pose: "pose",
   TwinState: "twin-state",
   RobotState: "robot-state",
+  ConnectionEvent: "connection-event",
+  ConnectionClient: "connection-client",
 };
 
 function readFixture(name: string): unknown {
   return JSON.parse(fs.readFileSync(path.join(FIXTURES, name), "utf-8"));
 }
 
-test("knownContracts lists all 13 real contracts", () => {
+test("knownContracts lists all 15 real contracts", () => {
   assert.deepEqual(knownContracts(), [
     "Capability",
+    "ConnectionClient",
+    "ConnectionEvent",
     "DeviceDescriptor",
     "EventEnvelope",
     "HealthReport",

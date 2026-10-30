@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The `ConnectionEvent` and `ConnectionClient` contracts:** the common model of the history of the clients that connect to a server (first seen, signed in, refused, wrong second factor, signed out, session ended or expired) and of the list of the clients it has seen (kind, last seen, open sessions, sign-ins that worked or were refused). Both are closed, so a password, a token or a cookie cannot slip into them; the address and the user agent are for administrators only. The Python client validates them (`validate_connection_event`, `validate_connection_client`), the schemas are vendored and registered in the Go, Rust and TypeScript clients, the mock server serves an example of each and the conformance fixtures cover them.
+
 - **`tools/contract_check.py --tables`:** prints the ports, the versions and the routes of the ecosystem as Markdown tables generated from the port registry, the manifests and the OpenAPI documents, so those tables are no longer written by hand. The topics of the bridges are still not generated.
 
 - **The project manifest accepts `depends_on`:** an optional list of the repositories that must be installed or updated before this one, so a batch of the updater can order itself by what each repository declares. The names follow the rule of `name`, are unique and never include the repository itself (the clients check that, a schema cannot). A compatible extension: a manifest without it stays valid. The schema is vendored in the Go, Rust and TypeScript clients and the differential tests cover it.

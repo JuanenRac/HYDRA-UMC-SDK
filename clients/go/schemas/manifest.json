@@ -6,6 +6,14 @@
       "sha256": "f435d0562cd27f9b345266b39619b04a7d078355bc900efdbba337ddc5fa0048"
     },
     {
+      "file": "connection-client.schema.json",
+      "sha256": "edf2fe0687546d6996b38f3048b257ff99967ff79df1327a622fcfe47338975a"
+    },
+    {
+      "file": "connection-event.schema.json",
+      "sha256": "59daf5da4a0df4502e8a4666e248500ee583175e91e89c3009dde4b7d7767d83"
+    },
+    {
       "file": "device-descriptor.schema.json",
       "sha256": "d82f8188b0a0d26d3fac722915823bc6af34cf1d0ee445fea85b980a1a721b09"
     },

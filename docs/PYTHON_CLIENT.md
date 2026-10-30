@@ -53,6 +53,8 @@ Raises `ContractValidationError` (a `ValueError` subclass) on the first rule vio
 | `Pose` | `schema_version`, `frame`, `position`, `orientation` | `frame` is `base` or `tool`. `position` has exactly finite numbers `x`, `y`, `z` (meters). `orientation` has exactly finite numbers `w`, `x`, `y`, `z` and must be a unit quaternion (length 1 within 1e-6). `euler` (roll, pitch, yaw in radians, intrinsic Z-Y-X) is deprecated: accepted next to the quaternion with a `DeprecationWarning`, and it must describe the same orientation. See `pose.py`'s `Quaternion` for the composition, the shortest-turn rotation vector and the Euler conversion. |
 | `RobotState` | `schema_version`, `robot_id`, `state`, `updated_at_utc` | `state` is `idle`, `busy`, `estop`, `fault` or `offline` (a replica reports `estop` and `fault` and never clears them); `updated_at_utc` is an RFC 3339 date-time. Optional: `source` (`real` or `simulated`), `mission_id`, `battery_percent` (0 to 100) and `pose` (a `Pose`, unit quaternion included). It is the typed value that nodes replicate under the key `robot_state/<robot_id>`. See `robot_state.py`. |
 | `TwinState` | `schema_version`, `source`, `frame`, `timestamp_utc`, `joint_states` | `source` is `real` or `simulated` (a consumer must never take one for the other); `frame` is `base` or `tool`; `timestamp_utc` is an RFC 3339 date-time. `joint_states` is an array of objects with a unique non-empty `name`, a finite `position` (radians, or meters for a prismatic joint) and optional finite `velocity` and `effort`. Optional: `robot_id` (non-empty), `sequence` (a non-negative integer that grows with every state of one robot) and `poses`, an array of `{name, pose}` where every `pose` is a `Pose` of the Pose contract, unit quaternion included. See `twin_state.py`. |
+| `ConnectionEvent` | `schema_version`, `id`, `at_utc`, `action`, `client_kind`, `client_id` | Closed contract (no other field): a password, token or cookie cannot slip in. `id` is an integer >= 1; `at_utc` is an RFC 3339 date-time; `action` is `first_seen`, `login`, `login_failed`, `second_factor_failed`, `logout`, `session_ended` or `session_expired`; `client_kind` is `studio`, `suite`, `android`, `ios`, `dsi`, `watch`, `voice` or `other`; `client_id` is 16 lowercase hexadecimal digits. Optional: `user` (1 to 60 characters), `origin` (`local` or `remote`), `two_factor`, `app_version`, and `ip` and `agent` for administrators only. |
+| `ConnectionClient` | `schema_version`, `id`, `kind`, `first_seen_utc`, `last_seen_utc`, `active_sessions`, `logins_ok`, `logins_failed` | Closed contract. `id` is 16 lowercase hexadecimal digits, `kind` as `client_kind` above, the dates are RFC 3339 and the three counters are integers >= 0. Optional: `user`, `app_version`, `origin`, `two_factor`, `last_failure_utc`, and `ip` and `agent` for administrators only. |
 
 Every other required field not listed with an "extra rule" above just needs to be a non-empty string.
 
@@ -113,7 +115,7 @@ device behavior, timing, or concurrency.
 
 ```bash
 $ python -m hydra_umc_sdk.mock_server &
-hydra-umc-sdk-mock-server: serving 13 contracts on http://127.0.0.1:8790/mock/
+hydra-umc-sdk-mock-server: serving 15 contracts on http://127.0.0.1:8790/mock/
 
 $ curl -s http://127.0.0.1:8790/mock/HealthReport
 {"schema_version": "1.0", "state": "READY", "timestamp_utc": "2026-01-01T00:00:00Z", "checks": {"storage": {"state": "PASS"}}}

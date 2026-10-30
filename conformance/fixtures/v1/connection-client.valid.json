@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "id": "0123456789abcdef",
+  "kind": "android",
+  "user": "ana",
+  "app_version": "0.7.3",
+  "first_seen_utc": "2026-01-01T10:00:00Z",
+  "last_seen_utc": "2026-01-02T10:00:00Z",
+  "active_sessions": 1,
+  "logins_ok": 3,
+  "logins_failed": 1,
+  "last_failure_utc": "2026-01-02T09:00:00Z"
+}

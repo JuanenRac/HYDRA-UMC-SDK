@@ -39,6 +39,8 @@ CONTRACT_FILES = {
     "Capability": "capability",
     "ServerDiscovery": "server-discovery",
     "ProjectManifest": "project-manifest",
+    "ConnectionEvent": "connection-event",
+    "ConnectionClient": "connection-client",
 }
 
 
@@ -116,6 +118,19 @@ class SchemaDifferentialTests(unittest.TestCase):
             ("ProjectManifest", changed(manifest, depends_on=["HYDRA-UMC-OS", "HYDRA-UMC-OS"]), "depends_on repeated"),
             ("ProjectManifest", changed(manifest, depends_on=["not a name"]), "depends_on bad name"),
             ("ProjectManifest", changed(manifest, depends_on="HYDRA-UMC-OS"), "depends_on as text"),
+            ("ConnectionEvent", {"schema_version": "1.0", "id": 1, "at_utc": "2026-01-01T10:00:00Z", "action": "login", "client_kind": "studio", "client_id": "0123456789abcdef"}, "minimal connection event"),
+            ("ConnectionEvent", {"schema_version": "1.0", "id": 1, "at_utc": "2026-01-01T10:00:00Z", "action": "login", "client_kind": "studio", "client_id": "0123456789abcdef", "password": "x"}, "password in an event"),
+            ("ConnectionEvent", {"schema_version": "1.0", "id": 0, "at_utc": "2026-01-01T10:00:00Z", "action": "login", "client_kind": "studio", "client_id": "0123456789abcdef"}, "event id zero"),
+            ("ConnectionEvent", {"schema_version": "1.0", "id": 1, "at_utc": "2026-01-01T10:00:00Z", "action": "login", "client_kind": "toaster", "client_id": "0123456789abcdef"}, "client kind outside the list"),
+            ("ConnectionEvent", {"schema_version": "1.0", "id": 1, "at_utc": "2026-01-01T10:00:00Z", "action": "login", "client_kind": "studio", "client_id": "ABC"}, "client id not a hash"),
+            ("ConnectionEvent", {"schema_version": "1.0", "id": 1, "at_utc": "2026-01-01T10:00:00Z", "action": "login", "client_kind": "studio", "client_id": "0123456789abcdef", "two_factor": 1}, "two factor as a number"),
+            ("ConnectionEvent", {"schema_version": "1.0", "id": 1, "at_utc": "2026-01-01T10:00:00Z", "action": "login", "client_kind": "studio", "client_id": "0123456789abcdef", "app_version": "1 2"}, "app version with a space"),
+            ("ConnectionClient", {"schema_version": "1.0", "id": "0123456789abcdef", "kind": "voice", "first_seen_utc": "2026-01-01T10:00:00Z", "last_seen_utc": "2026-01-01T10:00:00Z", "active_sessions": 0, "logins_ok": 0, "logins_failed": 0}, "minimal client"),
+            ("ConnectionClient", {"schema_version": "1.0", "id": "0123456789abcdef", "kind": "voice", "first_seen_utc": "2026-01-01T10:00:00Z", "last_seen_utc": "2026-01-01T10:00:00Z", "active_sessions": -1, "logins_ok": 0, "logins_failed": 0}, "negative sessions"),
+            ("ConnectionClient", {"schema_version": "1.0", "id": "0123456789abcdef", "kind": "voice", "first_seen_utc": "2026-01-01T10:00:00Z", "last_seen_utc": "2026-01-01T10:00:00Z", "active_sessions": "1", "logins_ok": 0, "logins_failed": 0}, "sessions as text"),
+            ("ConnectionClient", {"schema_version": "1.0", "id": "0123456789abcdef", "kind": "voice", "first_seen_utc": "2026-01-01T10:00:00Z", "last_seen_utc": "2026-01-01T10:00:00Z", "active_sessions": 0, "logins_ok": 0, "logins_failed": 0, "cookie": "x"}, "cookie in a client"),
+            ("ConnectionClient", {"schema_version": "1.0", "id": "0123456789abcdef", "kind": "fridge", "first_seen_utc": "2026-01-01T10:00:00Z", "last_seen_utc": "2026-01-01T10:00:00Z", "active_sessions": 0, "logins_ok": 0, "logins_failed": 0}, "kind outside the list"),
+            ("ConnectionClient", {"schema_version": "1.0", "id": "0123456789abcdef", "kind": "voice", "last_seen_utc": "2026-01-01T10:00:00Z", "active_sessions": 0, "logins_ok": 0, "logins_failed": 0}, "no first seen"),
         ]
         result = copy.deepcopy(operation.get("result", {"run_id": "r", "origin": "real", "observers_enabled": True, "outcome": "success"}))
         result["outcome_reason"] = 5

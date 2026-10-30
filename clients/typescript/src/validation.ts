@@ -57,6 +57,8 @@ const CONTRACT_FILES: Record<ContractName, string> = {
   Pose: "pose.schema.json",
   TwinState: "twin-state.schema.json",
   RobotState: "robot-state.schema.json",
+  ConnectionEvent: "connection-event.schema.json",
+  ConnectionClient: "connection-client.schema.json",
 };
 
 /**

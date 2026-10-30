@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/connection-client.schema.json",
+  "title": "ConnectionClient",
+  "description": "One entry of the list of every application the server has seen: when it was first and last seen, how many sessions it has open now and how many sign-ins worked or were refused. The address (ip) and the user agent (agent) are for administrators only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "kind",
+    "first_seen_utc",
+    "last_seen_utc",
+    "active_sessions",
+    "logins_ok",
+    "logins_failed"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{16}$"
+    },
+    "kind": {
+      "enum": [
+        "studio",
+        "suite",
+        "android",
+        "ios",
+        "dsi",
+        "watch",
+        "voice",
+        "other"
+      ]
+    },
+    "user": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 60
+    },
+    "app_version": {
+      "type": "string",
+      "pattern": "^[0-9A-Za-z._-]{1,24}$"
+    },
+    "origin": {
+      "enum": [
+        "local",
+        "remote"
+      ]
+    },
+    "two_factor": {
+      "type": "boolean"
+    },
+    "first_seen_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_seen_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_failure_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "active_sessions": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "logins_ok": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "logins_failed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "ip": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "Administrators only."
+    },
+    "agent": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "description": "Administrators only."
+    }
+  }
+}

@@ -47,6 +47,7 @@ from .mqtt_connection import MqttConnectionSettings, apply_connection_settings, 
 from .promotion_journal import PromotionJournal, PromotionPhase, PromotionRecord, check_service_health, recover
 from .pose import FRAMES as POSE_FRAMES, Pose, Quaternion, pose_from_dict, pose_to_legacy_euler, validate_pose
 from .scenario import ScenarioComparison, compare_runs
+from .connection import ACTIONS as CONNECTION_ACTIONS, CLIENT_KINDS, validate_connection_client, validate_connection_event
 from .robot_state import STATES as ROBOT_STATES, validate_robot_state
 from .twin_state import SOURCES as TWIN_STATE_SOURCES, validate_twin_state
 from .server_api import (
@@ -77,6 +78,10 @@ __all__ = [
     "POSE_FRAMES",
     "TWIN_STATE_SOURCES",
     "ROBOT_STATES",
+    "CONNECTION_ACTIONS",
+    "CLIENT_KINDS",
+    "validate_connection_client",
+    "validate_connection_event",
     "validate_robot_state",
     "validate_twin_state",
     "Pose",

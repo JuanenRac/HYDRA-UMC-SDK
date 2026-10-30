@@ -37,6 +37,8 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "Pose": ("schema_version", "frame", "position", "orientation"),
     "TwinState": ("schema_version", "source", "frame", "timestamp_utc", "joint_states"),
     "RobotState": ("schema_version", "robot_id", "state", "updated_at_utc"),
+    "ConnectionEvent": ("schema_version", "id", "at_utc", "action", "client_kind", "client_id"),
+    "ConnectionClient": ("schema_version", "id", "kind", "first_seen_utc", "last_seen_utc", "active_sessions", "logins_ok", "logins_failed"),
     "ServerDiscovery": ("schema_version", "product", "remoteApiVersion", "appVersion", "hostname", "controllerCount", "robotCount", "uptimeSeconds"),
     "ProjectManifest": (
         "schema_version", "ecosystem", "name", "version", "role", "stack", "technologies",
@@ -209,6 +211,16 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
         from .robot_state import validate_robot_state  # imported here: robot_state.py needs this module's error type
 
         validate_robot_state(payload)
+        return
+    if contract == "ConnectionEvent":
+        from .connection import validate_connection_event  # imported here: connection.py needs this module's error type
+
+        validate_connection_event(payload)
+        return
+    if contract == "ConnectionClient":
+        from .connection import validate_connection_client  # imported here: connection.py needs this module's error type
+
+        validate_connection_client(payload)
         return
     for field in REQUIRED[contract]:
         if field not in payload:

@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "id": 7,
+  "at_utc": "2026-01-01T10:00:00Z",
+  "action": "hijacked",
+  "client_kind": "studio",
+  "client_id": "0123456789abcdef",
+  "user": "ana",
+  "origin": "local",
+  "two_factor": true,
+  "app_version": "0.7.3"
+}
