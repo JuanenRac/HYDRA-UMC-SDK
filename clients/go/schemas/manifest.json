@@ -34,6 +34,10 @@
       "sha256": "673abc376c8daacc25b9de39f5f47936ba68175aa2244281ba1e9b38a067af65"
     },
     {
+      "file": "production-event.schema.json",
+      "sha256": "aa7dfba09dac805ef805612c87de4a65802ae0225e61d25c551248d12d91f07c"
+    },
+    {
       "file": "project-manifest.schema.json",
       "sha256": "a88438d6d9875ed688c979cf8eaba5b2702d25b6fbe3765c9f0c3898a9869929"
     },

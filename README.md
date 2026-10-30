@@ -119,7 +119,7 @@ declared-but-never-checked or gone-stale capability is never silently
 treated as usable; and a `hydra-umc-sdk-mock-server` (`mock_server.py`)
 that serves one contract-valid example payload per known contract over
 plain HTTP, for a UI or adapter to develop against before any real
-CM5/robot/MCU hardware is available. All 15 contracts have at least one
+CM5/robot/MCU hardware is available. All 16 contracts have at least one
 valid and one invalid conformance fixture, verified by the compatibility
 matrix above.
 

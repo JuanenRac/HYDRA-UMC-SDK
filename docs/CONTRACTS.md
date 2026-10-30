@@ -33,6 +33,7 @@ according to its use case.
 | `TwinState` | Digital twin, physics replica, HIL bridge | Server, Studio, Suite |
 | `ConnectionEvent` | Server (history of the clients that connect) | Studio, Suite, apps |
 | `ConnectionClient` | Server (list of the clients it has seen) | Studio, Suite, apps |
+| `ProductionEvent` | Orchestrator, bridges, robots (one finished cycle) | Production reports, Data Lake |
 | `ProjectManifest` | Every repository (`hydra-umc.project.json` or `urtc.project.json`) | Updater, dashboard |
 
 Planned, with no schema yet: `ToolDescriptor` (URTC adapter, for Server, Smart

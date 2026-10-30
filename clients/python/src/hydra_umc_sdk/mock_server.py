@@ -98,6 +98,13 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "position": {"x": 0.25, "y": 0.0, "z": 0.3},
         "orientation": {"w": 1.0, "x": 0.0, "y": 0.0, "z": 0.0},
     },
+    "ProductionEvent": {
+        "schema_version": "1.0",
+        "source_id": "cnc-1",
+        "at_utc": "2024-01-01T00:00:00Z",
+        "good": True,
+        "cycle_time_s": 42.5,
+    },
     "ConnectionEvent": {
         "schema_version": "1.0",
         "id": 1,

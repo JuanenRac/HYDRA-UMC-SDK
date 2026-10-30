@@ -124,7 +124,7 @@ stillschweigend als nutzbar behandelt wird; und ein
 `hydra-umc-sdk-mock-server` (`mock_server.py`), der für jeden bekannten
 Vertrag ein gültiges Beispiel-Payload über einfaches HTTP bereitstellt,
 damit eine UI oder ein Adapter entwickelt werden kann, bevor echte
-CM5-/Roboter-/MCU-Hardware verfügbar ist. Alle 15 Verträge besitzen
+CM5-/Roboter-/MCU-Hardware verfügbar ist. Alle 16 Verträge besitzen
 mindestens eine gültige und eine ungültige Konformitäts-Fixture, geprüft
 durch die obige Kompatibilitätsmatrix.
 

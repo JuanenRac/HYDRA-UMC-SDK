@@ -95,7 +95,7 @@ validatore, e ora dimostra che ogni fixture di conformità viene giudicata
 come afferma il proprio nome file, oltre ai casi di contratto sconosciuto e
 versione di schema incompatibile.
 
-Dal primo traguardo qui sotto sono stati aggiunti altri contratti (15 in totale): un
+Dal primo traguardo qui sotto sono stati aggiunti altri contratti (16 in totale): un
 contratto pubblico di bridge verso macchine esterne
 `BridgeJob`/`GateDecision` (vedi
 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), condiviso da
@@ -124,7 +124,7 @@ trattata silenziosamente come utilizzabile; e un
 (`mock_server.py`) che serve un payload di esempio valido per ogni
 contratto noto via HTTP semplice, così una UI o un adattatore possono
 essere sviluppati prima che esista un vero hardware CM5/robot/MCU. Tutti
-e 15 i contratti hanno almeno una fixture di conformità valida e una non
+e 16 i contratti hanno almeno una fixture di conformità valida e una non
 valida, verificate dalla matrice di compatibilità sopra.
 
 ## 🔒 Sicurezza e protezione

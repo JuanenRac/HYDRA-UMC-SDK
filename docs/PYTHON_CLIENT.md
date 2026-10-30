@@ -55,6 +55,7 @@ Raises `ContractValidationError` (a `ValueError` subclass) on the first rule vio
 | `TwinState` | `schema_version`, `source`, `frame`, `timestamp_utc`, `joint_states` | `source` is `real` or `simulated` (a consumer must never take one for the other); `frame` is `base` or `tool`; `timestamp_utc` is an RFC 3339 date-time. `joint_states` is an array of objects with a unique non-empty `name`, a finite `position` (radians, or meters for a prismatic joint) and optional finite `velocity` and `effort`. Optional: `robot_id` (non-empty), `sequence` (a non-negative integer that grows with every state of one robot) and `poses`, an array of `{name, pose}` where every `pose` is a `Pose` of the Pose contract, unit quaternion included. See `twin_state.py`. |
 | `ConnectionEvent` | `schema_version`, `id`, `at_utc`, `action`, `client_kind`, `client_id` | Closed contract (no other field): a password, token or cookie cannot slip in. `id` is an integer >= 1; `at_utc` is an RFC 3339 date-time; `action` is `first_seen`, `login`, `login_failed`, `second_factor_failed`, `logout`, `session_ended` or `session_expired`; `client_kind` is `studio`, `suite`, `android`, `ios`, `dsi`, `watch`, `voice` or `other`; `client_id` is 16 lowercase hexadecimal digits. Optional: `user` (1 to 60 characters), `origin` (`local` or `remote`), `two_factor`, `app_version`, and `ip` and `agent` for administrators only. |
 | `ConnectionClient` | `schema_version`, `id`, `kind`, `first_seen_utc`, `last_seen_utc`, `active_sessions`, `logins_ok`, `logins_failed` | Closed contract. `id` is 16 lowercase hexadecimal digits, `kind` as `client_kind` above, the dates are RFC 3339 and the three counters are integers >= 0. Optional: `user`, `app_version`, `origin`, `two_factor`, `last_failure_utc`, and `ip` and `agent` for administrators only. |
+| `ProductionEvent` | `schema_version`, `source_id`, `at_utc`, `good`, `cycle_time_s` | Closed contract. `source_id` (and the optional `job_id`) is 1 to 64 letters, digits, dots, colons, dashes or underscores; `at_utc` is an RFC 3339 date-time (when the cycle ended); `good` is a true boolean or false; `cycle_time_s` is a finite number greater than 0 and at most 604800 (one week). Optional: `job_id`, `reject_reason` (1 to 120 characters). `production_event_fields` gives the data lake sample (`good` as 1.0 or 0.0 and `cycleTimeS`). See `production_event.py`. |
 
 Every other required field not listed with an "extra rule" above just needs to be a non-empty string.
 
@@ -115,7 +116,7 @@ device behavior, timing, or concurrency.
 
 ```bash
 $ python -m hydra_umc_sdk.mock_server &
-hydra-umc-sdk-mock-server: serving 15 contracts on http://127.0.0.1:8790/mock/
+hydra-umc-sdk-mock-server: serving 16 contracts on http://127.0.0.1:8790/mock/
 
 $ curl -s http://127.0.0.1:8790/mock/HealthReport
 {"schema_version": "1.0", "state": "READY", "timestamp_utc": "2026-01-01T00:00:00Z", "checks": {"storage": {"state": "PASS"}}}

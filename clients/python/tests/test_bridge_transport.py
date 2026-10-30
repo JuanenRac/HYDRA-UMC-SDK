@@ -152,16 +152,9 @@ class DispatcherTests(unittest.TestCase):
         self.assertEqual(bridge.seen, [(PREFIX + "cmd/status", b"{}", False)])
 
     def test_the_qos_of_an_answer_is_kept(self):
-        class QosPublish(MqttPublish):
-            __slots__ = ("qos",)
-
-            def __init__(self, topic, payload, retain=False, qos=1):
-                super().__init__(topic, payload, retain)
-                self.qos = qos
-
         class QosBridge(FakeBridge):
             def handle_message(self, topic, payload, *, retained=False):
-                return [QosPublish(topic + "/result", "ok", retain=True, qos=1), MqttPublish(topic + "/plain", "ok")]
+                return [MqttPublish(topic + "/result", "ok", retain=True, qos=1), MqttPublish(topic + "/plain", "ok")]
 
         dispatcher = MessageDispatcher(QosBridge(), PREFIX)
         client = FakeClient()
@@ -171,6 +164,32 @@ class DispatcherTests(unittest.TestCase):
             client.published,
             [(PREFIX + "cmd/status/result", "ok", 1, True), (PREFIX + "cmd/status/plain", "ok", 0, False)],
         )
+
+    def test_a_publish_defaults_to_qos_zero_and_compares_by_qos(self):
+        self.assertEqual(MqttPublish("t", "p").qos, 0)
+        self.assertEqual(MqttPublish("t", "p"), MqttPublish("t", "p", False, 0))
+        self.assertNotEqual(MqttPublish("t", "p", qos=1), MqttPublish("t", "p"))
+        self.assertEqual(len({MqttPublish("t", "p"), MqttPublish("t", "p", qos=2)}), 2)
+        self.assertIn("qos=1", repr(MqttPublish("t", "p", qos=1)))
+
+    def test_a_qos_outside_zero_to_two_is_refused(self):
+        for bad in (3, -1, True, 1.0, "1", None):
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                MqttPublish("t", "p", qos=bad)  # type: ignore[arg-type]
+
+    def test_a_duck_typed_publish_without_qos_goes_out_at_zero(self):
+        class Plain:
+            topic, payload, retain = "x/result", "ok", False
+
+        class PlainBridge(FakeBridge):
+            def handle_message(self, topic, payload, *, retained=False):
+                return [Plain()]
+
+        dispatcher = MessageDispatcher(PlainBridge(), PREFIX)
+        client = FakeClient()
+        dispatcher.on_message(client, None, FakeMessage(PREFIX + "cmd/status"))
+        dispatcher.close(wait=True)
+        self.assertEqual(client.published, [("x/result", "ok", 0, False)])
 
     def test_a_retained_replay_is_never_a_request(self):
         bridge = FakeBridge()

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/production-event.schema.json",
+  "title": "ProductionEvent",
+  "description": "One finished production cycle of one machine or robot: when it ended, how long it took and whether the part was good. It is what the production reports turn into OEE (quality and performance). It says what happened, never how: the schema is closed, so nothing else can slip in.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_id",
+    "at_utc",
+    "good",
+    "cycle_time_s"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "source_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The machine or robot that finished the cycle, as the rest of the ecosystem names it."
+    },
+    "at_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the cycle ended."
+    },
+    "good": {
+      "type": "boolean",
+      "description": "True when the part met the specification, false when it was scrap or had to be reworked."
+    },
+    "cycle_time_s": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 604800,
+      "description": "How long the cycle took, in seconds (more than 0, at most one week)."
+    },
+    "job_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The job the cycle belonged to, when there is one."
+    },
+    "reject_reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "description": "Why the part was not good, in a few words; meaningful only when good is false."
+    }
+  }
+}

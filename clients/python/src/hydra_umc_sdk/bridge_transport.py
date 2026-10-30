@@ -8,7 +8,7 @@
 A bridge listens on `hydra/bridges/<name>/cmd/#`, answers on `.../<verb>/result`, keeps a retained `.../state` and announces itself on a retained `.../availability`
 topic ("online" once connected; "offline" is the Last Will the broker publishes if the link dies). The parts that are the same for all of them live here:
 
-* `MqttPublish`: one message a bridge wants published (topic, payload, retained).
+* `MqttPublish`: one message a bridge wants published (topic, payload, retained, QoS 0 by default).
 * `connect_with_retry`: the first connect is retried on `OSError` (a systemd unit may start before the broker listens); a TLS failure is never retried.
 * `MessageDispatcher`: takes the messages off the network thread. Ordinary commands run one at a time, in order, on one lane; the stop verbs run on a second lane, so a stop never
   waits behind a slow status query. A retained delivery is a replay by the broker and is never treated as a request.
@@ -32,26 +32,29 @@ _LOG = logging.getLogger(__name__)
 
 
 class MqttPublish:
-    """One message a bridge wants published."""
+    """One message a bridge wants published (QoS 0 unless the bridge asks for 1 or 2)."""
 
-    __slots__ = ("topic", "payload", "retain")
+    __slots__ = ("topic", "payload", "retain", "qos")
 
-    def __init__(self, topic: str, payload: str, retain: bool = False) -> None:
+    def __init__(self, topic: str, payload: str, retain: bool = False, qos: int = 0) -> None:
+        if type(qos) is not int or qos not in (0, 1, 2):
+            raise ValueError(f"qos must be 0, 1 or 2, not {qos!r}")
         self.topic = topic
         self.payload = payload
         self.retain = retain
+        self.qos = qos
 
     def __eq__(self, other: object) -> bool:
         return (
             isinstance(other, MqttPublish)
-            and (self.topic, self.payload, self.retain) == (other.topic, other.payload, other.retain)
+            and (self.topic, self.payload, self.retain, self.qos) == (other.topic, other.payload, other.retain, other.qos)
         )
 
     def __hash__(self) -> int:
-        return hash((self.topic, self.payload, self.retain))
+        return hash((self.topic, self.payload, self.retain, self.qos))
 
     def __repr__(self) -> str:
-        return f"MqttPublish(topic={self.topic!r}, payload={self.payload!r}, retain={self.retain!r})"
+        return f"MqttPublish(topic={self.topic!r}, payload={self.payload!r}, retain={self.retain!r}, qos={self.qos!r})"
 
 
 class MessageHandler(Protocol):

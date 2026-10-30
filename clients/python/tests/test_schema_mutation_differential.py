@@ -41,6 +41,7 @@ CONTRACTS = {
     "ProjectManifest": "project-manifest",
     "ConnectionEvent": "connection-event",
     "ConnectionClient": "connection-client",
+    "ProductionEvent": "production-event",
 }
 
 # The Python validator is deliberately stricter than the schema here: the schema

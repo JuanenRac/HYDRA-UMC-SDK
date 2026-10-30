@@ -37,6 +37,7 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "Pose": ("schema_version", "frame", "position", "orientation"),
     "TwinState": ("schema_version", "source", "frame", "timestamp_utc", "joint_states"),
     "RobotState": ("schema_version", "robot_id", "state", "updated_at_utc"),
+    "ProductionEvent": ("schema_version", "source_id", "at_utc", "good", "cycle_time_s"),
     "ConnectionEvent": ("schema_version", "id", "at_utc", "action", "client_kind", "client_id"),
     "ConnectionClient": ("schema_version", "id", "kind", "first_seen_utc", "last_seen_utc", "active_sessions", "logins_ok", "logins_failed"),
     "ServerDiscovery": ("schema_version", "product", "remoteApiVersion", "appVersion", "hostname", "controllerCount", "robotCount", "uptimeSeconds"),
@@ -211,6 +212,11 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
         from .robot_state import validate_robot_state  # imported here: robot_state.py needs this module's error type
 
         validate_robot_state(payload)
+        return
+    if contract == "ProductionEvent":
+        from .production_event import validate_production_event  # imported here: production_event.py needs this module's error type
+
+        validate_production_event(payload)
         return
     if contract == "ConnectionEvent":
         from .connection import validate_connection_event  # imported here: connection.py needs this module's error type

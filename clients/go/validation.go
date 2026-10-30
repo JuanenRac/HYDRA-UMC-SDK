@@ -56,6 +56,7 @@ var contractFiles = map[string]string{
 	"RobotState":       "robot-state.schema.json",
 	"ConnectionEvent":  "connection-event.schema.json",
 	"ConnectionClient": "connection-client.schema.json",
+	"ProductionEvent":  "production-event.schema.json",
 }
 
 // ContractValidationError is returned by Validate when payload fails real

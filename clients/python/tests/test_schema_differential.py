@@ -41,6 +41,7 @@ CONTRACT_FILES = {
     "ProjectManifest": "project-manifest",
     "ConnectionEvent": "connection-event",
     "ConnectionClient": "connection-client",
+    "ProductionEvent": "production-event",
 }
 
 
@@ -130,6 +131,23 @@ class SchemaDifferentialTests(unittest.TestCase):
             ("ConnectionClient", {"schema_version": "1.0", "id": "0123456789abcdef", "kind": "voice", "first_seen_utc": "2026-01-01T10:00:00Z", "last_seen_utc": "2026-01-01T10:00:00Z", "active_sessions": "1", "logins_ok": 0, "logins_failed": 0}, "sessions as text"),
             ("ConnectionClient", {"schema_version": "1.0", "id": "0123456789abcdef", "kind": "voice", "first_seen_utc": "2026-01-01T10:00:00Z", "last_seen_utc": "2026-01-01T10:00:00Z", "active_sessions": 0, "logins_ok": 0, "logins_failed": 0, "cookie": "x"}, "cookie in a client"),
             ("ConnectionClient", {"schema_version": "1.0", "id": "0123456789abcdef", "kind": "fridge", "first_seen_utc": "2026-01-01T10:00:00Z", "last_seen_utc": "2026-01-01T10:00:00Z", "active_sessions": 0, "logins_ok": 0, "logins_failed": 0}, "kind outside the list"),
+            ("ProductionEvent", {"schema_version": "1.0", "source_id": "cnc-1", "at_utc": "2026-01-01T10:00:00Z", "good": True, "cycle_time_s": 42.5}, "minimal production event"),
+            ("ProductionEvent", {"schema_version": "1.0", "source_id": "cnc-1", "at_utc": "2026-01-01T10:00:00Z", "good": False, "cycle_time_s": 0.001, "job_id": "j-1", "reject_reason": "burr"}, "scrap with job and reason"),
+            ("ProductionEvent", {"schema_version": "1.0", "source_id": "cnc-1", "at_utc": "2026-01-01T10:00:00Z", "good": True, "cycle_time_s": 604800}, "cycle of exactly one week"),
+            ("ProductionEvent", {"schema_version": "1.0", "source_id": "cnc-1", "at_utc": "2026-01-01T10:00:00Z", "good": True, "cycle_time_s": 604801}, "cycle over one week"),
+            ("ProductionEvent", {"schema_version": "1.0", "source_id": "cnc-1", "at_utc": "2026-01-01T10:00:00Z", "good": True, "cycle_time_s": 0}, "cycle of zero"),
+            ("ProductionEvent", {"schema_version": "1.0", "source_id": "cnc-1", "at_utc": "2026-01-01T10:00:00Z", "good": True, "cycle_time_s": -3}, "negative cycle"),
+            ("ProductionEvent", {"schema_version": "1.0", "source_id": "cnc-1", "at_utc": "2026-01-01T10:00:00Z", "good": True, "cycle_time_s": "42"}, "cycle as text"),
+            ("ProductionEvent", {"schema_version": "1.0", "source_id": "cnc-1", "at_utc": "2026-01-01T10:00:00Z", "good": True, "cycle_time_s": True}, "cycle as a boolean"),
+            ("ProductionEvent", {"schema_version": "1.0", "source_id": "cnc-1", "at_utc": "2026-01-01T10:00:00Z", "good": 1, "cycle_time_s": 4}, "good as a number"),
+            ("ProductionEvent", {"schema_version": "1.0", "source_id": "cnc-1", "at_utc": "2026-01-01T10:00:00Z", "cycle_time_s": 4}, "no good"),
+            ("ProductionEvent", {"schema_version": "1.0", "source_id": "cnc 1", "at_utc": "2026-01-01T10:00:00Z", "good": True, "cycle_time_s": 4}, "source with a space"),
+            ("ProductionEvent", {"schema_version": "1.0", "source_id": "", "at_utc": "2026-01-01T10:00:00Z", "good": True, "cycle_time_s": 4}, "empty source"),
+            ("ProductionEvent", {"schema_version": "1.0", "source_id": "x" * 65, "at_utc": "2026-01-01T10:00:00Z", "good": True, "cycle_time_s": 4}, "source of 65 characters"),
+            ("ProductionEvent", {"schema_version": "1.0", "source_id": "cnc-1", "at_utc": "2026-01-01T10:00:00Z", "good": True, "cycle_time_s": 4, "operator": "ana"}, "unknown field"),
+            ("ProductionEvent", {"schema_version": "1.0", "source_id": "cnc-1", "at_utc": "2026-01-01T10:00:00Z", "good": True, "cycle_time_s": 4, "reject_reason": ""}, "empty reason"),
+            ("ProductionEvent", {"schema_version": "1.0", "source_id": "cnc-1", "at_utc": "2026-01-01T10:00:00Z", "good": True, "cycle_time_s": 4, "reject_reason": "x" * 121}, "reason of 121 characters"),
+            ("ProductionEvent", {"schema_version": "1.0", "source_id": "cnc-1", "at_utc": "2026-01-01T10:00:00Z", "good": True, "cycle_time_s": 4, "job_id": "a b"}, "job with a space"),
             ("ConnectionClient", {"schema_version": "1.0", "id": "0123456789abcdef", "kind": "voice", "last_seen_utc": "2026-01-01T10:00:00Z", "active_sessions": 0, "logins_ok": 0, "logins_failed": 0}, "no first seen"),
         ]
         result = copy.deepcopy(operation.get("result", {"run_id": "r", "origin": "real", "observers_enabled": True, "outcome": "success"}))
