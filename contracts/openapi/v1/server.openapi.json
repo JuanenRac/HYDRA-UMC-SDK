@@ -358,6 +358,12 @@
                   },
                   {
                     "$ref": "#/components/schemas/CommandTable"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandDisable"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandEnable"
                   }
                 ],
                 "discriminator": {
@@ -376,7 +382,9 @@
                     "speed": "#/components/schemas/CommandSpeed",
                     "trajectory": "#/components/schemas/CommandTrajectory",
                     "vision": "#/components/schemas/CommandVision",
-                    "table": "#/components/schemas/CommandTable"
+                    "table": "#/components/schemas/CommandTable",
+                    "disable": "#/components/schemas/CommandDisable",
+                    "enable": "#/components/schemas/CommandEnable"
                   }
                 }
               }
@@ -435,7 +443,7 @@
             }
           },
           "403": {
-            "description": "The jog is not armed for this robot (`jog-not-armed`); arm it with `POST /api/robot/{id}/jog-arm`.",
+            "description": "The jog is not armed for this robot (`jog-not-armed`); arm it with `POST /api/robot/{id}/jog-arm`. Or `enable` is refused: `enable-not-allowed` (the server option is off, the default) or `admin-required`.",
             "content": {
               "application/json": {
                 "schema": {
@@ -450,6 +458,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RevisionConflict"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "The robot is disabled (`robot-disabled`): only `stop`, `disable` and `enable` work on it until it is enabled again.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2484,6 +2502,36 @@
             "items": {
               "$ref": "#/components/schemas/ClaimListEntry"
             }
+          }
+        }
+      },
+      "CommandDisable": {
+        "type": "object",
+        "description": "Puts one robot in safe mode: it stops, its valves and pumps go off, the arming of its jog is dropped and it is marked `enabled: false`. Every other command of the robot except `stop` and `enable` is then refused with `423` (`robot-disabled`). Like `stop` it is open to every signed-in account and is never blocked by a claim or a stale revision. It touches only the robot it is sent to.",
+        "required": [
+          "command"
+        ],
+        "properties": {
+          "command": {
+            "const": "disable"
+          },
+          "controllerId": {
+            "$ref": "#/components/schemas/ControllerId"
+          }
+        }
+      },
+      "CommandEnable": {
+        "type": "object",
+        "description": "Brings a robot in safe mode back and restarts nothing (it stays stopped; the jog has to be armed again). It is off by default: `403` with `enable-not-allowed` until an administrator turns on `robots.allowEnable` on the server, and then only an administrator may use it (`403` with `admin-required`). The claim check applies as for any command but `stop`. It touches only the robot it is sent to.",
+        "required": [
+          "command"
+        ],
+        "properties": {
+          "command": {
+            "const": "enable"
+          },
+          "controllerId": {
+            "$ref": "#/components/schemas/ControllerId"
           }
         }
       }
