@@ -94,7 +94,7 @@ n'avait aucune entrée de validateur, et prouve désormais que chaque fixture
 de conformité est jugée comme son propre nom de fichier l'affirme, ainsi que les
 cas de contrat inconnu et de version de schéma incompatible.
 
-Des contrats supplémentaires ont été livrés depuis le premier jalon (13 au total)
+Des contrats supplémentaires ont été livrés depuis le premier jalon (15 au total)
 ci-dessous : un contrat public de pont vers des machines externes
 `BridgeJob`/`GateDecision` (voir
 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), partagé par
@@ -122,7 +122,7 @@ traitée silencieusement comme utilisable ; et un
 `hydra-umc-sdk-mock-server`
 (`mock_server.py`) qui sert un exemple de payload valide par contrat
 connu via HTTP simple, pour qu'une UI ou un adaptateur puisse être
-développé avant qu'un vrai matériel CM5/robot/MCU soit disponible. Les 13
+développé avant qu'un vrai matériel CM5/robot/MCU soit disponible. Les 15
 contrats disposent chacun d'au moins une fixture de conformité valide et
 une invalide, vérifiées par la matrice de compatibilité ci-dessus.
 

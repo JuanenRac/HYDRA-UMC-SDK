@@ -120,7 +120,7 @@ nunca se trate silenciosamente como utilizable; y un
 `hydra-umc-sdk-mock-server` (`mock_server.py`) que sirve un payload de
 ejemplo válido por cada contrato conocido sobre HTTP plano, para que una
 UI o un adaptador puedan desarrollarse antes de que exista hardware
-CM5/robot/MCU real. Los 13 contratos tienen al menos un accesorio de
+CM5/robot/MCU real. Los 15 contratos tienen al menos un accesorio de
 conformidad válido e inválido, verificados por la matriz de
 compatibilidad de arriba.
 
