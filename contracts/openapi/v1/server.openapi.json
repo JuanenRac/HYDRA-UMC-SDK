@@ -117,7 +117,7 @@
             }
           },
           "401": {
-            "description": "Real invalid-credentials rejection - same message for an unknown username and a wrong password, on purpose (never confirms which one was wrong).",
+            "description": "Real invalid-credentials rejection - same message for an unknown username and a wrong password, on purpose (never confirms which one was wrong). When the account has the second step on and no valid `totp` was sent, the body also carries `totpRequired: true`.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1227,6 +1227,10 @@
           "code": {
             "type": "string",
             "description": "Stable refusal codes: `other-account`, `other-controller`, `controller-id-required`, `invalid-controller-id`, `jog-not-armed`, `revision-mismatch`, `table-invalid`, `table-out-of-limit`, `table-missing`. A client must keep an unknown code as a plain error."
+          },
+          "totpRequired": {
+            "const": true,
+            "description": "Present on a sign-in answered with 401 or 429 when the account has the second step on: the sign-in must be repeated with `totp`."
           }
         },
         "additionalProperties": true
@@ -1303,6 +1307,10 @@
           },
           "password": {
             "type": "string"
+          },
+          "totp": {
+            "type": "string",
+            "description": "The code of the second step (a 6-digit code from an authenticator app or an unused recovery code). Only for an account that turned the second step on; sending it for one that did not is harmless."
           }
         },
         "additionalProperties": false
