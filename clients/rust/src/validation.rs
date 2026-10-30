@@ -68,6 +68,7 @@ const CONTRACT_FILES: &[(&str, &str)] = &[
     ("ScenarioOutcome", "scenario-outcome.schema.json"),
     ("Operation", "operation.schema.json"),
     ("Capability", "capability.schema.json"),
+    ("Pose", "pose.schema.json"),
 ];
 
 /// Vendored schema file name -> raw JSON text, embedded at compile time.
@@ -114,6 +115,10 @@ const SCHEMA_FILES: &[(&str, &str)] = &[
     (
         "capability.schema.json",
         include_str!("../schemas/capability.schema.json"),
+    ),
+    (
+        "pose.schema.json",
+        include_str!("../schemas/pose.schema.json"),
     ),
 ];
 

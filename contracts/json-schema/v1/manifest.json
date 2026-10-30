@@ -22,6 +22,10 @@
       "sha256": "fb96c05012431895937076e8eb69548560c15d8cce351feae789c915c3cd6dd3"
     },
     {
+      "file": "pose.schema.json",
+      "sha256": "673abc376c8daacc25b9de39f5f47936ba68175aa2244281ba1e9b38a067af65"
+    },
+    {
       "file": "project-manifest.schema.json",
       "sha256": "05113d0cfcf606ad3db0e4920fe3a851e26c3a7a90ff03390655a160e27c6dc4"
     },

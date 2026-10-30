@@ -92,6 +92,12 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "max_age_seconds": 3600,
         "last_check_outcome": "verified",
     },
+    "Pose": {
+        "schema_version": "1.0",
+        "frame": "base",
+        "position": {"x": 0.25, "y": 0.0, "z": 0.3},
+        "orientation": {"w": 1.0, "x": 0.0, "y": 0.0, "z": 0.0},
+    },
     "UpdateManifest": {
         "schema_version": "1.0",
         "project": "HYDRA-UMC-MOCK",

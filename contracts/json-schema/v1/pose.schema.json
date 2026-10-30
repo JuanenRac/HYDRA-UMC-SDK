@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/hydra-umc-sdk/contracts/v1/pose.schema.json",
+  "title": "Pose", "type": "object",
+  "description": "A position in meters and an orientation as a unit quaternion (w, x, y, z) in a declared frame. `euler` (roll, pitch, yaw in radians, intrinsic Z-Y-X) is the earlier form of the orientation: it is deprecated, optional, and only accepted next to the quaternion so that an old reader still finds it.",
+  "required": ["schema_version", "frame", "position", "orientation"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "frame": {"enum": ["base", "tool"]},
+    "position": {
+      "type": "object", "required": ["x", "y", "z"], "additionalProperties": false,
+      "properties": {"x": {"type": "number"}, "y": {"type": "number"}, "z": {"type": "number"}}
+    },
+    "orientation": {
+      "type": "object", "required": ["w", "x", "y", "z"], "additionalProperties": false,
+      "description": "A unit quaternion: w*w + x*x + y*y + z*z = 1 within 1e-6 (checked by the clients, a schema cannot express it).",
+      "properties": {"w": {"type": "number"}, "x": {"type": "number"}, "y": {"type": "number"}, "z": {"type": "number"}}
+    },
+    "euler": {
+      "deprecated": true, "type": "object", "required": ["roll", "pitch", "yaw"], "additionalProperties": false,
+      "properties": {"roll": {"type": "number"}, "pitch": {"type": "number"}, "yaw": {"type": "number"}}
+    }
+  }, "additionalProperties": true
+}

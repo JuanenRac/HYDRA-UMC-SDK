@@ -28,6 +28,7 @@ according to its use case.
 | `ScenarioOutcome` | Scenario runners | OPS-AGENT, Node Healing |
 | `Operation` | Server, Orchestrator, Dev Server | UIs, Job Dispatcher |
 | `Capability` | Targets and their descriptors | Orchestrator, Job Dispatcher |
+| `Pose` | Visual servoing, VLA engine | Server, Studio, Suite |
 | `ProjectManifest` | Every repository (`hydra-umc.project.json` or `urtc.project.json`) | Updater, dashboard |
 
 Planned, with no schema yet: `ToolDescriptor` (URTC adapter, for Server, Smart

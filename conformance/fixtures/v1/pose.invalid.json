@@ -1,0 +1,6 @@
+{
+  "schema_version": "1.0",
+  "frame": "world",
+  "position": {"x": 0.25, "y": -0.1, "z": 0.3},
+  "orientation": {"w": 1.0, "x": 0.0, "y": 0.0}
+}

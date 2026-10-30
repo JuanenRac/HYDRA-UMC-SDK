@@ -45,6 +45,7 @@ from .lifecycle import (
 )
 from .mqtt_connection import MqttConnectionSettings, apply_connection_settings, settings_from_env
 from .promotion_journal import PromotionJournal, PromotionPhase, PromotionRecord, check_service_health, recover
+from .pose import FRAMES as POSE_FRAMES, Pose, Quaternion, pose_from_dict, pose_to_legacy_euler, validate_pose
 from .scenario import ScenarioComparison, compare_runs
 from .server_api import (
     ApiError,
@@ -71,6 +72,12 @@ from .server_api import (
 from .validation import ContractValidationError, validate
 
 __all__ = [
+    "POSE_FRAMES",
+    "Pose",
+    "Quaternion",
+    "pose_from_dict",
+    "pose_to_legacy_euler",
+    "validate_pose",
     "BridgeError",
     "BridgeJob",
     "CellState",
