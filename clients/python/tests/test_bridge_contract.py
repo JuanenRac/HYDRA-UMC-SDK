@@ -19,6 +19,14 @@ from hydra_umc_sdk.bridge_contract import (
 )
 
 
+class StoppedMachineTests(unittest.TestCase):
+    def test_a_stopped_machine_is_not_idle_and_never_allows_work(self):
+        self.assertEqual(MachineState.STOPPED.value, "STOPPED")
+        self.assertNotEqual(MachineState.STOPPED, MachineState.HOLDING)
+        for phase in (JobPhase.LOAD, JobPhase.UNLOAD):
+            self.assertFalse(evaluate_job(job(phase=phase, machine_state=MachineState.STOPPED), CellState.READY, MachineState.STOPPED).allowed)
+
+
 def job(phase=JobPhase.LOAD, machine_state=MachineState.IDLE):
     return BridgeJob("job-1", "unique-1", "HYDRA-UMC-BRIDGE-OPENPNP", phase, machine_state, {"station": "pnp-1"})
 

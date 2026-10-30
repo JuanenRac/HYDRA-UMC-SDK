@@ -32,6 +32,8 @@ class MachineState(str, Enum):
     IDLE = "IDLE"
     RUNNING = "RUNNING"
     HOLDING = "HOLDING"
+    # Stopped and not going on until an operator resets it (MTConnect STOPPED): unlike HOLDING it cannot be resumed.
+    STOPPED = "STOPPED"
     FAULT = "FAULT"
     SAFE_STOP = "SAFE_STOP"
 

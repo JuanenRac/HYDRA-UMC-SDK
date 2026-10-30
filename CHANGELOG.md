@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- **`MachineState.STOPPED`:** the state of a machine that is stopped and does not go on until an operator resets it (the MTConnect `STOPPED`). It is not `IDLE`, so no job is allowed on it, and it is not `HOLDING`, so it cannot be resumed.
 - **The version utility writes what each toolchain accepts:** a `Cargo.toml` version (and the package entry of `Cargo.lock`) is written as `a.b.c` or `a.b.c+d` (semver build metadata), and a Flutter `pubspec.yaml` keeps `a.b.c+N`, with `N` raised by one on every bump and `lib/app_version.dart` regenerated from it. The translation is fixed and the manifest and this changelog keep their own form.
 - **`hydra_project_tool.py bump` and `doctor` refuse a native version its toolchain would reject** (Cargo or Flutter) with a clear message instead of leaving a broken build; a Flutter app is bumped by the shared utility, not by a Dart script.
 
