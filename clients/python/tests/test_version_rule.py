@@ -105,20 +105,20 @@ class EndToEndTests(unittest.TestCase):
         root = self._project("0.7.9")
         result = self._run(root)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn('"version": "0.8.0.0"', (root / "package.json").read_text(encoding="utf-8"))
+        self.assertIn('"version": "0.8.0"', (root / "package.json").read_text(encoding="utf-8"))
         manifest = json.loads((root / "hydra-umc.project.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["version"], "0.8.0.0")
         self.assertIn("## [0.8.0.0]", (root / "CHANGELOG.md").read_text(encoding="utf-8"))
         again = self._run(root)
         self.assertEqual(again.returncode, 0, again.stdout + again.stderr)
-        self.assertIn('"version": "0.8.0.1"', (root / "package.json").read_text(encoding="utf-8"))
+        self.assertIn('"version": "0.8.0"', (root / "package.json").read_text(encoding="utf-8"))
 
     def test_sync_after_a_three_part_native_step_appends_the_fourth_component(self):
         root = self._project("0.7.9")
         (root / "package.json").write_text('{"name": "x", "version": "0.8.0"}\n', encoding="utf-8")
         result = self._run(root, "--sync")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn('"version": "0.8.0.0"', (root / "package.json").read_text(encoding="utf-8"))
+        self.assertIn('"version": "0.8.0"', (root / "package.json").read_text(encoding="utf-8"))
         manifest = json.loads((root / "hydra-umc.project.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["version"], "0.8.0.0")
 
@@ -183,12 +183,20 @@ class NativeTranslationTests(unittest.TestCase):
         self.assertEqual(self.m.to_native("0.8.0.3", "plain"), "0.8.0.3")
         self.assertEqual(self.m.to_native("0.8.0.3", "cargo"), "0.8.0+3")
         self.assertEqual(self.m.to_native("0.8.0.3", "pubspec"), "0.8.0")
+        self.assertEqual(self.m.to_native("0.8.0.3", "npm"), "0.8.0")
         self.assertEqual(self.m.to_native("0.7.9", "cargo"), "0.7.9")
 
     def test_native_style_follows_the_file_name(self):
         self.assertEqual(self.m.native_style(Path("x/Cargo.toml")), "cargo")
         self.assertEqual(self.m.native_style(Path("pubspec.yaml")), "pubspec")
+        self.assertEqual(self.m.native_style(Path("package.json")), "npm")
         self.assertEqual(self.m.native_style(Path("pyproject.toml")), "plain")
+
+    def test_an_npm_version_is_compared_by_its_three_components_and_still_accepts_four(self):
+        self.assertTrue(self.m.same_version("0.8.0", "0.8.0.4", "npm"))
+        self.assertTrue(self.m.same_version("0.8.0.4", "0.8.0.4", "npm"))
+        self.assertFalse(self.m.same_version("0.8.1", "0.8.0.4", "npm"))
+        self.assertFalse(self.m.same_version("0.8.0.3", "0.8.0.4", "npm"))
 
     def test_a_cargo_version_reads_back_as_four_components(self):
         text = 'name = "x"\nversion = "0.8.0+3"\n'
@@ -230,6 +238,28 @@ class ToolchainEndToEndTests(unittest.TestCase):
         self.assertEqual(again.returncode, 0, again.stdout + again.stderr)
         self.assertIn('version = "0.8.0+1"', (root / "Cargo.toml").read_text(encoding="utf-8"))
         self.assertEqual(json.loads((root / "hydra-umc.project.json").read_text(encoding="utf-8"))["version"], "0.8.0.1")
+
+    def test_an_npm_project_keeps_three_components_in_the_package_and_in_its_lock(self):
+        text = '{\n  "name": "demo",\n  "version": "0.7.9"\n}\n'
+        root = self._project("package.json", PACKAGE_JSON_PATTERN, text, "0.7.9")
+        lock = {"name": "demo", "version": "0.7.9", "lockfileVersion": 3, "packages": {"": {"name": "demo", "version": "0.7.9"}}}
+        (root / "package-lock.json").write_text(json.dumps(lock, indent=2) + "\n", encoding="utf-8")
+        self.assertEqual(self._run(root).returncode, 0)
+        self.assertIn('"version": "0.8.0"', (root / "package.json").read_text(encoding="utf-8"))
+        new_lock = json.loads((root / "package-lock.json").read_text(encoding="utf-8"))
+        self.assertEqual((new_lock["version"], new_lock["packages"][""]["version"]), ("0.8.0", "0.8.0"))
+        self.assertEqual(json.loads((root / "hydra-umc.project.json").read_text(encoding="utf-8"))["version"], "0.8.0.0")
+        self.assertEqual(self._run(root).returncode, 0)
+        self.assertIn('"version": "0.8.0"', (root / "package.json").read_text(encoding="utf-8"))
+        self.assertEqual(json.loads((root / "hydra-umc.project.json").read_text(encoding="utf-8"))["version"], "0.8.0.1")
+
+    def test_an_npm_package_that_still_holds_four_components_is_rewritten_with_three(self):
+        text = '{\n  "name": "demo",\n  "version": "0.8.0.3"\n}\n'
+        pattern = PACKAGE_JSON_PATTERN[:-1] + "(?:" + B + ".(" + B + "d+))?" + '"'
+        root = self._project("package.json", pattern, text, "0.8.0.3")
+        self.assertEqual(self._run(root).returncode, 0)
+        self.assertIn('"version": "0.8.0"', (root / "package.json").read_text(encoding="utf-8"))
+        self.assertEqual(json.loads((root / "hydra-umc.project.json").read_text(encoding="utf-8"))["version"], "0.8.0.4")
 
     def test_a_flutter_project_keeps_three_components_and_counts_the_build_number(self):
         root = self._project("pubspec.yaml", PUBSPEC_PATTERN, "name: app\nversion: 0.7.9+30\n", "0.7.9")

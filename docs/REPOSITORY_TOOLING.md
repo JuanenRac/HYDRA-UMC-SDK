@@ -36,7 +36,7 @@ python tools/hydra_project_tool.py coverage   # tests under a coverage tool, com
 `validate`, `test` and `ci` fail if the manifest version changed while they ran. `bump --dry-run` prints the
 version it would produce and writes nothing; `bump` refuses a dirty working tree unless `--allow-dirty` is given.
 
-The version written to a native file is the form its toolchain accepts: Cargo (`Cargo.toml` and the package entry of `Cargo.lock`) takes `a.b.c` or `a.b.c+d`, and a Flutter `pubspec.yaml` takes `a.b.c+N`, where `N` is a build number raised by one on every bump (the generated `lib/app_version.dart` follows it). `bump` and `doctor` report a value the toolchain would reject instead of writing it.
+The version written to a native file is the form its toolchain accepts: Cargo (`Cargo.toml` and the package entry of `Cargo.lock`) takes `a.b.c` or `a.b.c+d`, and a Flutter `pubspec.yaml` takes `a.b.c+N`, where `N` is a build number raised by one on every bump (the generated `lib/app_version.dart` follows it), and npm (`package.json` and `package-lock.json`) takes `a.b.c`, so the fourth component is not stored there (a `package.json` that still holds all four is accepted until the next bump rewrites it). `bump` and `doctor` report a value the toolchain would reject instead of writing it.
 The version always follows the odometer rule: three components up to 0.7.9, four from 0.8.0.0.
 
 ## The doctor
@@ -114,6 +114,22 @@ Besides the manifest, the documents, the links and the README layout, `tools/can
 
 ## Designs that are not built yet
 
-* **One release file for the whole family** (`ecosystem-release.json`): a single file that names, for a release of the family, the version and the commit of every repository, written by the release tool and read by the installers and the dashboard, so that "which versions go together" has one answer. It needs a decision on who writes it and where it is published before any code.
 * **Offscreen tests of the graphical tools**: run each Qt or Tk window with the offscreen platform, take its widget tree and compare it with a stored list of names. It needs a Qt platform plugin on the CI runner and a policy for what a harmless difference is.
 * **Common templates** (issue and pull request templates, the security policy text): one canonical copy in `tools/canonical/` synced like `dashboard-dispatch.yml`. The texts differ today by repository name and contact; they need one agreed wording first.
+
+## The release file of the family
+
+`ecosystem-release.json` is the one answer to "which versions go together": for a release of the family it lists the version and the commit of every repository (`{"schema_version", "ecosystem", "repositories": [{"name", "version", "commit"}]}`, sorted by name). It is written by `tools/ecosystem_release.py` in this repository and published in the documentation repository as `data/ecosystem-release.json`.
+
+```
+python tools/ecosystem_release.py --write   # read every manifest and Git head next to this repository; write the file in HYDRA-UMC-DOCS
+python tools/ecosystem_release.py --check   # the file is well formed and no repository disagrees with it
+python tools/ecosystem_release.py --print   # show what --write would write
+```
+
+Run `--write` once for each release of the family and commit the file in the documentation repository. The shared validator (`tools/canonical/ci_validate.py`) checks the entry of the repository it runs in whenever the documentation checkout is next to it (or named in `HYDRA_UMC_DOCS_DIR`): the listed version must not be ahead of the manifest and the listed commit must be in the repository's history (the commit check is skipped in a shallow clone). Without that checkout the check is skipped, as the glance check is.
+
+## Checks without Git
+
+The public/private boundary check of `tools/_doc_policy.py` uses `git grep`. When the checkout is not a Git working tree, or Git is not installed, it reads the text files itself (skipping `node_modules`, build output, caches and binary files) and applies the same three rules, so `ci_validate.py` also runs on a source archive. The check of the first-level entries of the README tree needs Git and is skipped without it.
+

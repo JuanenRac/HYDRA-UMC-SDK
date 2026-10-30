@@ -190,3 +190,43 @@ class VenvIsNeverActivatedTests(unittest.TestCase):
     def test_probing_for_the_activate_script_fails_too(self):
         self._write("build.sh", "if [ -f .venv/bin/activate ]; then\n")
         self.assertIn("build.sh:1", check_scripts_do_not_activate_venv(self.root))
+
+
+class DocPolicyWithoutGitTests(unittest.TestCase):
+    """A checkout that is not a Git working tree is checked by reading its files."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.root = Path(self._tmp.name)
+        probe = subprocess.run(("git", "rev-parse", "--is-inside-work-tree"), cwd=self.root, capture_output=True, text=True)
+        if probe.returncode == 0:
+            self.skipTest("the temporary folder is inside a Git working tree")
+
+    def _write(self, name: str, content: str) -> None:
+        path = self.root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+
+    def test_a_clean_copy_passes(self):
+        self._write("README.md", "Nothing private here.\n")
+        self.assertIsNone(check_public_private_boundary(self.root))
+
+    def test_the_private_marker_is_found(self):
+        self._write("docs/a.md", "See SON" + "NET for notes.\n")
+        self.assertEqual(check_public_private_boundary(self.root), "public files must not reference private documentation")
+
+    def test_a_private_phrase_is_found_whatever_its_case(self):
+        self._write("a.txt", "The Private Development " + "Plan is long.\n")
+        self.assertEqual(
+            check_public_private_boundary(self.root), "public files must not reference private planning or audit documents"
+        )
+
+    def test_a_tracking_code_is_found(self):
+        self._write("a.py", "# fixes " + "V07" + "-123\n")
+        self.assertEqual(check_public_private_boundary(self.root), "public files must not carry internal tracking codes")
+
+    def test_folders_that_hold_no_versioned_text_and_binary_files_are_skipped(self):
+        self._write("node_modules/x/readme.md", "SON" + "NET\n")
+        (self.root / "image.bin").write_bytes(b"\0SON" + b"NET")
+        self.assertIsNone(check_public_private_boundary(self.root))
