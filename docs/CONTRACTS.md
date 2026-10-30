@@ -29,6 +29,8 @@ according to its use case.
 | `Operation` | Server, Orchestrator, Dev Server | UIs, Job Dispatcher |
 | `Capability` | Targets and their descriptors | Orchestrator, Job Dispatcher |
 | `Pose` | Visual servoing, VLA engine | Server, Studio, Suite |
+| `RobotState` | Swarm sync, orchestrator, dashboard | Server, Studio, Suite |
+| `TwinState` | Digital twin, physics replica, HIL bridge | Server, Studio, Suite |
 | `ProjectManifest` | Every repository (`hydra-umc.project.json` or `urtc.project.json`) | Updater, dashboard |
 
 Planned, with no schema yet: `ToolDescriptor` (URTC adapter, for Server, Smart

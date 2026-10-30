@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "source": "simulated",
+  "robot_id": "arm-1",
+  "frame": "base",
+  "timestamp_utc": "2024-01-01T00:00:00Z",
+  "sequence": 42,
+  "joint_states": [
+    {"name": "shoulder", "position": 0.5, "velocity": 0.0},
+    {"name": "elbow", "position": -1.2, "velocity": 0.1, "effort": 3.5}
+  ],
+  "poses": [
+    {
+      "name": "tool_center_point",
+      "pose": {
+        "schema_version": "1.0",
+        "frame": "base",
+        "position": {"x": 0.25, "y": -0.1, "z": 0.3},
+        "orientation": {"w": 1.0, "x": 0.0, "y": 0.0, "z": 0.0}
+      }
+    }
+  ]
+}

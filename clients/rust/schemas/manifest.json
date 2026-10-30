@@ -30,6 +30,10 @@
       "sha256": "05113d0cfcf606ad3db0e4920fe3a851e26c3a7a90ff03390655a160e27c6dc4"
     },
     {
+      "file": "robot-state.schema.json",
+      "sha256": "808e73a5d309f23a7b4df3451db7cd17f14bed69e6b53b76a9e33b2a636c9792"
+    },
+    {
       "file": "safety-state.schema.json",
       "sha256": "2db5c302cf5c8be0631879bc844ace2d3d2796336c736df6500e553e6cbdaf84"
     },
@@ -42,9 +46,12 @@
       "sha256": "79ff726a0425e6a74bfc39f3bf870177be072eb93a66e99bae752c9f9312a76f"
     },
     {
+      "file": "twin-state.schema.json",
+      "sha256": "157e9faa5ea12173b09708d92998e13636ff4fee65727a938c6a000bce46dddd"
+    },
+    {
       "file": "update-manifest.schema.json",
       "sha256": "650f04ce9c503c809deafca638f19de9a90920ca1cf7b4b4eb5699c5c5872d36"
     }
   ]
 }
-

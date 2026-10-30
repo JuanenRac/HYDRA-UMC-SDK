@@ -35,6 +35,8 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "Operation": ("schema_version", "operation_id", "correlation_id", "kind", "target", "status", "requested_at_utc", "updated_at_utc", "params"),
     "Capability": ("schema_version", "target", "kind", "declared"),
     "Pose": ("schema_version", "frame", "position", "orientation"),
+    "TwinState": ("schema_version", "source", "frame", "timestamp_utc", "joint_states"),
+    "RobotState": ("schema_version", "robot_id", "state", "updated_at_utc"),
     "ServerDiscovery": ("schema_version", "product", "remoteApiVersion", "appVersion", "hostname", "controllerCount", "robotCount", "uptimeSeconds"),
     "ProjectManifest": (
         "schema_version", "ecosystem", "name", "version", "role", "stack", "technologies",
@@ -187,6 +189,16 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
         from .pose import validate_pose  # imported here: pose.py needs this module's error type
 
         validate_pose(payload)
+        return
+    if contract == "TwinState":
+        from .twin_state import validate_twin_state  # imported here: twin_state.py needs this module's error type
+
+        validate_twin_state(payload)
+        return
+    if contract == "RobotState":
+        from .robot_state import validate_robot_state  # imported here: robot_state.py needs this module's error type
+
+        validate_robot_state(payload)
         return
     for field in REQUIRED[contract]:
         if field not in payload:

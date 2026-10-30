@@ -98,6 +98,31 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "position": {"x": 0.25, "y": 0.0, "z": 0.3},
         "orientation": {"w": 1.0, "x": 0.0, "y": 0.0, "z": 0.0},
     },
+    "RobotState": {
+        "schema_version": "1.0",
+        "robot_id": "arm-1",
+        "state": "idle",
+        "source": "simulated",
+        "updated_at_utc": "2024-01-01T00:00:00Z",
+    },
+    "TwinState": {
+        "schema_version": "1.0",
+        "source": "simulated",
+        "frame": "base",
+        "timestamp_utc": "2024-01-01T00:00:00Z",
+        "joint_states": [{"name": "shoulder", "position": 0.5, "velocity": 0.0}],
+        "poses": [
+            {
+                "name": "tool_center_point",
+                "pose": {
+                    "schema_version": "1.0",
+                    "frame": "base",
+                    "position": {"x": 0.25, "y": 0.0, "z": 0.3},
+                    "orientation": {"w": 1.0, "x": 0.0, "y": 0.0, "z": 0.0},
+                },
+            }
+        ],
+    },
     "UpdateManifest": {
         "schema_version": "1.0",
         "project": "HYDRA-UMC-MOCK",

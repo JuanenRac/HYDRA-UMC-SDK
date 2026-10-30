@@ -271,7 +271,7 @@ export interface ScenarioOutcome {
   [extra: string]: unknown;
 }
 
-/** The 11 contract names `validate()`/`isValid()` accept. */
+/** The 13 contract names `validate()`/`isValid()` accept. */
 export type ContractName =
   | "DeviceDescriptor"
   | "HealthReport"
@@ -283,4 +283,6 @@ export type ContractName =
   | "ScenarioOutcome"
   | "Operation"
   | "Capability"
-  | "Pose";
+  | "Pose"
+  | "TwinState"
+  | "RobotState";

@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "robot_id": "arm-1",
+  "state": "busy",
+  "source": "real",
+  "updated_at_utc": "2024-01-01T00:00:00Z",
+  "mission_id": "mission-77",
+  "battery_percent": 82.5,
+  "pose": {
+    "schema_version": "1.0",
+    "frame": "base",
+    "position": {"x": 0.25, "y": -0.1, "z": 0.3},
+    "orientation": {"w": 1.0, "x": 0.0, "y": 0.0, "z": 0.0}
+  }
+}

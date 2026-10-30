@@ -43,6 +43,8 @@ const CONTRACT_FIXTURE_STEM: &[(&str, &str)] = &[
     ("Operation", "operation"),
     ("Capability", "capability"),
     ("Pose", "pose"),
+    ("TwinState", "twin-state"),
+    ("RobotState", "robot-state"),
 ];
 
 #[test]
@@ -86,12 +88,12 @@ fn unknown_contract_is_rejected() {
 }
 
 #[test]
-fn known_contracts_lists_all_eleven() {
+fn known_contracts_lists_all_thirteen() {
     let names = known_contracts();
     assert_eq!(
         names.len(),
-        11,
-        "expected 11 known contracts, got {names:?}"
+        13,
+        "expected 13 known contracts, got {names:?}"
     );
 }
 

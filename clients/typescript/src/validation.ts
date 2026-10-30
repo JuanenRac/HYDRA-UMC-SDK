@@ -55,6 +55,8 @@ const CONTRACT_FILES: Record<ContractName, string> = {
   Operation: "operation.schema.json",
   Capability: "capability.schema.json",
   Pose: "pose.schema.json",
+  TwinState: "twin-state.schema.json",
+  RobotState: "robot-state.schema.json",
 };
 
 /**
