@@ -63,6 +63,12 @@
       "description": "Optional. false for a repository that has no hardware, so the evidence does not limit its hardware and integration rows.",
       "type": "boolean"
     },
+    "depends_on": {
+      "description": "Optional. The names of the repositories that must be installed or updated before this one, so a batch can order itself. A repository does not list itself and the names are unique.",
+      "type": "array",
+      "items": { "type": "string", "pattern": "^(HYDRA-UMC|URTC)(-[A-Z0-9-]+)?$" },
+      "uniqueItems": true
+    },
     "deployment_target_note": {
       "description": "Optional free text that explains a deployment_target value.",
       "type": "string"

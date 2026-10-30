@@ -111,6 +111,11 @@ class SchemaDifferentialTests(unittest.TestCase):
             ("ProjectManifest", changed(manifest, evidence=5), "numeric evidence"),
             ("ProjectManifest", changed(manifest, hardware_bound=False), "hardware_bound false"),
             ("ProjectManifest", changed(manifest, hardware_bound="no"), "hardware_bound as text"),
+            ("ProjectManifest", changed(manifest, depends_on=["HYDRA-UMC-OS"]), "depends_on one name"),
+            ("ProjectManifest", changed(manifest, depends_on=[]), "depends_on empty"),
+            ("ProjectManifest", changed(manifest, depends_on=["HYDRA-UMC-OS", "HYDRA-UMC-OS"]), "depends_on repeated"),
+            ("ProjectManifest", changed(manifest, depends_on=["not a name"]), "depends_on bad name"),
+            ("ProjectManifest", changed(manifest, depends_on="HYDRA-UMC-OS"), "depends_on as text"),
         ]
         result = copy.deepcopy(operation.get("result", {"run_id": "r", "origin": "real", "observers_enabled": True, "outcome": "success"}))
         result["outcome_reason"] = 5

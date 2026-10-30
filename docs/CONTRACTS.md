@@ -43,7 +43,7 @@ The implemented contracts are published under `contracts/json-schema/v1/`.
 Their v1 required fields are intentionally small, and `additionalProperties`
 is enabled so producers can add compatible fields without breaking older
 consumers. `ProjectManifest` is the exception: it is closed (only the listed
-fields, with `service` and `deployment_target_note` optional), because every
+fields, with `service`, `deployment_target_note` and `depends_on` optional), because every
 repository publishes it and a typo in a field name should fail early. The Python reference validator implements the required v1 subset;
 the JSON Schema files remain the normative source. See
 [PYTHON_CLIENT.md](PYTHON_CLIENT.md) for the validator's full function/CLI

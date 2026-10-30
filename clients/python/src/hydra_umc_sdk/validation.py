@@ -68,7 +68,7 @@ RFC3339_DATE_TIME = re.compile(
 )
 PROJECT_MANIFEST_KEYS = frozenset({
     "schema_version", "ecosystem", "name", "version", "role", "stack", "technologies", "deployment_target",
-    "deployment_target_note", "maturity", "evidence", "hardware_bound", "family", "parent", "native_version", "build", "notes", "service",
+    "deployment_target_note", "maturity", "evidence", "hardware_bound", "depends_on", "family", "parent", "native_version", "build", "notes", "service",
 })
 PROJECT_MANIFEST_SERVICE_KEYS = frozenset({"port", "health_path", "systemd_unit"})
 
@@ -124,6 +124,16 @@ def _validate_project_manifest(payload: dict[str, Any]) -> None:
         raise ContractValidationError("hardware_bound must be true or false")
     if "deployment_target_note" in payload and not isinstance(payload["deployment_target_note"], str):
         raise ContractValidationError("deployment_target_note must be a string")
+    if "depends_on" in payload:
+        depends_on = payload["depends_on"]
+        if (
+            not isinstance(depends_on, list)
+            or any(not isinstance(item, str) or not PROJECT_NAME_PATTERN.fullmatch(item) for item in depends_on)
+            or len(set(depends_on)) != len(depends_on)
+        ):
+            raise ContractValidationError("depends_on must be a list of unique repository names")
+        if payload.get("name") in depends_on:
+            raise ContractValidationError("depends_on must not list the repository itself")
     if "service" in payload:
         service = payload["service"]
         if not isinstance(service, dict) or set(service) - PROJECT_MANIFEST_SERVICE_KEYS:

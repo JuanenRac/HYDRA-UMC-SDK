@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The project manifest accepts `depends_on`:** an optional list of the repositories that must be installed or updated before this one, so a batch of the updater can order itself by what each repository declares. The names follow the rule of `name`, are unique and never include the repository itself (the clients check that, a schema cannot). A compatible extension: a manifest without it stays valid. The schema is vendored in the Go, Rust and TypeScript clients and the differential tests cover it.
+
 ## [0.4.1] - The RobotState, TwinState and Pose contracts, the enable and disable commands of a robot, the STOPPED machine state, versions each toolchain accepts, the ecosystem release table and a boundary check that works without Git
 
 - **The `RobotState` contract:** `robot-state.schema.json` describes what one robot reports about itself in the form in which nodes replicate it: its id, its state (`idle`, `busy`, `estop`, `fault`, `offline`), when that was true, and optionally the mission, the battery and its `Pose`. The Python client validates it (`validate_robot_state`), the schema is vendored and registered in the Go, Rust and TypeScript clients, the mock server serves an example and the conformance fixtures cover it.
