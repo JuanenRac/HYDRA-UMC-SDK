@@ -55,6 +55,7 @@ PROJECT_MANIFEST_ENUMS = {
     "deployment_target": {"cm5", "user-pc", "mobile", "wearable", "dev-server", "mcu"},
     "maturity": {"scaffolding", "functional", "established", "production"},
 }
+PROJECT_MANIFEST_EVIDENCE = {"none", "host-test", "simulator", "bench", "field"}
 PROJECT_NAME_PATTERN = re.compile(r"^(HYDRA-UMC|URTC)(-[A-Z0-9-]+)?$")
 SEMVER_PATTERN = re.compile(r"^\d+\.\d+\.\d+(?:\.\d+)?$")
 # RFC 3339 allows a lowercase "t" and "z"; the schema validators of the other
@@ -64,7 +65,7 @@ RFC3339_DATE_TIME = re.compile(
 )
 PROJECT_MANIFEST_KEYS = frozenset({
     "schema_version", "ecosystem", "name", "version", "role", "stack", "technologies", "deployment_target",
-    "deployment_target_note", "maturity", "family", "parent", "native_version", "build", "notes", "service",
+    "deployment_target_note", "maturity", "evidence", "hardware_bound", "family", "parent", "native_version", "build", "notes", "service",
 })
 PROJECT_MANIFEST_SERVICE_KEYS = frozenset({"port", "health_path", "systemd_unit"})
 
@@ -114,6 +115,10 @@ def _validate_project_manifest(payload: dict[str, Any]) -> None:
         raise ContractValidationError(f"unsupported manifest field(s): {', '.join(unknown)}")
     if not _is_one_of(payload.get("ecosystem"), {"HYDRA-UMC", "URTC"}):
         raise ContractValidationError("ecosystem must be 'HYDRA-UMC' or 'URTC'")
+    if "evidence" in payload and not _is_one_of(payload["evidence"], PROJECT_MANIFEST_EVIDENCE):
+        raise ContractValidationError(f"unsupported evidence: {payload['evidence']!r}")
+    if "hardware_bound" in payload and type(payload["hardware_bound"]) is not bool:
+        raise ContractValidationError("hardware_bound must be true or false")
     if "deployment_target_note" in payload and not isinstance(payload["deployment_target_note"], str):
         raise ContractValidationError("deployment_target_note must be a string")
     if "service" in payload:

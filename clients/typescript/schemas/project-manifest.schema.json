@@ -55,6 +55,14 @@
     "maturity": {
       "enum": ["scaffolding", "functional", "established", "production"]
     },
+    "evidence": {
+      "description": "Optional. How far the repository has been shown to work: none or host-test (tests on a computer only), simulator, bench (a real board on the bench) or field. It limits the traffic lights of the Project status table.",
+      "enum": ["none", "host-test", "simulator", "bench", "field"]
+    },
+    "hardware_bound": {
+      "description": "Optional. false for a repository that has no hardware, so the evidence does not limit its hardware and integration rows.",
+      "type": "boolean"
+    },
     "deployment_target_note": {
       "description": "Optional free text that explains a deployment_target value.",
       "type": "string"

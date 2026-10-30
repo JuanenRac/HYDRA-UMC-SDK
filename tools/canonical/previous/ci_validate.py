@@ -416,3 +416,11 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+_THREE_GROUPS = re.compile(r"(\([^()]*\))\\\.(\([^()]*\))\\\.(\([^()]*\))(?!\(\?:\\[.+])")
+    return pattern[: match.end()] + r"(?:[.+]" + match.group(3) + ")?" + pattern[match.end() :]
+    if Path(str(native["file"])).name == "pubspec.yaml":
+        # a Flutter version name has three components (the build number follows the plus sign)
+        same = native_version == ".".join(manifest["version"].split(".")[:3])
+    else:
+        same = native_version == manifest["version"]
+    if not same:

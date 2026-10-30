@@ -106,6 +106,11 @@ class SchemaDifferentialTests(unittest.TestCase):
             ("ProjectManifest", changed(manifest, service={"port": 8080, "health_path": "/h", "systemd_unit": "u.service"}), "service block"),
             ("ProjectManifest", changed(manifest, service={"port": "8080"}), "service port as text"),
             ("ProjectManifest", changed(manifest, service={"other": 1}), "unknown service key"),
+            ("ProjectManifest", changed(manifest, evidence="bench"), "evidence bench"),
+            ("ProjectManifest", changed(manifest, evidence="magic"), "unknown evidence"),
+            ("ProjectManifest", changed(manifest, evidence=5), "numeric evidence"),
+            ("ProjectManifest", changed(manifest, hardware_bound=False), "hardware_bound false"),
+            ("ProjectManifest", changed(manifest, hardware_bound="no"), "hardware_bound as text"),
         ]
         result = copy.deepcopy(operation.get("result", {"run_id": "r", "origin": "real", "observers_enabled": True, "outcome": "success"}))
         result["outcome_reason"] = 5

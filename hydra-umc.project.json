@@ -15,6 +15,7 @@
   ],
   "deployment_target": "user-pc",
   "maturity": "established",
+  "evidence": "none",
   "family": "Platform Foundation & Contracts",
   "parent": "HYDRA-UMC-OS",
   "build": "Functional JSON Schema v1 contracts, a real first OpenAPI v1 slice for HYDRA-UMC-SERVER's own HTTP surface, plus real, tested Python, Go, TypeScript and Rust reference clients and conformance fixtures.",
