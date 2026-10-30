@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The mock server answers the routes of an OpenAPI document:** `python -m hydra_umc_sdk.mock_server --openapi contracts/openapi/v1/server.openapi.json` serves every path and method of the document at its real path, with the first success status, a body built from the schema and the declared headers; an operation that needs a bearer token answers 401 without one, a method the path does not declare answers 405 and an unknown path 404. Tests prove that every operation of every published OpenAPI document is served with a declared status and a body that conforms to its schema.
+- **`tools/contract_check.py`:** a read-only report, in JSON, of the contracts of a whole workspace (manifest against the validator, manifest name against the folder, vendored shared tools against the canonical copies, `service` blocks against the port registry and the structural check of the OpenAPI documents); it exits with 1 when anything was found.
 - **Typed `Operation`, `Capability` and `ScenarioOutcome` in the Go, Rust and TypeScript clients:** the three contracts that were handled as loose maps now have their own types (with the enums of status, origin, outcome, phase and check result), keep the fields they do not name, and go through the same shared conformance fixtures as the other contracts.
 - **The manifest `deployment_target` values `dev-server` and `mcu` exist in the Go, Rust and TypeScript types,** as the schema already allowed; a test now fails when a type file lacks a value of the schema enums.
 - **`hydra_project_tool.py doctor`:** a read-only check of one repository (manifest, README layout, At a glance, CHANGELOG note, shared tools and SDK pin) that prints the fix for every problem; `sync_repo_tools.py` gains `drift_of_repository()` for it.

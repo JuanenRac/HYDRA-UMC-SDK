@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-492%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-506%20passing-2ea44f.svg" alt="Tests">
   <img src="https://img.shields.io/badge/Version-0.3.9-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **诚实检查——今天真正可运行的部分：** 十个 JSON Schema v1 契约（各带一个有效和一个无效夹具）、Python 验证器、HYDRA-UMC-SERVER 的第一部分 OpenAPI v1、执行相同架构的 Go、TypeScript 和 Rust 客户端、桥接辅助代码和兼容性矩阵都是真实的，并已在计算机上测试（492 个 Python 测试，外加其他三个客户端的测试集）。Protobuf 尚未发布，作业门是共用的软件功能而不是经过认证的安全功能，这里的内容从未在真实硬件上运行。
+> **诚实检查——今天真正可运行的部分：** 十个 JSON Schema v1 契约（各带一个有效和一个无效夹具）、Python 验证器、HYDRA-UMC-SERVER 的第一部分 OpenAPI v1、执行相同架构的 Go、TypeScript 和 Rust 客户端、桥接辅助代码和兼容性矩阵都是真实的，并已在计算机上测试（506 个 Python 测试，外加其他三个客户端的测试集）。Protobuf 尚未发布，作业门是共用的软件功能而不是经过认证的安全功能，这里的内容从未在真实硬件上运行。
 
 ---
 
@@ -40,7 +40,7 @@ GPL-3.0-or-later - see LICENSE
 |---|---|
 | 版本 | `0.3.9` |
 | 成熟度 | 成熟 |
-| 测试 | 492 (`python -m unittest discover -s clients/python/tests`) |
+| 测试 | 506 (`python -m unittest discover -s clients/python/tests`) |
 | 技术栈 | Python / TypeScript / Go / Rust / JSON Schema |
 | 真实硬件 | 尚未：此版本没有在真实硬件上运行的记录 |
 
@@ -55,7 +55,7 @@ GPL-3.0-or-later - see LICENSE
 | 领域 | 状态 | 在这里的含义 |
 |---|---|---|
 | 软件 | 🟢 | 就其用途而言已完整且稳定；上面的诚实性检查列出了已知限制 |
-| 测试 | 🟢 | 492 项自动测试，每次变更都会运行 |
+| 测试 | 🟢 | 506 项自动测试，每次变更都会运行 |
 | 真实硬件 | 🔴 | 尚未：此版本没有在真实硬件上运行的记录 |
 | 文档 | 🟢 | 八种语言的 README，每次变更都会与清单核对 |
 
@@ -135,7 +135,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 测试
 
-运行 `python -m unittest discover -s clients/python/tests` 会执行 492 个自动测试。 其他客户端有各自的测试集：Go 28 个（`go test ./...`）、TypeScript 105 个（`npm test`）、Rust 31 个（`cargo test`），安装了工具链时由 `tools/extra_build_steps.py` 运行。都不需要硬件。
+运行 `python -m unittest discover -s clients/python/tests` 会执行 506 个自动测试。 其他客户端有各自的测试集：Go 28 个（`go test ./...`）、TypeScript 105 个（`npm test`）、Rust 31 个（`cargo test`），安装了工具链时由 `tools/extra_build_steps.py` 运行。都不需要硬件。
 
 CI 运行 `HYDRA_UMC_CI=1 python tools/ci_validate.py`，检查清单、文档、八个 README 和图片。
 

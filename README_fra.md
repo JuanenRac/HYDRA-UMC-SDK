@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-492%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-506%20passing-2ea44f.svg" alt="Tests">
   <img src="https://img.shields.io/badge/Version-0.3.9-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **Vérification d'honnêteté - ce qui fonctionne réellement aujourd'hui :** les dix contrats JSON Schema v1 avec une fixture valide et une invalide chacun, le validateur Python, la première tranche OpenAPI v1 de HYDRA-UMC-SERVER, les clients Go, TypeScript et Rust qui appliquent les mêmes schémas, les aides pour passerelles et la matrice de compatibilité sont réels et testés sur un ordinateur (492 tests Python, plus les suites des trois autres clients). Protobuf n'est pas encore publié, la porte des jobs est une fonction logicielle partagée et non une fonction de sécurité certifiée, et rien ici n'a tourné sur du vrai matériel.
+> **Vérification d'honnêteté - ce qui fonctionne réellement aujourd'hui :** les dix contrats JSON Schema v1 avec une fixture valide et une invalide chacun, le validateur Python, la première tranche OpenAPI v1 de HYDRA-UMC-SERVER, les clients Go, TypeScript et Rust qui appliquent les mêmes schémas, les aides pour passerelles et la matrice de compatibilité sont réels et testés sur un ordinateur (506 tests Python, plus les suites des trois autres clients). Protobuf n'est pas encore publié, la porte des jobs est une fonction logicielle partagée et non une fonction de sécurité certifiée, et rien ici n'a tourné sur du vrai matériel.
 
 ---
 
@@ -40,7 +40,7 @@ GPL-3.0-or-later - see LICENSE
 |---|---|
 | Version | `0.3.9` |
 | Maturité | Établi |
-| Tests | 492 (`python -m unittest discover -s clients/python/tests`) |
+| Tests | 506 (`python -m unittest discover -s clients/python/tests`) |
 | Technologie | Python / TypeScript / Go / Rust / JSON Schema |
 | Sur matériel réel | Pas encore : aucune exécution sur du matériel réel n'est consignée pour cette version |
 
@@ -55,7 +55,7 @@ Chaque ligne est une partie de ce dépôt et le feu dit où elle en est aujourd'
 | Domaine | État | Ce que cela veut dire ici |
 |---|---|---|
 | Logiciel | 🟢 | Complet pour son usage et stable ; la vérification d'honnêteté ci-dessus liste les limites connues |
-| Tests | 🟢 | 492 tests automatiques, exécutés à chaque modification |
+| Tests | 🟢 | 506 tests automatiques, exécutés à chaque modification |
 | Matériel réel | 🔴 | Pas encore : aucune exécution sur du matériel réel n'est consignée pour cette version |
 | Documentation | 🟢 | README en huit langues, vérifié par rapport au manifeste à chaque modification |
 
@@ -172,7 +172,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 Tests
 
-492 tests automatiques s'exécutent avec `python -m unittest discover -s clients/python/tests`. Les autres clients ont leurs propres suites : 28 tests en Go (`go test ./...`), 105 en TypeScript (`npm test`) et 31 en Rust (`cargo test`), lancés par `tools/extra_build_steps.py` si la chaîne d'outils est installée. Aucun n'a besoin de matériel.
+506 tests automatiques s'exécutent avec `python -m unittest discover -s clients/python/tests`. Les autres clients ont leurs propres suites : 28 tests en Go (`go test ./...`), 105 en TypeScript (`npm test`) et 31 en Rust (`cargo test`), lancés par `tools/extra_build_steps.py` si la chaîne d'outils est installée. Aucun n'a besoin de matériel.
 
 La CI exécute `HYDRA_UMC_CI=1 python tools/ci_validate.py`, qui vérifie le manifeste, les documents, les huit README et les images.
 

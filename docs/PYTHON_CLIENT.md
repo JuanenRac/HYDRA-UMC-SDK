@@ -85,7 +85,7 @@ documents above - the mock can never silently drift from what this SDK
 considers a valid payload.
 
 ```bash
-python -m hydra_umc_sdk.mock_server [--host HOST] [--port PORT]
+python -m hydra_umc_sdk.mock_server [--host HOST] [--port PORT] [--openapi FILE]
 ```
 
 Defaults to `127.0.0.1:8790`. Routes:
@@ -93,9 +93,18 @@ Defaults to `127.0.0.1:8790`. Routes:
 - `GET /mock/` - `{"contracts": [...]}`, the list of contract names this instance can serve.
 - `GET /mock/<Contract>` - the example payload for that contract (200), or `{"error": ...}` (404) for an unknown name.
 
+With `--openapi contracts/openapi/v1/server.openapi.json` the same server also answers the paths and methods of that OpenAPI document, at their real paths (`POST /api/login`, `GET /api/robot/1`, ...):
+
+- the answer is the first `2xx` response of the operation, with a body built from its schema (the `example`, `default` or first `enum` value where the schema gives one, a minimal value of the declared type otherwise) and the headers it declares (`ETag`);
+- an operation that declares a bearer token answers `401` with the body of the contract when there is no `Authorization: Bearer` header;
+- a method the path does not declare answers `405` with `Allow`; a path that is not in the document answers `404`;
+- nothing is stored: a write is read, answered with the static example and changes nothing.
+
+The tests prove that every operation of every published OpenAPI document is served with one of its declared success statuses and a body that conforms to its schema, so the mock cannot drift from the document.
+
 This is not a fake robot, a fake MCU, or a simulation of real device
-behavior - it never claims a machine is `READY`, never accepts a write,
-and every route is a static GET. It proves a client parses a real,
+behavior - it never claims a machine is `READY`, never stores a write,
+and every answer is a static example. It proves a client parses a real,
 schema-valid HTTP response correctly; it proves nothing about actual
 device behavior, timing, or concurrency.
 
@@ -106,3 +115,13 @@ hydra-umc-sdk-mock-server: serving 10 contracts on http://127.0.0.1:8790/mock/
 $ curl -s http://127.0.0.1:8790/mock/HealthReport
 {"schema_version": "1.0", "state": "READY", "timestamp_utc": "2026-01-01T00:00:00Z", "checks": {"storage": {"state": "PASS"}}}
 ```
+
+## Tool: `tools/contract_check.py`
+
+A read-only check of a whole workspace, for a person or a CI job that wants one report instead of fifty-six validators:
+
+```bash
+python tools/contract_check.py [WORKSPACE] [--report-only]
+```
+
+It walks every HYDRA-UMC repository of the workspace (the parent folder of the SDK by default) and prints one JSON report: the manifest of each repository against the `ProjectManifest` validator, the manifest name against the folder name, the vendored shared tools against the canonical copies of this SDK, a `service` block against `contracts/ports.yaml`, and the OpenAPI documents of this SDK against the structural check. The exit status is 1 when anything was found, unless `--report-only` is given.

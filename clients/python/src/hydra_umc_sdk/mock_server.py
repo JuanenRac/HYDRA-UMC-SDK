@@ -16,8 +16,9 @@ mock can never silently drift from what the real SDK considers valid,
 because both are checked against the exact same validator.
 
 This is not a fake robot, a fake MCU or a simulation of real device
-behavior: it never claims a machine is READY, never accepts a write, and
-every route is a plain GET returning a static example. Ports, timing,
+behavior: it never claims a machine is READY, never stores a write, and
+every answer is a static example (the /mock/ routes are plain GETs; with an
+OpenAPI document the paths of that document answer too, see openapi_mock). Ports, timing,
 concurrency, and multi-request state are all real HTTP hardware would
 differ on - this only proves "does my client code parse a real,
 schema-valid response correctly," nothing about actual device behavior.
@@ -30,6 +31,7 @@ import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 
+from .openapi_mock import OpenApiRouter
 from .validation import REQUIRED
 
 # One real, minimal, schema-valid example per contract this SDK's own
@@ -146,21 +148,53 @@ if _unknown_examples:
 
 
 class MockContractHandler(BaseHTTPRequestHandler):
+    # Set by create_server(openapi=...): the routes of a published OpenAPI
+    # document, answered with examples built from its own schemas. None keeps
+    # the server to the /mock/ contract examples.
+    router: OpenApiRouter | None = None
+
     # Quiet by default - a test suite spinning this server up per-test
     # doesn't need BaseHTTPRequestHandler's own request-log line on stderr
     # for every GET.
     def log_message(self, format: str, *args: Any) -> None:  # noqa: A002 - stdlib signature
         pass
 
-    def _write_json(self, status: int, body: dict[str, Any]) -> None:
+    def _write_json(self, status: int, body: Any, headers: dict[str, str] | None = None) -> None:
         payload = json.dumps(body).encode("utf-8")
         self.send_response(status)
+        for name, value in (headers or {}).items():
+            self.send_header(name, value)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(payload)))
         self.end_headers()
         self.wfile.write(payload)
 
+    def _serve_openapi(self, method: str) -> bool:
+        router = self.router
+        if router is None or self.path.startswith("/mock/"):
+            return False
+        length = int(self.headers.get("Content-Length") or 0)
+        if length:
+            self.rfile.read(length)
+        template, operation, allowed = router.match(method, self.path)
+        if not template:
+            return False
+        if operation is None:
+            self._write_json(405, {"error": "method not allowed", "allowed": allowed}, {"Allow": ", ".join(allowed)})
+            return True
+        status, headers, body = router.answer(operation, self.headers.get("Authorization"))
+        self._write_json(status, body if body is not None else {}, headers)
+        return True
+
+    def do_POST(self) -> None:  # noqa: N802 - stdlib method name
+        if not self._serve_openapi(self.command):
+            self._write_json(404, {"error": "not found"})
+
+    do_PUT = do_PATCH = do_DELETE = do_POST
+
     def do_GET(self) -> None:  # noqa: N802 - stdlib method name
+        if self._serve_openapi("GET"):
+            return
         if self.path == "/mock/":
             self._write_json(200, {"contracts": sorted(EXAMPLE_PAYLOADS)})
             return
@@ -175,11 +209,15 @@ class MockContractHandler(BaseHTTPRequestHandler):
         self._write_json(404, {"error": "not found - see GET /mock/ for the contract list"})
 
 
-def create_server(host: str = "127.0.0.1", port: int = 0) -> ThreadingHTTPServer:
+def create_server(host: str = "127.0.0.1", port: int = 0, openapi: OpenApiRouter | str | None = None) -> ThreadingHTTPServer:
     """Real HTTP server, not started - `.server_address` reports the actual
     bound port once serving (useful with port=0 for an ephemeral port in
-    tests)."""
-    return ThreadingHTTPServer((host, port), MockContractHandler)
+    tests). With `openapi` (a router or the path of an OpenAPI document) the
+    server also answers the paths and methods of that document."""
+    if isinstance(openapi, str):
+        openapi = OpenApiRouter.from_file(openapi)
+    handler = type("OpenApiMockHandler", (MockContractHandler,), {"router": openapi}) if openapi else MockContractHandler
+    return ThreadingHTTPServer((host, port), handler)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -188,9 +226,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8790)
+    parser.add_argument("--openapi", help="path of an OpenAPI document whose routes are answered with examples built from its schemas")
     args = parser.parse_args(argv)
 
-    server = create_server(args.host, args.port)
+    server = create_server(args.host, args.port, args.openapi)
     host, port = server.server_address
     print(f"hydra-umc-sdk-mock-server: serving {len(EXAMPLE_PAYLOADS)} contracts on http://{host}:{port}/mock/")
     try:
