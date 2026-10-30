@@ -124,7 +124,7 @@ $ curl -s http://127.0.0.1:8790/mock/HealthReport
 A read-only check of a whole workspace, for a person or a CI job that wants one report instead of fifty-six validators:
 
 ```bash
-python tools/contract_check.py [WORKSPACE] [--report-only]
+python tools/contract_check.py [WORKSPACE] [--report-only] [--tables]
 ```
 
-It walks every HYDRA-UMC repository of the workspace (the parent folder of the SDK by default) and prints one JSON report: the manifest of each repository against the `ProjectManifest` validator, the manifest name against the folder name, the vendored shared tools against the canonical copies of this SDK, a `service` block against `contracts/ports.yaml`, and the OpenAPI documents of this SDK against the structural check. The exit status is 1 when anything was found, unless `--report-only` is given.
+It walks every HYDRA-UMC repository of the workspace (the parent folder of the SDK by default) and prints one JSON report: the manifest of each repository against the `ProjectManifest` validator, the manifest name against the folder name, the vendored shared tools against the canonical copies of this SDK, a `service` block against `contracts/ports.yaml`, and the OpenAPI documents of this SDK against the structural check. The exit status is 1 when anything was found, unless `--report-only` is given. With `--tables` it prints instead three Markdown tables that nobody should write by hand: the ports of the services (from the registry, ordered by port), the version and maturity of every repository (from its manifest) and the routes of the server (every path and method of the OpenAPI documents with its operation id and tag).

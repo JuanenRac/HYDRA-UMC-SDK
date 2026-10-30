@@ -13,7 +13,12 @@ breaks a contract of the family:
 * the manifest declares a `service` block but the port registry does not know it,
 * the OpenAPI documents of this SDK are structurally broken.
 
-Usage: python tools/contract_check.py [WORKSPACE] [--report-only]
+Usage: python tools/contract_check.py [WORKSPACE] [--report-only] [--tables]
+
+With `--tables` it prints, instead of the JSON report, the three tables of the
+ecosystem that must never be written by hand, as Markdown: the ports of the
+services (from the port registry), the version of every repository (from its
+manifest) and the routes of the server (from the OpenAPI documents).
 
 The workspace defaults to the folder that holds this SDK. The report goes to
 stdout; the exit status is 1 when any problem was found (0 with
@@ -100,11 +105,79 @@ def check_workspace(workspace: Path, sdk_root: Path = SDK_ROOT) -> dict[str, Any
     }
 
 
+HTTP_METHODS = ("get", "put", "post", "delete", "patch", "head", "options")
+
+
+def _cell(text: object) -> str:
+    return str(text).replace("|", "\\|").replace("\n", " ").strip()
+
+
+def _table(header: list[str], rows: list[list[object]]) -> str:
+    lines = ["| " + " | ".join(header) + " |", "|" + "|".join(" --- " for _ in header) + "|"]
+    lines += ["| " + " | ".join(_cell(cell) for cell in row) + " |" for row in rows]
+    return "\n".join(lines)
+
+
+def ports_table(ports_file: Path) -> str:
+    """The port registry as a Markdown table, ordered by port."""
+    services: list[dict[str, str]] = []
+    current: dict[str, str] | None = None
+    for line in ports_file.read_text(encoding="utf-8").splitlines() if ports_file.is_file() else []:
+        stripped = line.strip()
+        if stripped.startswith("- name:"):
+            current = {"name": stripped[len("- name:"):].strip()}
+            services.append(current)
+        elif current is not None and ":" in stripped and not stripped.startswith("#"):
+            key, _, value = stripped.partition(":")
+            current[key.strip()] = "" if value.strip() == "null" else value.strip()
+    services.sort(key=lambda item: (int(item.get("port", "0") or 0), item["name"]))
+    return _table(["Port", "Repository", "Health path", "systemd unit"], [
+        [item.get("port", ""), item["name"], item.get("health_path", ""), item.get("systemd_unit", "")] for item in services
+    ])
+
+
+def versions_table(workspace: Path, sdk_root: Path = SDK_ROOT) -> str:
+    """The version of every repository of the workspace, from its manifest, ordered by name."""
+    sync = _load("_contract_check_sync", sdk_root / "tools" / "sync_repo_tools.py")
+    rows: list[list[object]] = []
+    for repo in sync.repos(workspace):
+        manifest, _problems = manifest_problems(repo)
+        rows.append([repo.name, (manifest or {}).get("version", "?"), (manifest or {}).get("maturity", "?")])
+    rows.sort(key=lambda row: str(row[0]).casefold())
+    return _table(["Repository", "Version", "Maturity"], rows)
+
+
+def routes_table(openapi_dir: Path) -> str:
+    """Every path and method of every OpenAPI document, with its operation id and tag."""
+    rows: list[list[object]] = []
+    for path in sorted(openapi_dir.glob("*.openapi.json")):
+        document = json.loads(path.read_text(encoding="utf-8"))
+        for route, item in document.get("paths", {}).items():
+            for method in HTTP_METHODS:
+                operation = item.get(method)
+                if isinstance(operation, dict):
+                    rows.append([path.name, method.upper(), route, operation.get("operationId", ""), ", ".join(operation.get("tags", []))])
+    rows.sort(key=lambda row: (row[0], row[2], HTTP_METHODS.index(str(row[1]).lower())))
+    return _table(["Document", "Method", "Route", "Operation", "Tag"], rows)
+
+
+def tables(workspace: Path, sdk_root: Path = SDK_ROOT) -> str:
+    return "\n\n".join([
+        "### Ports", ports_table(sdk_root / "contracts" / "ports.yaml"),
+        "### Versions", versions_table(workspace, sdk_root),
+        "### Routes", routes_table(sdk_root / "contracts" / "openapi" / "v1"),
+    ]) + "\n"
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check the contracts of every HYDRA-UMC repository of a workspace.")
     parser.add_argument("workspace", nargs="?", default=str(SDK_ROOT.parent))
     parser.add_argument("--report-only", action="store_true", help="exit 0 even when problems were found")
+    parser.add_argument("--tables", action="store_true", help="print the ports, versions and routes tables as Markdown instead of the report")
     args = parser.parse_args(argv)
+    if args.tables:
+        sys.stdout.write(tables(Path(args.workspace)))
+        return 0
     report = check_workspace(Path(args.workspace))
     print(json.dumps(report, indent=2, ensure_ascii=False))
     return 0 if args.report_only or report["summary"]["problems"] == 0 else 1

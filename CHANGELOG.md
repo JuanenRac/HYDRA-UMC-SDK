@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **`tools/contract_check.py --tables`:** prints the ports, the versions and the routes of the ecosystem as Markdown tables generated from the port registry, the manifests and the OpenAPI documents, so those tables are no longer written by hand. The topics of the bridges are still not generated.
+
 - **The project manifest accepts `depends_on`:** an optional list of the repositories that must be installed or updated before this one, so a batch of the updater can order itself by what each repository declares. The names follow the rule of `name`, are unique and never include the repository itself (the clients check that, a schema cannot). A compatible extension: a manifest without it stays valid. The schema is vendored in the Go, Rust and TypeScript clients and the differential tests cover it.
 
 ## [0.4.1] - The RobotState, TwinState and Pose contracts, the enable and disable commands of a robot, the STOPPED machine state, versions each toolchain accepts, the ecosystem release table and a boundary check that works without Git
