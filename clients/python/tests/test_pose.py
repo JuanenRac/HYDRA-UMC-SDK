@@ -92,10 +92,10 @@ class PoseContractTests(unittest.TestCase):
 
     def test_the_rotation_vector_is_the_shortest_turn_and_round_trips(self) -> None:
         q = Quaternion.from_rotation_vector((0.0, 0.0, 0.5))
-        for got, want in zip(q.to_rotation_vector(), (0.0, 0.0, 0.5)):
+        for got, want in zip(q.to_rotation_vector(), (0.0, 0.0, 0.5), strict=True):
             self.assertAlmostEqual(got, want)
         flipped = Quaternion(-q.w, -q.x, -q.y, -q.z)  # q and -q are one orientation
-        for got, want in zip(flipped.to_rotation_vector(), (0.0, 0.0, 0.5)):
+        for got, want in zip(flipped.to_rotation_vector(), (0.0, 0.0, 0.5), strict=True):
             self.assertAlmostEqual(got, want)
         near_pi = Quaternion.from_rotation_vector((0.0, 0.0, math.pi - 0.01))
         self.assertAlmostEqual(near_pi.angle_to(Quaternion.identity()), math.pi - 0.01)
