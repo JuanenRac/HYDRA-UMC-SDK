@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.4.0] - Types for operations and capabilities in every client, a doctor command, a mock from the OpenAPI, a contract check and the two-step sign-in contract
+
 - **The sign-in of the contract carries the second step:** the typed OpenAPI describes the optional 	otp field of POST /api/login and the 	otpRequired flag of the refusal an account with the second step on gets, and the full copy of the server's OpenAPI is refreshed (it lacked the second-step and voice-confirmation routes).
 - **The mock server answers the routes of an OpenAPI document:** `python -m hydra_umc_sdk.mock_server --openapi contracts/openapi/v1/server.openapi.json` serves every path and method of the document at its real path, with the first success status, a body built from the schema and the declared headers; an operation that needs a bearer token answers 401 without one, a method the path does not declare answers 405 and an unknown path 404. Tests prove that every operation of every published OpenAPI document is served with a declared status and a body that conforms to its schema.
 - **`tools/contract_check.py`:** a read-only report, in JSON, of the contracts of a whole workspace (manifest against the validator, manifest name against the folder, vendored shared tools against the canonical copies, `service` blocks against the port registry and the structural check of the OpenAPI documents); it exits with 1 when anything was found.
