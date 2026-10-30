@@ -151,19 +151,38 @@ class ProjectToolTests(unittest.TestCase):
         self.assertEqual((self.root / "versionCode.txt").read_text().strip(), "8")
         self.assertEqual(TOOL.declared_version(self.root), "0.1.5")
 
-    def test_a_flutter_app_is_bumped_by_its_dart_script_and_then_synchronised(self):
-        (self.root / "tool").mkdir()
-        (self.root / "tool" / "bump_version.dart").write_text("void main() {}\n", encoding="utf-8")
+    def _flutter_style(self, version: str, pubspec: str) -> None:
+        bs = chr(92)
+        pattern = "^version:" + bs + "s*(" + bs + "d+)" + bs + ".(" + bs + "d+)" + bs + ".(" + bs + "d+)" + bs + "+" + bs + "d+"
+        manifest = json.loads((self.root / "hydra-umc.project.json").read_text(encoding="utf-8"))
+        manifest["version"] = version
+        manifest["native_version"] = {"file": "pubspec.yaml", "pattern": pattern}
+        (self.root / "hydra-umc.project.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+        (self.root / "pubspec.yaml").write_text(pubspec, encoding="utf-8")
+        (self.root / "CHANGELOG.md").write_text("# Changelog\n\n## [%s]\n\n- first\n" % version, encoding="utf-8")
         self.commit("flutter style")
-        seen = []
-        original = TOOL._run
-        TOOL._run = lambda command, root, env=None: seen.append(command) or 0
-        try:
-            TOOL.bump(self.root)
-        finally:
-            TOOL._run = original
-        self.assertEqual(seen[0][1:], ["run", "tool/bump_version.dart"])
-        self.assertIn("--sync", seen[1])
+
+    def test_a_flutter_app_is_bumped_by_the_shared_utility_with_three_components_and_a_build_number(self):
+        self._flutter_style("0.7.9", "name: app\nversion: 0.7.9+40\n")
+        self.assertEqual(TOOL.bump(self.root), 0)
+        self.assertEqual(TOOL.declared_version(self.root), "0.8.0.0")
+        self.assertIn("version: 0.8.0+41", (self.root / "pubspec.yaml").read_text(encoding="utf-8"))
+        self.assertIsNone(TOOL.native_version_problem(self.root))
+
+    def test_a_native_version_the_toolchain_would_reject_is_reported_and_stops_the_bump(self):
+        self._flutter_style("0.8.0.0", "name: app\nversion: 0.8.0.0+40\n")
+        self.assertIn("a.b.c+N", TOOL.native_version_problem(self.root))
+        self.assertIn("cannot build", " ".join(f[0] for f in TOOL.doctor_manifest(self.root, {})))
+
+    def test_a_cargo_version_with_build_metadata_is_accepted(self):
+        bs = chr(92)
+        manifest = json.loads((self.root / "hydra-umc.project.json").read_text(encoding="utf-8"))
+        manifest["native_version"] = {"file": "Cargo.toml", "pattern": "^version" + bs + "s*=" + bs + 's*"(' + bs + "d+)" + bs + ".(" + bs + "d+)" + bs + ".(" + bs + 'd+)"'}
+        (self.root / "hydra-umc.project.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+        (self.root / "Cargo.toml").write_text('[package]\nname = "x"\nversion = "0.8.0+2"\n', encoding="utf-8")
+        self.assertIsNone(TOOL.native_version_problem(self.root))
+        (self.root / "Cargo.toml").write_text('[package]\nname = "x"\nversion = "0.8.0.2"\n', encoding="utf-8")
+        self.assertIn("a.b.c", TOOL.native_version_problem(self.root))
 
     def test_status_flags_a_dirty_tree_and_a_version_behind_the_tag(self):
         self.assertEqual(TOOL.status(self.root), 0)

@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- **The version utility writes what each toolchain accepts:** a `Cargo.toml` version (and the package entry of `Cargo.lock`) is written as `a.b.c` or `a.b.c+d` (semver build metadata), and a Flutter `pubspec.yaml` keeps `a.b.c+N`, with `N` raised by one on every bump and `lib/app_version.dart` regenerated from it. The translation is fixed and the manifest and this changelog keep their own form.
+- **`hydra_project_tool.py bump` and `doctor` refuse a native version its toolchain would reject** (Cargo or Flutter) with a clear message instead of leaving a broken build; a Flutter app is bumped by the shared utility, not by a Dart script.
+
 ## [0.4.0] - Types for operations and capabilities in every client, a doctor command, a mock from the OpenAPI, a contract check and the two-step sign-in contract
 
 - **The sign-in of the contract carries the second step:** the typed OpenAPI describes the optional 	otp field of POST /api/login and the 	otpRequired flag of the refusal an account with the second step on gets, and the full copy of the server's OpenAPI is refreshed (it lacked the second-step and voice-confirmation routes).

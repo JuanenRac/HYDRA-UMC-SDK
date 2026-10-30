@@ -167,3 +167,77 @@ class SeparateFieldPatternTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+CARGO_PATTERN = '^version' + B + 's*=' + B + 's*"(' + B + 'd+)' + B + '.(' + B + 'd+)' + B + '.(' + B + 'd+)"'
+PUBSPEC_PATTERN = '^version:' + B + 's*(' + B + 'd+)' + B + '.(' + B + 'd+)' + B + '.(' + B + 'd+)' + B + '+' + B + 'd+'
+
+
+class NativeTranslationTests(unittest.TestCase):
+    """Cargo and Flutter cannot hold four dotted components: the manifest keeps four, the native file a fixed translation."""
+
+    def setUp(self):
+        self.m = _load()
+
+    def test_the_translation_is_fixed_per_toolchain(self):
+        self.assertEqual(self.m.to_native("0.8.0.3", "plain"), "0.8.0.3")
+        self.assertEqual(self.m.to_native("0.8.0.3", "cargo"), "0.8.0+3")
+        self.assertEqual(self.m.to_native("0.8.0.3", "pubspec"), "0.8.0")
+        self.assertEqual(self.m.to_native("0.7.9", "cargo"), "0.7.9")
+
+    def test_native_style_follows_the_file_name(self):
+        self.assertEqual(self.m.native_style(Path("x/Cargo.toml")), "cargo")
+        self.assertEqual(self.m.native_style(Path("pubspec.yaml")), "pubspec")
+        self.assertEqual(self.m.native_style(Path("pyproject.toml")), "plain")
+
+    def test_a_cargo_version_reads_back_as_four_components(self):
+        text = 'name = "x"\nversion = "0.8.0+3"\n'
+        self.assertEqual(self.m.read_version(text, CARGO_PATTERN, "cargo"), "0.8.0.3")
+        self.assertEqual(self.m.read_version('version = "0.7.9"\n', CARGO_PATTERN, "cargo"), "0.7.9")
+
+    def test_a_pubspec_reads_three_components_and_compares_by_prefix(self):
+        text = "version: 0.8.0+21\n"
+        self.assertEqual(self.m.read_version(text, PUBSPEC_PATTERN, "pubspec"), "0.8.0")
+        self.assertTrue(self.m.same_version("0.8.0", "0.8.0.4", "pubspec"))
+        self.assertFalse(self.m.same_version("0.8.1", "0.8.0.4", "pubspec"))
+
+
+class ToolchainEndToEndTests(unittest.TestCase):
+    def _project(self, native_file: str, pattern: str, native_text: str, version: str) -> Path:
+        root = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, root, True)
+        shutil.copy(CANONICAL, root / "bump_manifest_version.py")
+        (root / native_file).write_text(native_text, encoding="utf-8")
+        manifest = {"version": version, "native_version": {"file": native_file, "pattern": pattern}}
+        (root / "hydra-umc.project.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+        (root / "CHANGELOG.md").write_text("# Changelog\n\n## [%s]\n\n- start\n" % version, encoding="utf-8")
+        return root
+
+    def _run(self, root: Path, *args: str) -> subprocess.CompletedProcess:
+        return subprocess.run([sys.executable, "bump_manifest_version.py", *args], cwd=root, capture_output=True, text=True)
+
+    def test_a_rust_project_crosses_0_8_0_with_build_metadata_and_a_matching_lock(self):
+        root = self._project("Cargo.toml", CARGO_PATTERN, '[package]\nname = "demo"\nversion = "0.7.9"\n', "0.7.9")
+        (root / "Cargo.lock").write_text('[[package]]\nname = "dep"\nversion = "1.0.0"\n\n[[package]]\nname = "demo"\nversion = "0.7.9"\n', encoding="utf-8")
+        first = self._run(root)
+        self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+        self.assertIn('version = "0.8.0+0"', (root / "Cargo.toml").read_text(encoding="utf-8"))
+        lock = (root / "Cargo.lock").read_text(encoding="utf-8")
+        self.assertIn('name = "demo"\nversion = "0.8.0+0"', lock)
+        self.assertIn('name = "dep"\nversion = "1.0.0"', lock)
+        self.assertEqual(json.loads((root / "hydra-umc.project.json").read_text(encoding="utf-8"))["version"], "0.8.0.0")
+        again = self._run(root)
+        self.assertEqual(again.returncode, 0, again.stdout + again.stderr)
+        self.assertIn('version = "0.8.0+1"', (root / "Cargo.toml").read_text(encoding="utf-8"))
+        self.assertEqual(json.loads((root / "hydra-umc.project.json").read_text(encoding="utf-8"))["version"], "0.8.0.1")
+
+    def test_a_flutter_project_keeps_three_components_and_counts_the_build_number(self):
+        root = self._project("pubspec.yaml", PUBSPEC_PATTERN, "name: app\nversion: 0.7.9+30\n", "0.7.9")
+        (root / "lib").mkdir()
+        (root / "lib" / "app_version.dart").write_text("const String kAppVersion = '0.7.9';\nconst int kAppBuildNumber = 30;\nconst String kAppVersionFull = '0.7.9+30';\n", encoding="utf-8")
+        self.assertEqual(self._run(root).returncode, 0)
+        self.assertIn("version: 0.8.0+31", (root / "pubspec.yaml").read_text(encoding="utf-8"))
+        self.assertIn("kAppVersionFull = '0.8.0+31'", (root / "lib" / "app_version.dart").read_text(encoding="utf-8"))
+        self.assertEqual(self._run(root).returncode, 0)
+        self.assertIn("version: 0.8.0+32", (root / "pubspec.yaml").read_text(encoding="utf-8"))
+        self.assertEqual(json.loads((root / "hydra-umc.project.json").read_text(encoding="utf-8"))["version"], "0.8.0.1")

@@ -35,6 +35,8 @@ python tools/hydra_project_tool.py coverage   # tests under a coverage tool, com
 
 `validate`, `test` and `ci` fail if the manifest version changed while they ran. `bump --dry-run` prints the
 version it would produce and writes nothing; `bump` refuses a dirty working tree unless `--allow-dirty` is given.
+
+The version written to a native file is the form its toolchain accepts: Cargo (`Cargo.toml` and the package entry of `Cargo.lock`) takes `a.b.c` or `a.b.c+d`, and a Flutter `pubspec.yaml` takes `a.b.c+N`, where `N` is a build number raised by one on every bump (the generated `lib/app_version.dart` follows it). `bump` and `doctor` report a value the toolchain would reject instead of writing it.
 The version always follows the odometer rule: three components up to 0.7.9, four from 0.8.0.0.
 
 ## The doctor
