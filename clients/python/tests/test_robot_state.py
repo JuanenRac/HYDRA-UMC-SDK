@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-import pytest
+import unittest
 
 from hydra_umc_sdk import ContractValidationError, validate, validate_robot_state
 
@@ -31,43 +31,47 @@ def _payload(**changes):
     return payload
 
 
-def test_a_valid_state_is_accepted_with_or_without_the_optional_parts() -> None:
-    validate("RobotState", _payload())
-    minimal = {k: v for k, v in _payload().items() if k in {"schema_version", "robot_id", "state", "updated_at_utc"}}
-    validate("RobotState", minimal)
-    for state in ("idle", "busy", "estop", "fault", "offline"):
-        validate_robot_state(_payload(state=state))
+class RobotStateTests(unittest.TestCase):
+    def test_a_valid_state_is_accepted_with_or_without_the_optional_parts(self) -> None:
+        validate("RobotState", _payload())
+        minimal = {k: v for k, v in _payload().items() if k in {"schema_version", "robot_id", "state", "updated_at_utc"}}
+        validate("RobotState", minimal)
+        for state in ("idle", "busy", "estop", "fault", "offline"):
+            validate_robot_state(_payload(state=state))
+
+    def test_a_wrong_state_is_refused(self) -> None:
+        bad_pose = {"schema_version": "1.0", "frame": "base", "position": {"x": 0, "y": 0, "z": 0}, "orientation": {"w": 2.0, "x": 0.0, "y": 0.0, "z": 0.0}}
+        wrong = [
+            {"state": "sleeping"},
+            {"state": None},
+            {"robot_id": ""},
+            {"robot_id": 7},
+            {"source": "dreamed"},
+            {"updated_at_utc": "later"},
+            {"mission_id": ""},
+            {"battery_percent": 101},
+            {"battery_percent": -1},
+            {"battery_percent": True},
+            {"battery_percent": float("nan")},
+            {"schema_version": "2.0"},
+            {"pose": "here"},
+            {"pose": bad_pose},
+        ]
+        for changes in wrong:
+            with self.subTest(changes=changes):
+                with self.assertRaises(ContractValidationError):
+                    validate("RobotState", _payload(**changes))
+
+    def test_each_required_field_is_required(self) -> None:
+        for field in ("schema_version", "robot_id", "state", "updated_at_utc"):
+            with self.subTest(field=field):
+                payload = _payload()
+                del payload[field]
+                with self.assertRaisesRegex(ContractValidationError, field):
+                    validate("RobotState", payload)
+        with self.assertRaises(ContractValidationError):
+            validate_robot_state([])  # type: ignore[arg-type]
 
 
-@pytest.mark.parametrize(
-    "changes",
-    [
-        {"state": "sleeping"},
-        {"state": None},
-        {"robot_id": ""},
-        {"robot_id": 7},
-        {"source": "dreamed"},
-        {"updated_at_utc": "later"},
-        {"mission_id": ""},
-        {"battery_percent": 101},
-        {"battery_percent": -1},
-        {"battery_percent": True},
-        {"battery_percent": float("nan")},
-        {"schema_version": "2.0"},
-        {"pose": "here"},
-        {"pose": {"schema_version": "1.0", "frame": "base", "position": {"x": 0, "y": 0, "z": 0}, "orientation": {"w": 2.0, "x": 0.0, "y": 0.0, "z": 0.0}}},
-    ],
-)
-def test_a_wrong_state_is_refused(changes) -> None:
-    with pytest.raises(ContractValidationError):
-        validate("RobotState", _payload(**changes))
-
-
-def test_each_required_field_is_required() -> None:
-    for field in ("schema_version", "robot_id", "state", "updated_at_utc"):
-        payload = _payload()
-        del payload[field]
-        with pytest.raises(ContractValidationError, match=field):
-            validate("RobotState", payload)
-    with pytest.raises(ContractValidationError):
-        validate_robot_state([])  # type: ignore[arg-type]
+if __name__ == "__main__":
+    unittest.main()
