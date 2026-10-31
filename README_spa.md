@@ -26,7 +26,7 @@ GPL-3.0-or-later - see LICENSE
 
 ---
 
-> **Comprobación de honestidad - qué funciona realmente hoy:** los diez contratos JSON Schema v1 con un fixture válido y otro inválido cada uno, el validador de Python, el primer corte OpenAPI v1 de HYDRA-UMC-SERVER, los clientes de Go, TypeScript y Rust que aplican los mismos esquemas, las ayudas para puentes y la matriz de compatibilidad son reales y están probados en un ordenador (659 pruebas de Python, más las suites de los otros tres clientes). Protobuf aún no se publica, la puerta de trabajos es una función de software compartida y no una función de seguridad certificada, y nada de esto se ha ejecutado en hardware real.
+> **Comprobación de honestidad - qué funciona realmente hoy:** los dieciséis contratos JSON Schema v1 con un fixture válido y otro inválido cada uno, el validador de Python, el primer corte OpenAPI v1 de HYDRA-UMC-SERVER, los clientes de Go, TypeScript y Rust que aplican los mismos esquemas, las ayudas para puentes y la matriz de compatibilidad son reales y están probados en un ordenador (659 pruebas de Python, más las suites de los otros tres clientes). Protobuf aún no se publica, la puerta de trabajos es una función de software compartida y no una función de seguridad certificada, y nada de esto se ha ejecutado en hardware real.
 
 ---
 
@@ -124,6 +124,12 @@ CM5/robot/MCU real. Los 15 contratos tienen al menos un accesorio de
 conformidad válido e inválido, verificados por la matriz de
 compatibilidad de arriba.
 
+### Fuente de rutas, contratos de mensajería y un transporte de puentes endurecible
+
+- **Una fuente para un grupo de rutas del servidor (piloto: las rutas de conexiones):** `contracts/sources/connections.routes.json` declara `GET /api/connections/clients` y `GET /api/connections/events` (acceso, códigos de estado, parámetros de consulta) sobre los esquemas cerrados `ConnectionClient` y `ConnectionEvent`, y `python tools/contract_source.py` genera a partir de ella `contracts/openapi/v1/server.connections.openapi.json`. `--check` falla si el documento generado está desactualizado, si una copia de los esquemas difiere o si las rutas o enumeraciones del servidor se desvían de la fuente. Véase [`docs/CONTRACT_SOURCE.md`](docs/CONTRACT_SOURCE.md).
+- **Contratos de mensajería:** `MqttPublish` lleva un `qos` (0, 1 o 2) y `ProductionEvent` describe un ciclo terminado (`source_id`, `at_utc`, `good`, `cycle_time_s`), que los informes de producción convierten en OEE.
+- **Un transporte de puentes que se puede endurecer, con todos los límites desactivados por defecto:** `MessageDispatcher(..., max_queue=N, max_payload_bytes=N)` acota las órdenes que esperan tras la que se ejecuta (se descarta y cuenta la más antigua) y rechaza una carga demasiado grande; el carril de parada nunca se acota y los verbos de parada están exentos del tope. `stats()` devuelve los contadores `dropped`, `oversized` y `queued`. `connect_with_retry` y `open_bridge_client` admiten una espera exponencial con jitter en la primera conexión, y `reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` fijan el retardo de reconexión del cliente MQTT. Véase [`docs/PYTHON_CLIENT.md`](docs/PYTHON_CLIENT.md).
+
 ## 🔒 Seguridad y protección
 
 | Amenaza | Defensa | Dónde |
@@ -141,7 +147,7 @@ compatibilidad de arriba.
 
 | Topic o ruta | Qué lleva |
 |---|---|
-| `contracts/json-schema/v1/` | diez contratos JSON Schema v1: capacidad, descriptor de dispositivo, sobre de evento, informe de salud, operación, manifiesto de proyecto, estado de seguridad, resultado de escenario, descubrimiento de servidor, manifiesto de actualización |
+| `contracts/json-schema/v1/` | dieciséis contratos JSON Schema v1: capacidad, descriptor de dispositivo, sobre de evento, informe de salud, operación, manifiesto de proyecto, estado de seguridad, resultado de escenario, descubrimiento de servidor, manifiesto de actualización, cliente de conexión, evento de conexión, pose, evento de producción, estado del robot, estado del gemelo |
 | `contracts/openapi/v1/server.openapi.json` | el primer corte OpenAPI v1 de HYDRA-UMC-SERVER: descubrimiento, inicio de sesión, ajustes y órdenes (un subconjunto del `docs/openapi.json` del propio servidor) |
 | `contracts/ports.yaml` | el registro del puerto, la ruta de salud y la unidad systemd de cada servicio, generado por `tools/sync_ports.py` |
 | `hydra/bridges/<name>/cmd/#` | donde escucha un puente; responde en `.../<verbo>/result` |
