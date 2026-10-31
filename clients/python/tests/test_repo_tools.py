@@ -25,6 +25,7 @@ def _load(name: str):
 
 PIN = _load("pin_sdk")
 SYNC = _load("sync_repo_tools")
+VERSIONS = _load("sync_version_tools")
 
 PYPROJECT = (
     '[project]\nname = "x"\ndependencies = ["hydra-umc-sdk @ git+https://github.com/JuanenRac/'
@@ -172,6 +173,17 @@ class SyncCanonicalTests(WorkspaceFixture):
         self.assertEqual(SYNC.check_canonical(self.workspace, self.canonical), [])
         SYNC.write_canonical(self.workspace, self.canonical)
         self.assertFalse((repo / "bump_manifest_version.py").exists())
+        # a bump script that already hands over to the shared utility is not patched again; a plain three-part one gets the delegation exactly once
+        own = 'spec = importlib.util.spec_from_file_location("_x", ROOT / "bump_manifest_version.py")' + chr(10) + 'if __name__ == "__main__":' + chr(10) + '    pass' + chr(10)
+        plain = 'print("bump")' + chr(10) + 'if __name__ == "__main__":' + chr(10) + '    pass' + chr(10)
+        self.assertTrue(VERSIONS.delegates_already(own))
+        self.assertFalse(VERSIONS.delegates_already(plain))
+        script = repo / "tools" / "bump_version.py"
+        script.write_text(own, encoding="utf-8")
+        self.assertFalse(VERSIONS.patch_bump_version(script))
+        script.write_text(plain, encoding="utf-8")
+        self.assertTrue(VERSIONS.patch_bump_version(script))
+        self.assertFalse(VERSIONS.patch_bump_version(script))
 
     def test_a_community_form_is_kept_identical_when_its_canonical_copy_exists(self):
         (self.canonical / "community").mkdir()

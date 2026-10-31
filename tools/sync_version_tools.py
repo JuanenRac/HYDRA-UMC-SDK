@@ -146,9 +146,14 @@ def patch_ci_validate(path: Path) -> bool:
     return True
 
 
+def delegates_already(text: str) -> bool:
+    """A bump script that already hands over to the shared utility (the injected helper, or its own loading of ``bump_manifest_version.py``)."""
+    return HELPER_MARK in text or "bump_manifest_version.py" in text
+
+
 def patch_bump_version(path: Path) -> bool:
     text, newline = _read(path)
-    if HELPER_MARK in text:
+    if delegates_already(text):
         return False
     guard = re.search(r"(?m)^if __name__ == [\"']__main__[\"']:", text)
     if guard is None:
@@ -193,7 +198,7 @@ def main() -> int:
             if not bump.is_file():
                 continue
             text, _ = _read(bump)
-            if HELPER_MARK in text:
+            if delegates_already(text):
                 continue
             if re.search(r"(?m)^if __name__ == [\"']__main__[\"']:", text) is None:
                 continue

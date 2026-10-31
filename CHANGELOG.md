@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The version-tool sync leaves a bump script alone when it already hands over to the shared utility:** a repository whose own `bump_version.py` loads `bump_manifest_version.py` itself is no longer reported as out of date by `tools/sync_version_tools.py --check`, and the sync no longer adds a second delegation to it.
+
 ## [0.4.2] - A reusable CI workflow, canonical issue forms, the QoS of an MQTT publish and the ProductionEvent, ConnectionEvent and ConnectionClient contracts
 
 - **A reusable CI workflow:** `.github/workflows/reusable-ci.yml` is the CI baseline as a `workflow_call` workflow (Python, Node, Rust, Go, Flutter, Android and firmware steps, each switched on by the files the repository has, builds that never bump a version) and it validates through `python tools/hydra_project_tool.py validate`, the command a developer runs locally. `tools/canonical/ci-caller.yml` is the short `ci.yml` a repository would carry to call it; the repositories adopt it once the SDK carries a tag to pin.
