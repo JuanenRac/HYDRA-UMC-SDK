@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.4.2] - A reusable CI workflow, canonical issue forms, the QoS of an MQTT publish and the ProductionEvent, ConnectionEvent and ConnectionClient contracts
+
 - **A reusable CI workflow:** `.github/workflows/reusable-ci.yml` is the CI baseline as a `workflow_call` workflow (Python, Node, Rust, Go, Flutter, Android and firmware steps, each switched on by the files the repository has, builds that never bump a version) and it validates through `python tools/hydra_project_tool.py validate`, the command a developer runs locally. `tools/canonical/ci-caller.yml` is the short `ci.yml` a repository would carry to call it; the repositories adopt it once the SDK carries a tag to pin.
 
 - **The issue forms and the pull request template are canonical:** the five issue forms and the pull request template are the same text in every repository, so `tools/sync_repo_tools.py` now keeps them identical (`tools/canonical/community/`) and `--check` reports a copy that drifts, such as the licence line of the 17 repositories that still said `GPL-3.0`.
