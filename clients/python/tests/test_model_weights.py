@@ -57,7 +57,7 @@ class ModelWeightsTests(unittest.TestCase):
     def test_the_walk_stops_after_the_file_limit(self) -> None:
         for index in range(5):
             self.write(f"a{index}.txt")
-        self.write("z.hef")
+        self.write("sub/z.hef")
         self.assertFalse(contains_model_artifact(self.root, max_files=3))
         self.assertTrue(contains_model_artifact(self.root, max_files=100))
 
