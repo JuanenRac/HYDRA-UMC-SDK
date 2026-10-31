@@ -167,7 +167,11 @@ class RobotLivenessTests(unittest.TestCase):
 class DifferentialTests(unittest.TestCase):
     def test_the_schema_and_the_python_validator_agree_on_every_case(self):
         disagreements = []
+        # The date-time format is only asserted when the optional RFC 3339 checker is installed.
+        dates_asserted = not jsonschema.FormatChecker().conforms("yesterday", "date-time")
         for contract, payload, label in _cases():
+            if not dates_asserted and "date" in label:
+                continue
             stem = "ecosystem-health" if contract == "EcosystemHealth" else "robot-liveness"
             schema = json.loads((SCHEMAS / f"{stem}.schema.json").read_text(encoding="utf-8"))
             validator = jsonschema.Draft202012Validator(schema, format_checker=jsonschema.FormatChecker())
