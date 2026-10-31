@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The SDK is the source of a group of server routes (pilot: the connection routes):** `contracts/sources/connections.routes.json` declares `GET /api/connections/clients` and `GET /api/connections/events` (access, status codes, query parameters with their enums and patterns) on top of the closed `ConnectionClient` and `ConnectionEvent` schemas, and `python tools/contract_source.py` generates `contracts/openapi/v1/server.connections.openapi.json` from it. `python tools/contract_source.py --check` fails when the generated document is out of date, when a vendored copy of the schemas or its hash manifest differs, when the server's route inventory or the enums in its sources drift from the source, or when a client mentions an undeclared connection route or query parameter. Characterization tests pin the routes the server offers today and inject each kind of drift; the check runs in the CI and in the local build test. `docs/CONTRACT_SOURCE.md` is the design for moving the rest of the contract the same way, in phases, without breaking the repositories pinned to a tag. The other contract documents are unchanged.
+
 - **The version-tool sync leaves a bump script alone when it already hands over to the shared utility:** a repository whose own `bump_version.py` loads `bump_manifest_version.py` itself is no longer reported as out of date by `tools/sync_version_tools.py --check`, and the sync no longer adds a second delegation to it.
 
 ## [0.4.2] - A reusable CI workflow, canonical issue forms, the QoS of an MQTT publish and the ProductionEvent, ConnectionEvent and ConnectionClient contracts

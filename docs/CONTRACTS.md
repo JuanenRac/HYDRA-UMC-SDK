@@ -120,3 +120,7 @@ dependency-free tooling convention.
 the server generates from its routes (every route, with the status codes and
 the names of the body fields). The typed slice above never invents a route
 that this copy does not have; the tests check it.
+
+## Contract sources (pilot)
+
+The routes of the connections (`GET /api/connections/clients` and `GET /api/connections/events`) are declared in `contracts/sources/connections.routes.json` and the OpenAPI document `contracts/openapi/v1/server.connections.openapi.json` is generated from it, together with the closed `ConnectionClient` and `ConnectionEvent` schemas. `python tools/contract_source.py --check` fails when the generated document, a vendored schema copy, the server or a client drifts from it. [CONTRACT_SOURCE.md](CONTRACT_SOURCE.md) describes the design of making the SDK the source of the whole server contract and the phases to get there.

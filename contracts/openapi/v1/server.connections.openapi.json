@@ -1,0 +1,425 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "HYDRA-UMC-SERVER connections",
+    "version": "1",
+    "description": "The list of the clients that connect to a HYDRA-UMC server and the history of their sign-ins. This document is generated from contracts/sources/connections.routes.json and the closed ConnectionClient and ConnectionEvent schemas by tools/contract_source.py; do not edit it by hand. An administrator sees every client and, when the server records addresses, the address and the user agent; any other account sees only its own entries and never an address."
+  },
+  "paths": {
+    "/api/connections/clients": {
+      "get": {
+        "tags": [
+          "connections"
+        ],
+        "operationId": "listConnectionClients",
+        "summary": "List the clients the server has seen",
+        "x-access": "user",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "description": "Only the clients of this kind.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "studio",
+                "suite",
+                "android",
+                "ios",
+                "dsi",
+                "watch",
+                "voice",
+                "other"
+              ]
+            }
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "required": false,
+            "description": "Only the clients of this account. Honoured for administrators; any other account always gets its own entries.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "active",
+            "in": "query",
+            "required": false,
+            "description": "1 or true: only the clients with an open session.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "true"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The clients that match.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionClientList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The kind is not one of the client kinds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/connections/events": {
+      "get": {
+        "tags": [
+          "connections"
+        ],
+        "operationId": "listConnectionEvents",
+        "summary": "List the history of the sign-ins of the clients",
+        "x-access": "user",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "description": "Only the events of this kind of client.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "studio",
+                "suite",
+                "android",
+                "ios",
+                "dsi",
+                "watch",
+                "voice",
+                "other"
+              ]
+            }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "description": "Only the events of this action.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "first_seen",
+                "login",
+                "login_failed",
+                "second_factor_failed",
+                "logout",
+                "session_ended",
+                "session_expired"
+              ]
+            }
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "required": false,
+            "description": "Only the events of this account. Honoured for administrators; any other account always gets its own entries.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "description": "Only the events with an id lower than this one, to page backwards.",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,9}$"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "The most events to answer with.",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,9}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The events that match.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionEventList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The kind or the action is unknown, or the limit or the before is not a whole number.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "ConnectionClient": {
+        "title": "ConnectionClient",
+        "description": "One entry of the list of every application the server has seen: when it was first and last seen, how many sessions it has open now and how many sign-ins worked or were refused. The address (ip) and the user agent (agent) are for administrators only.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_version",
+          "id",
+          "kind",
+          "first_seen_utc",
+          "last_seen_utc",
+          "active_sessions",
+          "logins_ok",
+          "logins_failed"
+        ],
+        "properties": {
+          "schema_version": {
+            "const": "1.0"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{16}$"
+          },
+          "kind": {
+            "enum": [
+              "studio",
+              "suite",
+              "android",
+              "ios",
+              "dsi",
+              "watch",
+              "voice",
+              "other"
+            ]
+          },
+          "user": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "app_version": {
+            "type": "string",
+            "pattern": "^[0-9A-Za-z._-]{1,24}$"
+          },
+          "origin": {
+            "enum": [
+              "local",
+              "remote"
+            ]
+          },
+          "two_factor": {
+            "type": "boolean"
+          },
+          "first_seen_utc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "last_seen_utc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "last_failure_utc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "active_sessions": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "logins_ok": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "logins_failed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "ip": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "description": "Administrators only."
+          },
+          "agent": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "description": "Administrators only."
+          }
+        }
+      },
+      "ConnectionEvent": {
+        "title": "ConnectionEvent",
+        "description": "One line of the history of a server about a client that connects to it: a Studio or Suite session, an app, the voice service or anything else that speaks to the server. It says what happened and who, never how: no password, token, cookie or code is ever in it. The address (ip) and the user agent (agent) are for administrators only; the server removes them from the answer to anybody else.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_version",
+          "id",
+          "at_utc",
+          "action",
+          "client_kind",
+          "client_id"
+        ],
+        "properties": {
+          "schema_version": {
+            "const": "1.0"
+          },
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "at_utc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "action": {
+            "enum": [
+              "first_seen",
+              "login",
+              "login_failed",
+              "second_factor_failed",
+              "logout",
+              "session_ended",
+              "session_expired"
+            ]
+          },
+          "client_kind": {
+            "enum": [
+              "studio",
+              "suite",
+              "android",
+              "ios",
+              "dsi",
+              "watch",
+              "voice",
+              "other"
+            ],
+            "description": "What kind of client it is, as it says itself in the X-Hydra-Client header."
+          },
+          "client_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{16}$",
+            "description": "A short hash that tells one client from another (kind, user and application); it is not a secret."
+          },
+          "user": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "origin": {
+            "enum": [
+              "local",
+              "remote"
+            ]
+          },
+          "two_factor": {
+            "type": "boolean",
+            "description": "The second factor was asked and answered in this sign-in."
+          },
+          "app_version": {
+            "type": "string",
+            "pattern": "^[0-9A-Za-z._-]{1,24}$"
+          },
+          "ip": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "description": "Administrators only."
+          },
+          "agent": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "description": "Administrators only."
+          }
+        }
+      },
+      "ConnectionClientList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "clients"
+        ],
+        "properties": {
+          "clients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConnectionClient"
+            }
+          }
+        }
+      },
+      "ConnectionEventList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "events"
+        ],
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConnectionEvent"
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

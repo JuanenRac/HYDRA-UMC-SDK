@@ -1,0 +1,60 @@
+{
+  "source_version": "1",
+  "group": "connections",
+  "output": "openapi/v1/server.connections.openapi.json",
+  "document": {
+    "title": "HYDRA-UMC-SERVER connections",
+    "version": "1",
+    "description": "The list of the clients that connect to a HYDRA-UMC server and the history of their sign-ins. This document is generated from contracts/sources/connections.routes.json and the closed ConnectionClient and ConnectionEvent schemas by tools/contract_source.py; do not edit it by hand. An administrator sees every client and, when the server records addresses, the address and the user agent; any other account sees only its own entries and never an address."
+  },
+  "schemas": {
+    "ConnectionClient": "connection-client.schema.json",
+    "ConnectionEvent": "connection-event.schema.json"
+  },
+  "lists": {
+    "ConnectionClientList": {"field": "clients", "item": "ConnectionClient"},
+    "ConnectionEventList": {"field": "events", "item": "ConnectionEvent"}
+  },
+  "routes": [
+    {
+      "method": "get",
+      "path": "/api/connections/clients",
+      "operationId": "listConnectionClients",
+      "summary": "List the clients the server has seen",
+      "access": "user",
+      "query": [
+        {"name": "kind", "description": "Only the clients of this kind.", "enum_from": "ConnectionClient.kind"},
+        {"name": "user", "description": "Only the clients of this account. Honoured for administrators; any other account always gets its own entries."},
+        {"name": "active", "description": "1 or true: only the clients with an open session.", "enum": ["1", "true"]}
+      ],
+      "responses": {
+        "200": {"list": "ConnectionClientList", "description": "The clients that match."},
+        "400": {"error": true, "description": "The kind is not one of the client kinds."}
+      }
+    },
+    {
+      "method": "get",
+      "path": "/api/connections/events",
+      "operationId": "listConnectionEvents",
+      "summary": "List the history of the sign-ins of the clients",
+      "access": "user",
+      "query": [
+        {"name": "kind", "description": "Only the events of this kind of client.", "enum_from": "ConnectionClient.kind"},
+        {"name": "action", "description": "Only the events of this action.", "enum_from": "ConnectionEvent.action"},
+        {"name": "user", "description": "Only the events of this account. Honoured for administrators; any other account always gets its own entries."},
+        {"name": "before", "description": "Only the events with an id lower than this one, to page backwards.", "pattern": "^\\d{1,9}$"},
+        {"name": "limit", "description": "The most events to answer with.", "pattern": "^\\d{1,9}$"}
+      ],
+      "responses": {
+        "200": {"list": "ConnectionEventList", "description": "The events that match."},
+        "400": {"error": true, "description": "The kind or the action is unknown, or the limit or the before is not a whole number."}
+      }
+    }
+  ],
+  "consumers": {
+    "server_enums": {
+      "file": "src/connections.ts",
+      "constants": {"CLIENT_KINDS": "ConnectionClient.kind", "CONNECTION_ACTIONS": "ConnectionEvent.action"}
+    }
+  }
+}
