@@ -69,6 +69,9 @@ class OpenApiEcosystemRoutesTests(unittest.TestCase):
         document = _load("server.openapi.json")
         for method, route in NEW_ROUTES:
             for code, response in document["paths"][route][method]["responses"].items():
+                if "content" not in response:
+                    self.assertEqual(code, "404", "only the answer of a switch that is off has no body")
+                    continue
                 reference = response["content"]["application/json"]["schema"]["$ref"].rsplit("/", 1)[-1]
                 with self.subTest(route=route, code=code):
                     self.assertIn(reference, document["components"]["schemas"])
@@ -89,3 +92,19 @@ class OpenApiEcosystemRoutesTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class OpenApiInventoryAlignmentTests(unittest.TestCase):
+    def test_the_health_route_lists_what_it_answers_while_the_option_is_off(self):
+        for name in ("server.openapi.json", "server.full.openapi.json"):
+            responses = _load(name)["paths"]["/api/ecosystem/health"]["get"]["responses"]
+            with self.subTest(document=name):
+                self.assertIn("404", responses)
+                self.assertIn("403", responses)
+                self.assertNotIn("content", responses["404"])
+
+    def test_the_robot_id_of_the_heartbeat_is_an_integer_in_both_documents(self):
+        for name in ("server.openapi.json", "server.full.openapi.json"):
+            parameters = _load(name)["paths"]["/api/robot/{id}/heartbeat"]["post"]["parameters"]
+            with self.subTest(document=name):
+                self.assertEqual([p["schema"]["type"] for p in parameters if p["name"] == "id"], ["integer"])

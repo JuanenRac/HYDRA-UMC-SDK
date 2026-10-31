@@ -1260,6 +1260,19 @@
               }
             }
           },
+          "403": {
+            "description": "Signed in as a viewer: only an operator or an administrator may read the health.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The option `ecosystemHealth.enabled` is off (the default): a plain `404` with no body, as if the route did not exist."
+          },
           "503": {
             "description": "The health could not be read.",
             "content": {
