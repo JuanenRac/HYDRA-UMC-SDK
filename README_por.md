@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-506%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-617%20passing-2ea44f.svg" alt="Tests">
   <img src="https://img.shields.io/badge/Version-0.4.1-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **Verificação de honestidade - o que realmente funciona hoje:** os dez contratos JSON Schema v1 com uma fixture válida e outra inválida cada um, o validador Python, a primeira fatia OpenAPI v1 do HYDRA-UMC-SERVER, os clientes Go, TypeScript e Rust que aplicam os mesmos esquemas, os auxiliares de ponte e a matriz de compatibilidade são reais e testados num computador (506 testes Python, mais as suites dos outros três clientes). O Protobuf ainda não está publicado, a porta de trabalhos é uma função de software partilhada e não uma função de segurança certificada, e nada disto correu em hardware real.
+> **Verificação de honestidade - o que realmente funciona hoje:** os dez contratos JSON Schema v1 com uma fixture válida e outra inválida cada um, o validador Python, a primeira fatia OpenAPI v1 do HYDRA-UMC-SERVER, os clientes Go, TypeScript e Rust que aplicam os mesmos esquemas, os auxiliares de ponte e a matriz de compatibilidade são reais e testados num computador (617 testes Python, mais as suites dos outros três clientes). O Protobuf ainda não está publicado, a porta de trabalhos é uma função de software partilhada e não uma função de segurança certificada, e nada disto correu em hardware real.
 
 ---
 
@@ -40,7 +40,7 @@ GPL-3.0-or-later - see LICENSE
 |---|---|
 | Versão | `0.4.1` |
 | Maturidade | Estabelecido |
-| Testes | 506 (`python -m unittest discover -s clients/python/tests`) |
+| Testes | 617 (`python -m unittest discover -s clients/python/tests`) |
 | Tecnologia | Python / TypeScript / Go / Rust / JSON Schema |
 | Em hardware real | Ainda não: não há registo de execução em hardware real para esta versão |
 
@@ -55,7 +55,7 @@ Cada linha é uma parte deste repositório e a luz diz até onde chega hoje. É 
 | Área | Estado | O que significa aqui |
 |---|---|---|
 | Software | 🟢 | Completo para o seu propósito e estável; a verificação de honestidade acima lista os limites conhecidos |
-| Testes | 🟢 | 506 testes automáticos, executados a cada alteração |
+| Testes | 🟢 | 617 testes automáticos, executados a cada alteração |
 | Hardware real | 🔴 | Ainda não: não há registo de execução em hardware real para esta versão |
 | Documentação | 🟢 | README em oito idiomas, verificado contra o manifesto a cada alteração |
 
@@ -81,7 +81,7 @@ Estão implementados os contratos JSON Schema v1, fixtures válidas/inválidas, 
 
 Uma matriz de compatibilidade real e automática (`tools/verify_contract_matrix.py`) cruza cada esquema publicado com a lista de contratos do próprio validador Python: encontrou e corrigiu uma lacuna real em que `project-manifest.schema.json` (o contrato `hydra-umc.project.json` que cada repositório deste ecossistema publica) não tinha nenhuma entrada no validador, e agora prova que cada fixture de conformidade é julgada como o seu próprio nome de ficheiro afirma, além dos casos de contrato desconhecido e de versão de esquema incompatível.
 
-Desde então foram publicados mais contratos para além dos quatro do primeiro marco abaixo: um contrato público `BridgeJob`/`GateDecision` de bridge para máquinas externas (ver [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), partilhado por `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER`/`-AMR`/`-DROIDS`/`-UAV` e com o seu próprio formato JSON real (`job_to_dict()`/`job_from_dict()`/`decision_to_dict()`), a que se juntam o estado da máquina que o próprio bridge observa, que a porta usa em vez do declarado por quem pede, e uma admissão de trabalhos (`JobIntake`/`IdempotencyStore`) que ignora mensagens retidas e não repete uma chave de idempotência; um contrato `ScenarioOutcome` mais `compare_runs()`, uma verificação partilhada de «foi mesmo corrigido» que devolve `apparent-success` (não `regression-fixed`) quando uma falha deixou de se reproduzir mas a impressão digital de base nunca se moveu; um contrato `Operation` mais `validate_status_transition()`, o ciclo de vida partilhado de objetivo/trabalho/operação (`received`/`authorized`/`queued`/`sent`/`confirmed`/`terminated`/`rejected`, nunca um único saco colapsado de «executado»); um `result` opcional em `Operation` mais `concludes_success()`, evidência real (`run_id`/`origin`/`observers_enabled`/`outcome`) que se recusa a concluir sucesso a partir de um resultado obsoleto/repetido ou de uma execução com a observação desativada; um contrato autónomo `Capability` mais `is_capability_usable()`, em que o facto de um alvo sequer *declarar* suporte para um tipo de operação (`kind`) se modela como dado distinto de esse suporte ter sido *verificado recentemente de facto* (`last_checked_at_utc`/`checked_configuration`/`max_age_seconds`), de modo que uma capacidade declarada mas nunca verificada, ou já obsoleta, nunca é tratada em silêncio como utilizável; e um `hydra-umc-sdk-mock-server` (`mock_server.py`) que serve um exemplo de carga válida por contrato conhecido em HTTP simples, para que uma interface ou adaptador se desenvolva contra ele antes de existir qualquer hardware real de CM5/robô/MCU. Todos os 16 contratos têm pelo menos uma fixture válida e uma inválida, verificadas pela matriz de compatibilidade acima.
+Desde então foram publicados mais contratos para além dos quatro do primeiro marco abaixo: um contrato público `BridgeJob`/`GateDecision` de bridge para máquinas externas (ver [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)), partilhado por `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER`/`-AMR`/`-DROIDS`/`-UAV` e com o seu próprio formato JSON real (`job_to_dict()`/`job_from_dict()`/`decision_to_dict()`), a que se juntam o estado da máquina que o próprio bridge observa, que a porta usa em vez do declarado por quem pede, e uma admissão de trabalhos (`JobIntake`/`IdempotencyStore`) que ignora mensagens retidas e não repete uma chave de idempotência; um contrato `ScenarioOutcome` mais `compare_runs()`, uma verificação partilhada de «foi mesmo corrigido» que devolve `apparent-success` (não `regression-fixed`) quando uma falha deixou de se reproduzir mas a impressão digital de base nunca se moveu; um contrato `Operation` mais `validate_status_transition()`, o ciclo de vida partilhado de objetivo/trabalho/operação (`received`/`authorized`/`queued`/`sent`/`confirmed`/`terminated`/`rejected`, nunca um único saco colapsado de «executado»); um `result` opcional em `Operation` mais `concludes_success()`, evidência real (`run_id`/`origin`/`observers_enabled`/`outcome`) que se recusa a concluir sucesso a partir de um resultado obsoleto/repetido ou de uma execução com a observação desativada; um contrato autónomo `Capability` mais `is_capability_usable()`, em que o facto de um alvo sequer *declarar* suporte para um tipo de operação (`kind`) se modela como dado distinto de esse suporte ter sido *verificado recentemente de facto* (`last_checked_at_utc`/`checked_configuration`/`max_age_seconds`), de modo que uma capacidade declarada mas nunca verificada, ou já obsoleta, nunca é tratada em silêncio como utilizável; e um `hydra-umc-sdk-mock-server` (`mock_server.py`) que serve um exemplo de carga válida por contrato conhecido em HTTP simples, para que uma interface ou adaptador se desenvolva contra ele antes de existir qualquer hardware real de CM5/robô/MCU. Todos os 15 contratos têm pelo menos uma fixture válida e uma inválida, verificadas pela matriz de compatibilidade acima.
 
 ## 🔒 Segurança e proteção
 
@@ -129,7 +129,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 Testes
 
-506 testes automáticos correm com `python -m unittest discover -s clients/python/tests`. Os outros clientes têm as suas próprias suites: 28 testes em Go (`go test ./...`), 105 em TypeScript (`npm test`) e 31 em Rust (`cargo test`), executados por `tools/extra_build_steps.py` se a cadeia de ferramentas estiver instalada. Nenhum precisa de hardware.
+617 testes automáticos correm com `python -m unittest discover -s clients/python/tests`. Os outros clientes têm as suas próprias suites: 28 testes em Go (`go test ./...`), 105 em TypeScript (`npm test`) e 31 em Rust (`cargo test`), executados por `tools/extra_build_steps.py` se a cadeia de ferramentas estiver instalada. Nenhum precisa de hardware.
 
 A CI executa `HYDRA_UMC_CI=1 python tools/ci_validate.py`, que verifica o manifesto, os documentos, os oito README e as imagens.
 
