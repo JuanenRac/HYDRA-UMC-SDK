@@ -48,6 +48,8 @@ const CONTRACT_FIXTURE_STEM: &[(&str, &str)] = &[
     ("ConnectionEvent", "connection-event"),
     ("ConnectionClient", "connection-client"),
     ("ProductionEvent", "production-event"),
+    ("EcosystemHealth", "ecosystem-health"),
+    ("RobotLiveness", "robot-liveness"),
 ];
 
 #[test]
@@ -91,12 +93,12 @@ fn unknown_contract_is_rejected() {
 }
 
 #[test]
-fn known_contracts_lists_all_sixteen() {
+fn known_contracts_lists_all_eighteen() {
     let names = known_contracts();
     assert_eq!(
         names.len(),
-        16,
-        "expected 16 known contracts, got {names:?}"
+        18,
+        "expected 18 known contracts, got {names:?}"
     );
 }
 

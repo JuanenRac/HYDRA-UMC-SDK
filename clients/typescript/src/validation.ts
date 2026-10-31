@@ -60,6 +60,8 @@ const CONTRACT_FILES: Record<ContractName, string> = {
   ConnectionEvent: "connection-event.schema.json",
   ConnectionClient: "connection-client.schema.json",
   ProductionEvent: "production-event.schema.json",
+  EcosystemHealth: "ecosystem-health.schema.json",
+  RobotLiveness: "robot-liveness.schema.json",
 };
 
 /**

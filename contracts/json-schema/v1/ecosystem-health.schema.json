@@ -1,0 +1,314 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/ecosystem-health.schema.json",
+  "title": "EcosystemHealth",
+  "description": "The read-only health of the services of the ecosystem that a server answers at GET /api/ecosystem/health: for each service that declares a port or a unit, whether it answers, the version it reports against the one its manifest expects, and the state of the TLS certificate of the server itself. The port, health path, unit and active state of a service are only in the answer to an administrator.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at_utc",
+    "available",
+    "summary",
+    "services",
+    "certificate",
+    "warnings"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "generated_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "available": {
+      "type": "boolean",
+      "description": "False when the sibling checkouts could not be scanned at all (then there are no services)."
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total",
+        "ok",
+        "degraded",
+        "down",
+        "unknown",
+        "drift"
+      ],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "ok": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "degraded": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "down": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unknown": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "drift": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "family",
+          "role",
+          "state",
+          "reason",
+          "version_expected",
+          "version_reported",
+          "drift",
+          "last_seen_utc",
+          "latency_ms"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "family": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state": {
+            "enum": [
+              "ok",
+              "degraded",
+              "down",
+              "unknown"
+            ]
+          },
+          "reason": {
+            "enum": [
+              "health_ok",
+              "health_degraded",
+              "health_failed",
+              "http_error",
+              "unreachable",
+              "unreachable_unit_active",
+              "reachable_unit_not_active",
+              "unit_active",
+              "unit_starting",
+              "unit_failed",
+              "unit_inactive",
+              "no_signal",
+              "probe_error"
+            ]
+          },
+          "version_expected": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9A-Za-z][0-9A-Za-z._+-]{0,23}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "version_reported": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9A-Za-z][0-9A-Za-z._+-]{0,23}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "drift": {
+            "type": "boolean",
+            "description": "True only when both versions are known and differ."
+          },
+          "last_seen_utc": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "latency_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "port": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 65535
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Administrators only."
+          },
+          "health_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Administrators only."
+          },
+          "systemd_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Administrators only."
+          },
+          "active_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Administrators only."
+          }
+        }
+      }
+    },
+    "certificate": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state",
+            "not_after_utc",
+            "days_left",
+            "warn_days"
+          ],
+          "description": "The TLS certificate of the server itself; null when it runs without TLS. The path and the key are never part of it.",
+          "properties": {
+            "state": {
+              "enum": [
+                "ok",
+                "expiring",
+                "expired",
+                "unreadable"
+              ]
+            },
+            "not_after_utc": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "days_left": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "warn_days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 365
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code"
+        ],
+        "properties": {
+          "code": {
+            "enum": [
+              "certificate_expiring",
+              "certificate_expired",
+              "certificate_unreadable",
+              "version_drift",
+              "service_down",
+              "service_degraded"
+            ]
+          },
+          "service": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        }
+      }
+    }
+  }
+}

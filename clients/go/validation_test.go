@@ -61,6 +61,8 @@ var contractFixtureFile = map[string]string{
 	"ConnectionEvent":  "connection-event",
 	"ConnectionClient": "connection-client",
 	"ProductionEvent":  "production-event",
+	"EcosystemHealth":  "ecosystem-health",
+	"RobotLiveness":    "robot-liveness",
 }
 
 func TestAcceptsEveryValidFixture(t *testing.T) {
@@ -99,10 +101,10 @@ func TestUnknownContractIsRejected(t *testing.T) {
 	}
 }
 
-func TestKnownContractsListsAllSixteen(t *testing.T) {
+func TestKnownContractsListsAllEighteen(t *testing.T) {
 	names := KnownContracts()
-	if len(names) != 16 {
-		t.Fatalf("expected 16 known contracts, got %d: %v", len(names), names)
+	if len(names) != 18 {
+		t.Fatalf("expected 18 known contracts, got %d: %v", len(names), names)
 	}
 }
 

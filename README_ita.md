@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-659%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-675%20passing-2ea44f.svg" alt="Tests">
   <img src="https://img.shields.io/badge/Version-0.4.2-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **Verifica di onestà - cosa funziona davvero oggi:** i sedici contratti JSON Schema v1 con una fixture valida e una non valida ciascuno, il validatore Python, la prima porzione OpenAPI v1 di HYDRA-UMC-SERVER, i client Go, TypeScript e Rust che applicano gli stessi schemi, gli helper per bridge e la matrice di compatibilità sono reali e provati su un computer (659 test Python, più le suite degli altri tre client). Protobuf non è ancora pubblicato, il gate dei job è una funzione software condivisa e non una funzione di sicurezza certificata, e nulla di tutto ciò è stato eseguito su hardware reale.
+> **Verifica di onestà - cosa funziona davvero oggi:** i diciotto contratti JSON Schema v1 con una fixture valida e una non valida ciascuno, il validatore Python, la prima porzione OpenAPI v1 di HYDRA-UMC-SERVER, i client Go, TypeScript e Rust che applicano gli stessi schemi, gli helper per bridge e la matrice di compatibilità sono reali e provati su un computer (675 test Python, più le suite degli altri tre client). Protobuf non è ancora pubblicato, il gate dei job è una funzione software condivisa e non una funzione di sicurezza certificata, e nulla di tutto ciò è stato eseguito su hardware reale.
 
 ---
 
@@ -40,7 +40,7 @@ GPL-3.0-or-later - see LICENSE
 |---|---|
 | Versione | `0.4.2` |
 | Maturità | Consolidato |
-| Test | 659 (`python -m unittest discover -s clients/python/tests`) |
+| Test | 675 (`python -m unittest discover -s clients/python/tests`) |
 | Tecnologia | Python / TypeScript / Go / Rust / JSON Schema |
 | Su hardware reale | Non ancora: per questa versione non risulta alcuna esecuzione su hardware reale |
 
@@ -55,7 +55,7 @@ Ogni riga è una parte di questo repository e il semaforo dice a che punto è og
 | Area | Stato | Cosa significa qui |
 |---|---|---|
 | Software | 🟢 | Completo per il suo scopo e stabile; la verifica di onestà qui sopra elenca i limiti noti |
-| Test | 🟢 | 659 test automatici, eseguiti a ogni modifica |
+| Test | 🟢 | 675 test automatici, eseguiti a ogni modifica |
 | Hardware reale | 🔴 | Non ancora: per questa versione non risulta alcuna esecuzione su hardware reale |
 | Documentazione | 🟢 | README in otto lingue, verificato rispetto al manifesto a ogni modifica |
 
@@ -131,6 +131,7 @@ valida, verificate dalla matrice di compatibilità sopra.
 
 - **Una fonte per un gruppo di route del server (pilota: le route delle connessioni):** `contracts/sources/connections.routes.json` dichiara `GET /api/connections/clients` e `GET /api/connections/events` (accesso, codici di stato, parametri di query) sopra gli schemi chiusi `ConnectionClient` e `ConnectionEvent`, e `python tools/contract_source.py` ne genera `contracts/openapi/v1/server.connections.openapi.json`. `--check` fallisce quando il documento generato è obsoleto, una copia inclusa degli schemi differisce o le route o le enumerazioni del server si discostano dalla fonte. Vedi [`docs/CONTRACT_SOURCE.md`](docs/CONTRACT_SOURCE.md).
 - **Contratti di messaggistica:** `MqttPublish` porta un `qos` (0, 1 o 2) e `ProductionEvent` descrive un ciclo terminato (`source_id`, `at_utc`, `good`, `cycle_time_s`), che i rapporti di produzione trasformano in OEE.
+- **Le route che il server ha aggiunto dopo il pilota, con contratti tipizzati:** `contracts/openapi/v1/server.full.openapi.json` elenca `GET /api/ecosystem/health`, `GET /api/robots/liveness`, `POST /api/robot/{id}/heartbeat`, `POST /api/stop-all/release`, le route delle connessioni e il `GET /health` pubblico, e la parte tipizzata descrive le prime quattro. Due nuovi contratti chiusi, `EcosystemHealth` (stato, codice del motivo e scarto di versione di ogni servizio e stato del certificato del server) e `RobotLiveness` (vivo, scaduto o sconosciuto per ogni robot), sono validati dal client Python e inclusi nei client Go, Rust e TypeScript con i loro hash, fixture e test differenziali. Vedi [`docs/CONTRACTS.md`](docs/CONTRACTS.md).
 - **Un trasporto dei ponti irrobustibile, tutti i limiti disattivati per impostazione predefinita:** `MessageDispatcher(..., max_queue=N, max_payload_bytes=N)` limita i comandi in attesa dietro quello in corso (il più vecchio viene scartato e contato) e rifiuta un carico troppo grande; la corsia di arresto non è mai limitata e i verbi di arresto sono esenti dal tetto. `stats()` restituisce i contatori `dropped`, `oversized` e `queued`. `connect_with_retry` e `open_bridge_client` accettano un'attesa esponenziale con jitter per la prima connessione, e `reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` impostano il ritardo di riconnessione del client MQTT. Vedi [`docs/PYTHON_CLIENT.md`](docs/PYTHON_CLIENT.md).
 
 ## 🔒 Sicurezza e protezione
@@ -150,7 +151,7 @@ valida, verificate dalla matrice di compatibilità sopra.
 
 | Topic o rotta | Cosa porta |
 |---|---|
-| `contracts/json-schema/v1/` | sedici contratti JSON Schema v1: capacità, descrittore di dispositivo, busta di evento, rapporto di salute, operazione, manifesto di progetto, stato di sicurezza, esito di scenario, scoperta del server, manifesto di aggiornamento, client di connessione, evento di connessione, posa, evento di produzione, stato del robot, stato del gemello |
+| `contracts/json-schema/v1/` | diciotto contratti JSON Schema v1: capacità, descrittore di dispositivo, busta di evento, rapporto di salute, operazione, manifesto di progetto, stato di sicurezza, esito di scenario, scoperta del server, manifesto di aggiornamento, client di connessione, evento di connessione, posa, evento di produzione, stato del robot, stato del gemello, salute dell'ecosistema, segnale di vita del robot |
 | `contracts/openapi/v1/server.openapi.json` | la prima porzione OpenAPI v1 di HYDRA-UMC-SERVER: scoperta, accesso, impostazioni e comandi (un sottoinsieme del `docs/openapi.json` del server stesso) |
 | `contracts/ports.yaml` | il registro di porta, percorso di salute e unità systemd di ogni servizio, generato da `tools/sync_ports.py` |
 | `hydra/bridges/<name>/cmd/#` | dove ascolta un bridge; risponde su `.../<verbo>/result` |
@@ -180,7 +181,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 Test
 
-659 test automatici si eseguono con `python -m unittest discover -s clients/python/tests`. Gli altri client hanno le proprie suite: 28 test in Go (`go test ./...`), 105 in TypeScript (`npm test`) e 31 in Rust (`cargo test`), eseguiti da `tools/extra_build_steps.py` se la toolchain è installata. Nessuno richiede hardware.
+675 test automatici si eseguono con `python -m unittest discover -s clients/python/tests`. Gli altri client hanno le proprie suite: 28 test in Go (`go test ./...`), 121 in TypeScript (`npm test`) e 31 in Rust (`cargo test`), eseguiti da `tools/extra_build_steps.py` se la toolchain è installata. Nessuno richiede hardware.
 
 La CI esegue `HYDRA_UMC_CI=1 python tools/ci_validate.py`, che controlla il manifesto, i documenti, gli otto README e le immagini.
 

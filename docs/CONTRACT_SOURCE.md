@@ -187,3 +187,19 @@ these two routes.
 5. If a closed schema changes, change it in `contracts/json-schema/v1`, copy it
    into the vendored directories and regenerate the manifests as for any
    schema change.
+
+## What the clients do after they repin
+
+The routes below are in `server.full.openapi.json` from the SDK version that carries them, so a client that pins that
+version no longer needs to exempt them:
+
+* **HYDRA-UMC-STUDIO:** in `tests/restPaths.test.ts` the list `notYetInContract` (`/api/connections/clients`,
+  `/api/connections/events`, `/api/ecosystem/health`) is emptied and the filter that uses it is removed, so every route
+  the Studio calls must exist in the contract.
+* **HYDRA-UMC-SUITE:** in `tests/test_rest_routes.py` the set `NOT_YET_IN_CONTRACT` (the same three routes) is emptied
+  and the condition that uses it is removed.
+* Both change in the same commit as the repin (`python tools/pin_sdk.py`), because with the old pin the contract next to
+  them does not list the routes and the test would fail. A client that has not repinned keeps passing with its old pin.
+* A client that also wants the liveness of the robots, the heartbeat or the release of the global stop calls
+  `/api/robots/liveness`, `/api/robot/{id}/heartbeat` and `/api/stop-all/release`: they are in the same document, and the
+  answers are the `RobotLiveness` contract, `{success}` and `{success, announced}`.

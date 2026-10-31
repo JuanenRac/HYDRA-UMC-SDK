@@ -33,6 +33,8 @@ according to its use case.
 | `TwinState` | Digital twin, physics replica, HIL bridge | Server, Studio, Suite |
 | `ConnectionEvent` | Server (history of the clients that connect) | Studio, Suite, apps |
 | `ConnectionClient` | Server (list of the clients it has seen) | Studio, Suite, apps |
+| `EcosystemHealth` | Server (`GET /api/ecosystem/health`, off until an administrator turns it on) | Studio, Suite, apps, dashboard |
+| `RobotLiveness` | Server (`GET /api/robots/liveness`) | Studio, Suite, apps, OPC UA server |
 | `ProductionEvent` | Orchestrator, bridges, robots (one finished cycle) | Production reports, Data Lake |
 | `ProjectManifest` | Every repository (`hydra-umc.project.json` or `urtc.project.json`) | Updater, dashboard |
 
@@ -120,6 +122,17 @@ dependency-free tooling convention.
 the server generates from its routes (every route, with the status codes and
 the names of the body fields). The typed slice above never invents a route
 that this copy does not have; the tests check it.
+
+Both documents carry the routes that the server added after the connection pilot: `GET /api/ecosystem/health`
+(closed `EcosystemHealth` schema), `GET /api/robots/liveness` (closed `RobotLiveness` schema),
+`POST /api/robot/{id}/heartbeat` and `POST /api/stop-all/release` (answer `{success, announced}`: whether the
+retained `READY` went out on the MQTT bridge). The full copy also lists `GET /api/connections/clients`,
+`GET /api/connections/events` and the public `GET /health`. The typed slice (document version 1.4.0) describes the
+four routes above with the two closed schemas as components, so a typed client can use them without reading the
+full copy. What a route answers when it is switched off is part of its description: `GET /api/ecosystem/health`
+answers a plain `404` with no body until an administrator turns `ecosystemHealth.enabled` on (a viewer gets `403`).
+The two schemas are closed like the connection ones, so an address, a path or a key cannot slip into them;
+the port, health path, unit and active state of a service are optional because only an administrator receives them.
 
 ## Contract sources (pilot)
 

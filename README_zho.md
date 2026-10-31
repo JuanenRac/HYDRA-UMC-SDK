@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-659%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-675%20passing-2ea44f.svg" alt="Tests">
   <img src="https://img.shields.io/badge/Version-0.4.2-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **诚实检查——今天真正可运行的部分：** 十六个 JSON Schema v1 契约（各带一个有效和一个无效夹具）、Python 验证器、HYDRA-UMC-SERVER 的第一部分 OpenAPI v1、执行相同架构的 Go、TypeScript 和 Rust 客户端、桥接辅助代码和兼容性矩阵都是真实的，并已在计算机上测试（659 个 Python 测试，外加其他三个客户端的测试集）。Protobuf 尚未发布，作业门是共用的软件功能而不是经过认证的安全功能，这里的内容从未在真实硬件上运行。
+> **诚实检查——今天真正可运行的部分：** 十八个 JSON Schema v1 契约（各带一个有效和一个无效夹具）、Python 验证器、HYDRA-UMC-SERVER 的第一部分 OpenAPI v1、执行相同架构的 Go、TypeScript 和 Rust 客户端、桥接辅助代码和兼容性矩阵都是真实的，并已在计算机上测试（675 个 Python 测试，外加其他三个客户端的测试集）。Protobuf 尚未发布，作业门是共用的软件功能而不是经过认证的安全功能，这里的内容从未在真实硬件上运行。
 
 ---
 
@@ -40,7 +40,7 @@ GPL-3.0-or-later - see LICENSE
 |---|---|
 | 版本 | `0.4.2` |
 | 成熟度 | 成熟 |
-| 测试 | 659 (`python -m unittest discover -s clients/python/tests`) |
+| 测试 | 675 (`python -m unittest discover -s clients/python/tests`) |
 | 技术栈 | Python / TypeScript / Go / Rust / JSON Schema |
 | 真实硬件 | 尚未：此版本没有在真实硬件上运行的记录 |
 
@@ -55,7 +55,7 @@ GPL-3.0-or-later - see LICENSE
 | 领域 | 状态 | 在这里的含义 |
 |---|---|---|
 | 软件 | 🟢 | 就其用途而言已完整且稳定；上面的诚实性检查列出了已知限制 |
-| 测试 | 🟢 | 659 项自动测试，每次变更都会运行 |
+| 测试 | 🟢 | 675 项自动测试，每次变更都会运行 |
 | 真实硬件 | 🔴 | 尚未：此版本没有在真实硬件上运行的记录 |
 | 文档 | 🟢 | 八种语言的 README，每次变更都会与清单核对 |
 
@@ -87,12 +87,13 @@ OpenAPI v1 切片(`contracts/openapi/v1/server.openapi.json` - 参见
 
 一个真实、自动化的兼容性矩阵（`tools/verify_contract_matrix.py`）会将每个已发布的架构与 Python 验证器自身的合约列表进行交叉核对，并发现并修复了一个真实的缺口：`project-manifest.schema.json`（本生态系统中每个仓库都会发布的 `hydra-umc.project.json` 合约）此前完全没有验证器条目。现在它证明，每个一致性 fixture 都会按照其自身文件名所声明的方式被判定，此外还涵盖了未知合约和不兼容架构版本这两种情况。
 
-自下方"第一个里程碑"之后又新增了若干合约(现共 16 个):面向外部机器的公开桥接合约 `BridgeJob`/`GateDecision`(见 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)),由 `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER`/`-AMR`/`-DROIDS`/`-UAV` 共享,并拥有自己真实的 JSON 线上格式(`job_to_dict()`/`job_from_dict()`/`decision_to_dict()`)，以及由桥接器自己观测到的机器状态（闸门使用它而不是请求方声称的状态），还有一个作业接收器（`JobIntake`/`IdempotencyStore`），它忽略保留消息，并且绝不会执行同一幂等键两次;一个 `ScenarioOutcome` 合约加上 `compare_runs()`,即共享的"是否真的修复了"检查——当某个失败不再复现、但基线指纹从未改变时,返回 `apparent-success` 而非 `regression-fixed`;一个 `Operation` 合约加上 `validate_status_transition()`,即共享的目标/任务/操作生命周期——`received`/`authorized`/`queued`/`sent`/`confirmed`/`terminated`/`rejected`,绝不归入单一的"已执行"筐里;`Operation` 上新增可选的 `result` 字段加上 `concludes_success()`——真实证据(`run_id`/`origin`/`observers_enabled`/`outcome`)拒绝从过期/重放的结果或观测被禁用的运行中得出成功结论;一个独立的 `Capability` 合约加上 `is_capability_usable()`——某个目标是否*声明*支持某个操作 `kind`,被建模为与该支持是否*最近被真实验证过*(`last_checked_at_utc`/`checked_configuration`/`max_age_seconds`)不同的数据,从而已声明但从未验证或已过期的能力绝不会被默默当作可用;以及一个 `hydra-umc-sdk-mock-server`(`mock_server.py`),通过普通 HTTP 为每个已知合约提供一份有效的示例负载,便于在真实的 CM5/机器人/MCU 硬件就绪之前开发 UI 或适配器。全部 10 个合约都至少各有一个有效和一个无效的一致性 fixture,已通过上述兼容性矩阵验证。
+自下方"第一个里程碑"之后又新增了若干合约(现共 18 个):面向外部机器的公开桥接合约 `BridgeJob`/`GateDecision`(见 [docs/BRIDGE_CONTRACT.md](docs/BRIDGE_CONTRACT.md)),由 `HYDRA-UMC-BRIDGE-ROS2`/`-OPENPNP`/`-PRINTER3D`/`-CNC`/`-LASER`/`-AMR`/`-DROIDS`/`-UAV` 共享,并拥有自己真实的 JSON 线上格式(`job_to_dict()`/`job_from_dict()`/`decision_to_dict()`)，以及由桥接器自己观测到的机器状态（闸门使用它而不是请求方声称的状态），还有一个作业接收器（`JobIntake`/`IdempotencyStore`），它忽略保留消息，并且绝不会执行同一幂等键两次;一个 `ScenarioOutcome` 合约加上 `compare_runs()`,即共享的"是否真的修复了"检查——当某个失败不再复现、但基线指纹从未改变时,返回 `apparent-success` 而非 `regression-fixed`;一个 `Operation` 合约加上 `validate_status_transition()`,即共享的目标/任务/操作生命周期——`received`/`authorized`/`queued`/`sent`/`confirmed`/`terminated`/`rejected`,绝不归入单一的"已执行"筐里;`Operation` 上新增可选的 `result` 字段加上 `concludes_success()`——真实证据(`run_id`/`origin`/`observers_enabled`/`outcome`)拒绝从过期/重放的结果或观测被禁用的运行中得出成功结论;一个独立的 `Capability` 合约加上 `is_capability_usable()`——某个目标是否*声明*支持某个操作 `kind`,被建模为与该支持是否*最近被真实验证过*(`last_checked_at_utc`/`checked_configuration`/`max_age_seconds`)不同的数据,从而已声明但从未验证或已过期的能力绝不会被默默当作可用;以及一个 `hydra-umc-sdk-mock-server`(`mock_server.py`),通过普通 HTTP 为每个已知合约提供一份有效的示例负载,便于在真实的 CM5/机器人/MCU 硬件就绪之前开发 UI 或适配器。全部 10 个合约都至少各有一个有效和一个无效的一致性 fixture,已通过上述兼容性矩阵验证。
 
 ### 路由单一来源、消息契约和可加固的桥接传输
 
 - **一组服务器路由的单一来源（试点：连接路由）：** `contracts/sources/connections.routes.json` 在封闭的 `ConnectionClient` 和 `ConnectionEvent` 模式之上声明 `GET /api/connections/clients` 和 `GET /api/connections/events`（访问权限、状态码、查询参数），`python tools/contract_source.py` 据此生成 `contracts/openapi/v1/server.connections.openapi.json`。当生成的文档过期、随附的模式副本不同，或服务器的路由或枚举偏离来源时，`--check` 会失败。参见 [`docs/CONTRACT_SOURCE.md`](docs/CONTRACT_SOURCE.md)。
 - **消息契约：** `MqttPublish` 带有 `qos`（0、1 或 2），`ProductionEvent` 描述一个完成的周期（`source_id`、`at_utc`、`good`、`cycle_time_s`），生产报告会把它换算为 OEE。
+- **试点之后服务器新增的路由及其类型化契约：** `contracts/openapi/v1/server.full.openapi.json` 列出 `GET /api/ecosystem/health`、`GET /api/robots/liveness`、`POST /api/robot/{id}/heartbeat`、`POST /api/stop-all/release`、连接路由和公开的 `GET /health`，类型化部分描述前四个。两个新的封闭契约 `EcosystemHealth`（每个服务的状态、原因代码和版本偏差，以及服务器证书的状态）和 `RobotLiveness`（每个机器人为 live、stale 或 unknown）由 Python 客户端校验，并连同哈希、夹具和差分测试一起内置于 Go、Rust 和 TypeScript 客户端。见 [`docs/CONTRACTS.md`](docs/CONTRACTS.md)。
 - **可以加固的桥接传输，所有限制默认关闭：** `MessageDispatcher(..., max_queue=N, max_payload_bytes=N)` 限制排在正在运行的命令之后等待的命令（丢弃并计数最旧的一个），并拒绝过大的负载；停止通道从不受限，停止动词不受上限约束。`stats()` 返回 `dropped`、`oversized` 和 `queued` 计数。`connect_with_retry` 和 `open_bridge_client` 为首次连接提供带抖动的指数等待，`reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` 设置 MQTT 客户端的重连延迟。参见 [`docs/PYTHON_CLIENT.md`](docs/PYTHON_CLIENT.md)。
 
 ## 🔒 安全与防护
@@ -112,7 +113,7 @@ OpenAPI v1 切片(`contracts/openapi/v1/server.openapi.json` - 参见
 
 | 主题或路由 | 内容 |
 |---|---|
-| `contracts/json-schema/v1/` | 十六个 JSON Schema v1 契约：能力、设备描述符、事件信封、健康报告、操作、项目清单、安全状态、场景结果、服务器发现、更新清单、连接客户端、连接事件、位姿、生产事件、机器人状态、孪生状态 |
+| `contracts/json-schema/v1/` | 十八个 JSON Schema v1 契约：能力、设备描述符、事件信封、健康报告、操作、项目清单、安全状态、场景结果、服务器发现、更新清单、连接客户端、连接事件、位姿、生产事件、机器人状态、孪生状态、生态系统健康状态、机器人存活信号 |
 | `contracts/openapi/v1/server.openapi.json` | HYDRA-UMC-SERVER 的第一部分 OpenAPI v1：发现、登录、设置和命令（服务器自身 `docs/openapi.json` 的子集） |
 | `contracts/ports.yaml` | 每个服务的端口、健康路径和 systemd 单元登记表，由 `tools/sync_ports.py` 生成 |
 | `hydra/bridges/<name>/cmd/#` | 桥接监听的位置；应答发到 `.../<动词>/result` |
@@ -142,7 +143,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 测试
 
-运行 `python -m unittest discover -s clients/python/tests` 会执行 659 个自动测试。 其他客户端有各自的测试集：Go 28 个（`go test ./...`）、TypeScript 105 个（`npm test`）、Rust 31 个（`cargo test`），安装了工具链时由 `tools/extra_build_steps.py` 运行。都不需要硬件。
+运行 `python -m unittest discover -s clients/python/tests` 会执行 675 个自动测试。 其他客户端有各自的测试集：Go 28 个（`go test ./...`）、TypeScript 121 个（`npm test`）、Rust 31 个（`cargo test`），安装了工具链时由 `tools/extra_build_steps.py` 运行。都不需要硬件。
 
 CI 运行 `HYDRA_UMC_CI=1 python tools/ci_validate.py`，检查清单、文档、八个 README 和图片。
 

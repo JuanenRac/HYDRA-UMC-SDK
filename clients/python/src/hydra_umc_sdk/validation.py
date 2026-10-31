@@ -38,6 +38,8 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "TwinState": ("schema_version", "source", "frame", "timestamp_utc", "joint_states"),
     "RobotState": ("schema_version", "robot_id", "state", "updated_at_utc"),
     "ProductionEvent": ("schema_version", "source_id", "at_utc", "good", "cycle_time_s"),
+    "EcosystemHealth": ("schema_version", "generated_at_utc", "available", "summary", "services", "certificate", "warnings"),
+    "RobotLiveness": ("schema_version", "stale_after_s", "robots"),
     "ConnectionEvent": ("schema_version", "id", "at_utc", "action", "client_kind", "client_id"),
     "ConnectionClient": ("schema_version", "id", "kind", "first_seen_utc", "last_seen_utc", "active_sessions", "logins_ok", "logins_failed"),
     "ServerDiscovery": ("schema_version", "product", "remoteApiVersion", "appVersion", "hostname", "controllerCount", "robotCount", "uptimeSeconds"),
@@ -217,6 +219,16 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
         from .production_event import validate_production_event  # imported here: production_event.py needs this module's error type
 
         validate_production_event(payload)
+        return
+    if contract == "EcosystemHealth":
+        from .ecosystem import validate_ecosystem_health  # imported here: ecosystem.py needs this module's error type
+
+        validate_ecosystem_health(payload)
+        return
+    if contract == "RobotLiveness":
+        from .ecosystem import validate_robot_liveness  # imported here: ecosystem.py needs this module's error type
+
+        validate_robot_liveness(payload)
         return
     if contract == "ConnectionEvent":
         from .connection import validate_connection_event  # imported here: connection.py needs this module's error type

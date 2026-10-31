@@ -105,6 +105,36 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "good": True,
         "cycle_time_s": 42.5,
     },
+    "EcosystemHealth": {
+        "schema_version": "1.0",
+        "generated_at_utc": "2024-01-01T00:00:00Z",
+        "available": True,
+        "summary": {"total": 1, "ok": 1, "degraded": 0, "down": 0, "unknown": 0, "drift": 0},
+        "services": [
+            {
+                "name": "HYDRA-UMC-DATALAKE",
+                "family": "hydra-umc",
+                "role": "service",
+                "state": "ok",
+                "reason": "health_ok",
+                "version_expected": "0.1.0",
+                "version_reported": "0.1.0",
+                "drift": False,
+                "last_seen_utc": "2024-01-01T00:00:00Z",
+                "latency_ms": 4,
+            }
+        ],
+        "certificate": None,
+        "warnings": [],
+    },
+    "RobotLiveness": {
+        "schema_version": "1.0",
+        "stale_after_s": 30,
+        "robots": [
+            {"controller_id": "c1", "robot_id": 1, "state": "live", "last_update_utc": "2024-01-01T00:00:00Z", "age_s": 4, "source": "state"},
+            {"controller_id": "c1", "robot_id": 2, "state": "unknown"},
+        ],
+    },
     "ConnectionEvent": {
         "schema_version": "1.0",
         "id": 1,

@@ -18,6 +18,10 @@
       "sha256": "d82f8188b0a0d26d3fac722915823bc6af34cf1d0ee445fea85b980a1a721b09"
     },
     {
+      "file": "ecosystem-health.schema.json",
+      "sha256": "68e19ec7a5e08967671acf767a53e32414877f9d4a4bdcb2dc617f3e11c6088f"
+    },
+    {
       "file": "event-envelope.schema.json",
       "sha256": "16ed230b5967b48a5a42597956687d419bcdefd013719e8c3a725a47d24aceeb"
     },
@@ -40,6 +44,10 @@
     {
       "file": "project-manifest.schema.json",
       "sha256": "a88438d6d9875ed688c979cf8eaba5b2702d25b6fbe3765c9f0c3898a9869929"
+    },
+    {
+      "file": "robot-liveness.schema.json",
+      "sha256": "91e4a886ab1a4678f85503f5e2516d2e78e82148e7107394b0cad13b3094faa9"
     },
     {
       "file": "robot-state.schema.json",

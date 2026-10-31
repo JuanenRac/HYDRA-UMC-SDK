@@ -59,6 +59,58 @@
           }
         }
       },
+      "TotpStatus": {
+        "type": "object",
+        "required": [
+          "enabled",
+          "recoveryLeft"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "recoveryLeft": {
+            "type": "integer"
+          }
+        }
+      },
+      "TotpEnrolment": {
+        "type": "object",
+        "required": [
+          "success",
+          "secret",
+          "uri"
+        ],
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "secret": {
+            "type": "string"
+          },
+          "uri": {
+            "type": "string"
+          }
+        }
+      },
+      "TotpConfirmed": {
+        "type": "object",
+        "required": [
+          "success",
+          "recoveryCodes"
+        ],
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "recoveryCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "SystemMetrics": {
         "type": "object",
         "required": [
@@ -184,6 +236,10 @@
           },
           "persisted": {
             "type": "boolean"
+          },
+          "announced": {
+            "type": "boolean",
+            "description": "Present only when announcing a global stop is configured (safety.publishGlobalStop): whether the retained SAFE_STOP went out on the MQTT bridge."
           },
           "robots": {
             "type": "array",
@@ -584,6 +640,15 @@
           "interpretation": {
             "type": "object"
           },
+          "messageCode": {
+            "type": "string"
+          },
+          "messageParams": {
+            "type": "object"
+          },
+          "textLanguage": {
+            "type": "string"
+          },
           "confirmationToken": {
             "type": "string"
           },
@@ -716,6 +781,463 @@
             "type": "array",
             "items": {
               "type": "object"
+            }
+          }
+        }
+      },
+      "ConnectionClient": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_version",
+          "id",
+          "kind",
+          "first_seen_utc",
+          "last_seen_utc",
+          "active_sessions",
+          "logins_ok",
+          "logins_failed"
+        ],
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "enum": [
+              "1.0"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{16}$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "studio",
+              "suite",
+              "android",
+              "ios",
+              "dsi",
+              "watch",
+              "voice",
+              "other"
+            ]
+          },
+          "user": {
+            "type": "string"
+          },
+          "app_version": {
+            "type": "string",
+            "pattern": "^[0-9A-Za-z._-]{1,24}$"
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "local",
+              "remote"
+            ]
+          },
+          "two_factor": {
+            "type": "boolean"
+          },
+          "first_seen_utc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "last_seen_utc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "last_failure_utc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "active_sessions": {
+            "type": "integer"
+          },
+          "logins_ok": {
+            "type": "integer"
+          },
+          "logins_failed": {
+            "type": "integer"
+          },
+          "ip": {
+            "type": "string",
+            "description": "Administrators only, and only when connections.recordAddress is on."
+          },
+          "agent": {
+            "type": "string",
+            "description": "Administrators only, and only when connections.recordAddress is on."
+          }
+        }
+      },
+      "ConnectionEvent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_version",
+          "id",
+          "at_utc",
+          "action",
+          "client_kind",
+          "client_id"
+        ],
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "enum": [
+              "1.0"
+            ]
+          },
+          "id": {
+            "type": "integer"
+          },
+          "at_utc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "first_seen",
+              "login",
+              "login_failed",
+              "second_factor_failed",
+              "logout",
+              "session_ended",
+              "session_expired"
+            ]
+          },
+          "client_kind": {
+            "type": "string",
+            "enum": [
+              "studio",
+              "suite",
+              "android",
+              "ios",
+              "dsi",
+              "watch",
+              "voice",
+              "other"
+            ]
+          },
+          "client_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{16}$"
+          },
+          "user": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "local",
+              "remote"
+            ]
+          },
+          "two_factor": {
+            "type": "boolean"
+          },
+          "app_version": {
+            "type": "string",
+            "pattern": "^[0-9A-Za-z._-]{1,24}$"
+          },
+          "ip": {
+            "type": "string",
+            "description": "Administrators only, and only when connections.recordAddress is on."
+          },
+          "agent": {
+            "type": "string",
+            "description": "Administrators only, and only when connections.recordAddress is on."
+          }
+        }
+      },
+      "GlobalStopReleased": {
+        "type": "object",
+        "required": [
+          "success",
+          "announced"
+        ],
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "announced": {
+            "type": "boolean",
+            "description": "Whether the retained READY went out on the MQTT bridge (false when announcing is not configured or the broker is not connected)."
+          }
+        }
+      },
+      "HealthReport": {
+        "type": "object",
+        "required": [
+          "schema_version",
+          "state",
+          "timestamp_utc",
+          "checks"
+        ],
+        "description": "The HealthReport contract of the SDK. Nothing else about the host is in it.",
+        "properties": {
+          "schema_version": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "timestamp_utc": {
+            "type": "string"
+          },
+          "checks": {
+            "type": "object"
+          },
+          "service": {
+            "type": "string"
+          }
+        }
+      },
+      "RobotLiveness": {
+        "type": "object",
+        "required": [
+          "schema_version",
+          "stale_after_s",
+          "robots"
+        ],
+        "properties": {
+          "schema_version": {
+            "type": "string"
+          },
+          "stale_after_s": {
+            "type": "integer"
+          },
+          "robots": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "controller_id",
+                "robot_id",
+                "state"
+              ],
+              "description": "state is live (news within stale_after_s), stale (older news) or unknown (none since the server started). The flag online of the roster is not read.",
+              "properties": {
+                "controller_id": {
+                  "type": "string"
+                },
+                "robot_id": {
+                  "type": "integer"
+                },
+                "state": {
+                  "type": "string"
+                },
+                "last_update_utc": {
+                  "type": "string"
+                },
+                "age_s": {
+                  "type": "integer"
+                },
+                "source": {
+                  "type": "string",
+                  "description": "state (a command or a change of its state) or heartbeat."
+                }
+              }
+            }
+          }
+        }
+      },
+      "EcosystemHealth": {
+        "type": "object",
+        "required": [
+          "schema_version",
+          "generated_at_utc",
+          "available",
+          "summary",
+          "services",
+          "certificate",
+          "warnings"
+        ],
+        "description": "The health of the services of the ecosystem. Only on a server where ecosystemHealth.enabled is on (404 otherwise); for an operator or an administrator. The port, health path, unit and active state of a service are only in the answer to an administrator.",
+        "properties": {
+          "schema_version": {
+            "type": "string"
+          },
+          "generated_at_utc": {
+            "type": "string"
+          },
+          "available": {
+            "type": "boolean",
+            "description": "False when the sibling checkouts could not be scanned (no services then)."
+          },
+          "summary": {
+            "type": "object",
+            "required": [
+              "total",
+              "ok",
+              "degraded",
+              "down",
+              "unknown",
+              "drift"
+            ],
+            "properties": {
+              "total": {
+                "type": "integer"
+              },
+              "ok": {
+                "type": "integer"
+              },
+              "degraded": {
+                "type": "integer"
+              },
+              "down": {
+                "type": "integer"
+              },
+              "unknown": {
+                "type": "integer"
+              },
+              "drift": {
+                "type": "integer"
+              }
+            }
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "family",
+                "role",
+                "state",
+                "reason",
+                "version_expected",
+                "version_reported",
+                "drift",
+                "last_seen_utc",
+                "latency_ms"
+              ],
+              "description": "state is ok, degraded, down or unknown; reason is a short code the clients translate. version_expected comes from the manifest, version_reported from the HealthReport of the service; drift is true only when both are known and differ.",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "family": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "role": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "state": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "version_expected": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "version_reported": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "drift": {
+                  "type": "boolean"
+                },
+                "last_seen_utc": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "latency_ms": {
+                  "type": "integer",
+                  "nullable": true
+                },
+                "port": {
+                  "type": "integer",
+                  "nullable": true,
+                  "description": "Administrators only."
+                },
+                "health_path": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Administrators only."
+                },
+                "systemd_unit": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Administrators only."
+                },
+                "active_state": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Administrators only."
+                }
+              }
+            }
+          },
+          "certificate": {
+            "type": "object",
+            "nullable": true,
+            "description": "The TLS certificate of this server; null when it runs without TLS. state is ok, expiring (fewer days left than warn_days), expired or unreadable.",
+            "properties": {
+              "state": {
+                "type": "string"
+              },
+              "not_after_utc": {
+                "type": "string",
+                "nullable": true
+              },
+              "days_left": {
+                "type": "integer",
+                "nullable": true
+              },
+              "warn_days": {
+                "type": "integer"
+              }
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "code"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "service": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ConnectionClientList": {
+        "type": "object",
+        "required": [
+          "clients"
+        ],
+        "properties": {
+          "clients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConnectionClient"
+            }
+          }
+        }
+      },
+      "ConnectionEventList": {
+        "type": "object",
+        "required": [
+          "events"
+        ],
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConnectionEvent"
             }
           }
         }
@@ -1747,6 +2269,185 @@
         ]
       }
     },
+    "/api/connections/clients": {
+      "get": {
+        "tags": [
+          "connections"
+        ],
+        "summary": "GET /api/connections/clients",
+        "description": "Requires a signed-in account (bearer token).",
+        "x-access": "user",
+        "responses": {
+          "200": {
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionClientList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "active",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/connections/events": {
+      "get": {
+        "tags": [
+          "connections"
+        ],
+        "summary": "GET /api/connections/events",
+        "description": "Requires a signed-in account (bearer token).",
+        "x-access": "user",
+        "responses": {
+          "200": {
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionEventList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/ecosystem/health": {
+      "get": {
+        "tags": [
+          "ecosystem"
+        ],
+        "summary": "GET /api/ecosystem/health",
+        "description": "Requires a signed-in account (bearer token).",
+        "x-access": "user",
+        "responses": {
+          "200": {
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EcosystemHealth"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/ecosystem/service/{unit}/{action}": {
       "post": {
         "tags": [
@@ -2130,6 +2831,9 @@
                     "type": "string"
                   },
                   "password": {
+                    "type": "string"
+                  },
+                  "totp": {
                     "type": "string"
                   }
                 }
@@ -2610,6 +3314,16 @@
                 }
               }
             }
+          },
+          "423": {
+            "description": "Response. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "parameters": [
@@ -2653,6 +3367,53 @@
         ]
       }
     },
+    "/api/robot/{id}/heartbeat": {
+      "post": {
+        "tags": [
+          "robot"
+        ],
+        "summary": "POST /api/robot/{id}/heartbeat",
+        "description": "Requires a signed-in account (bearer token).",
+        "x-access": "user",
+        "responses": {
+          "200": {
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/robot/{id}/jog-arm": {
       "post": {
         "tags": [
@@ -2687,6 +3448,16 @@
           },
           "409": {
             "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Response. The body is documented in docs/REMOTE_API.md.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2810,6 +3581,33 @@
                   "reason": {
                     "type": "string"
                   }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/robots/liveness": {
+      "get": {
+        "tags": [
+          "robots"
+        ],
+        "summary": "GET /api/robots/liveness",
+        "description": "Requires a signed-in account (bearer token).",
+        "x-access": "user",
+        "responses": {
+          "200": {
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RobotLiveness"
                 }
               }
             }
@@ -2980,6 +3778,33 @@
           }
         ],
         "x-rate-limited": true
+      }
+    },
+    "/api/stop-all/release": {
+      "post": {
+        "tags": [
+          "stop-all"
+        ],
+        "summary": "POST /api/stop-all/release",
+        "description": "Requires a signed-in account with the admin role.",
+        "x-access": "admin",
+        "responses": {
+          "200": {
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GlobalStopReleased"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/api/system/bluetooth/pair": {
@@ -3389,7 +4214,14 @@
         "x-access": "user",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md."
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TotpEnrolment"
+                }
+              }
+            }
           },
           "401": {
             "description": "Not signed in or token rejected. The body is documented in docs/REMOTE_API.md.",
@@ -3413,14 +4245,18 @@
           }
         },
         "requestBody": {
-          "required": false,
-          "description": "JSON body. Only the field names the handler reads are listed; types and limits are checked in the handler.",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
+                "required": [
+                  "password"
+                ],
                 "properties": {
-                  "password": {}
+                  "password": {
+                    "type": "string"
+                  }
                 }
               }
             }
@@ -3443,7 +4279,14 @@
         "x-access": "user",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md."
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TotpConfirmed"
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
@@ -3457,14 +4300,18 @@
           }
         },
         "requestBody": {
-          "required": false,
-          "description": "JSON body. Only the field names the handler reads are listed; types and limits are checked in the handler.",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
+                "required": [
+                  "code"
+                ],
                 "properties": {
-                  "code": {}
+                  "code": {
+                    "type": "string"
+                  }
                 }
               }
             }
@@ -3487,7 +4334,14 @@
         "x-access": "user",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md."
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
           },
           "401": {
             "description": "Not signed in or token rejected. The body is documented in docs/REMOTE_API.md.",
@@ -3511,15 +4365,22 @@
           }
         },
         "requestBody": {
-          "required": false,
-          "description": "JSON body. Only the field names the handler reads are listed; types and limits are checked in the handler.",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
+                "required": [
+                  "password",
+                  "code"
+                ],
                 "properties": {
-                  "code": {},
-                  "password": {}
+                  "password": {
+                    "type": "string"
+                  },
+                  "code": {
+                    "type": "string"
+                  }
                 }
               }
             }
@@ -3542,7 +4403,14 @@
         "x-access": "user",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md."
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TotpStatus"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -3847,7 +4715,14 @@
         "x-access": "admin",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md."
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
           },
           "404": {
             "description": "Not found. The body is documented in docs/REMOTE_API.md.",
@@ -4016,6 +4891,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "locale": {},
                   "requestId": {},
                   "subject": {}
                 }
@@ -4055,6 +4931,38 @@
             "bearerAuth": []
           }
         ]
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "GET /health",
+        "description": "No authentication required by the route itself.",
+        "x-access": "public",
+        "responses": {
+          "200": {
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthReport"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/metrics": {

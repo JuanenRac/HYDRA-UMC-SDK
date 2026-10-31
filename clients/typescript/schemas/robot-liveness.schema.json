@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/robot-liveness.schema.json",
+  "title": "RobotLiveness",
+  "description": "The signal of life of each robot of the roster that a server answers at GET /api/robots/liveness: live when the server had news of the robot within stale_after_s, stale when the last news is older and unknown when there has been none since the server started. It is news the server received, not a measurement of the hardware, and it is not the online flag of the settings.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "stale_after_s",
+    "robots"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "stale_after_s": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3600
+    },
+    "robots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "controller_id",
+          "robot_id",
+          "state"
+        ],
+        "properties": {
+          "controller_id": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "robot_id": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "state": {
+            "enum": [
+              "live",
+              "stale",
+              "unknown"
+            ]
+          },
+          "last_update_utc": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Absent while the state is unknown."
+          },
+          "age_s": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Absent while the state is unknown."
+          },
+          "source": {
+            "enum": [
+              "state",
+              "heartbeat"
+            ],
+            "description": "Absent while the state is unknown."
+          }
+        }
+      }
+    }
+  }
+}

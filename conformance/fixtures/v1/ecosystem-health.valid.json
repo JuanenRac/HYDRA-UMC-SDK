@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0",
+  "generated_at_utc": "2026-01-02T10:00:05Z",
+  "available": true,
+  "summary": {
+    "total": 3,
+    "ok": 1,
+    "degraded": 1,
+    "down": 1,
+    "unknown": 0,
+    "drift": 1
+  },
+  "services": [
+    {
+      "name": "HYDRA-UMC-DATALAKE",
+      "family": "hydra-umc",
+      "role": "service",
+      "state": "ok",
+      "reason": "health_ok",
+      "version_expected": "0.4.2",
+      "version_reported": "0.4.2",
+      "drift": false,
+      "last_seen_utc": "2026-01-02T10:00:00Z",
+      "latency_ms": 7,
+      "port": 8800,
+      "health_path": "/health",
+      "systemd_unit": "hydra-umc-datalake.service",
+      "active_state": "active"
+    },
+    {
+      "name": "HYDRA-UMC-TWIN",
+      "family": "hydra-umc",
+      "role": "service",
+      "state": "degraded",
+      "reason": "health_degraded",
+      "version_expected": "0.4.2",
+      "version_reported": "0.3.9",
+      "drift": true,
+      "last_seen_utc": "2026-01-02T10:00:00Z",
+      "latency_ms": 7,
+      "port": 8800,
+      "health_path": "/health",
+      "systemd_unit": "hydra-umc-datalake.service",
+      "active_state": "active"
+    },
+    {
+      "name": "HYDRA-UMC-VISION-NODE",
+      "family": "hydra-umc",
+      "role": "service",
+      "state": "down",
+      "reason": "unreachable",
+      "version_expected": "0.3.0",
+      "version_reported": null,
+      "drift": false,
+      "last_seen_utc": null,
+      "latency_ms": null,
+      "port": 8810,
+      "health_path": "/health",
+      "systemd_unit": null,
+      "active_state": null
+    }
+  ],
+  "certificate": {
+    "state": "expiring",
+    "not_after_utc": "2026-01-20T00:00:00Z",
+    "days_left": 17,
+    "warn_days": 30
+  },
+  "warnings": [
+    {
+      "code": "certificate_expiring"
+    },
+    {
+      "code": "service_degraded",
+      "service": "HYDRA-UMC-TWIN"
+    },
+    {
+      "code": "version_drift",
+      "service": "HYDRA-UMC-TWIN"
+    },
+    {
+      "code": "service_down",
+      "service": "HYDRA-UMC-VISION-NODE"
+    }
+  ]
+}

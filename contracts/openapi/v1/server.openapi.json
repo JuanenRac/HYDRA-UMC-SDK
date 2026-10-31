@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "HYDRA-UMC-SERVER API",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "description": "OpenAPI description of the part of HYDRA-UMC-SERVER's HTTP surface that a typed client needs to discover a server, sign in, read and write its fleet roster and dispatch a robot command. It is a subset: the server's own docs/openapi.json is generated from the server and lists every route (administration, cameras, CAN OTA, system services and more), so use that one when a route is not here. Response objects may gain fields: a client must ignore the ones it does not know. Every route except GET /api/hydra-info, POST /api/login, POST /api/refresh and POST /api/logout needs `Authorization: Bearer <token>`. One disclosed difference with docs/API_DESIGN.md: that design describes command results as ACCEPTED/REJECTED/RUNNING/COMPLETED/FAILED with a correlation identifier, while POST /api/robot/{id}/command replies with a plain {success, affectedCount} once the change has been applied and broadcast. Contract v2, block 1 (claims by controller, jog arming and the server-side safety limits) is described by the routes tagged `claims` and `safety`; a client that sends no `controllerId` gets the v1 behaviour. Contract v2, blocks 2 to 5: `GET /api/robot/{id}` answers one robot with its revision (the `ETag`), `If-Match` on `command`, `claim` and `release` is answered with `412` when the robot changed, the `table` command moves the XY table in one request, `GET /api/audit` (administrators) reads the audit record, and the WebSocket message `claims` (clients that opened `/ws` with `?remoteApiVersion=2`) pushes the list of `GET /api/claims`.",
     "license": {
       "name": "CC-BY-SA-4.0",
@@ -39,6 +39,10 @@
     {
       "name": "safety",
       "description": "Limits kept in the server (jog size, bed temperature) and the explicit arming of the jog."
+    },
+    {
+      "name": "ecosystem",
+      "description": "The read-only health of the services of the ecosystem."
     }
   ],
   "paths": {
@@ -1211,6 +1215,195 @@
           },
           "404": {
             "description": "`audit-unavailable`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ecosystem/health": {
+      "get": {
+        "tags": [
+          "ecosystem"
+        ],
+        "operationId": "getEcosystemHealth",
+        "summary": "The health of the services of the ecosystem (operators and administrators)",
+        "description": "Read only. It answers only once an administrator turned on `ecosystemHealth.enabled`; while it is off a signed-in client gets a plain `404` with no body, exactly as a server without the route would answer. A viewer gets `403`. The port, health path, unit and active state of each service are only in the answer to an administrator.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The health of the ecosystem.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EcosystemHealth"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The health could not be read.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/robots/liveness": {
+      "get": {
+        "tags": [
+          "fleet"
+        ],
+        "operationId": "getRobotsLiveness",
+        "summary": "The signal of life of each robot of the roster",
+        "description": "`live` when the server had news of the robot (a command it carried out, a change of its state or a heartbeat) within `stale_after_s`, `stale` when the last news is older and `unknown` when there has been none since the server started. It is not the `online` flag of the settings and not a measurement of the hardware.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The liveness of every robot.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RobotLiveness"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/robot/{id}/heartbeat": {
+      "post": {
+        "tags": [
+          "fleet"
+        ],
+        "operationId": "postRobotHeartbeat",
+        "summary": "Tell the server that a robot is alive (administrators and operators)",
+        "description": "For a bridge or controller account that has real news of a robot. No body.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "A robot own numeric id."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The heartbeat was recorded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No robot with this id in the roster.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stop-all/release": {
+      "post": {
+        "tags": [
+          "safety"
+        ],
+        "operationId": "releaseGlobalStop",
+        "summary": "Say that the global stop is over (administrators)",
+        "description": "Publishes the retained `READY` on the MQTT bridge when announcing the global stop is configured (`announced: false` otherwise or when the broker is not connected). It moves no robot and is written to the audit record. No body.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The release was recorded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GlobalStopReleased"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account is not an administrator.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2534,6 +2727,402 @@
             "$ref": "#/components/schemas/ControllerId"
           }
         }
+      },
+      "EcosystemHealth": {
+        "title": "EcosystemHealth",
+        "description": "The read-only health of the services of the ecosystem that a server answers at GET /api/ecosystem/health: for each service that declares a port or a unit, whether it answers, the version it reports against the one its manifest expects, and the state of the TLS certificate of the server itself. The port, health path, unit and active state of a service are only in the answer to an administrator.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_version",
+          "generated_at_utc",
+          "available",
+          "summary",
+          "services",
+          "certificate",
+          "warnings"
+        ],
+        "properties": {
+          "schema_version": {
+            "const": "1.0"
+          },
+          "generated_at_utc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "available": {
+            "type": "boolean",
+            "description": "False when the sibling checkouts could not be scanned at all (then there are no services)."
+          },
+          "summary": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "total",
+              "ok",
+              "degraded",
+              "down",
+              "unknown",
+              "drift"
+            ],
+            "properties": {
+              "total": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "ok": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "degraded": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "down": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "unknown": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "drift": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "family",
+                "role",
+                "state",
+                "reason",
+                "version_expected",
+                "version_reported",
+                "drift",
+                "last_seen_utc",
+                "latency_ms"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                "family": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "role": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "state": {
+                  "enum": [
+                    "ok",
+                    "degraded",
+                    "down",
+                    "unknown"
+                  ]
+                },
+                "reason": {
+                  "enum": [
+                    "health_ok",
+                    "health_degraded",
+                    "health_failed",
+                    "http_error",
+                    "unreachable",
+                    "unreachable_unit_active",
+                    "reachable_unit_not_active",
+                    "unit_active",
+                    "unit_starting",
+                    "unit_failed",
+                    "unit_inactive",
+                    "no_signal",
+                    "probe_error"
+                  ]
+                },
+                "version_expected": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9A-Za-z][0-9A-Za-z._+-]{0,23}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "version_reported": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9A-Za-z][0-9A-Za-z._+-]{0,23}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "drift": {
+                  "type": "boolean",
+                  "description": "True only when both versions are known and differ."
+                },
+                "last_seen_utc": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "latency_ms": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "port": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 65535
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Administrators only."
+                },
+                "health_path": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Administrators only."
+                },
+                "systemd_unit": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Administrators only."
+                },
+                "active_state": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Administrators only."
+                }
+              }
+            }
+          },
+          "certificate": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "state",
+                  "not_after_utc",
+                  "days_left",
+                  "warn_days"
+                ],
+                "description": "The TLS certificate of the server itself; null when it runs without TLS. The path and the key are never part of it.",
+                "properties": {
+                  "state": {
+                    "enum": [
+                      "ok",
+                      "expiring",
+                      "expired",
+                      "unreadable"
+                    ]
+                  },
+                  "not_after_utc": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "days_left": {
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "warn_days": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 365
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code"
+              ],
+              "properties": {
+                "code": {
+                  "enum": [
+                    "certificate_expiring",
+                    "certificate_expired",
+                    "certificate_unreadable",
+                    "version_drift",
+                    "service_down",
+                    "service_degraded"
+                  ]
+                },
+                "service": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                }
+              }
+            }
+          }
+        }
+      },
+      "RobotLiveness": {
+        "title": "RobotLiveness",
+        "description": "The signal of life of each robot of the roster that a server answers at GET /api/robots/liveness: live when the server had news of the robot within stale_after_s, stale when the last news is older and unknown when there has been none since the server started. It is news the server received, not a measurement of the hardware, and it is not the online flag of the settings.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_version",
+          "stale_after_s",
+          "robots"
+        ],
+        "properties": {
+          "schema_version": {
+            "const": "1.0"
+          },
+          "stale_after_s": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3600
+          },
+          "robots": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "controller_id",
+                "robot_id",
+                "state"
+              ],
+              "properties": {
+                "controller_id": {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                "robot_id": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "state": {
+                  "enum": [
+                    "live",
+                    "stale",
+                    "unknown"
+                  ]
+                },
+                "last_update_utc": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Absent while the state is unknown."
+                },
+                "age_s": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Absent while the state is unknown."
+                },
+                "source": {
+                  "enum": [
+                    "state",
+                    "heartbeat"
+                  ],
+                  "description": "Absent while the state is unknown."
+                }
+              }
+            }
+          }
+        }
+      },
+      "GlobalStopReleased": {
+        "type": "object",
+        "required": [
+          "success",
+          "announced"
+        ],
+        "properties": {
+          "success": {
+            "const": true
+          },
+          "announced": {
+            "type": "boolean",
+            "description": "Whether the retained READY went out on the MQTT bridge. False when announcing the global stop is not configured or the broker is not connected."
+          }
+        },
+        "additionalProperties": true
       }
     },
     "parameters": {

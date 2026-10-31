@@ -42,6 +42,8 @@ CONTRACT_FILES = {
     "ConnectionEvent": "connection-event",
     "ConnectionClient": "connection-client",
     "ProductionEvent": "production-event",
+    "EcosystemHealth": "ecosystem-health",
+    "RobotLiveness": "robot-liveness",
 }
 
 
