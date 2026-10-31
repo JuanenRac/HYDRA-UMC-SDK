@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-643%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-659%20passing-2ea44f.svg" alt="Tests">
   <img src="https://img.shields.io/badge/Version-0.4.2-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **Honesty check - what actually runs today:** the ten JSON Schema v1 contracts with a valid and an invalid fixture each, the Python validator, the first OpenAPI v1 slice of HYDRA-UMC-SERVER, the Go, TypeScript and Rust clients that enforce the same schemas, the bridge helpers and the compatibility matrix are real and tested on a computer (643 Python tests, plus the suites of the other three clients). Protobuf is not published yet, the job gate is a shared software function and not a certified safety function, and nothing here has run on real hardware.
+> **Honesty check - what actually runs today:** the ten JSON Schema v1 contracts with a valid and an invalid fixture each, the Python validator, the first OpenAPI v1 slice of HYDRA-UMC-SERVER, the Go, TypeScript and Rust clients that enforce the same schemas, the bridge helpers and the compatibility matrix are real and tested on a computer (659 Python tests, plus the suites of the other three clients). Protobuf is not published yet, the job gate is a shared software function and not a certified safety function, and nothing here has run on real hardware.
 
 ---
 
@@ -40,7 +40,7 @@ GPL-3.0-or-later - see LICENSE
 |---|---|
 | Version | `0.4.2` |
 | Maturity | Established |
-| Tests | 643 (`python -m unittest discover -s clients/python/tests`) |
+| Tests | 659 (`python -m unittest discover -s clients/python/tests`) |
 | Stack | Python / TypeScript / Go / Rust / JSON Schema |
 | On real hardware | Not yet: no run on real hardware is recorded for this version |
 
@@ -55,7 +55,7 @@ Each line is one part of this repository and the light says how far it is today.
 | Area | State | What it means here |
 |---|---|---|
 | Software | 🟢 | Complete for its purpose and stable; the honesty check above lists the known limits |
-| Tests | 🟢 | 643 automated tests, run on every change |
+| Tests | 🟢 | 659 automated tests, run on every change |
 | Real hardware | 🔴 | Not yet: no run on real hardware is recorded for this version |
 | Documentation | 🟢 | README in eight languages, checked against the manifest on every change |
 
@@ -130,6 +130,7 @@ matrix above.
 | A bridge command outside its contract | A job carries at most 32 parameters, names of 64 characters, values of 1024 and identifiers of 128; the machine state the bridge observes is used instead of the one the requester claims | `bridge_contract.py` |
 | The same command run twice, or a retained message replayed | The job intake ignores retained messages and never runs an idempotency key twice | `job_intake.py` |
 | A stop waiting behind a long command | Ordinary commands run one at a time on one lane and the stop verbs run on a second lane | `bridge_transport.py` |
+| A flood of commands, a giant payload or a broker that stays down | Optional limits, off by default: a bounded queue that drops the oldest waiting command and counts it, a payload size cap (stop verbs exempt), exponential backoff with jitter for the first connect and configurable reconnect bounds | `bridge_transport.py` |
 | Broker credentials in a configuration file, or an unverified broker | User and password come from the environment or from a file, TLS can verify the broker against a CA, and a client certificate and key turn on mutual TLS | `mqtt_connection.py` |
 | A schema changed without the validator following | A compatibility matrix checks every published schema against the validator's contract list and judges every fixture by what its file name claims | `tools/verify_contract_matrix.py` |
 
@@ -169,7 +170,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 Testing
 
-643 automated tests run with `python -m unittest discover -s clients/python/tests`. The other clients have their own suites: 28 tests in Go (`go test ./...`), 105 in TypeScript (`npm test`) and 31 in Rust (`cargo test`), run by `tools/extra_build_steps.py` when the toolchain is installed. None needs hardware.
+659 automated tests run with `python -m unittest discover -s clients/python/tests`. The other clients have their own suites: 28 tests in Go (`go test ./...`), 105 in TypeScript (`npm test`) and 31 in Rust (`cargo test`), run by `tools/extra_build_steps.py` when the toolchain is installed. None needs hardware.
 
 The CI runs `HYDRA_UMC_CI=1 python tools/ci_validate.py`, which checks the manifest, the documents, the eight READMEs and the pictures.
 

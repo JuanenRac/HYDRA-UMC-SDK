@@ -365,5 +365,143 @@ class CurrentLimitsCharacterizationTests(unittest.TestCase):
         self.assertEqual(created[0].reconnect, (1, 30))
 
 
+class HardenedDispatcherTests(unittest.TestCase):
+    def test_a_slow_client_fills_the_queue_and_the_oldest_are_dropped(self):
+        release = threading.Event()
+        bridge = FakeBridge(release=release)
+        dispatcher = MessageDispatcher(bridge, PREFIX, max_queue=3)
+        client = FakeClient()
+        dispatcher.on_message(client, None, FakeMessage(PREFIX + "cmd/slow"))
+        for _ in range(100):  # let the slow command start so it is running, not waiting
+            if dispatcher._lane._futures and dispatcher._lane._futures[0].running():
+                break
+            threading.Event().wait(0.01)
+        for index in range(10):
+            dispatcher.on_message(client, None, FakeMessage(PREFIX + f"cmd/n{index}"))
+        self.assertEqual(dispatcher.stats(), {"dropped": 7, "oversized": 0, "queued": 3})
+        release.set()
+        dispatcher.close(wait=True)
+        self.assertEqual([seen[0] for seen in bridge.seen], [PREFIX + "cmd/slow", PREFIX + "cmd/n7", PREFIX + "cmd/n8", PREFIX + "cmd/n9"])
+        self.assertEqual(dispatcher.stats()["queued"], 0)
+
+    def test_a_bound_that_is_not_reached_drops_nothing(self):
+        bridge = FakeBridge()
+        bridge.expected = 5
+        dispatcher = MessageDispatcher(bridge, PREFIX, max_queue=50)
+        client = FakeClient()
+        for index in range(5):
+            dispatcher.on_message(client, None, FakeMessage(PREFIX + f"cmd/n{index}"))
+        dispatcher.close(wait=True)
+        self.assertEqual(len(bridge.seen), 5)
+        self.assertEqual(dispatcher.stats()["dropped"], 0)
+
+    def test_the_stop_lane_is_never_bounded(self):
+        release = threading.Event()
+        bridge = FakeBridge(release=release)
+        dispatcher = MessageDispatcher(bridge, PREFIX, frozenset({"cmd/stop"}), max_queue=1)
+        client = FakeClient()
+        dispatcher.on_message(client, None, FakeMessage(PREFIX + "cmd/slow"))
+        for _ in range(20):
+            dispatcher.on_message(client, None, FakeMessage(PREFIX + "cmd/stop"))
+        release.set()
+        dispatcher.close(wait=True)
+        self.assertEqual(sum(1 for seen in bridge.seen if seen[0].endswith("cmd/stop")), 20)
+        self.assertEqual(dispatcher.stats()["dropped"], 0)
+
+    def test_a_giant_payload_is_refused_before_it_is_queued(self):
+        bridge = FakeBridge()
+        dispatcher = MessageDispatcher(bridge, PREFIX, max_payload_bytes=1000)
+        client = FakeClient()
+        with self.assertLogs("hydra_umc_sdk.bridge_transport", level="WARNING"):
+            dispatcher.on_message(client, None, FakeMessage(PREFIX + "cmd/big", payload=b"x" * 1001))
+        dispatcher.on_message(client, None, FakeMessage(PREFIX + "cmd/ok", payload=b"x" * 1000))
+        dispatcher.close(wait=True)
+        self.assertEqual([seen[0] for seen in bridge.seen], [PREFIX + "cmd/ok"])
+        self.assertEqual(dispatcher.stats()["oversized"], 1)
+
+    def test_a_stop_verb_is_exempt_from_the_payload_limit(self):
+        bridge = FakeBridge()
+        dispatcher = MessageDispatcher(bridge, PREFIX, frozenset({"cmd/stop"}), max_payload_bytes=10)
+        dispatcher.on_message(FakeClient(), None, FakeMessage(PREFIX + "cmd/stop", payload=b"x" * 500))
+        dispatcher.close(wait=True)
+        self.assertEqual(len(bridge.seen), 1)
+        self.assertEqual(dispatcher.stats()["oversized"], 0)
+
+    def test_the_limits_are_validated(self):
+        for bad in (0, -1, True, 1.5, "3"):
+            with self.subTest(bad=bad):
+                with self.assertRaises(ValueError):
+                    MessageDispatcher(FakeBridge(), PREFIX, max_queue=bad)  # type: ignore[arg-type]
+                with self.assertRaises(ValueError):
+                    MessageDispatcher(FakeBridge(), PREFIX, max_payload_bytes=bad)  # type: ignore[arg-type]
+
+    def test_a_broker_that_stays_down_backs_off_exponentially_with_a_cap(self):
+        sleeps = []
+
+        def connect():
+            raise ConnectionRefusedError("down")
+
+        with self.assertRaises(RuntimeError):
+            connect_with_retry(connect, max_attempts=6, retry_delay_seconds=1.0, sleep=sleeps.append, backoff_factor=2.0, max_delay_seconds=6.0)
+        self.assertEqual(sleeps, [1.0, 2.0, 4.0, 6.0, 6.0])
+
+    def test_jitter_spreads_the_wait_with_an_injected_random_source(self):
+        sleeps = []
+
+        def connect():
+            raise OSError("down")
+
+        values = iter([0.0, 0.5, 0.999999])
+        with self.assertRaises(RuntimeError):
+            connect_with_retry(connect, max_attempts=4, retry_delay_seconds=10.0, sleep=sleeps.append, jitter=0.5, rng=lambda: next(values))
+        self.assertAlmostEqual(sleeps[0], 5.0)
+        self.assertAlmostEqual(sleeps[1], 10.0)
+        self.assertAlmostEqual(sleeps[2], 15.0, places=3)
+
+    def test_the_backoff_options_are_validated(self):
+        for options in ({"backoff_factor": 0.5}, {"jitter": 1.5}, {"jitter": -0.1}, {"max_delay_seconds": -1}):
+            with self.subTest(options=options), self.assertRaises(ValueError):
+                connect_with_retry(lambda: None, **options)
+
+    def test_a_broker_that_comes_back_stops_the_waiting(self):
+        sleeps, calls = [], []
+
+        def connect():
+            calls.append(1)
+            if len(calls) < 3:
+                raise TimeoutError("slow")
+
+        connect_with_retry(connect, retry_delay_seconds=1.0, backoff_factor=3.0, sleep=sleeps.append)
+        self.assertEqual(sleeps, [1.0, 3.0])
+
+    def test_the_reconnect_delays_are_configurable_and_validated(self):
+        module, created = fake_paho()
+        dispatcher = MessageDispatcher(FakeBridge(), PREFIX)
+        self.addCleanup(dispatcher.close, False)
+        open_bridge_client(
+            "h", 1, client_id="c", topic_prefix=PREFIX, dispatcher=dispatcher, mqtt_module=module,
+            reconnect_min_delay_seconds=0.5, reconnect_max_delay_seconds=120,
+        )
+        self.assertEqual(created[0].reconnect, (0.5, 120))
+        for low, high in ((0, 30), (5, 2), (-1, 3)):
+            with self.subTest(low=low, high=high), self.assertRaises(ValueError):
+                open_bridge_client(
+                    "h", 1, client_id="c", topic_prefix=PREFIX, dispatcher=dispatcher, mqtt_module=module,
+                    reconnect_min_delay_seconds=low, reconnect_max_delay_seconds=high,
+                )
+
+    def test_open_bridge_client_passes_the_first_connect_backoff_on(self):
+        module, _created = fake_paho()
+        dispatcher = MessageDispatcher(FakeBridge(), PREFIX)
+        self.addCleanup(dispatcher.close, False)
+        with mock.patch("hydra_umc_sdk.bridge_transport.connect_with_retry") as retry:
+            open_bridge_client(
+                "h", 1, client_id="c", topic_prefix=PREFIX, dispatcher=dispatcher, mqtt_module=module,
+                connect_retry_delay_seconds=1.0, connect_backoff_factor=4.0, connect_max_delay_seconds=3.0, connect_jitter=0.2,
+            )
+        kwargs = retry.call_args.kwargs
+        self.assertEqual((kwargs["retry_delay_seconds"], kwargs["backoff_factor"], kwargs["max_delay_seconds"], kwargs["jitter"]), (1.0, 4.0, 3.0, 0.2))
+
+
 if __name__ == "__main__":
     unittest.main()

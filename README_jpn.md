@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-643%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-659%20passing-2ea44f.svg" alt="Tests">
   <img src="https://img.shields.io/badge/Version-0.4.2-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **誠実性チェック - 今日実際に動くもの:** JSON Schema v1 の 10 件の契約（それぞれ有効・無効のフィクスチャ付き）、Python の検証器、HYDRA-UMC-SERVER の最初の OpenAPI v1 部分、同じスキーマを強制する Go・TypeScript・Rust のクライアント、ブリッジ用ヘルパー、互換性マトリクスは実在し、コンピューター上でテスト済みです（Python のテスト 643 件と、他の 3 つのクライアントのスイート）。Protobuf はまだ公開されておらず、ジョブゲートは共有のソフトウェア機能であって認証済みの安全機能ではなく、ここにあるものは実機では動かしていません。
+> **誠実性チェック - 今日実際に動くもの:** JSON Schema v1 の 10 件の契約（それぞれ有効・無効のフィクスチャ付き）、Python の検証器、HYDRA-UMC-SERVER の最初の OpenAPI v1 部分、同じスキーマを強制する Go・TypeScript・Rust のクライアント、ブリッジ用ヘルパー、互換性マトリクスは実在し、コンピューター上でテスト済みです（Python のテスト 659 件と、他の 3 つのクライアントのスイート）。Protobuf はまだ公開されておらず、ジョブゲートは共有のソフトウェア機能であって認証済みの安全機能ではなく、ここにあるものは実機では動かしていません。
 
 ---
 
@@ -40,7 +40,7 @@ GPL-3.0-or-later - see LICENSE
 |---|---|
 | バージョン | `0.4.2` |
 | 成熟度 | 確立 |
-| テスト | 643 (`python -m unittest discover -s clients/python/tests`) |
+| テスト | 659 (`python -m unittest discover -s clients/python/tests`) |
 | 技術 | Python / TypeScript / Go / Rust / JSON Schema |
 | 実機での確認 | まだです：このバージョンについて実機での動作記録はありません |
 
@@ -55,7 +55,7 @@ GPL-3.0-or-later - see LICENSE
 | 領域 | 状態 | ここでの意味 |
 |---|---|---|
 | ソフトウェア | 🟢 | 目的に対して完成していて安定しています。既知の制限は上の正直さの確認に書かれています |
-| テスト | 🟢 | 自動テスト 643 件。変更のたびに実行されます |
+| テスト | 🟢 | 自動テスト 659 件。変更のたびに実行されます |
 | 実機 | 🔴 | まだです：このバージョンについて実機での動作記録はありません |
 | ドキュメント | 🟢 | 8 言語の README。変更のたびにマニフェストと照合されます |
 
@@ -98,6 +98,7 @@ Protobuf の公開はその後の互換性マイルストーンです。Go、Typ
 | 契約から外れたブリッジコマンド | ジョブのパラメーターは最大 32 個、名前は 64 文字、値は 1024 文字、識別子は 128 文字まで。要求側が主張する状態ではなく、ブリッジが観測した機械状態を使います | `bridge_contract.py` |
 | 同じコマンドの二重実行、または保持メッセージの再生 | ジョブ受付は保持メッセージを無視し、同じ冪等キーを二度実行しません | `job_intake.py` |
 | 長いコマンドの後ろで待たされる停止 | 通常のコマンドは 1 本のレーンで順に、停止の動詞は 2 本目のレーンで実行されます | `bridge_transport.py` |
+| コマンドの洪水、巨大なペイロード、停止したままのブローカー | 任意の上限（既定ではオフ）：最も古い待機コマンドを破棄して数える上限付きキュー、ペイロードサイズの上限（停止の動詞は対象外）、最初の接続での指数バックオフとジッター、設定可能な再接続の範囲 | `bridge_transport.py` |
 | 設定ファイルにブローカーの認証情報がある、またはブローカーが未検証 | ユーザーとパスワードは環境変数かファイルから取り、TLS は CA でブローカーを検証でき、クライアント証明書と鍵で相互 TLS になります | `mqtt_connection.py` |
 | スキーマだけが変わり検証器が追従していない | 互換性マトリクスが、公開された各スキーマを検証器の契約一覧と照合し、各フィクスチャをファイル名の主張どおりに判定します | `tools/verify_contract_matrix.py` |
 
@@ -137,7 +138,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 テスト
 
-`python -m unittest discover -s clients/python/tests` で自動テスト 643 件を実行します。 他のクライアントには独自のスイートがあります。Go は 28 件（`go test ./...`）、TypeScript は 105 件（`npm test`）、Rust は 31 件（`cargo test`）で、ツールチェーンがあれば `tools/extra_build_steps.py` が実行します。ハードウェアは不要です。
+`python -m unittest discover -s clients/python/tests` で自動テスト 659 件を実行します。 他のクライアントには独自のスイートがあります。Go は 28 件（`go test ./...`）、TypeScript は 105 件（`npm test`）、Rust は 31 件（`cargo test`）で、ツールチェーンがあれば `tools/extra_build_steps.py` が実行します。ハードウェアは不要です。
 
 CI は `HYDRA_UMC_CI=1 python tools/ci_validate.py` を実行し、マニフェスト、文書、8 つの README、図を検査します。
 

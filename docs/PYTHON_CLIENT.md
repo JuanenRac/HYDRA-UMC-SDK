@@ -122,6 +122,26 @@ $ curl -s http://127.0.0.1:8790/mock/HealthReport
 {"schema_version": "1.0", "state": "READY", "timestamp_utc": "2026-01-01T00:00:00Z", "checks": {"storage": {"state": "PASS"}}}
 ```
 
+## Hardening the bridge transport: `hydra_umc_sdk.bridge_transport`
+
+Every limit below is **off by default**, so a bridge that sets nothing behaves as it always did.
+
+| Setting | Where | Default | Effect |
+|---|---|---|---|
+| `max_queue` | `MessageDispatcher` | `None` (no limit) | How many ordinary commands may wait behind the running one. When a new one arrives with the queue full, the **oldest** waiting command is dropped and counted. The stop lane is never bounded. |
+| `max_payload_bytes` | `MessageDispatcher` | `None` (no cap) | A payload over the cap is refused before it is queued, logged at warning level and counted. Stop verbs are exempt. |
+| `backoff_factor`, `max_delay_seconds`, `jitter`, `rng` | `connect_with_retry` | `1.0`, `None`, `0.0` | The wait before retry *n* is `retry_delay_seconds * backoff_factor ** (n - 1)`, capped at `max_delay_seconds`, then spread by up to `jitter` (0 to 1) either way. `rng` returns a float in [0, 1) and `sleep` is injectable, so tests need no real wait. |
+| `connect_backoff_factor`, `connect_max_delay_seconds`, `connect_jitter` | `open_bridge_client` | as above | Passed to `connect_with_retry` for the first connect. |
+| `reconnect_min_delay_seconds`, `reconnect_max_delay_seconds` | `open_bridge_client` | `1`, `30` | Bounds of paho's own reconnect delay after the link drops (`0 < min <= max`). |
+
+```python
+dispatcher = MessageDispatcher(bridge, prefix, frozenset({"cmd/stop"}), max_queue=64, max_payload_bytes=65536)
+...
+dispatcher.stats()   # {"dropped": 0, "oversized": 0, "queued": 0}
+```
+
+A limit that is not a whole number of 1 or more, a `backoff_factor` below 1, a `jitter` outside 0 to 1 or inconsistent reconnect bounds raise `ValueError` at once.
+
 ## Tool: `tools/contract_check.py`
 
 A read-only check of a whole workspace, for a person or a CI job that wants one report instead of fifty-six validators:

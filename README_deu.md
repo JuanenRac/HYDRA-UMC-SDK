@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-643%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-659%20passing-2ea44f.svg" alt="Tests">
   <img src="https://img.shields.io/badge/Version-0.4.2-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **Ehrlichkeitscheck - was heute wirklich läuft:** die zehn JSON-Schema-v1-Verträge mit je einer gültigen und einer ungültigen Fixture, der Python-Validator, der erste OpenAPI-v1-Ausschnitt von HYDRA-UMC-SERVER, die Go-, TypeScript- und Rust-Clients, die dieselben Schemas durchsetzen, die Bridge-Helfer und die Kompatibilitätsmatrix sind echt und auf einem Rechner getestet (643 Python-Tests, dazu die Suiten der anderen drei Clients). Protobuf ist noch nicht veröffentlicht, das Job-Gate ist eine gemeinsame Software-Funktion und keine zertifizierte Sicherheitsfunktion, und nichts davon lief auf echter Hardware.
+> **Ehrlichkeitscheck - was heute wirklich läuft:** die zehn JSON-Schema-v1-Verträge mit je einer gültigen und einer ungültigen Fixture, der Python-Validator, der erste OpenAPI-v1-Ausschnitt von HYDRA-UMC-SERVER, die Go-, TypeScript- und Rust-Clients, die dieselben Schemas durchsetzen, die Bridge-Helfer und die Kompatibilitätsmatrix sind echt und auf einem Rechner getestet (659 Python-Tests, dazu die Suiten der anderen drei Clients). Protobuf ist noch nicht veröffentlicht, das Job-Gate ist eine gemeinsame Software-Funktion und keine zertifizierte Sicherheitsfunktion, und nichts davon lief auf echter Hardware.
 
 ---
 
@@ -40,7 +40,7 @@ GPL-3.0-or-later - see LICENSE
 |---|---|
 | Version | `0.4.2` |
 | Reifegrad | Etabliert |
-| Tests | 643 (`python -m unittest discover -s clients/python/tests`) |
+| Tests | 659 (`python -m unittest discover -s clients/python/tests`) |
 | Technik | Python / TypeScript / Go / Rust / JSON Schema |
 | Auf echter Hardware | Noch nicht: für diese Version ist kein Lauf auf echter Hardware vermerkt |
 
@@ -55,7 +55,7 @@ Jede Zeile ist ein Teil dieses Repositorys, und die Ampel sagt, wie weit er heut
 | Bereich | Stand | Was das hier bedeutet |
 |---|---|---|
 | Software | 🟢 | Für seinen Zweck vollständig und stabil; die Ehrlichkeitsprüfung oben nennt die bekannten Grenzen |
-| Tests | 🟢 | 643 automatische Tests, bei jeder Änderung ausgeführt |
+| Tests | 🟢 | 659 automatische Tests, bei jeder Änderung ausgeführt |
 | Echte Hardware | 🔴 | Noch nicht: für diese Version ist kein Lauf auf echter Hardware vermerkt |
 | Dokumentation | 🟢 | README in acht Sprachen, bei jeder Änderung gegen das Manifest geprüft |
 
@@ -135,6 +135,7 @@ durch die obige Kompatibilitätsmatrix.
 | Ein Bridge-Befehl außerhalb seines Vertrags | Ein Job trägt höchstens 32 Parameter, Namen mit 64 Zeichen, Werte mit 1024 und Kennungen mit 128; es gilt der Maschinenzustand, den die Bridge beobachtet, nicht der vom Anfrager behauptete | `bridge_contract.py` |
 | Derselbe Befehl zweimal ausgeführt oder eine behaltene Nachricht wiederholt | Die Job-Annahme ignoriert behaltene Nachrichten und führt einen Idempotenzschlüssel nie zweimal aus | `job_intake.py` |
 | Ein Stopp, der hinter einem langen Befehl wartet | Gewöhnliche Befehle laufen nacheinander auf einer Spur, die Stopp-Verben auf einer zweiten | `bridge_transport.py` |
+| Eine Befehlsflut, eine riesige Nutzlast oder ein dauerhaft ausgefallener Broker | Optionale Grenzen, standardmäßig aus: eine begrenzte Warteschlange, die den ältesten wartenden Befehl verwirft und zählt, eine Obergrenze für die Nutzlastgröße (Stopp-Verben ausgenommen), exponentielles Backoff mit Jitter beim ersten Verbinden und konfigurierbare Wiederverbindungsgrenzen | `bridge_transport.py` |
 | Broker-Zugangsdaten in einer Konfigurationsdatei oder ein ungeprüfter Broker | Benutzer und Passwort kommen aus der Umgebung oder einer Datei, TLS kann den Broker gegen eine CA prüfen, und Client-Zertifikat samt Schlüssel schalten gegenseitiges TLS ein | `mqtt_connection.py` |
 | Ein Schema geändert, ohne dass der Validator folgt | Eine Kompatibilitätsmatrix prüft jedes veröffentlichte Schema gegen die Vertragsliste des Validators und beurteilt jede Fixture nach dem, was ihr Dateiname behauptet | `tools/verify_contract_matrix.py` |
 
@@ -174,7 +175,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 Tests
 
-643 automatische Tests laufen mit `python -m unittest discover -s clients/python/tests`. Die anderen Clients haben eigene Suiten: 28 Tests in Go (`go test ./...`), 105 in TypeScript (`npm test`) und 31 in Rust (`cargo test`), ausgeführt von `tools/extra_build_steps.py`, wenn die Toolchain installiert ist. Keiner braucht Hardware.
+659 automatische Tests laufen mit `python -m unittest discover -s clients/python/tests`. Die anderen Clients haben eigene Suiten: 28 Tests in Go (`go test ./...`), 105 in TypeScript (`npm test`) und 31 in Rust (`cargo test`), ausgeführt von `tools/extra_build_steps.py`, wenn die Toolchain installiert ist. Keiner braucht Hardware.
 
 Die CI führt `HYDRA_UMC_CI=1 python tools/ci_validate.py` aus; das prüft das Manifest, die Dokumente, die acht READMEs und die Bilder.
 
