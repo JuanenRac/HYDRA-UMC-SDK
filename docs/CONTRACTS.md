@@ -134,6 +134,8 @@ answers a plain `404` with no body until an administrator turns `ecosystemHealth
 The two schemas are closed like the connection ones, so an address, a path or a key cannot slip into them;
 the port, health path, unit and active state of a service are optional because only an administrator receives them.
 
+`GET /api/rul/config` (typed slice and full copy; the closed `RulConfig` answer `{enabled, maxPoints, timeoutMs}`) lets any signed-in account read whether the relay of the remaining-useful-life estimate is open to operators and how large a request it accepts. It is read only, carries nothing else, and is fail-closed: a configuration that is missing or unreadable gives `enabled` false with the default limits instead of an error, and a server without the route answers `404`, which a client reads as closed.
+
 ## Contract sources (pilot)
 
 The routes of the connections (`GET /api/connections/clients` and `GET /api/connections/events`) are declared in `contracts/sources/connections.routes.json` and the OpenAPI document `contracts/openapi/v1/server.connections.openapi.json` is generated from it, together with the closed `ConnectionClient` and `ConnectionEvent` schemas. `python tools/contract_source.py --check` fails when the generated document, a vendored schema copy, the server or a client drifts from it. [CONTRACT_SOURCE.md](CONTRACT_SOURCE.md) describes the design of making the SDK the source of the whole server contract and the phases to get there.
