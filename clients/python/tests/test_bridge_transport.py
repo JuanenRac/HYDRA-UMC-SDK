@@ -324,5 +324,46 @@ class OpenBridgeClientTests(unittest.TestCase):
                 open_bridge_client("h", 1, client_id="c", topic_prefix=PREFIX, dispatcher=dispatcher)
 
 
+class CurrentLimitsCharacterizationTests(unittest.TestCase):
+    """Fix what the transport does with no limit configured, so the opt-in limits can never change it."""
+
+    def test_the_queue_has_no_limit_and_nothing_is_dropped(self):
+        release = threading.Event()
+        bridge = FakeBridge(release=release)
+        bridge.expected = 201
+        dispatcher = MessageDispatcher(bridge, PREFIX)
+        client = FakeClient()
+        dispatcher.on_message(client, None, FakeMessage(PREFIX + "cmd/slow"))
+        for index in range(200):
+            dispatcher.on_message(client, None, FakeMessage(PREFIX + f"cmd/n{index}"))
+        release.set()
+        dispatcher.close(wait=True)
+        self.assertEqual(len(bridge.seen), 201)
+
+    def test_a_huge_payload_is_handed_to_the_bridge(self):
+        bridge = FakeBridge()
+        dispatcher = MessageDispatcher(bridge, PREFIX)
+        dispatcher.on_message(FakeClient(), None, FakeMessage(PREFIX + "cmd/big", payload=b"x" * 5_000_000))
+        dispatcher.close(wait=True)
+        self.assertEqual(len(bridge.seen[0][1]), 5_000_000)
+
+    def test_the_first_connect_waits_a_fixed_delay(self):
+        sleeps = []
+
+        def connect():
+            raise OSError("down")
+
+        with self.assertRaises(RuntimeError):
+            connect_with_retry(connect, max_attempts=5, retry_delay_seconds=2.0, sleep=sleeps.append)
+        self.assertEqual(sleeps, [2.0, 2.0, 2.0, 2.0])
+
+    def test_the_reconnect_delay_is_one_to_thirty_seconds(self):
+        module, created = fake_paho()
+        dispatcher = MessageDispatcher(FakeBridge(), PREFIX)
+        self.addCleanup(dispatcher.close, False)
+        open_bridge_client("h", 1, client_id="c", topic_prefix=PREFIX, dispatcher=dispatcher, mqtt_module=module)
+        self.assertEqual(created[0].reconnect, (1, 30))
+
+
 if __name__ == "__main__":
     unittest.main()
