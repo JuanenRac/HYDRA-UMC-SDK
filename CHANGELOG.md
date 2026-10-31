@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.4.4] - The contract carries the setting of the remaining-useful-life relay and the route inventory and the typed slice agree on the health route and on numeric ids
+
 - **The contract carries the setting of the remaining-useful-life relay:** `GET /api/rul/config` (any signed-in account, read only) is in the full copy of the inventory and in the typed slice, with the closed `RulConfig` answer `{enabled, maxPoints, timeoutMs}`: whether the relay of the estimate is open to operators and how large a request it accepts, closed with the default limits when the configuration is missing or unreadable. New `test_openapi_rul_config.py`.
 - **The route inventory and the typed slice agree on the health route and on numeric ids:** `contracts/openapi/v1/server.full.openapi.json` is refreshed from the inventory of the server, which now lists the bare `404` that `GET /api/ecosystem/health` answers while its option is off (and the `403` for a viewer) and types the `{id}` of the robot and camera routes as an integer; `server.openapi.json` lists the same `403` and `404` on that route. New cases in `test_openapi_ecosystem_routes.py`.
 
