@@ -90,6 +90,8 @@ PER_REPOSITORY_FILES = {
     "tools/canonical/service_metrics.rs": {
         "HYDRA-UMC-ORCHESTRATOR": "src/service_metrics.rs",
         "HYDRA-UMC-SWARM-SYNC": "src/service_metrics.rs",
+        "HYDRA-UMC-PATH-PLANNER-3D": "src/service_metrics.rs",
+        "HYDRA-UMC-PHYSICS-REPLICA": "src/service_metrics.rs",
     },
     "tools/canonical/service_metrics.go": {
         "HYDRA-UMC-JOB-DISPATCHER": "src/api/service_metrics.go",
