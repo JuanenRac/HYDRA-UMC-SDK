@@ -91,8 +91,9 @@ PER_REPOSITORY_FILES = {
         "HYDRA-UMC-OS": "provisioning/ports.yaml",
     },
 }
-# only repositories that already carry the file get it (the eight bridges keep their own bump script)
-ONLY_WHERE_PRESENT = frozenset({"bump_manifest_version.py"})
+# only repositories that already carry the file get it (the eight bridges keep their own bump script; a workflow with steps between the ones of the
+# baseline, as the server and the studio have, keeps its own steps and does not call the action)
+ONLY_WHERE_PRESENT = frozenset({"bump_manifest_version.py", ".github/actions/hydra-baseline/action.yml"})
 # reported by family only
 FAMILY_FILES = (
     "tools/ci_validate.py",
