@@ -86,6 +86,14 @@ PER_REPOSITORY_FILES = {
             "SEMANTIC-PLANNER", "VISION-NODE", "VISUAL-SERVOING-API", "VLA-ENGINE",
         )
     },
+    # The same `GET /metrics` for the services written in Rust (tiny_http) and in Go (net/http): the same series, the same rules.
+    "tools/canonical/service_metrics.rs": {
+        "HYDRA-UMC-ORCHESTRATOR": "src/service_metrics.rs",
+        "HYDRA-UMC-SWARM-SYNC": "src/service_metrics.rs",
+    },
+    "tools/canonical/service_metrics.go": {
+        "HYDRA-UMC-JOB-DISPATCHER": "src/api/service_metrics.go",
+    },
     # The installers of the OS read the port, the health route and the unit of a service from this registry.
     "contracts/ports.yaml": {
         "HYDRA-UMC-OS": "provisioning/ports.yaml",

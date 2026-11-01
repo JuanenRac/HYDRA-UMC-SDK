@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+- **The `/metrics` of the Rust and Go services:** `tools/canonical/service_metrics.rs` (for `tiny_http`) and `tools/canonical/service_metrics.go` (for `net/http`) publish the same series as the Python helper (the version, the uptime, the responses by class of status and the aggregate health of the checks the service declares), with the token when one is set and `401` without it, and nothing a request carried. Both are vendored byte for byte into the services that list them, and the sync reports a copy that drifted.
+
+- **`node-checks: none` in the baseline action:** a repository whose Node checks need steps of their own between the setup of Node.js and its validation (other repositories to clone, environment variables, a download to verify) lets the action skip the two Node steps and runs them itself after it. The default (`full`) changes nothing for the other repositories.
+
 - **A dependency audit that reads what the repositories commit:** `tools/dependency_audit.py` lists the packages of the lock files and manifests of the three ecosystems, writes a CycloneDX 1.5 bill of materials per repository and, with `--check`, reports the OSV advisories with the version that fixes each (a Python range is judged by its lower bound; a failed request is a problem, never a clean result). 6 tests.
 
 - **One `/metrics` for the Python services:** `tools/canonical/service_metrics.py` (vendored byte for byte, drift reported by the sync) gives a standard library HTTP handler `GET /metrics` in the text format of Prometheus with the version, the uptime, the responses by class of status and the aggregate health of the checks the service declares; nothing a request carried can reach the text. 9 tests against a real server.

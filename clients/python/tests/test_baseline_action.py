@@ -81,6 +81,17 @@ class ActionTests(unittest.TestCase):
             self.assertRegex(body, rf"(?m)^  {name}:\n(?:    .*\n)*?    default: {re.escape(default)}\n", name)
 
 
+class NodeChecksTests(unittest.TestCase):
+    def test_node_checks_default_to_full_and_none_leaves_the_node_steps_to_the_workflow(self) -> None:
+        body = text(ACTION)
+        self.assertRegex(body, r"(?m)^  node-checks:\n(?:    .*\n)*?    default: full\n")
+        steps = body.split("\n    - name: ")
+        node_steps = [step for step in steps if step.startswith(("Set up Node.js", "Validate Node.js or TypeScript project"))]
+        self.assertEqual(len(node_steps), 2)
+        for step in node_steps:
+            self.assertIn("inputs.node-checks != 'none'", step, step.splitlines()[0])
+
+
 class PinTests(unittest.TestCase):
     def workspace(self, workflow: str) -> Path:
         base = Path(tempfile.mkdtemp())
