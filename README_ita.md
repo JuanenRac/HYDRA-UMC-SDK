@@ -42,7 +42,7 @@ GPL-3.0-or-later - see LICENSE
 | Maturità | Consolidato |
 | Test | 772 (`python -m unittest discover -s clients/python/tests`) |
 | Tecnologia | Python / TypeScript / Go / Rust / JSON Schema |
-| Su hardware reale | Non ancora: per questa versione non risulta alcuna esecuzione su hardware reale |
+| Su hardware reale | Non applicabile: nulla qui gira su hardware |
 
 **Vai a:** [Panoramica](#-panoramica) · [Architettura](#-architettura) · [Funzionalità](#-funzionalità) · [Sicurezza e protezione](#-sicurezza-e-protezione) · [Interfacce](#-interfacce) · [Configurazione](#-configurazione) · [Avvio rapido](#-avvio-rapido) · [Test](#-test) · [Risoluzione dei problemi](#-risoluzione-dei-problemi) · [Struttura del repository](#-struttura-del-repository) · [Progetti correlati](#-progetti-correlati)
 
@@ -56,7 +56,7 @@ Ogni riga è una parte di questo repository e il semaforo dice a che punto è og
 |---|---|---|
 | Software | 🟢 | Completo per il suo scopo e stabile; la verifica di onestà qui sopra elenca i limiti noti |
 | Test | 🟢 | 772 test automatici, eseguiti a ogni modifica |
-| Hardware reale | 🔴 | Non ancora: per questa versione non risulta alcuna esecuzione su hardware reale |
+| Hardware reale | 🟢 | Non applicabile: nulla qui gira su hardware |
 | Documentazione | 🟢 | README in otto lingue, verificato rispetto al manifesto a ogni modifica |
 
 ## 🎯 Panoramica

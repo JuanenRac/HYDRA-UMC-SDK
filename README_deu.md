@@ -42,7 +42,7 @@ GPL-3.0-or-later - see LICENSE
 | Reifegrad | Etabliert |
 | Tests | 772 (`python -m unittest discover -s clients/python/tests`) |
 | Technik | Python / TypeScript / Go / Rust / JSON Schema |
-| Auf echter Hardware | Noch nicht: für diese Version ist kein Lauf auf echter Hardware vermerkt |
+| Auf echter Hardware | Nicht zutreffend: nichts hiervon läuft auf Hardware |
 
 **Springe zu:** [Überblick](#-überblick) · [Architektur](#-architektur) · [Funktionen](#-funktionen) · [Sicherheit und Schutz](#-sicherheit-und-schutz) · [Schnittstellen](#-schnittstellen) · [Konfiguration](#-konfiguration) · [Schnellstart](#-schnellstart) · [Tests](#-tests) · [Fehlerbehebung](#-fehlerbehebung) · [Struktur des Repositorys](#-struktur-des-repositorys) · [Verwandte Projekte](#-verwandte-projekte)
 
@@ -56,7 +56,7 @@ Jede Zeile ist ein Teil dieses Repositorys, und die Ampel sagt, wie weit er heut
 |---|---|---|
 | Software | 🟢 | Für seinen Zweck vollständig und stabil; die Ehrlichkeitsprüfung oben nennt die bekannten Grenzen |
 | Tests | 🟢 | 772 automatische Tests, bei jeder Änderung ausgeführt |
-| Echte Hardware | 🔴 | Noch nicht: für diese Version ist kein Lauf auf echter Hardware vermerkt |
+| Echte Hardware | 🟢 | Nicht zutreffend: nichts hiervon läuft auf Hardware |
 | Dokumentation | 🟢 | README in acht Sprachen, bei jeder Änderung gegen das Manifest geprüft |
 
 ## 🎯 Überblick

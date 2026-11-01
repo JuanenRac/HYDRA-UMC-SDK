@@ -42,7 +42,7 @@ GPL-3.0-or-later - see LICENSE
 | Maturité | Établi |
 | Tests | 772 (`python -m unittest discover -s clients/python/tests`) |
 | Technologie | Python / TypeScript / Go / Rust / JSON Schema |
-| Sur matériel réel | Pas encore : aucune exécution sur du matériel réel n'est consignée pour cette version |
+| Sur matériel réel | Sans objet : rien ici ne s'exécute sur du matériel |
 
 **Aller à :** [Présentation](#-présentation) · [Architecture](#-architecture) · [Fonctionnalités](#-fonctionnalités) · [Sécurité et protection](#-sécurité-et-protection) · [Interfaces](#-interfaces) · [Configuration](#-configuration) · [Démarrage rapide](#-démarrage-rapide) · [Tests](#-tests) · [Dépannage](#-dépannage) · [Structure du dépôt](#-structure-du-dépôt) · [Projets liés](#-projets-liés)
 
@@ -56,7 +56,7 @@ Chaque ligne est une partie de ce dépôt et le feu dit où elle en est aujourd'
 |---|---|---|
 | Logiciel | 🟢 | Complet pour son usage et stable ; la vérification d'honnêteté ci-dessus liste les limites connues |
 | Tests | 🟢 | 772 tests automatiques, exécutés à chaque modification |
-| Matériel réel | 🔴 | Pas encore : aucune exécution sur du matériel réel n'est consignée pour cette version |
+| Matériel réel | 🟢 | Sans objet : rien ici ne s'exécute sur du matériel |
 | Documentation | 🟢 | README en huit langues, vérifié par rapport au manifeste à chaque modification |
 
 ## 🎯 Présentation
