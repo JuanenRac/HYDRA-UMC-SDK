@@ -20,6 +20,10 @@ They are kept identical from this SDK, not copied by hand.
 3. In each repository that changed, run `python tools/hydra_project_tool.py validate`, commit and push once.
 4. `python tools/sync_repo_tools.py --check` must end with `CANONICAL_TOOLS=PASS`. The nightly family check of HYDRA-UMC-DOCS runs the same command.
 
+## Files that are the same in the other families
+
+A few of the canonical files (the live panel of the build scripts, the README layout check, the README picture code) are also the same text in the URTC and A.R.M.O.R. families, which keep their own source. The registry of URTC-DEVTOOLS (`tools/tooling_registry.json`) says which files, where each family keeps its source and how two sources are compared. When URTC-DEVTOOLS is next to this repository, `python tools/sync_repo_tools.py --check` also compares those sources and ends its report with `CROSS_FAMILY=PASS` or `CROSS_FAMILY=FAIL` (`SKIPPED` when the registry is not there, as in a CI run of this repository alone). Nothing is written to a repository of another family. Changing a file that the registry lists as the same in several families is a change in each source: make it in all of them, then update the registry (`python tools/tooling_registry.py update` in URTC-DEVTOOLS).
+
 ## The project tool
 
 ```

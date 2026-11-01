@@ -26,11 +26,16 @@ handling have their own scripts (`sync_doc_policy.py`, `sync_readme_parity.py`,
     python tools/sync_repo_tools.py               # rewrite the canonical files
     python tools/sync_repo_tools.py --all --check # also the three other scripts, in check mode
     python tools/sync_repo_tools.py --workspace DIR  # another folder holding the repositories
+
+The files that are also the same text in the other families (the live panel, the README layout check, ...) are listed in the registry of
+URTC-DEVTOOLS (`tools/tooling_registry.json`). When that repository is next to this one, `--check` also compares the sources the registry says
+must be equal (`CROSS_FAMILY=PASS|FAIL`); without it the comparison is skipped. Nothing is ever written to a repository of another family.
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import re
 import subprocess
 import sys
@@ -352,6 +357,52 @@ def report_families(workspace: Path) -> None:
             shown = ", ".join(names[:4]) + (f", +{len(names) - 4}" if len(names) > 4 else "")
             print(f"  {len(names):3d} x {key}  {shown}")
 
+CROSS_FAMILY_REGISTRY = ("URTC-DEVTOOLS", "tools", "tooling_registry.json")
+_BANNER_LINES = 12
+_FAMILY_WORDS = re.compile(r"(?:URTC|HYDRA-UMC|ARMOR|A\.R\.M\.O\.R)[A-Za-z0-9.-]*|<REPO>")
+
+
+def _cross_family_prints(text: str, repository: str, kind: str) -> set[str]:
+    """Two readings of a source (as it is, and with the name of its repository as a placeholder); sources are equal when they share one.
+
+    `same_after_banner` also ignores any family or repository name in the first lines. The rule is the one of `tools/tooling_registry.py`."""
+    prints: set[str] = set()
+    for name in (None, repository):
+        reading = text.replace("\r\n", "\n").rstrip("\n")
+        if name:
+            reading = reading.replace(name, "<REPO>")
+        if kind == "same_after_banner":
+            lines = reading.split("\n")
+            lines[:_BANNER_LINES] = [_FAMILY_WORDS.sub("<NAME>", line) for line in lines[:_BANNER_LINES]]
+            reading = "\n".join(lines)
+        prints.add(hashlib.sha256(reading.encode("utf-8")).hexdigest())
+    return prints
+
+
+def cross_family_drift(workspace: Path) -> tuple[list[str], str]:
+    """(files whose sources must be the same text in several families and are not, the reason the comparison did not run or '')."""
+    registry = workspace.joinpath(*CROSS_FAMILY_REGISTRY)
+    if not registry.is_file():
+        return [], "URTC-DEVTOOLS is not next to this repository"
+    try:
+        entries = json.loads(registry.read_text(encoding="utf-8"))["files"]
+    except (OSError, ValueError, KeyError) as error:
+        return [f"the registry cannot be read: {error}"], ""
+    drift: list[str] = []
+    for entry in entries:
+        if "HYDRA" not in entry.get("same_in", []):
+            continue
+        prints: dict[str, set[str]] = {}
+        for family in entry["same_in"]:
+            source = entry["sources"][family]
+            target = workspace / source["repo"] / source["path"]
+            if target.is_file():
+                prints[family] = _cross_family_prints(target.read_bytes().decode("utf-8"), source["repo"], entry["kind"])
+        first = next(iter(prints.values()), set())
+        if any(not (first & other) for other in prints.values()):
+            drift.append(f"{entry['path']} ({', '.join(sorted(prints))})")
+    return drift, ""
+
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
@@ -386,6 +437,16 @@ def main(argv: list[str] | None = None) -> int:
         _, adapted = unified_status(workspace, CANONICAL_DIR, relative, canonical_name)
         print(f"{relative}: {len(adapted)} repositories keep an adaptation of their own: " + ", ".join(adapted))
     report_families(workspace)
+
+    cross, skipped = cross_family_drift(workspace)
+    for line in cross:
+        print("differs between the families: " + line)
+    if skipped:
+        print(f"CROSS_FAMILY=SKIPPED ({skipped})")
+    else:
+        print(f"CROSS_FAMILY={'FAIL' if cross else 'PASS'} drift={len(cross)}")
+        if args.check and cross:
+            status = 1
 
     if args.all:
         for script in OTHER_SYNCS:
