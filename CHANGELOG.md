@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+- **A dependency audit that reads what the repositories commit:** `tools/dependency_audit.py` lists the packages of the lock files and manifests of the three ecosystems, writes a CycloneDX 1.5 bill of materials per repository and, with `--check`, reports the OSV advisories with the version that fixes each (a Python range is judged by its lower bound; a failed request is a problem, never a clean result). 6 tests.
+
+- **One `/metrics` for the Python services:** `tools/canonical/service_metrics.py` (vendored byte for byte, drift reported by the sync) gives a standard library HTTP handler `GET /metrics` in the text format of Prometheus with the version, the uptime, the responses by class of status and the aggregate health of the checks the service declares; nothing a request carried can reach the text. 8 tests against a real server.
+
+
 - **The baseline steps of every workflow are one composite action:** `tools/canonical/hydra-baseline-action.yml` is copied by `sync_repo_tools.py` to `.github/actions/hydra-baseline/action.yml` of each repository (and reported when edited or left behind). It holds the steps the workflows repeated (Python with the pip cache, the validator, the compilation of the sources, the Python tests, the lint and type check, and the Node, Rust, Go, Flutter, Android and firmware checks), with the npm, Cargo, Gradle and Flutter caches, and the one pin of ruff and mypy; `--check` also ends with `LINT_PINS=PASS|FAIL`. It replaces the reusable workflow and its caller, which no repository used: a repository needs steps of its own after the baseline, and a reusable workflow cannot take them.
 
 ## [0.4.7] - Six new closed contracts in the four clients (the lifecycle of a robot command, visual servoing, the vision pipeline and the maintenance incident), signed bridge commands that expire and bridge health on a retained topic, both behind switches that are off

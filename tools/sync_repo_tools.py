@@ -77,6 +77,15 @@ PER_REPOSITORY_FILES = {
         "HYDRA-UMC-LOCAL-TECHNICIAN": "tests/redaction_vectors.json",
         "HYDRA-UMC-VISION-STREAMER": "tests/redaction_vectors.json",
     },
+    # The `GET /metrics` of a service that answers with the standard library HTTP server: the numbers of the service in the text format of Prometheus,
+    # the aggregate of its health checks, and nothing a request carried.
+    "tools/canonical/service_metrics.py": {
+        f"HYDRA-UMC-{name}": f"src/hydra_umc_{name.lower().replace('-', '_')}/service_metrics.py"
+        for name in (
+            "COGNITIVE-NODE", "DATALAKE", "DETECTION-HEF", "DOCS-QA", "PRODUCTION-REPORTS", "SAFETY-ZONES",
+            "SEMANTIC-PLANNER", "VISION-NODE", "VISUAL-SERVOING-API", "VLA-ENGINE",
+        )
+    },
     # The installers of the OS read the port, the health route and the unit of a service from this registry.
     "contracts/ports.yaml": {
         "HYDRA-UMC-OS": "provisioning/ports.yaml",
