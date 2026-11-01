@@ -183,6 +183,7 @@ CI は `HYDRA_UMC_CI=1 python tools/ci_validate.py` を実行し、マニフェ�
 HYDRA-UMC-SDK/
 ├── contracts/                 JSON Schema v1 のソース、OpenAPI 部分、ポート一覧
 ├── clients/                   Python・Go・TypeScript・Rust のリファレンスクライアント
+├── generated/                 スキーマから生成した TypeScript・Kotlin・Dart の型
 ├── conformance/               各契約の有効・無効のフィクスチャ
 ├── docs/                      契約・API・開発のガイド
 ├── examples/                  実行できる Python の例

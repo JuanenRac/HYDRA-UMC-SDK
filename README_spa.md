@@ -216,6 +216,7 @@ Usa la comprobación de compilación sin versionado antes de una compilación de
 HYDRA-UMC-SDK/
 ├── contracts/                 fuentes JSON Schema v1, el corte OpenAPI y el registro de puertos
 ├── clients/                   los clientes de referencia de Python, Go, TypeScript y Rust
+├── generated/                 tipos de TypeScript, Kotlin y Dart generados de los esquemas
 ├── conformance/               fixtures válidos e inválidos de cada contrato
 ├── docs/                      guías de contratos, API y desarrollo
 ├── examples/                  ejemplos de Python ejecutables

@@ -181,6 +181,7 @@ CI 运行 `HYDRA_UMC_CI=1 python tools/ci_validate.py`，检查清单、文档�
 HYDRA-UMC-SDK/
 ├── contracts/                 JSON Schema v1 源文件、OpenAPI 部分和端口登记表
 ├── clients/                   Python、Go、TypeScript 和 Rust 参考客户端
+├── generated/                 由模式生成的 TypeScript、Kotlin 和 Dart 类型
 ├── conformance/               每个契约的有效和无效夹具
 ├── docs/                      契约、API 和开发指南
 ├── examples/                  可运行的 Python 示例

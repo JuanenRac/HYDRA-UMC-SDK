@@ -78,6 +78,29 @@
           }
         },
         {
+          "name": "generated/",
+          "desc": {
+            "en": "types generated from the schemas",
+            "es": "tipos generados de los esquemas",
+            "de": "aus den Schemas erzeugte Typen",
+            "fr": "types générés depuis les schémas",
+            "it": "tipi generati dagli schemi",
+            "ja": "スキーマから生成した型",
+            "zh": "由模式生成的类型",
+            "pt": "tipos gerados a partir dos esquemas"
+          },
+          "tree_desc": {
+            "en": "TypeScript, Kotlin and Dart types generated from the schemas",
+            "es": "tipos de TypeScript, Kotlin y Dart generados de los esquemas",
+            "de": "aus den Schemas erzeugte TypeScript-, Kotlin- und Dart-Typen",
+            "fr": "types TypeScript, Kotlin et Dart générés depuis les schémas",
+            "it": "tipi TypeScript, Kotlin e Dart generati dagli schemi",
+            "ja": "スキーマから生成した TypeScript・Kotlin・Dart の型",
+            "zh": "由模式生成的 TypeScript、Kotlin 和 Dart 类型",
+            "pt": "tipos TypeScript, Kotlin e Dart gerados a partir dos esquemas"
+          }
+        },
+        {
           "name": "conformance/",
           "desc": {
             "en": "valid and invalid fixtures for every",

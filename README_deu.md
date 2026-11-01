@@ -220,6 +220,7 @@ Verwenden Sie den Build-Check ohne Versionierung vor einem Release-Build:
 HYDRA-UMC-SDK/
 ├── contracts/                 JSON-Schema-v1-Quellen, OpenAPI-Ausschnitt und Port-Register
 ├── clients/                   die Referenz-Clients in Python, Go, TypeScript und Rust
+├── generated/                 aus den Schemas erzeugte TypeScript-, Kotlin- und Dart-Typen
 ├── conformance/               gültige und ungültige Fixtures für jeden Vertrag
 ├── docs/                      Leitfäden zu Verträgen, API und Entwicklung
 ├── examples/                  lauffähige Python-Beispiele

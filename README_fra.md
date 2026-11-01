@@ -218,6 +218,7 @@ Utilisez la vérification de compilation sans versionnement avant une compilatio
 HYDRA-UMC-SDK/
 ├── contracts/                 sources JSON Schema v1, tranche OpenAPI et registre des ports
 ├── clients/                   les clients de référence Python, Go, TypeScript et Rust
+├── generated/                 types TypeScript, Kotlin et Dart générés depuis les schémas
 ├── conformance/               fixtures valides et invalides pour chaque contrat
 ├── docs/                      guides des contrats, de l'API et du développement
 ├── examples/                  exemples Python exécutables

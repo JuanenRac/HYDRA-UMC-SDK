@@ -219,6 +219,7 @@ Usa il controllo di compilazione senza versionamento prima di una compilazione d
 HYDRA-UMC-SDK/
 ├── contracts/                 sorgenti JSON Schema v1, porzione OpenAPI e registro delle porte
 ├── clients/                   i client di riferimento in Python, Go, TypeScript e Rust
+├── generated/                 tipi TypeScript, Kotlin e Dart generati dagli schemi
 ├── conformance/               fixture valide e non valide per ogni contratto
 ├── docs/                      guide su contratti, API e sviluppo
 ├── examples/                  esempi Python eseguibili

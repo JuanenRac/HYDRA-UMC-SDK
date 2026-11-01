@@ -215,6 +215,7 @@ Use the non-versioning build check before a release build:
 HYDRA-UMC-SDK/
 ├── contracts/                 JSON Schema v1 sources, the OpenAPI slice and the port registry
 ├── clients/                   the Python, Go, TypeScript and Rust reference clients
+├── generated/                 TypeScript, Kotlin and Dart types generated from the schemas
 ├── conformance/               valid and invalid fixtures for every contract
 ├── docs/                      contract, API and development guides
 ├── examples/                  runnable Python examples
