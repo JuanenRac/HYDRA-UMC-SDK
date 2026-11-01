@@ -381,15 +381,20 @@ def lint_pins(text: str) -> dict[str, set[str]]:
 
 
 def lint_pin_drift(workspace: Path, canonical_dir: Path = CANONICAL_DIR) -> list[str]:
-    """Workflows that pin ruff or mypy to another version than the baseline action does (one pin, written in the action)."""
+    """Workflows (and the lint pins of the A.R.M.O.R. tool) that name another version of ruff or mypy than the baseline action does.
+
+    One pin for the three families: the repositories of the other two that sit next to this one are read too, nothing is written to them."""
     wanted = lint_pins(read_text(canonical_dir / BASELINE_ACTION)[0])
     drift: list[str] = []
-    for repo in repos(workspace):
+    candidates = sorted(p for p in workspace.iterdir() if p.is_dir() and p.name.startswith(("HYDRA-UMC", "ARMOR", "URTC")))
+    for repo in candidates:
         workflows = repo / ".github" / "workflows"
-        for path in sorted(workflows.glob("*.yml")) if workflows.is_dir() else []:
+        files = sorted(workflows.glob("*.yml")) if workflows.is_dir() else []
+        files += [f for f in (repo / "tools" / "armor_project_tool.py",) if f.is_file()]
+        for path in files:
             for tool, versions in lint_pins(read_text(path)[0]).items():
                 if tool in wanted and versions - wanted[tool]:
-                    drift.append(f"{repo.name}/.github/workflows/{path.name} pins {tool}=={', '.join(sorted(versions))}")
+                    drift.append(f"{repo.name}/{path.relative_to(repo).as_posix()} pins {tool}=={', '.join(sorted(versions))}")
     return drift
 
 
