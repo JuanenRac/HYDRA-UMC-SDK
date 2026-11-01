@@ -1,0 +1,526 @@
+// Generated from the HYDRA-UMC JSON Schemas by tools/generate_types.py. Do not edit.
+
+export interface Capability {
+  schema_version: "1.0";
+  target: CapabilityTarget;
+  kind: string;
+  declared: boolean;
+  last_checked_at_utc?: string;
+  checked_configuration?: string;
+  max_age_seconds?: number;
+  last_check_outcome?: "verified" | "failed" | "unknown";
+  last_check_reason?: string;
+  [extra: string]: unknown;
+}
+
+export interface CapabilityTarget {
+  kind: string;
+  id: string;
+  [extra: string]: unknown;
+}
+
+export interface CommandLifecycleEvent {
+  schema_version: "1.0";
+  operation_id: string;
+  robot_id: string;
+  command: string;
+  state: "ACCEPTED" | "RUNNING" | "COMPLETED" | "FAILED" | "CANCELLED";
+  at_utc: string;
+  sequence: number;
+  reason?: string;
+  [extra: string]: unknown;
+}
+
+export interface ConnectionClient {
+  schema_version: "1.0";
+  id: string;
+  kind: "studio" | "suite" | "android" | "ios" | "dsi" | "watch" | "voice" | "other";
+  user?: string;
+  app_version?: string;
+  origin?: "local" | "remote";
+  two_factor?: boolean;
+  first_seen_utc: string;
+  last_seen_utc: string;
+  last_failure_utc?: string;
+  active_sessions: number;
+  logins_ok: number;
+  logins_failed: number;
+  ip?: string;
+  agent?: string;
+  [extra: string]: unknown;
+}
+
+export interface ConnectionEvent {
+  schema_version: "1.0";
+  id: number;
+  at_utc: string;
+  action: "first_seen" | "login" | "login_failed" | "second_factor_failed" | "logout" | "session_ended" | "session_expired";
+  client_kind: "studio" | "suite" | "android" | "ios" | "dsi" | "watch" | "voice" | "other";
+  client_id: string;
+  user?: string;
+  origin?: "local" | "remote";
+  two_factor?: boolean;
+  app_version?: string;
+  ip?: string;
+  agent?: string;
+  [extra: string]: unknown;
+}
+
+export interface DetectionFrame {
+  schema_version: "1.0";
+  frame_id: string;
+  capture_ts_utc: string;
+  box_unit: "pixel" | "normalized";
+  detections: DetectionFrameDetections[];
+  session_id?: string;
+  model?: DetectionFrameModel;
+  [extra: string]: unknown;
+}
+
+export interface DetectionFrameDetections {
+  class_id: number;
+  label: string;
+  score: number;
+  box: DetectionFrameDetectionsBox;
+  [extra: string]: unknown;
+}
+
+export interface DetectionFrameDetectionsBox {
+  x_min: number;
+  y_min: number;
+  x_max: number;
+  y_max: number;
+  [extra: string]: unknown;
+}
+
+export interface DetectionFrameModel {
+  model_name: string;
+  model_version: string;
+  model_sha256: string;
+  hailo_arch: string;
+  pipeline_version: string;
+  [extra: string]: unknown;
+}
+
+export interface DeviceDescriptor {
+  schema_version: "1.0";
+  node_id: string;
+  profile: string;
+  hostname: string;
+  machine: string;
+  operating_system: string;
+  kernel: string;
+  interfaces: string[];
+  [extra: string]: unknown;
+}
+
+export interface EcosystemHealth {
+  schema_version: "1.0";
+  generated_at_utc: string;
+  available: boolean;
+  summary: EcosystemHealthSummary;
+  services: EcosystemHealthServices[];
+  certificate: unknown;
+  warnings: EcosystemHealthWarnings[];
+  [extra: string]: unknown;
+}
+
+export interface EcosystemHealthSummary {
+  total: number;
+  ok: number;
+  degraded: number;
+  down: number;
+  unknown: number;
+  drift: number;
+  [extra: string]: unknown;
+}
+
+export interface EcosystemHealthServices {
+  name: string;
+  family: unknown;
+  role: unknown;
+  state: "ok" | "degraded" | "down" | "unknown";
+  reason: "health_ok" | "health_degraded" | "health_failed" | "http_error" | "unreachable" | "unreachable_unit_active" | "reachable_unit_not_active" | "unit_active" | "unit_starting" | "unit_failed" | "unit_inactive" | "no_signal" | "probe_error";
+  version_expected: unknown;
+  version_reported: unknown;
+  drift: boolean;
+  last_seen_utc: unknown;
+  latency_ms: unknown;
+  port?: unknown;
+  health_path?: unknown;
+  systemd_unit?: unknown;
+  active_state?: unknown;
+  [extra: string]: unknown;
+}
+
+export interface EcosystemHealthWarnings {
+  code: "certificate_expiring" | "certificate_expired" | "certificate_unreadable" | "version_drift" | "service_down" | "service_degraded";
+  service?: string;
+  [extra: string]: unknown;
+}
+
+export interface EventEnvelope {
+  schema_version: "1.0";
+  event_id: string;
+  type: string;
+  source: string;
+  timestamp_utc: string;
+  sequence: number;
+  correlation_id?: string;
+  [extra: string]: unknown;
+}
+
+export interface FrameMeta {
+  schema_version: "1.0";
+  frame_id: string;
+  capture_ts_utc: string;
+  width: number;
+  height: number;
+  pixel_format: "RGB" | "BGR" | "RGBA" | "BGRA" | "GRAY" | "YUYV" | "NV12" | "JPEG";
+  session_id?: string;
+  source_id?: string;
+  stride?: number;
+  sequence?: number;
+  [extra: string]: unknown;
+}
+
+export interface HealthReport {
+  schema_version: "1.0";
+  state: "READY" | "DEGRADED" | "INHIBITED" | "FAULT" | "SAFE_STOP";
+  timestamp_utc: string;
+  checks: Record<string, unknown>;
+  [extra: string]: unknown;
+}
+
+export interface MaintenanceIncident {
+  schema_version?: "1.0";
+  incidentId: string;
+  sourceNode: string;
+  detectedAt: string;
+  severity: "info" | "warning" | "critical";
+  component: string;
+  symptom: string;
+  evidenceRefs: string[];
+  redactionLevel: "sanitized" | "raw";
+  requestedBy: string | null;
+  correlationId: string;
+  [extra: string]: unknown;
+}
+
+export interface Operation {
+  schema_version: "1.0";
+  operation_id: string;
+  correlation_id: string;
+  kind: string;
+  target: OperationTarget;
+  status: "received" | "authorized" | "queued" | "sent" | "confirmed" | "terminated" | "rejected";
+  status_reason?: string;
+  requested_at_utc: string;
+  updated_at_utc: string;
+  params: Record<string, unknown>;
+  error?: OperationError;
+  result?: OperationResult;
+  [extra: string]: unknown;
+}
+
+export interface OperationTarget {
+  kind: string;
+  id: string;
+  [extra: string]: unknown;
+}
+
+export interface OperationError {
+  code: string;
+  message: string;
+  [extra: string]: unknown;
+}
+
+export interface OperationResult {
+  run_id: string;
+  revision?: string;
+  origin: "real" | "simulated";
+  observers_enabled: boolean;
+  accepted_at_utc?: string;
+  executed_at_utc?: string;
+  observed_at_utc?: string;
+  outcome: "success" | "failure" | "unknown";
+  outcome_reason?: string;
+  [extra: string]: unknown;
+}
+
+export interface Pose {
+  schema_version: "1.0";
+  frame: "base" | "tool";
+  position: PosePosition;
+  orientation: PoseOrientation;
+  euler?: PoseEuler;
+  [extra: string]: unknown;
+}
+
+export interface PosePosition {
+  x: number;
+  y: number;
+  z: number;
+  [extra: string]: unknown;
+}
+
+export interface PoseOrientation {
+  w: number;
+  x: number;
+  y: number;
+  z: number;
+  [extra: string]: unknown;
+}
+
+export interface PoseEuler {
+  roll: number;
+  pitch: number;
+  yaw: number;
+  [extra: string]: unknown;
+}
+
+export interface ProductionEvent {
+  schema_version: "1.0";
+  source_id: string;
+  at_utc: string;
+  good: boolean;
+  cycle_time_s: number;
+  job_id?: string;
+  reject_reason?: string;
+  [extra: string]: unknown;
+}
+
+export interface ProjectManifest {
+  schema_version: "1.0";
+  ecosystem: "HYDRA-UMC" | "URTC";
+  name: string;
+  version: string;
+  role: "api" | "ui" | "cli" | "firmware" | "library" | "service" | "tool";
+  stack: string;
+  technologies: string[];
+  deployment_target: "cm5" | "user-pc" | "mobile" | "wearable" | "dev-server" | "mcu";
+  maturity: "scaffolding" | "functional" | "established" | "production";
+  evidence?: "none" | "host-test" | "simulator" | "bench" | "field";
+  hardware_bound?: boolean;
+  depends_on?: string[];
+  deployment_target_note?: string;
+  service?: ProjectManifestService;
+  family: string;
+  parent: string | null;
+  native_version: ProjectManifestNativeVersion;
+  build: string;
+  notes: string;
+  [extra: string]: unknown;
+}
+
+export interface ProjectManifestService {
+  port?: number;
+  health_path?: string;
+  systemd_unit?: string;
+  [extra: string]: unknown;
+}
+
+export interface ProjectManifestNativeVersion {
+  file: string;
+  pattern: unknown;
+  [extra: string]: unknown;
+}
+
+export interface RobotLiveness {
+  schema_version: "1.0";
+  stale_after_s: number;
+  robots: RobotLivenessRobots[];
+  [extra: string]: unknown;
+}
+
+export interface RobotLivenessRobots {
+  controller_id: string;
+  robot_id: number;
+  state: "live" | "stale" | "unknown";
+  last_update_utc?: string;
+  age_s?: number;
+  source?: "state" | "heartbeat";
+  [extra: string]: unknown;
+}
+
+export interface RobotState {
+  schema_version: "1.0";
+  robot_id: string;
+  state: "idle" | "busy" | "estop" | "fault" | "offline";
+  source?: "real" | "simulated";
+  updated_at_utc: string;
+  mission_id?: string;
+  battery_percent?: number;
+  pose?: RobotStatePose;
+  [extra: string]: unknown;
+}
+
+export interface RobotStatePose {
+  schema_version: "1.0";
+  frame: "base" | "tool";
+  position: RobotStatePosePosition;
+  orientation: RobotStatePoseOrientation;
+  [extra: string]: unknown;
+}
+
+export interface RobotStatePosePosition {
+  x: number;
+  y: number;
+  z: number;
+  [extra: string]: unknown;
+}
+
+export interface RobotStatePoseOrientation {
+  w: number;
+  x: number;
+  y: number;
+  z: number;
+  [extra: string]: unknown;
+}
+
+export interface SafetyState {
+  schema_version: "1.0";
+  state: "READY" | "INHIBITED" | "FAULT" | "SAFE_STOP";
+  source: string;
+  timestamp_utc: string;
+  [extra: string]: unknown;
+}
+
+export interface ScenarioOutcome {
+  schema_version: "1.0";
+  scenario_id: string;
+  run_id: string;
+  base_fingerprint: string;
+  phase: "before" | "after";
+  repro_case: string;
+  observed: ScenarioOutcomeObserved;
+  timestamp_utc: string;
+  [extra: string]: unknown;
+}
+
+export interface ScenarioOutcomeObserved {
+  outcome: "reproduced" | "not-reproduced" | "error";
+  exit_code?: number;
+  evidence?: string;
+  [extra: string]: unknown;
+}
+
+export interface ServerDiscovery {
+  schema_version: "1.0";
+  product: string;
+  remoteApiVersion: number;
+  appVersion: string;
+  hostname: string;
+  controllerCount: number;
+  robotCount: number;
+  uptimeSeconds: number;
+  [extra: string]: unknown;
+}
+
+export interface TwinState {
+  schema_version: "1.0";
+  source: "real" | "simulated";
+  robot_id?: string;
+  frame: "base" | "tool";
+  timestamp_utc: string;
+  sequence?: number;
+  joint_states: TwinStateJointStates[];
+  poses?: TwinStatePoses[];
+  [extra: string]: unknown;
+}
+
+export interface TwinStateJointStates {
+  name: string;
+  position: number;
+  velocity?: number;
+  effort?: number;
+  [extra: string]: unknown;
+}
+
+export interface TwinStatePoses {
+  name: string;
+  pose: TwinStatePosesPose;
+  [extra: string]: unknown;
+}
+
+export interface TwinStatePosesPose {
+  schema_version: "1.0";
+  frame: "base" | "tool";
+  position: TwinStatePosesPosePosition;
+  orientation: TwinStatePosesPoseOrientation;
+  [extra: string]: unknown;
+}
+
+export interface TwinStatePosesPosePosition {
+  x: number;
+  y: number;
+  z: number;
+  [extra: string]: unknown;
+}
+
+export interface TwinStatePosesPoseOrientation {
+  w: number;
+  x: number;
+  y: number;
+  z: number;
+  [extra: string]: unknown;
+}
+
+export interface UpdateManifest {
+  schema_version: "1.0";
+  project: string;
+  version: string;
+  artifact_url: string;
+  sha256: string;
+  [extra: string]: unknown;
+}
+
+export interface VelocityCommand {
+  schema_version: "1.0";
+  vx: number;
+  vy: number;
+  vz: number;
+  wroll: number;
+  wpitch: number;
+  wyaw: number;
+  hold: boolean;
+  issued_at_ms: number;
+  valid_for_ms: number;
+  seq: number;
+  frame_id?: string | null;
+  [extra: string]: unknown;
+}
+
+export interface VisualTargetRequest {
+  schema_version: "1.0";
+  frame_id: string;
+  current: VisualTargetRequestCurrent;
+  target: VisualTargetRequestTarget;
+  confidence: number;
+  safety_state: "READY" | "INHIBITED" | "FAULT" | "SAFE_STOP";
+  data_age_ms?: number;
+  captured_at_utc?: string;
+  calibration_version?: string;
+  calibration_age_days?: number;
+  [extra: string]: unknown;
+}
+
+export interface VisualTargetRequestCurrent {
+  x: number;
+  y: number;
+  z: number;
+  roll: number;
+  pitch: number;
+  yaw: number;
+  [extra: string]: unknown;
+}
+
+export interface VisualTargetRequestTarget {
+  x: number;
+  y: number;
+  z: number;
+  roll: number;
+  pitch: number;
+  yaw: number;
+  [extra: string]: unknown;
+}

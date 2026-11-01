@@ -40,6 +40,7 @@ def run_contract_checks() -> None:
     run(sys.executable, "tools/verify_contract_matrix.py", env=environment)
     run(sys.executable, "tools/verify_openapi.py", env=environment)
     run(sys.executable, "tools/contract_source.py", "--check", env=environment)
+    run(sys.executable, "tools/generate_types.py", "--check", env=environment)
 
 
 def run_native_clients() -> None:

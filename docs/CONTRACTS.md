@@ -145,3 +145,9 @@ the port, health path, unit and active state of a service are optional because o
 ## Contract sources (pilot)
 
 The routes of the connections (`GET /api/connections/clients` and `GET /api/connections/events`) are declared in `contracts/sources/connections.routes.json` and the OpenAPI document `contracts/openapi/v1/server.connections.openapi.json` is generated from it, together with the closed `ConnectionClient` and `ConnectionEvent` schemas. `python tools/contract_source.py --check` fails when the generated document, a vendored schema copy, the server or a client drifts from it. [CONTRACT_SOURCE.md](CONTRACT_SOURCE.md) describes the design of making the SDK the source of the whole server contract and the phases to get there.
+
+## Generated types and the lint
+
+`python tools/generate_types.py` turns every closed schema of `contracts/json-schema/v1` into a TypeScript interface (`generated/hydra-contracts.ts`), a Kotlin data class (`generated/HydraContracts.kt`) and a Dart class with `fromJson` and `toJson` (`generated/hydra_contracts.dart`). The files are never edited by hand: `--check` fails when one is out of date, and a client that copies the file it needs runs the same check against a checkout of the SDK. Keywords that a type cannot say (`anyOf`, `allOf`, `if`/`then`) stay with the validators of the SDK.
+
+`contracts/topics.json` is the registry of the topics that every bridge shares (direction, retained flag, QoS and the schema of the payload). `python tools/hydra_contract_lint.py` runs, in one command, the check of the whole tree of repositories, the check of the route sources and the check of the generated types; `--tables` prints the ports, versions, routes and topics tables that must not be written by hand.

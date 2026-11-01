@@ -11,14 +11,15 @@ breaks a contract of the family:
 * the manifest name is not the name of the folder,
 * a vendored shared tool differs from the canonical copy of this SDK,
 * the manifest declares a `service` block but the port registry does not know it,
-* the OpenAPI documents of this SDK are structurally broken.
+* the OpenAPI documents of this SDK are structurally broken,
+* the topic registry (`contracts/topics.json`) is malformed or names a contract that is not a schema.
 
 Usage: python tools/contract_check.py [WORKSPACE] [--report-only] [--tables]
 
-With `--tables` it prints, instead of the JSON report, the three tables of the
+With `--tables` it prints, instead of the JSON report, the four tables of the
 ecosystem that must never be written by hand, as Markdown: the ports of the
 services (from the port registry), the version of every repository (from its
-manifest) and the routes of the server (from the OpenAPI documents).
+manifest), the routes of the server (from the OpenAPI documents) and the topics of the bridges (from the topic registry).
 
 The workspace defaults to the folder that holds this SDK. The report goes to
 stdout; the exit status is 1 when any problem was found (0 with
@@ -93,14 +94,16 @@ def check_workspace(workspace: Path, sdk_root: Path = SDK_ROOT) -> dict[str, Any
         except SystemExit:
             openapi_problems.append(f"{path.name}: structural check failed (see stderr)")
     failing = [r for r in reports if r["problems"]]
+    topic_problems = topics_problems(sdk_root)
     return {
         "workspace": str(workspace),
         "repositories": reports,
         "openapi": openapi_problems,
+        "topics": topic_problems,
         "summary": {
             "repositories": len(reports),
             "with_problems": len(failing),
-            "problems": sum(len(r["problems"]) for r in reports) + len(openapi_problems),
+            "problems": sum(len(r["problems"]) for r in reports) + len(openapi_problems) + len(topic_problems),
         },
     }
 
@@ -161,11 +164,47 @@ def routes_table(openapi_dir: Path) -> str:
     return _table(["Document", "Method", "Route", "Operation", "Tag"], rows)
 
 
+def topics_problems(sdk_root: Path = SDK_ROOT) -> list[str]:
+    """The topic registry must exist and every contract it names must be a schema of this SDK."""
+    path = sdk_root / "contracts" / "topics.json"
+    if not path.is_file():
+        return ["contracts/topics.json is missing"]
+    try:
+        document = json.loads(path.read_text(encoding="utf-8"))
+    except ValueError as error:
+        return [f"contracts/topics.json is not JSON: {error}"]
+    problems: list[str] = []
+    seen: set[str] = set()
+    for item in document.get("topics", []):
+        topic = str(item.get("topic", ""))
+        if not topic or topic in seen:
+            problems.append(f"contracts/topics.json: empty or repeated topic {topic!r}")
+        seen.add(topic)
+        if item.get("direction") not in ("in", "out"):
+            problems.append(f"contracts/topics.json: {topic}: direction must be in or out")
+        if item.get("qos") not in (0, 1, 2) or not isinstance(item.get("retained"), bool):
+            problems.append(f"contracts/topics.json: {topic}: qos 0-2 and a boolean retained are required")
+        contract = item.get("contract")
+        if contract and not (sdk_root / "contracts" / "json-schema" / "v1" / str(contract)).is_file():
+            problems.append(f"contracts/topics.json: {topic}: the contract {contract} is not a schema of this SDK")
+    return problems
+
+
+def topics_table(sdk_root: Path = SDK_ROOT) -> str:
+    """The bridge topics (contracts/topics.json) as a Markdown table."""
+    path = sdk_root / "contracts" / "topics.json"
+    document = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {"prefix": "", "topics": []}
+    rows = [[item["topic"] if item.get("absolute") else document.get("prefix", "") + item["topic"], item["direction"], "yes" if item["retained"] else "no", item["qos"],
+             item.get("contract") or "-", item.get("purpose", "")] for item in document.get("topics", [])]
+    return _table(["Topic", "Direction", "Retained", "QoS", "Contract", "Purpose"], rows)
+
+
 def tables(workspace: Path, sdk_root: Path = SDK_ROOT) -> str:
     return "\n\n".join([
         "### Ports", ports_table(sdk_root / "contracts" / "ports.yaml"),
         "### Versions", versions_table(workspace, sdk_root),
         "### Routes", routes_table(sdk_root / "contracts" / "openapi" / "v1"),
+        "### Topics", topics_table(sdk_root),
     ]) + "\n"
 
 

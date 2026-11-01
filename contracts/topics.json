@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "prefix": "hydra/bridges/<name>/",
+  "note": "The topics every command and state bridge shares. The prefix is the default; a bridge may be configured with another one. Direction is from the bridge: in = the bridge subscribes, out = the bridge publishes.",
+  "topics": [
+    {"topic": "cmd/<verb>", "direction": "in", "retained": false, "qos": 0, "contract": null, "purpose": "A command for the bridge; a retained delivery is a replay by the broker and is ignored"},
+    {"topic": "cmd/job", "direction": "in", "retained": false, "qos": 0, "contract": null, "purpose": "A job; with the switch on it is signed, carries issued_at_ms and expires_in_ms and is refused otherwise"},
+    {"topic": "cmd/<verb>/result", "direction": "out", "retained": false, "qos": 0, "contract": null, "purpose": "The answer to a command, including the refusal and its reason"},
+    {"topic": "state", "direction": "out", "retained": true, "qos": 0, "contract": null, "purpose": "The last known state of the machine behind the bridge"},
+    {"topic": "availability", "direction": "out", "retained": true, "qos": 1, "contract": null, "purpose": "online once connected, offline as the Last Will (not maintained while the health topic is on)"},
+    {"topic": "health", "direction": "out", "retained": true, "qos": 1, "contract": "health-report.schema.json", "purpose": "The state of the bridge as a HealthReport; FAULT is its Last Will; off by default"},
+    {"topic": "hydra/swarm/safety/estop", "absolute": true, "direction": "in", "retained": true, "qos": 1, "contract": "safety-state.schema.json", "purpose": "The global stop: SAFE_STOP is retained and a bridge refuses to move while it holds; off by default"}
+  ]
+}
