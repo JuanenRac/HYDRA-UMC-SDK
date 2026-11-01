@@ -82,7 +82,7 @@ PER_REPOSITORY_FILES = {
     "tools/canonical/service_metrics.py": {
         f"HYDRA-UMC-{name}": f"src/hydra_umc_{name.lower().replace('-', '_')}/service_metrics.py"
         for name in (
-            "COGNITIVE-NODE", "DATALAKE", "DETECTION-HEF", "DOCS-QA", "PRODUCTION-REPORTS", "SAFETY-ZONES",
+            "ANOMALY-DETECTOR", "COGNITIVE-NODE", "DATALAKE", "DETECTION-HEF", "DOCS-QA", "PRODUCTION-REPORTS", "SAFETY-ZONES",
             "SEMANTIC-PLANNER", "VISION-NODE", "VISUAL-SERVOING-API", "VLA-ENGINE",
         )
     },
