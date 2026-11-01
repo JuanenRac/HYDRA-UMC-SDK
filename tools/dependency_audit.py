@@ -209,7 +209,10 @@ def query_osv(
         except (urllib.error.URLError, OSError, ValueError) as error:
             problems.append(f"OSV batch {start}-{start + len(chunk)}: {error}")
             continue
-        for key, result in zip(chunk, results):
+        if len(results) != len(chunk):
+            problems.append(f"OSV batch {start}-{start + len(chunk)}: {len(results)} answers for {len(chunk)} questions")
+            continue
+        for key, result in zip(chunk, results, strict=True):
             for vuln in result.get("vulns", []):
                 advisories.setdefault(key, []).append({"id": vuln["id"]})
     for key, items in advisories.items():
