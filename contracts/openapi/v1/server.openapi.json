@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "HYDRA-UMC-SERVER API",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "description": "OpenAPI description of the part of HYDRA-UMC-SERVER's HTTP surface that a typed client needs to discover a server, sign in, read and write its fleet roster and dispatch a robot command. It is a subset: the server's own docs/openapi.json is generated from the server and lists every route (administration, cameras, CAN OTA, system services and more), so use that one when a route is not here. Response objects may gain fields: a client must ignore the ones it does not know. Every route except GET /api/hydra-info, POST /api/login, POST /api/refresh and POST /api/logout needs `Authorization: Bearer <token>`. One disclosed difference with docs/API_DESIGN.md: that design describes command results as ACCEPTED/REJECTED/RUNNING/COMPLETED/FAILED with a correlation identifier, while POST /api/robot/{id}/command replies with a plain {success, affectedCount} once the change has been applied and broadcast. Contract v2, block 1 (claims by controller, jog arming and the server-side safety limits) is described by the routes tagged `claims` and `safety`; a client that sends no `controllerId` gets the v1 behaviour. Contract v2, blocks 2 to 5: `GET /api/robot/{id}` answers one robot with its revision (the `ETag`), `If-Match` on `command`, `claim` and `release` is answered with `412` when the robot changed, the `table` command moves the XY table in one request, `GET /api/audit` (administrators) reads the audit record, and the WebSocket message `claims` (clients that opened `/ws` with `?remoteApiVersion=2`) pushes the list of `GET /api/claims`.",
     "license": {
       "name": "CC-BY-SA-4.0",

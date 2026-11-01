@@ -127,7 +127,7 @@ Both documents carry the routes that the server added after the connection pilot
 (closed `EcosystemHealth` schema), `GET /api/robots/liveness` (closed `RobotLiveness` schema),
 `POST /api/robot/{id}/heartbeat` and `POST /api/stop-all/release` (answer `{success, announced}`: whether the
 retained `READY` went out on the MQTT bridge). The full copy also lists `GET /api/connections/clients`,
-`GET /api/connections/events` and the public `GET /health`. The typed slice (document version 1.4.0) describes the
+`GET /api/connections/events` and the public `GET /health`. The typed slice (document version 1.5.0) describes the
 four routes above with the two closed schemas as components, so a typed client can use them without reading the
 full copy. What a route answers when it is switched off is part of its description: `GET /api/ecosystem/health`
 answers a plain `404` with no body until an administrator turns `ecosystemHealth.enabled` on (a viewer gets `403`).
