@@ -18,9 +18,9 @@ Two kinds of files are handled.
   repository name in the banner, and the families are printed so a stray
   one-off copy is visible. These are only reported, never rewritten.
 
-`tools/_doc_policy.py`, `tools/_readme_parity.py` and the four-part version
-handling have their own scripts (`sync_doc_policy.py`, `sync_readme_parity.py`,
-`sync_version_tools.py`); `--all` runs them too, in the same mode.
+`tools/_doc_policy.py`, `tools/_readme_parity.py`, the four-part version
+handling and the header and banner of the launcher scripts have their own scripts (`sync_doc_policy.py`, `sync_readme_parity.py`,
+`sync_version_tools.py`, `sync_script_banners.py`); `--all` runs them too, in the same mode.
 
     python tools/sync_repo_tools.py --check       # report, exit 1 on drift of a canonical file
     python tools/sync_repo_tools.py               # rewrite the canonical files
@@ -88,7 +88,7 @@ FAMILY_FILES = (
     "tools/build_test.py",
     ".github/workflows/ci.yml",
 )
-OTHER_SYNCS = ("sync_doc_policy.py", "sync_readme_parity.py", "sync_version_tools.py")
+OTHER_SYNCS = ("sync_doc_policy.py", "sync_readme_parity.py", "sync_version_tools.py", "sync_script_banners.py")
 
 # `tools/ci_validate.py` has one canonical text too, but a few repositories legitimately extend or adapt it
 # (the bridges name their own bump script, STUDIO checks its Work catalogue, ...). A repository adopts the canonical

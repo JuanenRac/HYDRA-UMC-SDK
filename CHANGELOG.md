@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- **The header and the banner of the launcher scripts are generated from one file:** `tools/sync_script_banners.py` writes them from `tools/canonical/script_banners.json` (the licence line that still said GPL-3.0 in some repositories is now GPL-3.0-or-later; the four launchers of the eight bridges are one script apart from the name, with the box of `build-test` lined up). `sync_repo_tools.py --all` runs it in check mode.
+- **One version bumper for the HYDRA-UMC and URTC families:** `tools/canonical/bump_manifest_version.py` finds the manifest of the family by its name (`hydra-umc.project.json` or `urtc.project.json`) and prints the family in its messages; the behaviour for HYDRA-UMC repositories is the same.
+
 - **The push notification routes are declared:** a new inventory source `push` (`POST /api/push/devices`, `DELETE /api/push/devices/{token}`, `GET /api/admin/push`) and the shapes `PushDeviceRegistered`, `PushDeviceRemoved` and `PushStatus`, so the phone apps can register their device token for the push notifications of the server. `PushStatus` tells an administrator whether the credentials of the push service are usable and why not, never the credentials or the tokens.
 - **`sync_repo_tools.py --check` compares the sources the families share:** when URTC-DEVTOOLS is next to this repository, the files that its registry (`tools/tooling_registry.json`) lists as the same text in several families (the live panel, the README layout check, the picture code) are compared across the sources of the families and the report ends with `CROSS_FAMILY=PASS` or `CROSS_FAMILY=FAIL`; without the registry the comparison is skipped. Read only: nothing is written to another repository and no repository needs the new version.
 
