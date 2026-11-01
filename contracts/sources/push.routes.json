@@ -1,0 +1,108 @@
+{
+  "source_version": "1",
+  "group": "push",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "get",
+      "path": "/api/admin/push",
+      "summary": "GET /api/admin/push",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "PushStatus"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/push/devices",
+      "summary": "POST /api/push/devices",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "token",
+                "platform"
+              ],
+              "properties": {
+                "token": {
+                  "type": "string"
+                },
+                "platform": {
+                  "type": "string",
+                  "enum": [
+                    "ios"
+                  ]
+                },
+                "locale": {
+                  "type": "string",
+                  "enum": [
+                    "en",
+                    "es",
+                    "de",
+                    "fr",
+                    "it",
+                    "ja",
+                    "zh",
+                    "pt"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "PushDeviceRegistered"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. No body."
+        }
+      }
+    },
+    {
+      "method": "delete",
+      "path": "/api/push/devices/{token}",
+      "summary": "DELETE /api/push/devices/{token}",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "parameters": [
+        {
+          "name": "token",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "PushDeviceRemoved"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. No body."
+        }
+      }
+    }
+  ]
+}

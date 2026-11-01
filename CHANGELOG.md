@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- **The push notification routes are declared:** a new inventory source `push` (`POST /api/push/devices`, `DELETE /api/push/devices/{token}`, `GET /api/admin/push`) and the shapes `PushDeviceRegistered`, `PushDeviceRemoved` and `PushStatus`, so the phone apps can register their device token for the push notifications of the server. `PushStatus` tells an administrator whether the credentials of the push service are usable and why not, never the credentials or the tokens.
 - **`sync_repo_tools.py --check` compares the sources the families share:** when URTC-DEVTOOLS is next to this repository, the files that its registry (`tools/tooling_registry.json`) lists as the same text in several families (the live panel, the README layout check, the picture code) are compared across the sources of the families and the report ends with `CROSS_FAMILY=PASS` or `CROSS_FAMILY=FAIL`; without the registry the comparison is skipped. Read only: nothing is written to another repository and no repository needs the new version.
 
 ## [0.4.5] - The whole route inventory of the server is declared in the SDK, one copy of the global stop guard for every bridge, the hardening of the bridge transport set from the environment and the typed document at version 1.5.0
