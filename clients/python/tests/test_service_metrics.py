@@ -139,6 +139,9 @@ class MetricsTests(unittest.TestCase):
         text = METRICS.ServiceMetrics('a"b\nc', "1").render()
         self.assertIn('service="a\\"b c"', text)
 
+    def test_without_a_declared_version_the_installed_one_or_unknown_is_published(self) -> None:
+        self.assertEqual(METRICS.installed_version("no-such-distribution-anywhere"), "unknown")
+
     def test_the_other_paths_are_left_to_the_handler(self) -> None:
         with Served(make_handler()) as served:
             self.assertEqual(served.get("/stats")[0], 200)

@@ -10,7 +10,7 @@ This file has a single canonical copy (`tools/canonical/service_metrics.py` of H
 
     class Handler(MetricsHandlerMixin, BaseHTTPRequestHandler):
         metrics_service = "hydra-umc-example"
-        metrics_version = __version__
+        metrics_version = __version__     # optional: without it the installed version of the distribution is published
 
         def do_GET(self):
             if self.serve_metrics(authorized=self._authorized()):   # the answer to /metrics is the first thing a GET does
@@ -29,6 +29,7 @@ import threading
 import time
 from collections import Counter
 from http.server import BaseHTTPRequestHandler
+from importlib import metadata
 
 STATUS_CLASSES = ("2xx", "3xx", "4xx", "5xx")
 _CHECK_NAME = re.compile(r"[^a-z0-9_]+")
@@ -38,6 +39,14 @@ _CREATE = threading.Lock()
 
 def _label(value: str) -> str:
     return value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ")
+
+
+def installed_version(distribution: str) -> str:
+    """The version the package manager knows for a distribution, or "unknown" when it is run from a source tree."""
+    try:
+        return metadata.version(distribution)
+    except metadata.PackageNotFoundError:
+        return "unknown"
 
 
 def check_name(name: str) -> str:
@@ -93,7 +102,7 @@ class MetricsHandlerMixin(BaseHTTPRequestHandler):
     """Counts every response and answers `GET /metrics`; put it before `BaseHTTPRequestHandler` in the bases of the handler."""
 
     metrics_service = "hydra-umc-service"
-    metrics_version = "0"
+    metrics_version = ""  # the version to publish; empty means the one installed under the name of the service
 
     def metrics_checks(self) -> dict[str, bool]:
         """The checks that make up the health of the service; a service with checks of its own overrides this."""
@@ -106,7 +115,7 @@ class MetricsHandlerMixin(BaseHTTPRequestHandler):
         with _CREATE:
             existing = getattr(self.server, "service_metrics", None)
             if not isinstance(existing, ServiceMetrics):
-                existing = ServiceMetrics(self.metrics_service, self.metrics_version)
+                existing = ServiceMetrics(self.metrics_service, self.metrics_version or installed_version(self.metrics_service))
                 self.server.service_metrics = existing  # type: ignore[attr-defined]
             return existing
 
