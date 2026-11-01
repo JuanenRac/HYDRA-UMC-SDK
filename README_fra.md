@@ -57,6 +57,8 @@ Chaque ligne est une partie de ce dépôt et le feu dit où elle en est aujourd'
 | Logiciel | 🟢 | Complet pour son usage et stable ; la vérification d'honnêteté ci-dessus liste les limites connues |
 | Tests | 🟢 | 772 tests automatiques, exécutés à chaque modification |
 | Matériel réel | 🟢 | Sans objet : rien ici ne s'exécute sur du matériel |
+| Déploiement | 🟠 | Publié comme release ; l'installation sur une machine propre est documentée mais non consignée |
+| Contrats et clients | 🟢 | Chaque contrat fermé a un exemple valide et un invalide et est validé en Python, Go, Rust et TypeScript par rapport aux mêmes schémas |
 | Documentation | 🟢 | README en huit langues, vérifié par rapport au manifeste à chaque modification |
 
 ## 🎯 Présentation
