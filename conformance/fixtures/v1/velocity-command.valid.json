@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "vx": 0.01,
+  "vy": 0.0,
+  "vz": -0.005,
+  "wroll": 0.0,
+  "wpitch": 0.0,
+  "wyaw": 0.02,
+  "hold": false,
+  "issued_at_ms": 1767261600000,
+  "valid_for_ms": 200,
+  "seq": 7,
+  "frame_id": "frame-0001"
+}

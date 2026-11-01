@@ -98,6 +98,104 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "position": {"x": 0.25, "y": 0.0, "z": 0.3},
         "orientation": {"w": 1.0, "x": 0.0, "y": 0.0, "z": 0.0},
     },
+    "CommandLifecycleEvent": {
+        "schema_version": "1.0",
+        "operation_id": "op-0001",
+        "robot_id": "3",
+        "command": "move",
+        "state": "RUNNING",
+        "at_utc": "2026-01-01T10:00:00Z",
+        "sequence": 2
+    },
+    "VisualTargetRequest": {
+        "schema_version": "1.0",
+        "frame_id": "frame-0001",
+        "current": {
+            "x": 0.25,
+            "y": 0.0,
+            "z": 0.3,
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0
+        },
+        "target": {
+            "x": 0.3,
+            "y": 0.02,
+            "z": 0.3,
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.1
+        },
+        "confidence": 0.9,
+        "safety_state": "READY",
+        "data_age_ms": 40
+    },
+    "VelocityCommand": {
+        "schema_version": "1.0",
+        "vx": 0.01,
+        "vy": 0.0,
+        "vz": -0.005,
+        "wroll": 0.0,
+        "wpitch": 0.0,
+        "wyaw": 0.02,
+        "hold": False,
+        "issued_at_ms": 1767261600000,
+        "valid_for_ms": 200,
+        "seq": 7,
+        "frame_id": "frame-0001"
+    },
+    "FrameMeta": {
+        "schema_version": "1.0",
+        "frame_id": "frame-0001",
+        "capture_ts_utc": "2026-01-01T10:00:00.250Z",
+        "width": 1280,
+        "height": 720,
+        "pixel_format": "RGB",
+        "session_id": "run-1",
+        "source_id": "cam-top",
+        "sequence": 1
+    },
+    "DetectionFrame": {
+        "schema_version": "1.0",
+        "frame_id": "frame-0001",
+        "capture_ts_utc": "2026-01-01T10:00:00.250Z",
+        "box_unit": "normalized",
+        "detections": [
+            {
+                "class_id": 0,
+                "label": "fiducial",
+                "score": 0.93,
+                "box": {
+                    "x_min": 0.4,
+                    "y_min": 0.35,
+                    "x_max": 0.52,
+                    "y_max": 0.49
+                }
+            }
+        ],
+        "session_id": "run-1",
+        "model": {
+            "model_name": "yolov8n",
+            "model_version": "1.2.0",
+            "model_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+            "hailo_arch": "hailo8",
+            "pipeline_version": "0.1.5"
+        }
+    },
+    "MaintenanceIncident": {
+        "incidentId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "sourceNode": "cm5-1",
+        "detectedAt": "2026-01-01T10:00:00+00:00",
+        "severity": "critical",
+        "component": "hydra-umc-server.service",
+        "symptom": "The unit is not active.",
+        "evidenceRefs": [
+            "systemctl:hydra-umc-server.service"
+        ],
+        "redactionLevel": "sanitized",
+        "requestedBy": None,
+        "correlationId": "0d3f1f0c-6a43-4f3a-9a53-6a1d0c4b8e11"
+    },
     "ProductionEvent": {
         "schema_version": "1.0",
         "source_id": "cnc-1",

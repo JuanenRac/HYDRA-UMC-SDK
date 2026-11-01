@@ -45,24 +45,30 @@ func readFixture(t *testing.T, dir, name string) []byte {
 // tools/verify_contract_matrix.py enforces: <kebab-case-contract>.valid.json
 // / .invalid.json.
 var contractFixtureFile = map[string]string{
-	"DeviceDescriptor": "device-descriptor",
-	"EventEnvelope":    "event-envelope",
-	"HealthReport":     "health-report",
-	"ProjectManifest":  "project-manifest",
-	"SafetyState":      "safety-state",
-	"ServerDiscovery":  "server-discovery",
-	"UpdateManifest":   "update-manifest",
-	"ScenarioOutcome":  "scenario-outcome",
-	"Operation":        "operation",
-	"Capability":       "capability",
-	"Pose":             "pose",
-	"TwinState":        "twin-state",
-	"RobotState":       "robot-state",
-	"ConnectionEvent":  "connection-event",
-	"ConnectionClient": "connection-client",
-	"ProductionEvent":  "production-event",
-	"EcosystemHealth":  "ecosystem-health",
-	"RobotLiveness":    "robot-liveness",
+	"DeviceDescriptor":      "device-descriptor",
+	"EventEnvelope":         "event-envelope",
+	"HealthReport":          "health-report",
+	"ProjectManifest":       "project-manifest",
+	"SafetyState":           "safety-state",
+	"ServerDiscovery":       "server-discovery",
+	"UpdateManifest":        "update-manifest",
+	"ScenarioOutcome":       "scenario-outcome",
+	"Operation":             "operation",
+	"Capability":            "capability",
+	"Pose":                  "pose",
+	"TwinState":             "twin-state",
+	"RobotState":            "robot-state",
+	"ConnectionEvent":       "connection-event",
+	"ConnectionClient":      "connection-client",
+	"ProductionEvent":       "production-event",
+	"EcosystemHealth":       "ecosystem-health",
+	"RobotLiveness":         "robot-liveness",
+	"CommandLifecycleEvent": "command-lifecycle-event",
+	"VisualTargetRequest":   "visual-target-request",
+	"VelocityCommand":       "velocity-command",
+	"FrameMeta":             "frame-meta",
+	"DetectionFrame":        "detection-frame",
+	"MaintenanceIncident":   "maintenance-incident",
 }
 
 func TestAcceptsEveryValidFixture(t *testing.T) {
@@ -101,10 +107,10 @@ func TestUnknownContractIsRejected(t *testing.T) {
 	}
 }
 
-func TestKnownContractsListsAllEighteen(t *testing.T) {
+func TestKnownContractsListsAllTwentyFour(t *testing.T) {
 	names := KnownContracts()
-	if len(names) != 18 {
-		t.Fatalf("expected 18 known contracts, got %d: %v", len(names), names)
+	if len(names) != 24 {
+		t.Fatalf("expected 24 known contracts, got %d: %v", len(names), names)
 	}
 }
 

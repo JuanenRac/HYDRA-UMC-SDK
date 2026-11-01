@@ -271,7 +271,7 @@ export interface ScenarioOutcome {
   [extra: string]: unknown;
 }
 
-/** The 18 contract names `validate()`/`isValid()` accept. */
+/** The 24 contract names `validate()`/`isValid()` accept. */
 export type ContractName =
   | "DeviceDescriptor"
   | "HealthReport"
@@ -290,4 +290,10 @@ export type ContractName =
   | "ConnectionClient"
   | "ProductionEvent"
   | "EcosystemHealth"
-  | "RobotLiveness";
+  | "RobotLiveness"
+  | "CommandLifecycleEvent"
+  | "VisualTargetRequest"
+  | "VelocityCommand"
+  | "FrameMeta"
+  | "DetectionFrame"
+  | "MaintenanceIncident";

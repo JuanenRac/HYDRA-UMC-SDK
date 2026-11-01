@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "frame_id": "frame-0001",
+  "current": {
+    "x": 0.25,
+    "y": 0.0,
+    "z": 0.3,
+    "roll": 0.0,
+    "pitch": 0.0,
+    "yaw": 0.0
+  },
+  "target": {
+    "x": 0.3,
+    "y": 0.02,
+    "z": 0.3,
+    "roll": 0.0,
+    "pitch": 0.0,
+    "yaw": 0.1
+  },
+  "confidence": 1.5,
+  "safety_state": "READY",
+  "data_age_ms": 40
+}

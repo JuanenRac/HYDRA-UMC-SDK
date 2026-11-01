@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "frame_id": "frame-0001",
+  "capture_ts_utc": "2026-01-01T10:00:00.250Z",
+  "box_unit": "normalized",
+  "detections": [
+    {
+      "class_id": 0,
+      "label": "fiducial",
+      "score": 0.93,
+      "box": {
+        "x_min": 40,
+        "y_min": 35,
+        "x_max": 52,
+        "y_max": 49
+      }
+    }
+  ]
+}

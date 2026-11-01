@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/velocity-command.schema.json",
+  "title": "VelocityCommand",
+  "description": "The answer of the visual servoing service: a linear velocity (m/s) and an angular velocity (rad/s), when it was issued (milliseconds since the epoch), how long it is valid and its sequence number. A consumer acts on it only while it is valid and stops when it does not get a newer valid command within valid_for_ms. hold says the service asks for no movement. The schema is closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "vx",
+    "vy",
+    "vz",
+    "wroll",
+    "wpitch",
+    "wyaw",
+    "hold",
+    "issued_at_ms",
+    "valid_for_ms",
+    "seq"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "vx": {
+      "type": "number",
+      "description": "Linear velocity along x, in meters per second."
+    },
+    "vy": {
+      "type": "number",
+      "description": "Linear velocity along y, in meters per second."
+    },
+    "vz": {
+      "type": "number",
+      "description": "Linear velocity along z, in meters per second."
+    },
+    "wroll": {
+      "type": "number",
+      "description": "Angular velocity about x, in radians per second."
+    },
+    "wpitch": {
+      "type": "number",
+      "description": "Angular velocity about y, in radians per second."
+    },
+    "wyaw": {
+      "type": "number",
+      "description": "Angular velocity about z, in radians per second."
+    },
+    "hold": {
+      "type": "boolean",
+      "description": "True when the service asks for no movement."
+    },
+    "issued_at_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "When the command was issued, in milliseconds since the epoch."
+    },
+    "valid_for_ms": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 60000,
+      "description": "How long the command is valid after it was issued, in milliseconds."
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Grows with every command; a consumer ignores an older one."
+    },
+    "frame_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The frame the command was computed from, when there is one."
+    }
+  }
+}

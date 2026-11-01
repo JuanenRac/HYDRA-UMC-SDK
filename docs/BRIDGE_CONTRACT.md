@@ -82,9 +82,35 @@ def on_message(message):
 
 A job refused by the gate keeps its key: to try again, the sender uses a new one.
 
+### The handler of `cmd/job`, once
+
+`read_job_message(intake, topic, payload, retained=...)` is the whole first half of the handler of `cmd/job` that each bridge used to write for itself: a retained message is ignored, a payload over 16 KiB or that is not JSON is refused, `JobIntake` looks at the job and a repeat is answered with the stored answer (or refused as in doubt when none was stored). It never raises and returns a `JobMessage` with exactly one of `ignore`, `refusal` (the `{"allowed": false, "reason": ...}` to publish on the result topic), `repeat_answer` (to publish again) or `job` (new, well formed and, when asked, signed). The bridge then only decides about the job and calls `store.remember(...)`.
+
+### Signed commands with an expiry (off by default)
+
+Anyone who may publish on a command topic can make a bridge act, and a message that the network delivers late is carried out as if it were new. With the switch on, every `cmd/job` carries `issued_at_ms`, `expires_in_ms` and `signature` (`hydra_umc_sdk.signed_commands`):
+
+- the signature is the HMAC-SHA256 (64 lowercase hexadecimal digits) of `hydra-umc-cmd-v1`, a newline, the topic, a newline and the payload without `signature` written as JSON with sorted keys, no spaces and ASCII escapes; the job of a bridge holds strings, booleans and whole numbers only, so every language writes the same bytes;
+- the key is one per bridge, in a file that only the service can read (at least 32 characters, for example 64 hexadecimal digits; on a POSIX system a file readable by the group or the others is refused);
+- a command that is unsigned, signed with another key or for another topic, altered after it was signed, expired, issued in the future by more than the allowed clock skew, or that asks to stay valid longer than the bridge accepts, is refused with the reason on the result topic; a retained message is ignored before any of this;
+- the switch and its limits are in the environment of the service: `HYDRA_UMC_<NAME>_SIGNED_COMMANDS` (yes or no; off by default, and a value that is neither raises an error), `HYDRA_UMC_<NAME>_COMMAND_KEY_FILE`, `HYDRA_UMC_<NAME>_COMMAND_MAX_SKEW_MS` (5000) and `HYDRA_UMC_<NAME>_COMMAND_MAX_EXPIRES_MS` (300000). With the switch on and no usable key the service does not start; with it off nothing changes and no key is read.
+
+```python
+verifier = CommandVerifier.from_environment("CNC")           # raises at the start when it is on and the key is unusable
+intake = JobIntake(store, verifier)
+message = read_job_message(intake, topic, payload, retained=retained)
+
+# the sender
+signed = sign_command(topic, job_dict, key, expires_in_ms=30_000)
+```
+
+### Bridge health on one retained topic (off by default)
+
+With `HYDRA_UMC_<NAME>_BRIDGE_HEALTH=yes` a bridge publishes its state on `hydra/bridges/<name>/health`, retained at QoS 1, in the shape of the `HealthReport` contract (`hydra_umc_sdk.bridge_health`): `READY` with the check `link` passing when its connection is accepted, `DEGRADED`, `INHIBITED`, `FAULT` or `SAFE_STOP` with the checks that explain it, and `FAULT` with `link` failing as its Last Will if it disappears. The server and the dashboard read one topic family instead of probing every bridge. An MQTT connection has one Last Will, so with the switch on the will is on the health topic, `availability` is no longer maintained and the retained message an earlier run left there is cleared when the bridge connects; a consumer reads the health topic only. Pass `health=BridgeHealth("<name>")` to `open_bridge_client`. The broker's ACL must let the bridge publish on its own health topic.
+
 ### The shared transport
 
-`hydra_umc_sdk.bridge_transport` holds what every command and state bridge needs of MQTT: the retry of the first connection, the dispatcher that keeps a stop command from waiting behind a slow one and ignores retained replays, and the client that sets the Last Will on `availability`, subscribes to `cmd/#` and announces `online` after every connect. A bridge keeps only what its topics mean.
+`hydra_umc_sdk.bridge_transport` holds what every command and state bridge needs of MQTT: the retry of the first connection, the dispatcher that keeps a stop command from waiting behind a slow one and ignores retained replays, and the client that sets the Last Will on `availability` (or on the health topic, see below), subscribes to `cmd/#` and announces `online` after every connect. A bridge keeps only what its topics mean.
 
 ### The shared phase coordinator
 

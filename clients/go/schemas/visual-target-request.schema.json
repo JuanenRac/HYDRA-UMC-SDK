@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/visual-target-request.schema.json",
+  "title": "VisualTargetRequest",
+  "description": "One request for a correction of the visual servoing service: where the tool is, where the image says it should be, which frame the estimate came from, how sure the detector is, how old the estimate is and the safety state. Poses are in meters and radians (roll, pitch and yaw about x, y and z, applied in the order z, y, x). A request carries data_age_ms, captured_at_utc or both; with captured_at_utc the service computes the age itself. The schema is closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "frame_id",
+    "current",
+    "target",
+    "confidence",
+    "safety_state"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "frame_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The frame the estimate was made from."
+    },
+    "current": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "x",
+        "y",
+        "z",
+        "roll",
+        "pitch",
+        "yaw"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        },
+        "roll": {
+          "type": "number"
+        },
+        "pitch": {
+          "type": "number"
+        },
+        "yaw": {
+          "type": "number"
+        }
+      },
+      "description": "Where the tool is: x, y, z in meters and roll, pitch, yaw in radians."
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "x",
+        "y",
+        "z",
+        "roll",
+        "pitch",
+        "yaw"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        },
+        "roll": {
+          "type": "number"
+        },
+        "pitch": {
+          "type": "number"
+        },
+        "yaw": {
+          "type": "number"
+        }
+      },
+      "description": "Where the image says the tool should be, in the same units."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "How sure the detector is, from 0 to 1."
+    },
+    "safety_state": {
+      "enum": [
+        "READY",
+        "INHIBITED",
+        "FAULT",
+        "SAFE_STOP"
+      ],
+      "description": "The safety state the caller saw, in the vocabulary of SafetyState."
+    },
+    "data_age_ms": {
+      "type": "number",
+      "minimum": 0,
+      "description": "How old the estimate is, in milliseconds."
+    },
+    "captured_at_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the image was captured."
+    },
+    "calibration_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "The calibration behind the camera-to-robot transform."
+    },
+    "calibration_age_days": {
+      "type": "number",
+      "minimum": 0,
+      "description": "How old that calibration is, in days."
+    }
+  },
+  "anyOf": [
+    {
+      "properties": {
+        "data_age_ms": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "data_age_ms"
+      ]
+    },
+    {
+      "properties": {
+        "captured_at_utc": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "captured_at_utc"
+      ]
+    }
+  ]
+}

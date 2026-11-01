@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "frame_id": "frame-0001",
+  "capture_ts_utc": "2026-01-01T10:00:00.250Z",
+  "width": 1280,
+  "height": 720,
+  "pixel_format": "RGB",
+  "session_id": "run-1",
+  "source_id": "cam-top",
+  "sequence": 1
+}

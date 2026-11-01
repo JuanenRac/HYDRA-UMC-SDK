@@ -1,0 +1,14 @@
+{
+  "incidentId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "sourceNode": "cm5-1",
+  "detectedAt": "2026-01-01T10:00:00+00:00",
+  "severity": "critical",
+  "component": "hydra-umc-server.service",
+  "symptom": "The unit is not active.",
+  "evidenceRefs": [
+    "systemctl:hydra-umc-server.service"
+  ],
+  "redactionLevel": "sanitized",
+  "requestedBy": null,
+  "correlationId": "0d3f1f0c-6a43-4f3a-9a53-6a1d0c4b8e11"
+}

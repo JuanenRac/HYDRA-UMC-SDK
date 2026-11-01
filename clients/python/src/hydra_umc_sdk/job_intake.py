@@ -11,13 +11,16 @@ to persist or deduplicate the `idempotency_key` (QoS 1 may deliver a command twi
 * `IdempotencyStore`: remembers the keys it has seen for a while (SQLite when it is given a file, so that a restart does not forget; in memory otherwise), and the result a
   bridge stored for each key, so that a repeated request can be answered with the same answer instead of being run again.
 * `JobIntake`: takes the raw payload and the retained flag of an MQTT message and says whether the bridge should look at the job: not a retained one, not a malformed one, not
-  one that was already handled.
+  one that was already handled and, when the service switched signed commands on (`signed_commands.py`), not one that is unsigned, forged or expired.
+* `read_job_message`: the whole first half of the handler of `cmd/job` that the bridges each wrote for themselves (size limit, JSON, intake, the answer to a repeat), so that a
+  bridge only decides about the job.
 
 Pure standard library. Neither piece decides anything about safety: the gate (`evaluate_job`, with the state the bridge OBSERVES) still does.
 """
 
 from __future__ import annotations
 
+import json
 import sqlite3
 import threading
 import time
@@ -25,6 +28,7 @@ from dataclasses import dataclass
 from typing import Callable, Mapping
 
 from .bridge_contract import BridgeError, BridgeJob, job_from_dict
+from .signed_commands import CommandVerifier
 
 DEFAULT_TTL_SECONDS = 24 * 3600
 DEFAULT_MAX_ENTRIES = 10_000
@@ -106,6 +110,8 @@ class Intake:
     # job, so the bridge must decide whether to run it (when running it twice
     # is physically harmless) or to ask the sender, instead of staying silent.
     in_doubt: bool = False
+    # True when the command was refused because of its signature or its expiry (signed commands on); the reason says which.
+    unsigned: bool = False
 
 
 class JobIntake:
@@ -117,12 +123,24 @@ class JobIntake:
     deduplicated (the bridge says so by passing none), but retained and malformed messages are still stopped.
     """
 
-    def __init__(self, store: IdempotencyStore | None = None) -> None:
+    def __init__(self, store: IdempotencyStore | None = None, verifier: CommandVerifier | None = None) -> None:
         self._store = store
+        self._verifier = verifier
 
-    def accept(self, payload: Mapping[str, object], *, retained: bool = False) -> Intake:
+    def recall(self, key: str) -> str | None:
+        """The answer the bridge stored for `key` (see `IdempotencyStore.remember`), or None."""
+        return self._store.recall(key) if self._store is not None else None
+
+    def accept(self, payload: Mapping[str, object], *, retained: bool = False, topic: str | None = None) -> Intake:
+        """`topic` is the topic the message arrived on; it is part of what a signed command signs, so it is required once the verifier asks for signatures."""
         if retained:
             return Intake(False, "a retained message is a replay by the broker, not a request: it is ignored", retained=True)
+        if self._verifier is not None and self._verifier.enabled:
+            if topic is None:
+                return Intake(False, "the topic of the command is needed to check its signature", unsigned=True)
+            verdict = self._verifier.check(topic, payload)
+            if not verdict.ok:
+                return Intake(False, verdict.reason, unsigned=True)
         try:
             job = job_from_dict(payload)
         except BridgeError as error:
@@ -134,3 +152,53 @@ class JobIntake:
                 reason += " but no answer was stored for it: the first attempt may not have finished"
             return Intake(False, reason, job=job, duplicate=True, in_doubt=in_doubt)
         return Intake(True, "accepted", job=job)
+
+
+MAX_JOB_PAYLOAD_BYTES = 16 * 1024
+
+
+@dataclass(frozen=True)
+class JobMessage:
+    """What `read_job_message` made of one message on a `cmd/job` topic: exactly one of the four is set.
+
+    * `ignore`: nothing to do and nothing to answer (a retained replay);
+    * `refusal`: the answer to publish on the result topic, `{"allowed": False, "reason": ...}` (too large, not JSON, malformed, unsigned or expired, or a repeat whose first
+      attempt may not have finished);
+    * `repeat_answer`: the answer that was stored for this idempotency key, to publish again instead of running the job a second time;
+    * `job`: a job that is new, well formed and (when asked) signed: the bridge decides about it and then calls `store.remember(job.idempotency_key, answer)`.
+    """
+
+    job: BridgeJob | None = None
+    ignore: bool = False
+    refusal: dict[str, object] | None = None
+    repeat_answer: str | None = None
+
+
+def read_job_message(
+    intake: JobIntake,
+    topic: str,
+    payload: bytes,
+    *,
+    retained: bool = False,
+    max_payload_bytes: int = MAX_JOB_PAYLOAD_BYTES,
+) -> JobMessage:
+    """The first half of the handler of `cmd/job`, the same for every bridge. Never raises."""
+    if retained:
+        return JobMessage(ignore=True)
+    if len(payload) > max_payload_bytes:
+        return JobMessage(refusal={"allowed": False, "reason": f"payload is larger than {max_payload_bytes} bytes"})
+    try:
+        raw = json.loads(payload)
+    except (ValueError, UnicodeDecodeError) as error:
+        return JobMessage(refusal={"allowed": False, "reason": f"malformed job payload: {error}"})
+    taken = intake.accept(raw if isinstance(raw, dict) else {}, topic=topic)
+    if taken.accepted:
+        return JobMessage(job=taken.job)
+    if taken.unsigned:
+        return JobMessage(refusal={"allowed": False, "reason": taken.reason})
+    if taken.duplicate and taken.job is not None:
+        stored = intake.recall(taken.job.idempotency_key)
+        if stored is not None:
+            return JobMessage(repeat_answer=stored)
+        return JobMessage(refusal={"allowed": False, "reason": taken.reason})
+    return JobMessage(refusal={"allowed": False, "reason": f"malformed job payload: {taken.reason.removeprefix('malformed job: ')}"})

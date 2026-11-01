@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/frame-meta.schema.json",
+  "title": "FrameMeta",
+  "description": "The first stage of the vision pipeline: which frame a camera produced (its id, the instant it was captured, its size and its pixel format). The detections of the next stage name this frame by frame_id. The schema is closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "frame_id",
+    "capture_ts_utc",
+    "width",
+    "height",
+    "pixel_format"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "frame_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The frame, unique within its session."
+    },
+    "capture_ts_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the camera captured the frame."
+    },
+    "width": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 8192,
+      "description": "Width in pixels."
+    },
+    "height": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 8192,
+      "description": "Height in pixels."
+    },
+    "pixel_format": {
+      "enum": [
+        "RGB",
+        "BGR",
+        "RGBA",
+        "BGRA",
+        "GRAY",
+        "YUYV",
+        "NV12",
+        "JPEG"
+      ],
+      "description": "How the pixels are laid out; JPEG is a compressed frame."
+    },
+    "session_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The capture session the frame belongs to."
+    },
+    "source_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The camera that produced it."
+    },
+    "stride": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Bytes per row of a packed format, when rows are padded."
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Grows with every frame of a session."
+    }
+  }
+}

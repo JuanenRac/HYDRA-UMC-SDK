@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/command-lifecycle-event.schema.json",
+  "title": "CommandLifecycleEvent",
+  "description": "What happened to one robot command after the server accepted it: ACCEPTED (the server owns it), RUNNING (the controller has it), COMPLETED, FAILED or CANCELLED. The events of one command share its operation_id (the id of the Operation that carries it) and grow by sequence. FAILED and CANCELLED say why. The schema is closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "operation_id",
+    "robot_id",
+    "command",
+    "state",
+    "at_utc",
+    "sequence"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "operation_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The Operation that carries the command."
+    },
+    "robot_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The robot the command was sent to, as the server names it."
+    },
+    "command": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The verb of the command, for example move or stop."
+    },
+    "state": {
+      "enum": [
+        "ACCEPTED",
+        "RUNNING",
+        "COMPLETED",
+        "FAILED",
+        "CANCELLED"
+      ],
+      "description": "Where the command is. COMPLETED only with evidence that the controller carried it out."
+    },
+    "at_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the command reached this state."
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Grows with every event of one command; a consumer ignores an event older than the last one it saw."
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Why the command failed or was cancelled; required for FAILED and CANCELLED."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "enum": [
+              "FAILED",
+              "CANCELLED"
+            ]
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      }
+    }
+  ]
+}

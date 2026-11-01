@@ -92,6 +92,16 @@ directories up from `clients/go`) and skip themselves with a clear message
 if that checkout isn't present - `Validate`/`ValidateJSON` themselves never
 depend on it, only on the embedded `schemas/`.
 
+## Importing it from another repository
+
+The module path is the path of this subdirectory, so another repository adds it with the tag of the SDK that carries the client:
+
+```bash
+go get github.com/JuanenRac/HYDRA-UMC-SDK/clients/go@clients/go/vX.Y.Z
+```
+
+The tag of a module that lives in a subdirectory has the form `clients/go/vX.Y.Z` (a plain `vX.Y.Z` tag does not resolve it). `go.mod` asks for Go 1.22, carries no `toolchain`, `replace`, `exclude` or `retract` directive, and a test (`module_test.go`) keeps it that way, so a repository on a newer Go imports the client without any change of toolchain.
+
 ## Usage
 
 ```go
@@ -120,7 +130,7 @@ func main() {
 
 ## Known contracts
 
-`DeviceDescriptor`, `HealthReport`, `SafetyState`, `UpdateManifest`,
-`EventEnvelope`, `ServerDiscovery`, `ProjectManifest` - the same 7 names
+every contract name that `hydraumc.KnownContracts()` returns (24 at the moment, among them `DeviceDescriptor`, `HealthReport`, `SafetyState`, `UpdateManifest`,
+`EventEnvelope`, `ServerDiscovery` and `ProjectManifest`) - the names
 documented in [../../docs/PYTHON_CLIENT.md](../../docs/PYTHON_CLIENT.md)
 (`hydraumc.KnownContracts()` returns them at runtime, sorted).

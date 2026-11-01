@@ -313,12 +313,16 @@ def open_bridge_client(
     reconnect_max_delay_seconds: float = 30,
     mqtt_module: object = None,
     on_connected: Optional[Callable[[object], None]] = None,
+    health: Optional[object] = None,
 ) -> object:
     """Build the paho client of a bridge and connect it (the caller then runs `client.loop_forever()` or `loop_start()`).
 
     * the credentials and the TLS of the service's environment (`HYDRA_MQTT_*`), unless `username` is given explicitly;
     * the Last Will: the retained `availability` topic turns "offline" if the link dies;
     * after every (re)connect that the broker accepted: subscribe to `<prefix>cmd/#`, publish "online" on `<prefix>availability` (retained, QoS 1), then `on_connected(client)`;
+    * with `health` (a `bridge_health.BridgeHealth`; the service passes it only when it switched the health topic on): the Last Will is the retained `FAULT` report of
+      `hydra/bridges/<name>/health` instead of the `availability` one, the bridge publishes `READY` there after every accepted connect, and the retained `availability` message
+      that an earlier run left is cleared, since the health topic replaces it (an MQTT connection has one Last Will);
     * a refused login is left to paho, which reports it and retries on its own;
     * `reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` (1 and 30) bound paho's own exponential reconnect delay after the link drops;
     * `connect_backoff_factor`, `connect_max_delay_seconds` and `connect_jitter` shape the wait between the retries of the FIRST connect (see `connect_with_retry`; by default
@@ -345,14 +349,23 @@ def open_bridge_client(
         if getattr(reason_code, "is_failure", False):
             return  # the broker refused us: paho reports it and retries on its own
         client.subscribe(f"{topic_prefix}cmd/#")  # type: ignore[attr-defined]
-        client.publish(availability, "online", qos=1, retain=True)  # type: ignore[attr-defined]
+        if health is None:
+            client.publish(availability, "online", qos=1, retain=True)  # type: ignore[attr-defined]
+        else:
+            client.publish(availability, b"", qos=1, retain=True)  # type: ignore[attr-defined]  # an empty retained message clears the old one
+            ready = health.online()  # type: ignore[attr-defined]
+            client.publish(ready.topic, ready.payload, qos=ready.qos, retain=ready.retain)  # type: ignore[attr-defined]
         if on_connected is not None:
             on_connected(client)
 
     client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=client_id)  # type: ignore[attr-defined]
     apply_connection_settings(client, settings_from_env(), username=username, password=password)
     client.reconnect_delay_set(min_delay=reconnect_min_delay_seconds, max_delay=reconnect_max_delay_seconds)
-    client.will_set(availability, "offline", qos=1, retain=True)
+    if health is None:
+        client.will_set(availability, "offline", qos=1, retain=True)
+    else:
+        last_will = health.will()  # type: ignore[attr-defined]
+        client.will_set(last_will.topic, last_will.payload, qos=last_will.qos, retain=last_will.retain)
     client.on_connect = on_connect
     client.on_message = dispatcher.on_message
     connect_with_retry(

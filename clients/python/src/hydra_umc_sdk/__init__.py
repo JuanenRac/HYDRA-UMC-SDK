@@ -49,6 +49,14 @@ from .pose import FRAMES as POSE_FRAMES, Pose, Quaternion, pose_from_dict, pose_
 from .scenario import ScenarioComparison, compare_runs
 from .model_weights import ANY_WEIGHT_SUFFIXES, COMPILED_MODEL_SUFFIXES, contains_model_artifact
 from .production_event import production_event_fields, validate_production_event
+from .command_lifecycle import COMMAND_STATES, command_state_from_operation, is_terminal_state, validate_command_lifecycle_event, validate_state_transition
+from .servoing import command_is_current, validate_velocity_command, validate_visual_target_request
+from .vision_pipeline import BOX_UNITS, PIXEL_FORMATS, box_to_pixels, validate_detection_frame, validate_frame_meta
+from .signed_commands import CommandSigningError, CommandVerdict, CommandVerifier, SignedCommandSettings, sign_command, verify_command
+from .signed_commands import load_key as load_command_key, settings_from_environment as signed_command_settings_from_environment
+from .bridge_health import BridgeHealth, health_enabled_from_environment, health_report, health_topic, read_health
+from .job_intake import JobMessage, read_job_message
+from .maintenance import incident_may_be_stored, validate_maintenance_incident
 from .ecosystem import (
     CERTIFICATE_STATES,
     LIVENESS_SOURCES,
@@ -102,6 +110,36 @@ __all__ = [
     "validate_robot_liveness",
     "validate_connection_client",
     "validate_production_event",
+    "COMMAND_STATES",
+    "command_state_from_operation",
+    "is_terminal_state",
+    "validate_command_lifecycle_event",
+    "validate_state_transition",
+    "command_is_current",
+    "validate_velocity_command",
+    "validate_visual_target_request",
+    "BOX_UNITS",
+    "PIXEL_FORMATS",
+    "box_to_pixels",
+    "validate_detection_frame",
+    "validate_frame_meta",
+    "incident_may_be_stored",
+    "CommandSigningError",
+    "CommandVerdict",
+    "CommandVerifier",
+    "SignedCommandSettings",
+    "sign_command",
+    "verify_command",
+    "load_command_key",
+    "signed_command_settings_from_environment",
+    "BridgeHealth",
+    "health_enabled_from_environment",
+    "health_report",
+    "health_topic",
+    "read_health",
+    "JobMessage",
+    "read_job_message",
+    "validate_maintenance_incident",
     "production_event_fields",
     "contains_model_artifact",
     "ANY_WEIGHT_SUFFIXES",

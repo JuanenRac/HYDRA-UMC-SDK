@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "frame_id": "frame-0001",
+  "capture_ts_utc": "2026-01-01T10:00:00.250Z",
+  "box_unit": "normalized",
+  "detections": [
+    {
+      "class_id": 0,
+      "label": "fiducial",
+      "score": 0.93,
+      "box": {
+        "x_min": 0.4,
+        "y_min": 0.35,
+        "x_max": 0.52,
+        "y_max": 0.49
+      }
+    }
+  ],
+  "session_id": "run-1",
+  "model": {
+    "model_name": "yolov8n",
+    "model_version": "1.2.0",
+    "model_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    "hailo_arch": "hailo8",
+    "pipeline_version": "0.1.5"
+  }
+}

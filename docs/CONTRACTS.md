@@ -36,6 +36,12 @@ according to its use case.
 | `EcosystemHealth` | Server (`GET /api/ecosystem/health`, off until an administrator turns it on) | Studio, Suite, apps, dashboard |
 | `RobotLiveness` | Server (`GET /api/robots/liveness`) | Studio, Suite, apps, OPC UA server |
 | `ProductionEvent` | Orchestrator, bridges, robots (one finished cycle) | Production reports, Data Lake |
+| `CommandLifecycleEvent` | Server (the step a robot command reached: accepted, running, completed, failed, cancelled) | Studio, Suite, apps |
+| `VisualTargetRequest` | Callers of visual servoing | Visual servoing service |
+| `VelocityCommand` | Visual servoing service | Robot controllers, Server |
+| `FrameMeta` | Vision node, vision streamer | Detection services |
+| `DetectionFrame` | Detection services (vision node, Hailo detection) | Visual servoing, Studio, Suite |
+| `MaintenanceIncident` | Maintenance agent of a node | Development server, local technician, dashboard |
 | `ProjectManifest` | Every repository (`hydra-umc.project.json` or `urtc.project.json`) | Updater, dashboard |
 
 Planned, with no schema yet: `ToolDescriptor` (URTC adapter, for Server, Smart

@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/maintenance-incident.schema.json",
+  "title": "MaintenanceIncident",
+  "description": "One observation that the maintenance agent of a node reports: a service that should run and does not, a manifest that does not parse, a health check that fails. The wire form is the one the agent writes, with camelCase names. The text fields arrive already redacted and redactionLevel says so; a consumer that stores or forwards incidents refuses raw unless its configuration allows it. schema_version is optional so that an incident written before the contract existed still validates. The schema is closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "incidentId",
+    "sourceNode",
+    "detectedAt",
+    "severity",
+    "component",
+    "symptom",
+    "evidenceRefs",
+    "redactionLevel",
+    "requestedBy",
+    "correlationId"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "incidentId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The incident."
+    },
+    "sourceNode": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The node the agent observed."
+    },
+    "detectedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the agent saw it."
+    },
+    "severity": {
+      "enum": [
+        "info",
+        "warning",
+        "critical"
+      ],
+      "description": "What was observed, not a prediction of impact: critical means a service that should run does not."
+    },
+    "component": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "The service, unit or file concerned."
+    },
+    "symptom": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "description": "What was observed, in words."
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      },
+      "description": "Where the evidence can be found."
+    },
+    "redactionLevel": {
+      "enum": [
+        "sanitized",
+        "raw"
+      ],
+      "description": "sanitized when the text fields are redacted."
+    },
+    "requestedBy": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1,
+      "maxLength": 120,
+      "description": "Who asked for the observation, or null when the agent did it on its own."
+    },
+    "correlationId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "Shared by the incidents of one collection pass."
+    }
+  }
+}

@@ -6,12 +6,20 @@
       "sha256": "f435d0562cd27f9b345266b39619b04a7d078355bc900efdbba337ddc5fa0048"
     },
     {
+      "file": "command-lifecycle-event.schema.json",
+      "sha256": "0026ff3af340f42533b6d6ebc184cdd74801dead412151ca5fb63e4e09f4fc82"
+    },
+    {
       "file": "connection-client.schema.json",
       "sha256": "edf2fe0687546d6996b38f3048b257ff99967ff79df1327a622fcfe47338975a"
     },
     {
       "file": "connection-event.schema.json",
       "sha256": "59daf5da4a0df4502e8a4666e248500ee583175e91e89c3009dde4b7d7767d83"
+    },
+    {
+      "file": "detection-frame.schema.json",
+      "sha256": "93c2cc477fdba4c98bd2cdd114890cafcf35b9f6a994f714bfff8f05cc79c362"
     },
     {
       "file": "device-descriptor.schema.json",
@@ -26,8 +34,16 @@
       "sha256": "16ed230b5967b48a5a42597956687d419bcdefd013719e8c3a725a47d24aceeb"
     },
     {
+      "file": "frame-meta.schema.json",
+      "sha256": "1869c3fdf24ae72bc14371cec57663407e02a9e1de24058ff956a81f15432c7e"
+    },
+    {
       "file": "health-report.schema.json",
       "sha256": "8c2278b6d803314f9273ad61de564597d706b3795578045a47c44fcfe4748a5c"
+    },
+    {
+      "file": "maintenance-incident.schema.json",
+      "sha256": "474274308b3679b324019824bb1758f20216a4940b2a03dc6f756c677ee7b33c"
     },
     {
       "file": "operation.schema.json",
@@ -72,6 +88,15 @@
     {
       "file": "update-manifest.schema.json",
       "sha256": "650f04ce9c503c809deafca638f19de9a90920ca1cf7b4b4eb5699c5c5872d36"
+    },
+    {
+      "file": "velocity-command.schema.json",
+      "sha256": "910e33b001fdc622bd7f5fa6059cff1ea979b88c08eefbfe8affb1a4a34c3147"
+    },
+    {
+      "file": "visual-target-request.schema.json",
+      "sha256": "f276ad113b0b9ff492fb1e83efba918ca22b1480dbaca564c461d60d83082d51"
     }
   ]
 }
+

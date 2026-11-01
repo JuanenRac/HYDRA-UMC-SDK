@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0",
+  "operation_id": "op-0001",
+  "robot_id": "3",
+  "command": "move",
+  "state": "DONE",
+  "at_utc": "2026-01-01T10:00:00Z",
+  "sequence": 2
+}

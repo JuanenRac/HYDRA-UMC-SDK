@@ -76,6 +76,15 @@ const CONTRACT_FILES: &[(&str, &str)] = &[
     ("ProductionEvent", "production-event.schema.json"),
     ("EcosystemHealth", "ecosystem-health.schema.json"),
     ("RobotLiveness", "robot-liveness.schema.json"),
+    (
+        "CommandLifecycleEvent",
+        "command-lifecycle-event.schema.json",
+    ),
+    ("VisualTargetRequest", "visual-target-request.schema.json"),
+    ("VelocityCommand", "velocity-command.schema.json"),
+    ("FrameMeta", "frame-meta.schema.json"),
+    ("DetectionFrame", "detection-frame.schema.json"),
+    ("MaintenanceIncident", "maintenance-incident.schema.json"),
 ];
 
 /// Vendored schema file name -> raw JSON text, embedded at compile time.
@@ -154,6 +163,30 @@ const SCHEMA_FILES: &[(&str, &str)] = &[
     (
         "robot-liveness.schema.json",
         include_str!("../schemas/robot-liveness.schema.json"),
+    ),
+    (
+        "command-lifecycle-event.schema.json",
+        include_str!("../schemas/command-lifecycle-event.schema.json"),
+    ),
+    (
+        "visual-target-request.schema.json",
+        include_str!("../schemas/visual-target-request.schema.json"),
+    ),
+    (
+        "velocity-command.schema.json",
+        include_str!("../schemas/velocity-command.schema.json"),
+    ),
+    (
+        "frame-meta.schema.json",
+        include_str!("../schemas/frame-meta.schema.json"),
+    ),
+    (
+        "detection-frame.schema.json",
+        include_str!("../schemas/detection-frame.schema.json"),
+    ),
+    (
+        "maintenance-incident.schema.json",
+        include_str!("../schemas/maintenance-incident.schema.json"),
     ),
 ];
 

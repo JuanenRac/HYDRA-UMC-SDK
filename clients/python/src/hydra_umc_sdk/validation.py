@@ -40,6 +40,12 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "ProductionEvent": ("schema_version", "source_id", "at_utc", "good", "cycle_time_s"),
     "EcosystemHealth": ("schema_version", "generated_at_utc", "available", "summary", "services", "certificate", "warnings"),
     "RobotLiveness": ("schema_version", "stale_after_s", "robots"),
+    "CommandLifecycleEvent": ("schema_version", "operation_id", "robot_id", "command", "state", "at_utc", "sequence"),
+    "VisualTargetRequest": ("schema_version", "frame_id", "current", "target", "confidence", "safety_state"),
+    "VelocityCommand": ("schema_version", "vx", "vy", "vz", "wroll", "wpitch", "wyaw", "hold", "issued_at_ms", "valid_for_ms", "seq"),
+    "FrameMeta": ("schema_version", "frame_id", "capture_ts_utc", "width", "height", "pixel_format"),
+    "DetectionFrame": ("schema_version", "frame_id", "capture_ts_utc", "box_unit", "detections"),
+    "MaintenanceIncident": ("incidentId", "sourceNode", "detectedAt", "severity", "component", "symptom", "evidenceRefs", "redactionLevel", "requestedBy", "correlationId"),
     "ConnectionEvent": ("schema_version", "id", "at_utc", "action", "client_kind", "client_id"),
     "ConnectionClient": ("schema_version", "id", "kind", "first_seen_utc", "last_seen_utc", "active_sessions", "logins_ok", "logins_failed"),
     "ServerDiscovery": ("schema_version", "product", "remoteApiVersion", "appVersion", "hostname", "controllerCount", "robotCount", "uptimeSeconds"),
@@ -239,6 +245,36 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
         from .connection import validate_connection_client  # imported here: connection.py needs this module's error type
 
         validate_connection_client(payload)
+        return
+    if contract == "CommandLifecycleEvent":
+        from .command_lifecycle import validate_command_lifecycle_event  # imported here: command_lifecycle.py needs this module's error type
+
+        validate_command_lifecycle_event(payload)
+        return
+    if contract == "VisualTargetRequest":
+        from .servoing import validate_visual_target_request  # imported here: servoing.py needs this module's error type
+
+        validate_visual_target_request(payload)
+        return
+    if contract == "VelocityCommand":
+        from .servoing import validate_velocity_command  # imported here: servoing.py needs this module's error type
+
+        validate_velocity_command(payload)
+        return
+    if contract == "FrameMeta":
+        from .vision_pipeline import validate_frame_meta  # imported here: vision_pipeline.py needs this module's error type
+
+        validate_frame_meta(payload)
+        return
+    if contract == "DetectionFrame":
+        from .vision_pipeline import validate_detection_frame  # imported here: vision_pipeline.py needs this module's error type
+
+        validate_detection_frame(payload)
+        return
+    if contract == "MaintenanceIncident":
+        from .maintenance import validate_maintenance_incident  # imported here: maintenance.py needs this module's error type
+
+        validate_maintenance_incident(payload)
         return
     for field in REQUIRED[contract]:
         if field not in payload:

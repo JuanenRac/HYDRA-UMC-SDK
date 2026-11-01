@@ -41,21 +41,31 @@ const CONTRACT_FIXTURE_STEM: Record<ContractName, string> = {
   ProductionEvent: "production-event",
   EcosystemHealth: "ecosystem-health",
   RobotLiveness: "robot-liveness",
+  CommandLifecycleEvent: "command-lifecycle-event",
+  VisualTargetRequest: "visual-target-request",
+  VelocityCommand: "velocity-command",
+  FrameMeta: "frame-meta",
+  DetectionFrame: "detection-frame",
+  MaintenanceIncident: "maintenance-incident",
 };
 
 function readFixture(name: string): unknown {
   return JSON.parse(fs.readFileSync(path.join(FIXTURES, name), "utf-8"));
 }
 
-test("knownContracts lists all 18 real contracts", () => {
+test("knownContracts lists all 24 real contracts", () => {
   assert.deepEqual(knownContracts(), [
     "Capability",
+    "CommandLifecycleEvent",
     "ConnectionClient",
     "ConnectionEvent",
+    "DetectionFrame",
     "DeviceDescriptor",
     "EcosystemHealth",
     "EventEnvelope",
+    "FrameMeta",
     "HealthReport",
+    "MaintenanceIncident",
     "Operation",
     "Pose",
     "ProductionEvent",
@@ -67,6 +77,8 @@ test("knownContracts lists all 18 real contracts", () => {
     "ServerDiscovery",
     "TwinState",
     "UpdateManifest",
+    "VelocityCommand",
+    "VisualTargetRequest",
   ]);
 });
 

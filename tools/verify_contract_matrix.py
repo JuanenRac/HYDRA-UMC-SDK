@@ -132,7 +132,7 @@ def check_other_client_coverage(schema_contracts: dict[str, Path]) -> None:
 
     if RUST_VALIDATION.exists():
         rust_source = RUST_VALIDATION.read_text(encoding="utf-8")
-        rust_names = set(re.findall(r'\(\s*"([A-Za-z]+)",\s*"[a-z0-9-]+\.schema\.json"\s*\)', rust_source))
+        rust_names = set(re.findall(r'\(\s*"([A-Za-z]+)",\s*"[a-z0-9-]+\.schema\.json",?\s*\)', rust_source))
         missing = sorted(schema_names - rust_names)
         stale = sorted(rust_names - schema_names)
         if missing:
