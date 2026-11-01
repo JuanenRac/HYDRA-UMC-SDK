@@ -1,0 +1,166 @@
+{
+  "source_version": "1",
+  "group": "users",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "get",
+      "path": "/api/users",
+      "summary": "GET /api/users",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "UserList"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/users",
+      "summary": "POST /api/users",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "username",
+                "password",
+                "role"
+              ],
+              "properties": {
+                "username": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Success"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "delete",
+      "path": "/api/users/{username}",
+      "summary": "DELETE /api/users/{username}",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "parameters": [
+        {
+          "name": "username",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Success"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "put",
+      "path": "/api/users/{username}",
+      "summary": "PUT /api/users/{username}",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "parameters": [
+        {
+          "name": "username",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "required": false,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [],
+              "properties": {
+                "newUsername": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Success"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "delete",
+      "path": "/api/users/{username}/totp",
+      "summary": "DELETE /api/users/{username}/totp",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "parameters": [
+        {
+          "name": "username",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Success"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}

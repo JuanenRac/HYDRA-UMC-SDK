@@ -1,0 +1,58 @@
+{
+  "source_version": "1",
+  "group": "upload-work",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "post",
+      "path": "/api/upload-work",
+      "summary": "POST /api/upload-work",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "folderPath",
+                "fileName",
+                "content"
+              ],
+              "properties": {
+                "folderPath": {
+                  "type": "string"
+                },
+                "fileName": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Success"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "403": {
+          "description": "Signed in but not allowed. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "500": {
+          "description": "Server error. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}

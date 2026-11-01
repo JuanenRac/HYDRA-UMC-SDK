@@ -2301,12 +2301,55 @@
         "tags": [
           "connections"
         ],
-        "summary": "GET /api/connections/clients",
-        "description": "Requires a signed-in account (bearer token).",
+        "operationId": "listConnectionClients",
+        "summary": "List the clients the server has seen",
         "x-access": "user",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "description": "Only the clients of this kind.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "studio",
+                "suite",
+                "android",
+                "ios",
+                "dsi",
+                "watch",
+                "voice",
+                "other"
+              ]
+            }
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "required": false,
+            "description": "Only the clients of this account. Honoured for administrators; any other account always gets its own entries.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "active",
+            "in": "query",
+            "required": false,
+            "description": "1 or true: only the clients with an open session.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "true"
+              ]
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "description": "The clients that match.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2316,7 +2359,7 @@
             }
           },
           "400": {
-            "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+            "description": "The kind is not one of the client kinds.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2326,32 +2369,6 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "active",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "kind",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "user",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "security": [
           {
             "bearerAuth": []
@@ -2364,12 +2381,80 @@
         "tags": [
           "connections"
         ],
-        "summary": "GET /api/connections/events",
-        "description": "Requires a signed-in account (bearer token).",
+        "operationId": "listConnectionEvents",
+        "summary": "List the history of the sign-ins of the clients",
         "x-access": "user",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "description": "Only the events of this kind of client.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "studio",
+                "suite",
+                "android",
+                "ios",
+                "dsi",
+                "watch",
+                "voice",
+                "other"
+              ]
+            }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "description": "Only the events of this action.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "first_seen",
+                "login",
+                "login_failed",
+                "second_factor_failed",
+                "logout",
+                "session_ended",
+                "session_expired"
+              ]
+            }
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "required": false,
+            "description": "Only the events of this account. Honoured for administrators; any other account always gets its own entries.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "description": "Only the events with an id lower than this one, to page backwards.",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,9}$"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "The most events to answer with.",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,9}$"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "description": "The events that match.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2379,7 +2464,7 @@
             }
           },
           "400": {
-            "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+            "description": "The kind or the action is unknown, or the limit or the before is not a whole number.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2389,48 +2474,6 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "action",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "before",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "kind",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "user",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "security": [
           {
             "bearerAuth": []

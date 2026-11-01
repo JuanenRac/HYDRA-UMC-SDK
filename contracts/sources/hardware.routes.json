@@ -1,0 +1,75 @@
+{
+  "source_version": "1",
+  "group": "hardware",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "post",
+      "path": "/api/hardware/canota/flash",
+      "summary": "POST /api/hardware/canota/flash",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "CanotaFlash"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "502": {
+          "description": "Upstream service rejected the request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "get",
+      "path": "/api/hardware/canota/version",
+      "summary": "GET /api/hardware/canota/version",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "parameters": [
+        {
+          "name": "relay",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "slot",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "tier",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Passthrough"
+        },
+        "503": {
+          "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}

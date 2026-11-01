@@ -1,0 +1,20 @@
+{
+  "source_version": "1",
+  "group": "rul",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "get",
+      "path": "/api/rul/config",
+      "summary": "GET /api/rul/config",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "RulConfig"
+        }
+      }
+    }
+  ]
+}

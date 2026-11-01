@@ -1,0 +1,47 @@
+{
+  "source_version": "1",
+  "group": "refresh",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "post",
+      "path": "/api/refresh",
+      "summary": "POST /api/refresh",
+      "description": "No authentication required by the route itself.",
+      "access": "public",
+      "rate_limited": true,
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "refreshToken"
+              ],
+              "properties": {
+                "refreshToken": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "LoginResult"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "401": {
+          "description": "Not signed in or token rejected. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}

@@ -11,6 +11,16 @@ path, access, query parameters, status codes) and names the closed JSON Schemas
 the answers are made of. This tool turns that source into an OpenAPI 3.1
 document and checks that nothing that should follow the source has drifted.
 
+Two kinds of source exist. A pilot source (`connections`) has its own generated
+document and rests on closed JSON Schemas. An **inventory source** (`"kind":
+"inventory"`, one per group of the server) declares every other route of the
+server as it is today: the description, the access, the parameters, the body
+it reads and, for every status code, the shape of the answer by name. The shapes
+themselves (the answers the server describes) are in `contracts/sources/
+server.shapes.json`. Together the sources are the ONE origin of
+`contracts/openapi/v1/server.full.openapi.json`, which is generated from them
+(the union of the groups) and never edited by hand.
+
     python tools/contract_source.py            write the generated document(s)
     python tools/contract_source.py --check    fail when anything drifted
 
@@ -48,6 +58,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCES = ROOT / "contracts" / "sources"
+SHAPES_FILE = SOURCES / "server.shapes.json"
+UNION_OUTPUT = ROOT / "contracts" / "openapi" / "v1" / "server.full.openapi.json"
 SCHEMAS = ROOT / "contracts" / "json-schema" / "v1"
 OPENAPI_ROOT = ROOT / "contracts"
 HTTP_METHODS = ("get", "put", "post", "delete", "patch")
@@ -73,6 +85,25 @@ def load_sources(directory: Path = SOURCES) -> dict[str, dict[str, Any]]:
     if not found:
         raise SourceError(f"no *.routes.json source under {directory}")
     return found
+
+
+def is_inventory(source: dict[str, Any]) -> bool:
+    return source.get("kind") == "inventory"
+
+
+def load_shapes(path: Path = SHAPES_FILE) -> dict[str, Any]:
+    document = _read(path)
+    for key in ("document", "security_schemes", "shapes"):
+        if key not in document:
+            raise SourceError(f"{path}: no {key!r}")
+    return document
+
+
+def query_names(route: dict[str, Any]) -> set[str]:
+    """The query parameters a route reads: the declared `query` of a pilot route, the `parameters` that are in the query of an inventory route."""
+    if "parameters" in route or "query" not in route:
+        return {p["name"] for p in route.get("parameters", []) if p.get("in") == "query"}
+    return {q["name"] for q in route.get("query", [])}
 
 
 def duplicate_routes(sources: dict[str, dict[str, Any]]) -> list[str]:
@@ -179,6 +210,52 @@ def build_document(source: dict[str, Any], schemas: Path = SCHEMAS) -> dict[str,
     }
 
 
+def inventory_operation(route: dict[str, Any], group: str) -> dict[str, Any]:
+    """One operation of the union document, in the key order the generated inventory of the server has always used."""
+    responses: dict[str, Any] = {}
+    for code, spec in route["responses"].items():
+        response: dict[str, Any] = {"description": spec["description"]}
+        if "shape" in spec:
+            response["content"] = _json(_ref(spec["shape"]))
+        responses[code] = response
+    operation: dict[str, Any] = {
+        "tags": [group],
+        "summary": route["summary"],
+        "description": route["description"],
+        "x-access": route["access"],
+        "responses": responses,
+    }
+    if "parameters" in route:
+        operation["parameters"] = route["parameters"]
+    if "request_body" in route:
+        operation["requestBody"] = route["request_body"]
+    if route["access"] != "public":
+        operation["security"] = [{"bearerAuth": []}]
+    if "rate_limited" in route:
+        operation["x-rate-limited"] = route["rate_limited"]
+    return operation
+
+
+def build_union(sources: dict[str, dict[str, Any]], shapes: dict[str, Any], schemas: Path = SCHEMAS) -> dict[str, Any]:
+    """The full inventory of the server routes: every operation of every source, the paths in alphabetical order, the shapes of the answers from the shapes file."""
+    paths: dict[str, Any] = {}
+    for source in sources.values():
+        if is_inventory(source):
+            for route in source["routes"]:
+                paths.setdefault(route["path"], {})[route["method"]] = inventory_operation(route, source["group"])
+        else:
+            operations = build_document(source, schemas)["paths"]
+            for path, item in operations.items():
+                for method, operation in item.items():
+                    paths.setdefault(path, {})[method] = operation
+    return {
+        "openapi": "3.1.0",
+        "info": shapes["document"],
+        "components": {"securitySchemes": shapes["security_schemes"], "schemas": shapes["shapes"]},
+        "paths": {path: {method: paths[path][method] for method in sorted(paths[path])} for path in sorted(paths)},
+    }
+
+
 def render(document: dict[str, Any]) -> str:
     return json.dumps(document, indent=2, ensure_ascii=False) + "\n"
 
@@ -189,7 +266,21 @@ def output_path(source: dict[str, Any]) -> Path:
 
 # ---------------------------------------------------------------- checks
 
+def check_union(sources: dict[str, dict[str, Any]], shapes: dict[str, Any]) -> list[str]:
+    """The full inventory document is exactly the union of the sources and the shapes."""
+    expected = render(build_union(sources, shapes))
+    try:
+        current = UNION_OUTPUT.read_text(encoding="utf-8").replace("\r\n", "\n")
+    except OSError:
+        return [f"{UNION_OUTPUT.name} is missing - run: python tools/contract_source.py"]
+    if current != expected:
+        return [f"{UNION_OUTPUT.name} is out of date with the sources - run: python tools/contract_source.py"]
+    return []
+
+
 def check_generated(name: str, source: dict[str, Any]) -> list[str]:
+    if is_inventory(source):
+        return []
     path = output_path(source)
     expected = render(build_document(source))
     try:
@@ -203,6 +294,8 @@ def check_generated(name: str, source: dict[str, Any]) -> list[str]:
 
 def check_schema_copies(source: dict[str, Any], clients: Path = ROOT / "clients", schemas: Path = SCHEMAS) -> list[str]:
     problems: list[str] = []
+    if is_inventory(source):
+        return problems
     for file in sorted(set(source["schemas"].values())):
         canonical = (schemas / file).read_bytes()
         digest = hashlib.sha256(canonical).hexdigest()
@@ -266,18 +359,33 @@ def compare_with_server_document(source: dict[str, Any], server: dict[str, Any],
                 problems.append(f"{label}: the source lists status {code} and the handler never produces it")
         for code in sorted(have - set(route["responses"]) - MIDDLEWARE_CODES):
             problems.append(f"{label}: the handler produces status {code} and the source does not list it")
-        declared = {q["name"] for q in route.get("query", [])}
+        declared = query_names(route)
         read = {p["name"] for p in offered.get("parameters", []) if p.get("in") == "query"}
         for name in sorted(declared - read):
             problems.append(f"{label}: the source declares the query parameter {name!r} and the handler never reads it")
         for name in sorted(read - declared):
             problems.append(f"{label}: the handler reads the query parameter {name!r} and the source does not declare it")
     server_schemas = server.get("components", {}).get("schemas", {})
-    for name in source["schemas"]:
+    for name in source.get("schemas", {}):
         if name not in server_schemas:
             problems.append(f"schema {name}: the server document does not carry it")
         elif _closed_shape(server_schemas[name]) != _closed_shape(schema_of(name, source, schemas)):
             problems.append(f"schema {name}: the server copy differs from the closed schema of the SDK")
+    return problems
+
+
+def compare_shapes(shapes: dict[str, Any], server: dict[str, Any]) -> list[str]:
+    """The shapes of the answers the server describes are the shapes of the SDK, name by name and field by field."""
+    problems: list[str] = []
+    offered = server.get("components", {}).get("schemas", {})
+    declared = shapes["shapes"]
+    for name in sorted(set(declared) - set(offered)):
+        problems.append(f"shape {name}: the SDK declares it and the server inventory does not carry it")
+    for name in sorted(set(offered) - set(declared)):
+        problems.append(f"shape {name}: the server inventory carries it and the SDK does not declare it")
+    for name in sorted(set(declared) & set(offered)):
+        if declared[name] != offered[name]:
+            problems.append(f"shape {name}: the server copy differs from the shape of the SDK")
     return problems
 
 
@@ -307,6 +415,8 @@ def compare_server_enums(source: dict[str, Any], server_root: Path, schemas: Pat
 
 def scan_consumer(source: dict[str, Any], root: Path) -> list[str]:
     """Routes under a source path that a client mentions must exist; the query parameters it sends must be declared."""
+    if is_inventory(source):    # the inventory describes what the server offers; the clients are scanned against the groups that were declared first (see docs/CONTRACT_SOURCE.md)
+        return []
     prefixes = sorted({"/".join(route["path"].split("/")[:3]) + "/" for route in source["routes"]})
     declared = {route["path"]: {q["name"] for q in route.get("query", [])} for route in source["routes"]}
     pattern = re.compile(r"(" + "|".join(re.escape(p) for p in prefixes) + r")([A-Za-z0-9_/-]*)(\?([^\"'`\s)]*))?")
@@ -350,6 +460,8 @@ def run_check(workspace: Path, server: str | None, consumers: list[str]) -> int:
     notices: list[str] = []
     sources = load_sources()
     problems += duplicate_routes(sources)
+    shapes = load_shapes()
+    problems += check_union(sources, shapes)
     server_root = _find(workspace, "HYDRA-UMC-SERVER", server, "HYDRA_UMC_SERVER_DIR")
     consumer_roots = [Path(c).resolve() for c in consumers] or [workspace / n for n in CONSUMER_REPOSITORIES if (workspace / n).is_dir()]
     for name, source in sources.items():
@@ -365,6 +477,12 @@ def run_check(workspace: Path, server: str | None, consumers: list[str]) -> int:
             (problems if require else notices).append(f"{name}: no consumer checkout to scan")
         for root in consumer_roots:
             problems += [f"{name}: {p}" for p in scan_consumer(source, root)]
+    if server_root is not None and (server_root / "docs" / "openapi.json").is_file():
+        document = _read(server_root / "docs" / "openapi.json")
+        problems += [f"shapes: server: {p}" for p in compare_shapes(shapes, document)]
+        offered = {(path, method) for path, item in document.get("paths", {}).items() for method in item if method in HTTP_METHODS}
+        declared_routes = {(route["path"], route["method"]) for source in sources.values() for route in source["routes"]}
+        problems += [f"inventory: server: {method.upper()} {path} is registered by the server and no source declares it" for path, method in sorted(offered - declared_routes)]
     for notice in notices:
         print(f"CONTRACT_SOURCE=SKIP {notice}")
     if problems:
@@ -392,9 +510,13 @@ def main(argv: list[str] | None = None) -> int:
         if duplicates:
             raise SourceError("; ".join(duplicates))
         for name, source in sources.items():
+            if is_inventory(source):
+                continue
             path = output_path(source)
             path.write_text(render(build_document(source)), encoding="utf-8", newline="\n")
             print(f"wrote {path.relative_to(ROOT).as_posix()} ({name})")
+        UNION_OUTPUT.write_text(render(build_union(sources, load_shapes())), encoding="utf-8", newline="\n")
+        print(f"wrote {UNION_OUTPUT.relative_to(ROOT).as_posix()} (the union of {len(sources)} sources)")
         return 0
     except SourceError as error:
         print(f"CONTRACT_SOURCE=FAIL {error}", file=sys.stderr)

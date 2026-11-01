@@ -1,0 +1,208 @@
+{
+  "source_version": "1",
+  "group": "system",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "post",
+      "path": "/api/system/bluetooth/pair",
+      "summary": "POST /api/system/bluetooth/pair",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "mac"
+              ],
+              "properties": {
+                "mac": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md."
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/system/bluetooth/power",
+      "summary": "POST /api/system/bluetooth/power",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "on"
+              ],
+              "properties": {
+                "on": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Success"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/system/bluetooth/remove",
+      "summary": "POST /api/system/bluetooth/remove",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "mac"
+              ],
+              "properties": {
+                "mac": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Success"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/system/bluetooth/scan",
+      "summary": "POST /api/system/bluetooth/scan",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "BluetoothScan"
+        },
+        "503": {
+          "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "get",
+      "path": "/api/system/bluetooth/status",
+      "summary": "GET /api/system/bluetooth/status",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md."
+        },
+        "503": {
+          "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "get",
+      "path": "/api/system/metrics",
+      "summary": "GET /api/system/metrics",
+      "description": "No authentication required by the route itself.",
+      "access": "public",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "SystemMetrics"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/system/reboot",
+      "summary": "POST /api/system/reboot",
+      "description": "No authentication required by the route itself.",
+      "access": "public",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Success"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/system/shutdown",
+      "summary": "POST /api/system/shutdown",
+      "description": "No authentication required by the route itself.",
+      "access": "public",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Success"
+        }
+      }
+    },
+    {
+      "method": "get",
+      "path": "/api/system/supervisor",
+      "summary": "GET /api/system/supervisor",
+      "description": "No authentication required by the route itself.",
+      "access": "public",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "SupervisorSnapshot"
+        }
+      }
+    }
+  ]
+}

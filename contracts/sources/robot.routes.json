@@ -1,0 +1,300 @@
+{
+  "source_version": "1",
+  "group": "robot",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "get",
+      "path": "/api/robot/{id}",
+      "summary": "GET /api/robot/{id}",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md."
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/robot/{id}/claim",
+      "summary": "POST /api/robot/{id}/claim",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "request_body": {
+        "required": false,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [],
+              "properties": {
+                "ttlMs": {
+                  "type": "number"
+                },
+                "force": {
+                  "type": "boolean"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Reservation"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "409": {
+          "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "412": {
+          "description": "The robot changed since it was read (If-Match). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/robot/{id}/command",
+      "summary": "POST /api/robot/{id}/command",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "command"
+              ],
+              "properties": {
+                "command": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object"
+                },
+                "seq": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md."
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "403": {
+          "description": "Signed in but not allowed. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "409": {
+          "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "412": {
+          "description": "The robot changed since it was read (If-Match). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "423": {
+          "description": "Response. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/robot/{id}/heartbeat",
+      "summary": "POST /api/robot/{id}/heartbeat",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Success"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/robot/{id}/jog-arm",
+      "summary": "POST /api/robot/{id}/jog-arm",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "request_body": {
+        "required": false,
+        "description": "JSON body. Only the field names the handler reads are listed; types and limits are checked in the handler.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "armed": {},
+                "controllerId": {},
+                "ttlMs": {}
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md."
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "409": {
+          "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "423": {
+          "description": "Response. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/robot/{id}/release",
+      "summary": "POST /api/robot/{id}/release",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "request_body": {
+        "required": false,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [],
+              "properties": {
+                "reason": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Reservation"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "409": {
+          "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "412": {
+          "description": "The robot changed since it was read (If-Match). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}

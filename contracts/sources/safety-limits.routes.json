@@ -1,0 +1,37 @@
+{
+  "source_version": "1",
+  "group": "safety-limits",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "get",
+      "path": "/api/safety-limits",
+      "summary": "GET /api/safety-limits",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "parameters": [
+        {
+          "name": "robotId",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md."
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}

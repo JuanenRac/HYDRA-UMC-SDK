@@ -21,11 +21,13 @@ The paho client is imported lazily and can be passed in, so every line here is t
 from __future__ import annotations
 
 import logging
+import os
 import random
 import ssl
 import threading
 import time
 from collections import deque
+from dataclasses import dataclass
 from concurrent.futures import Future, ThreadPoolExecutor
 from typing import Callable, Optional, Protocol
 
@@ -58,6 +60,92 @@ class MqttPublish:
 
     def __repr__(self) -> str:
         return f"MqttPublish(topic={self.topic!r}, payload={self.payload!r}, retain={self.retain!r}, qos={self.qos!r})"
+
+
+_TRUE = {"1", "true", "yes", "on"}
+
+
+@dataclass(frozen=True)
+class BridgeHardening:
+    """The opt-in limits of the transport of one bridge, read from its environment (the file the service unit loads).
+
+    Off by default: with `enabled` false `dispatcher_kwargs()` and `connect_kwargs()` are empty and the bridge behaves exactly as it did before. With it on:
+
+    * `max_queue`: the most commands that may wait behind the running one (the OLDEST waiting one is dropped and counted; the stop lane is never bounded);
+    * `max_payload_bytes`: a payload bigger than this is refused before it is queued (None: the bridge keeps its own cap; stop verbs are exempt);
+    * `connect_backoff_factor`, `connect_max_delay_seconds`, `connect_jitter`: an exponential wait with jitter between the retries of the first connect, instead of a fixed one.
+    """
+
+    enabled: bool = False
+    max_queue: int = 64
+    max_payload_bytes: Optional[int] = None
+    connect_backoff_factor: float = 2.0
+    connect_max_delay_seconds: float = 30.0
+    connect_jitter: float = 0.25
+
+    def __post_init__(self) -> None:
+        if type(self.max_queue) is not int or self.max_queue < 1:
+            raise ValueError("max_queue must be a whole number of 1 or more")
+        if self.max_payload_bytes is not None and (type(self.max_payload_bytes) is not int or self.max_payload_bytes < 1):
+            raise ValueError("max_payload_bytes must be a whole number of 1 or more, or None")
+        if not isinstance(self.connect_backoff_factor, (int, float)) or isinstance(self.connect_backoff_factor, bool) or not 1.0 <= self.connect_backoff_factor <= 10.0:
+            raise ValueError("connect_backoff_factor must be a number from 1 to 10")
+        if not isinstance(self.connect_max_delay_seconds, (int, float)) or isinstance(self.connect_max_delay_seconds, bool) or not 0 < self.connect_max_delay_seconds <= 3600:
+            raise ValueError("connect_max_delay_seconds must be a number above 0 and up to 3600")
+        if not isinstance(self.connect_jitter, (int, float)) or isinstance(self.connect_jitter, bool) or not 0.0 <= self.connect_jitter <= 1.0:
+            raise ValueError("connect_jitter must be a number from 0 to 1")
+
+    def dispatcher_kwargs(self) -> dict[str, int]:
+        """The keyword arguments for `MessageDispatcher(...)`: none when the switch is off."""
+        if not self.enabled:
+            return {}
+        out = {"max_queue": self.max_queue}
+        if self.max_payload_bytes is not None:
+            out["max_payload_bytes"] = self.max_payload_bytes
+        return out
+
+    def connect_kwargs(self) -> dict[str, float]:
+        """The keyword arguments for `open_bridge_client(...)`: none when the switch is off."""
+        if not self.enabled:
+            return {}
+        return {
+            "connect_backoff_factor": float(self.connect_backoff_factor),
+            "connect_max_delay_seconds": float(self.connect_max_delay_seconds),
+            "connect_jitter": float(self.connect_jitter),
+        }
+
+
+def hardening_from_environment(name: str, environ: Optional[dict[str, str]] = None) -> BridgeHardening:
+    """`HYDRA_UMC_<name>_HARDENED` (1 switches it on) and, to tune it, `..._MAX_QUEUE`, `..._MAX_PAYLOAD_BYTES`, `..._CONNECT_BACKOFF_FACTOR`, `..._CONNECT_MAX_DELAY_SECONDS` and
+    `..._CONNECT_JITTER`. A value that is not a valid number raises `ValueError` naming the variable: a misspelt limit must not be taken for no limit. With the switch off the
+    other variables are not even read."""
+    env = os.environ if environ is None else environ
+    base = f"HYDRA_UMC_{name}_"
+    if env.get(base + "HARDENED", "").strip().lower() not in _TRUE:
+        return BridgeHardening()
+    defaults = BridgeHardening(enabled=True)
+
+    def number(suffix: str, default: float, kind: type) -> float:
+        raw = env.get(base + suffix, "").strip()
+        if raw == "":
+            return default
+        try:
+            return kind(raw)
+        except ValueError as error:
+            raise ValueError(f"{base}{suffix} must be a number, not {raw!r}") from error
+
+    payload = env.get(base + "MAX_PAYLOAD_BYTES", "").strip()
+    try:
+        return BridgeHardening(
+            enabled=True,
+            max_queue=int(number("MAX_QUEUE", defaults.max_queue, int)),
+            max_payload_bytes=int(payload) if payload else None,
+            connect_backoff_factor=number("CONNECT_BACKOFF_FACTOR", defaults.connect_backoff_factor, float),
+            connect_max_delay_seconds=number("CONNECT_MAX_DELAY_SECONDS", defaults.connect_max_delay_seconds, float),
+            connect_jitter=number("CONNECT_JITTER", defaults.connect_jitter, float),
+        )
+    except ValueError as error:
+        raise ValueError(f"{base}...: {error}") from error
 
 
 class MessageHandler(Protocol):

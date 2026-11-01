@@ -1,0 +1,46 @@
+{
+  "source_version": "1",
+  "group": "integrations",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "post",
+      "path": "/api/integrations/test-connection",
+      "summary": "POST /api/integrations/test-connection",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "host",
+                "port"
+              ],
+              "properties": {
+                "host": {
+                  "type": "string"
+                },
+                "port": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Reachable"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}

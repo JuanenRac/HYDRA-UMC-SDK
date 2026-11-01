@@ -1,0 +1,120 @@
+{
+  "source_version": "1",
+  "group": "admin",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "get",
+      "path": "/api/admin/clients",
+      "summary": "GET /api/admin/clients",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Clients"
+        }
+      }
+    },
+    {
+      "method": "get",
+      "path": "/api/admin/logs",
+      "summary": "GET /api/admin/logs",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "parameters": [
+        {
+          "name": "lines",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "LogLines"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/admin/restart",
+      "summary": "POST /api/admin/restart",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Success"
+        }
+      }
+    },
+    {
+      "method": "put",
+      "path": "/api/admin/safety-limits",
+      "summary": "PUT /api/admin/safety-limits",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md."
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "get",
+      "path": "/api/admin/server-config",
+      "summary": "GET /api/admin/server-config",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "ServerConfig"
+        }
+      }
+    },
+    {
+      "method": "put",
+      "path": "/api/admin/server-config",
+      "summary": "PUT /api/admin/server-config",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "port"
+              ],
+              "properties": {
+                "port": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "ServerConfigSaved"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}

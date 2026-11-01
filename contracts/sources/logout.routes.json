@@ -1,0 +1,36 @@
+{
+  "source_version": "1",
+  "group": "logout",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "post",
+      "path": "/api/logout",
+      "summary": "POST /api/logout",
+      "description": "No authentication required by the route itself.",
+      "access": "public",
+      "request_body": {
+        "required": false,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [],
+              "properties": {
+                "refreshToken": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Success"
+        }
+      }
+    }
+  ]
+}

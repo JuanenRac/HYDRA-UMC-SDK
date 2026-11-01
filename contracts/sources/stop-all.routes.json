@@ -1,0 +1,34 @@
+{
+  "source_version": "1",
+  "group": "stop-all",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "post",
+      "path": "/api/stop-all",
+      "summary": "POST /api/stop-all",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "rate_limited": true,
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "StopAllResult"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/stop-all/release",
+      "summary": "POST /api/stop-all/release",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "GlobalStopReleased"
+        }
+      }
+    }
+  ]
+}

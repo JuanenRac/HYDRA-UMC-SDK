@@ -1,0 +1,137 @@
+{
+  "source_version": "1",
+  "group": "totp",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "post",
+      "path": "/api/totp/begin",
+      "summary": "POST /api/totp/begin",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "password"
+              ],
+              "properties": {
+                "password": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "TotpEnrolment"
+        },
+        "401": {
+          "description": "Not signed in or token rejected. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "409": {
+          "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/totp/confirm",
+      "summary": "POST /api/totp/confirm",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "code"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "TotpConfirmed"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/totp/disable",
+      "summary": "POST /api/totp/disable",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "password",
+                "code"
+              ],
+              "properties": {
+                "password": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Success"
+        },
+        "401": {
+          "description": "Not signed in or token rejected. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "429": {
+          "description": "Rate limited. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "get",
+      "path": "/api/totp/status",
+      "summary": "GET /api/totp/status",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "TotpStatus"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "source_version": "1",
+  "group": "metrics",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "get",
+      "path": "/metrics",
+      "summary": "GET /metrics",
+      "description": "No authentication required by the route itself.",
+      "access": "public",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md."
+        },
+        "500": {
+          "description": "Server error. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "source_version": "1",
+  "group": "telemetry",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "get",
+      "path": "/api/telemetry/aggregate",
+      "summary": "GET /api/telemetry/aggregate",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Passthrough"
+        }
+      }
+    },
+    {
+      "method": "get",
+      "path": "/api/telemetry/query",
+      "summary": "GET /api/telemetry/query",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Passthrough"
+        }
+      }
+    }
+  ]
+}

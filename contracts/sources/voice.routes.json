@@ -1,0 +1,91 @@
+{
+  "source_version": "1",
+  "group": "voice",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "post",
+      "path": "/api/voice/confirm",
+      "summary": "POST /api/voice/confirm",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "request_body": {
+        "required": false,
+        "description": "JSON body. Only the field names the handler reads are listed; types and limits are checked in the handler.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "confirmationToken": {}
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "403": {
+          "description": "Signed in but not allowed. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "502": {
+          "description": "Upstream service rejected the request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/voice/turn",
+      "summary": "POST /api/voice/turn",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "request_body": {
+        "required": false,
+        "description": "JSON body. Only the field names the handler reads are listed; types and limits are checked in the handler.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "locale": {},
+                "requestId": {},
+                "subject": {}
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "502": {
+          "description": "Upstream service rejected the request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}

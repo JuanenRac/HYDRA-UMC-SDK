@@ -49,6 +49,13 @@ SDK source (contracts/sources) ──generate──> OpenAPI of the group (SDK)
         └──check──> consumers (routes and parameters they use)
 ```
 
+## Where it stands
+
+* **Phase 0 (pilot): done** (the connection routes).
+* **Phase 2 (the remaining inventory): done as one step for every route.** The other 29 groups of the server (74 routes) are declared as **inventory sources** (`"kind": "inventory"`, `contracts/sources/<group>.routes.json`): for each route the description, the access, the parameters, the body it reads and, for every status code, the name of the shape of the answer. `contracts/openapi/v1/server.full.openapi.json` is now **generated** from the 30 sources and the shapes file (`python tools/contract_source.py`), and `--check` fails when it is out of date, when a route of the server is declared by no source, or when a declared route differs from what the server offers (method, access, status codes, query parameters). The move lost nothing: the document it generates is the one that was refreshed by hand, operation for operation, except the two connection routes, which now carry the typed query parameters of the pilot.
+* **Phase 3 (the shapes of the answers come from the SDK): done on the SDK side and in the server.** The 40 shapes the server describes are in `contracts/sources/server.shapes.json` (with the title of the document and the security scheme). The server no longer writes them: `tools/openapi_types.mjs` reads a byte copy (`tools/sdk/server.shapes.json`) and its build compares that copy with the SDK checkout whenever one is near; `--check` also fails when the server inventory carries a shape the SDK does not declare, lacks one it declares, or differs in one.
+* **Phase 1 (the typed slice) and phase 4 (the clients): open.** `server.openapi.json` is still written by hand (it is the slice with the closed schemas, and it is checked against the server as before); the clients still scan only the pilot group, because a scan of the whole inventory finds routes that the clients build at run time. Both are decisions of their own: see the CHANGELOG.
+
 ## Principles
 
 1. **One step per group of routes.** The inversion is made group by group

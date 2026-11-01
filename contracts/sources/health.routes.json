@@ -1,0 +1,24 @@
+{
+  "source_version": "1",
+  "group": "health",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "get",
+      "path": "/health",
+      "summary": "GET /health",
+      "description": "No authentication required by the route itself.",
+      "access": "public",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "HealthReport"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}
