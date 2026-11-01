@@ -53,6 +53,8 @@ CANONICAL_FILES = {
     "tools/universal_readme_check.py": "universal_readme_check.py",
     "tools/pretty_run.py": "pretty_run.py",
     "tools/status_lights.py": "status_lights.py",
+    # The baseline steps of every workflow, as one composite action (the workflows call it and keep what is their own).
+    ".github/actions/hydra-baseline/action.yml": "hydra-baseline-action.yml",
     # The issue forms and the pull request template are the same text in every repository.
     ".github/ISSUE_TEMPLATE/bug-report.yml": "community/bug-report.yml",
     ".github/ISSUE_TEMPLATE/config.yml": "community/config.yml",
@@ -114,9 +116,9 @@ _BANNER_NAME = re.compile(r"(?m)^((?:#|//) )(?:HYDRA-UMC|ELECTRO-HOBBY-3D)[A-Za-
 
 
 def canonical_items(canonical_dir: Path = CANONICAL_DIR):
-    """(repository path, canonical file name) pairs; a community form whose canonical copy is absent is skipped."""
+    """(repository path, canonical file name) pairs; a community form or the baseline action whose canonical copy is absent is skipped."""
     for relative, canonical_name in CANONICAL_FILES.items():
-        if canonical_name.startswith("community/") and not (canonical_dir / canonical_name).is_file():
+        if (canonical_name.startswith("community/") or canonical_name == BASELINE_ACTION) and not (canonical_dir / canonical_name).is_file():
             continue
         yield relative, canonical_name
 
@@ -357,6 +359,31 @@ def report_families(workspace: Path) -> None:
             shown = ", ".join(names[:4]) + (f", +{len(names) - 4}" if len(names) > 4 else "")
             print(f"  {len(names):3d} x {key}  {shown}")
 
+BASELINE_ACTION = "hydra-baseline-action.yml"
+_LINT_PIN = re.compile(r"(ruff|mypy)==([0-9][0-9.]*)")
+
+
+def lint_pins(text: str) -> dict[str, set[str]]:
+    """The pinned versions of ruff and mypy a text names, by tool."""
+    pins: dict[str, set[str]] = defaultdict(set)
+    for tool, version in _LINT_PIN.findall(text):
+        pins[tool].add(version)
+    return dict(pins)
+
+
+def lint_pin_drift(workspace: Path, canonical_dir: Path = CANONICAL_DIR) -> list[str]:
+    """Workflows that pin ruff or mypy to another version than the baseline action does (one pin, written in the action)."""
+    wanted = lint_pins(read_text(canonical_dir / BASELINE_ACTION)[0])
+    drift: list[str] = []
+    for repo in repos(workspace):
+        workflows = repo / ".github" / "workflows"
+        for path in sorted(workflows.glob("*.yml")) if workflows.is_dir() else []:
+            for tool, versions in lint_pins(read_text(path)[0]).items():
+                if tool in wanted and versions - wanted[tool]:
+                    drift.append(f"{repo.name}/.github/workflows/{path.name} pins {tool}=={', '.join(sorted(versions))}")
+    return drift
+
+
 CROSS_FAMILY_REGISTRY = ("URTC-DEVTOOLS", "tools", "tooling_registry.json")
 _BANNER_LINES = 12
 _FAMILY_WORDS = re.compile(r"(?:URTC|HYDRA-UMC|ARMOR|A\.R\.M\.O\.R)[A-Za-z0-9.-]*|<REPO>")
@@ -437,6 +464,13 @@ def main(argv: list[str] | None = None) -> int:
         _, adapted = unified_status(workspace, CANONICAL_DIR, relative, canonical_name)
         print(f"{relative}: {len(adapted)} repositories keep an adaptation of their own: " + ", ".join(adapted))
     report_families(workspace)
+
+    pins = lint_pin_drift(workspace)
+    for line in pins:
+        print("differs from the pins of the baseline action: " + line)
+    print(f"LINT_PINS={'FAIL' if pins else 'PASS'} drift={len(pins)}")
+    if args.check and pins:
+        status = 1
 
     cross, skipped = cross_family_drift(workspace)
     for line in cross:
