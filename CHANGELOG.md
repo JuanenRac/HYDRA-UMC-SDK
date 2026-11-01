@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.4.6] - The push notification routes and shapes are declared in the contract, the header and banner of the launcher scripts are generated from one file, one version bumper serves the HYDRA-UMC and URTC families and a cross-family check compares the sources the families share
+
 - **The header and the banner of the launcher scripts are generated from one file:** `tools/sync_script_banners.py` writes them from `tools/canonical/script_banners.json` (the licence line that still said GPL-3.0 in some repositories is now GPL-3.0-or-later; the four launchers of the eight bridges are one script apart from the name, with the box of `build-test` lined up). `sync_repo_tools.py --all` runs it in check mode.
 - **One version bumper for the HYDRA-UMC and URTC families:** `tools/canonical/bump_manifest_version.py` finds the manifest of the family by its name (`hydra-umc.project.json` or `urtc.project.json`) and prints the family in its messages; the behaviour for HYDRA-UMC repositories is the same.
 
