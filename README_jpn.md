@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-797%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-809%20passing-2ea44f.svg" alt="Tests">
   <img src="https://img.shields.io/badge/Version-0.4.8-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **誠実性チェック - 今日実際に動くもの:** JSON Schema v1 の 24 件の契約（それぞれ有効・無効のフィクスチャ付き）、Python の検証器、HYDRA-UMC-SERVER の最初の OpenAPI v1 部分、同じスキーマを強制する Go・TypeScript・Rust のクライアント、ブリッジ用ヘルパー、互換性マトリクスは実在し、コンピューター上でテスト済みです（Python のテスト 797 件と、他の 3 つのクライアントのスイート）。Protobuf はまだ公開されておらず、ジョブゲートは共有のソフトウェア機能であって認証済みの安全機能ではなく、ここにあるものは実機では動かしていません。
+> **誠実性チェック - 今日実際に動くもの:** JSON Schema v1 の 24 件の契約（それぞれ有効・無効のフィクスチャ付き）、Python の検証器、HYDRA-UMC-SERVER の最初の OpenAPI v1 部分、同じスキーマを強制する Go・TypeScript・Rust のクライアント、ブリッジ用ヘルパー、互換性マトリクスは実在し、コンピューター上でテスト済みです（Python のテスト 809 件と、他の 3 つのクライアントのスイート）。Protobuf はまだ公開されておらず、ジョブゲートは共有のソフトウェア機能であって認証済みの安全機能ではなく、ここにあるものは実機では動かしていません。
 
 ---
 
@@ -40,7 +40,7 @@ GPL-3.0-or-later - see LICENSE
 |---|---|
 | バージョン | `0.4.8` |
 | 成熟度 | 確立 |
-| テスト | 797 (`python -m unittest discover -s clients/python/tests`) |
+| テスト | 809 (`python -m unittest discover -s clients/python/tests`) |
 | 技術 | Python / TypeScript / Go / Rust / JSON Schema |
 | 実機での確認 | 対象外：ここにあるものはハードウェア上では動きません |
 
@@ -55,7 +55,7 @@ GPL-3.0-or-later - see LICENSE
 | 領域 | 状態 | ここでの意味 |
 |---|---|---|
 | ソフトウェア | 🟢 | 目的に対して完成していて安定しています。既知の制限は上の正直さの確認に書かれています |
-| テスト | 🟢 | 自動テスト 797 件。変更のたびに実行されます |
+| テスト | 🟢 | 自動テスト 809 件。変更のたびに実行されます |
 | 実機 | 🟢 | 対象外：ここにあるものはハードウェア上では動きません |
 | デプロイ | 🟠 | リリースとして公開されています。新しい環境へのインストールは文書化されていますが記録はありません |
 | 契約とクライアント | 🟢 | 閉じた契約にはそれぞれ有効な例と無効な例があり、Python、Go、Rust、TypeScript で同じスキーマに対して検証されます |
@@ -147,7 +147,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 テスト
 
-`python -m unittest discover -s clients/python/tests` で自動テスト 797 件を実行します。 他のクライアントには独自のスイートがあります。Go は 29 件（`go test ./...`）、TypeScript は 133 件（`npm test`）、Rust は 31 件（`cargo test`）で、ツールチェーンがあれば `tools/extra_build_steps.py` が実行します。ハードウェアは不要です。
+`python -m unittest discover -s clients/python/tests` で自動テスト 809 件を実行します。 他のクライアントには独自のスイートがあります。Go は 29 件（`go test ./...`）、TypeScript は 133 件（`npm test`）、Rust は 31 件（`cargo test`）で、ツールチェーンがあれば `tools/extra_build_steps.py` が実行します。ハードウェアは不要です。
 
 CI は `HYDRA_UMC_CI=1 python tools/ci_validate.py` を実行し、マニフェスト、文書、8 つの README、図を検査します。
 

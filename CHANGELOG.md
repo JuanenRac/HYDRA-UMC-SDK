@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The HTTP helpers of the Python services, written once (`tools/canonical/http_common.py`):** the JSON body read with a limit (an oversized one is read and thrown away in small pieces, a `Content-Length` that is not a number or is negative is refused, `NaN` and the infinities are refused, a body that is not UTF-8 is a `ValueError`), the JSON answers with their length, the query string (refusing a name that occurs twice, or taking the first), the optional bearer token compared in constant time, the socket timeout value and `BoundedThreadingHTTPServer`, which answers `503` with `Retry-After` to a request beyond `max_threads` (32 by default) instead of starting one more thread. It is vendored byte for byte into the services that list it in `PER_REPOSITORY_FILES` of `sync_repo_tools.py` (VLA-ENGINE and COGNITIVE-NODE for now; the check of the script keeps the copies identical), with tests against a real server.
+
 ## [0.4.8] - A gateway to the machine bridges is declared in the contract, types generated from the closed schemas for the clients that are not Python, a registry of the bridge topics with one lint command, the /metrics of the Rust and Go services and the baseline workflow with a node-checks input
 
 - **The gateway to the machine bridges is declared:** a new inventory source `bridges` (`GET /api/bridges`, `GET /api/bridges/{name}/state`, `POST /api/bridges/{name}/cmd/{verb}`) and the shapes `BridgeList`, `BridgeState` and `BridgeCommandAccepted` in `contracts/sources/server.shapes.json`; the full OpenAPI document is regenerated (32 sources, 82 routes). The server answers a bare `404` on all three while its gateway switch is off.

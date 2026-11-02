@@ -86,6 +86,12 @@ PER_REPOSITORY_FILES = {
             "SEMANTIC-PLANNER", "VISION-NODE", "VISUAL-SERVOING-API", "VLA-ENGINE",
         )
     },
+    # What a Python service on the standard library HTTP server does the same way: the bounded JSON body, the JSON answers, the query string, the optional bearer
+    # token and the limit on the requests handled at the same time. A service adopts it by importing it; the others will follow.
+    "tools/canonical/http_common.py": {
+        f"HYDRA-UMC-{name}": f"src/hydra_umc_{name.lower().replace('-', '_')}/http_common.py"
+        for name in ("COGNITIVE-NODE", "VLA-ENGINE")
+    },
     # The same `GET /metrics` for the services written in Rust (tiny_http) and in Go (net/http): the same series, the same rules.
     "tools/canonical/service_metrics.rs": {
         "HYDRA-UMC-ORCHESTRATOR": "src/service_metrics.rs",
