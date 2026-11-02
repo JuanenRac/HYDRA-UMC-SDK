@@ -1,0 +1,133 @@
+{
+  "source_version": "1",
+  "group": "bridges",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "get",
+      "path": "/api/bridges",
+      "summary": "GET /api/bridges",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "BridgeList"
+        },
+        "404": {
+          "description": "Not found. No body."
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/bridges/{name}/cmd/{verb}",
+      "summary": "POST /api/bridges/{name}/cmd/{verb}",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "parameters": [
+        {
+          "name": "name",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "verb",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "required": false,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [],
+              "properties": {}
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "BridgeCommandAccepted"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "403": {
+          "description": "Signed in but not allowed. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "409": {
+          "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "413": {
+          "description": "Payload too large. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "429": {
+          "description": "Rate limited. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "502": {
+          "description": "Upstream service rejected the request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "get",
+      "path": "/api/bridges/{name}/state",
+      "summary": "GET /api/bridges/{name}/state",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "parameters": [
+        {
+          "name": "name",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "BridgeState"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}

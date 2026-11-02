@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The gateway to the machine bridges is declared:** a new inventory source `bridges` (`GET /api/bridges`, `GET /api/bridges/{name}/state`, `POST /api/bridges/{name}/cmd/{verb}`) and the shapes `BridgeList`, `BridgeState` and `BridgeCommandAccepted` in `contracts/sources/server.shapes.json`; the full OpenAPI document is regenerated (32 sources, 82 routes). The server answers a bare `404` on all three while its gateway switch is off.
+
 - **Types generated from the closed schemas, for the clients that are not Python:** `python tools/generate_types.py` writes `generated/hydra-contracts.ts`, `generated/HydraContracts.kt` and `generated/hydra_contracts.dart` (one type per schema, nested objects named after the parent and the field, `enum` and `const` as literal unions in TypeScript, `fromJson`/`toJson` in Dart); `--check` fails when a file is out of date and runs in the CI of the SDK. A client copies the file it needs into its own `generated/` folder and runs the same `--check` against a checkout of the SDK. The TypeScript file compiles in strict mode, the Dart file analyses clean and round-trips the valid conformance fixtures; the Kotlin file is not compiled on this host.
 - **A registry of the bridge topics and one lint command:** `contracts/topics.json` declares the topic family of the bridges (direction, retained, QoS and the contract each carries) and `python tools/contract_check.py --tables` prints it as a fourth generated table next to the ports, versions and routes; the check fails on a repeated topic, a bad QoS or a contract that is not a schema. `python tools/hydra_contract_lint.py` runs the workspace check, the source check and the generated types check in one command (`--tables`, `--write-tables FILE`).
 
