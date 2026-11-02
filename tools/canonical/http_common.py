@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import hmac
 import json
+import socket
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Callable
@@ -132,6 +133,11 @@ class BoundedThreadingHTTPServer(ThreadingHTTPServer):
             self.refused += 1
             try:
                 request.sendall(b"HTTP/1.1 503 Service Unavailable\r\nRetry-After: 1\r\nContent-Length: 0\r\nConnection: close\r\n\r\n")
+                # close our side, then read for an instant what the client already sent: a connection closed with unread data is reset, and the
+                # client would lose the 503 it is waiting for. (A short wait: this runs in the thread that accepts connections.)
+                request.shutdown(socket.SHUT_WR)
+                request.settimeout(0.05)
+                request.recv(4096)
             except OSError:
                 pass
             self.shutdown_request(request)
