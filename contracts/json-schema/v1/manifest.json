@@ -59,7 +59,7 @@
     },
     {
       "file": "project-manifest.schema.json",
-      "sha256": "a88438d6d9875ed688c979cf8eaba5b2702d25b6fbe3765c9f0c3898a9869929"
+      "sha256": "c36caae2f1c765a8d77f6717acddcb9b33e4208a5260ae2879f3a974c766c315"
     },
     {
       "file": "robot-liveness.schema.json",
