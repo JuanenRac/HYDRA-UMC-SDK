@@ -143,8 +143,7 @@ class PortRegistryTests(Workspace):
         self.repo("HYDRA-UMC-C", {"port": 8102, "grpc_port": 70000, "grpc_service": "x.v1.S"})
         self.repo("HYDRA-UMC-D", {"port": 8103, "grpc_port": 50103, "grpc_service": ""})
         _, problems = PORTS.collect(self.workspace)
-        joined = "
-".join(problems)
+        joined = chr(10).join(problems)
         self.assertIn("HYDRA-UMC-A: grpc_port and grpc_service go together", joined)
         self.assertIn("HYDRA-UMC-B: grpc_port and grpc_service go together", joined)
         self.assertIn("HYDRA-UMC-C: grpc_port must be an integer from 1 to 65535", joined)
