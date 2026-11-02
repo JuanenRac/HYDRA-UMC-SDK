@@ -90,7 +90,7 @@ PER_REPOSITORY_FILES = {
     # token and the limit on the requests handled at the same time. A service adopts it by importing it; the others will follow.
     "tools/canonical/http_common.py": {
         f"HYDRA-UMC-{name}": f"src/hydra_umc_{name.lower().replace('-', '_')}/http_common.py"
-        for name in ("COGNITIVE-NODE", "VLA-ENGINE")
+        for name in ("COGNITIVE-NODE", "VISION-NODE", "VLA-ENGINE")
     },
     # The same `GET /metrics` for the services written in Rust (tiny_http) and in Go (net/http): the same series, the same rules.
     "tools/canonical/service_metrics.rs": {
