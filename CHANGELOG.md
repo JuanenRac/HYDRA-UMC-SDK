@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.4.8] - A gateway to the machine bridges is declared in the contract, types generated from the closed schemas for the clients that are not Python, a registry of the bridge topics with one lint command, the /metrics of the Rust and Go services and the baseline workflow with a node-checks input
+
 - **The gateway to the machine bridges is declared:** a new inventory source `bridges` (`GET /api/bridges`, `GET /api/bridges/{name}/state`, `POST /api/bridges/{name}/cmd/{verb}`) and the shapes `BridgeList`, `BridgeState` and `BridgeCommandAccepted` in `contracts/sources/server.shapes.json`; the full OpenAPI document is regenerated (32 sources, 82 routes). The server answers a bare `404` on all three while its gateway switch is off.
 
 - **Types generated from the closed schemas, for the clients that are not Python:** `python tools/generate_types.py` writes `generated/hydra-contracts.ts`, `generated/HydraContracts.kt` and `generated/hydra_contracts.dart` (one type per schema, nested objects named after the parent and the field, `enum` and `const` as literal unions in TypeScript, `fromJson`/`toJson` in Dart); `--check` fails when a file is out of date and runs in the CI of the SDK. A client copies the file it needs into its own `generated/` folder and runs the same `--check` against a checkout of the SDK. The TypeScript file compiles in strict mode, the Dart file analyses clean and round-trips the valid conformance fixtures; the Kotlin file is not compiled on this host.
