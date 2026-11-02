@@ -217,6 +217,8 @@ def inventory_operation(route: dict[str, Any], group: str) -> dict[str, Any]:
         response: dict[str, Any] = {"description": spec["description"]}
         if "shape" in spec:
             response["content"] = _json(_ref(spec["shape"]))
+        elif "schema" in spec:
+            response["content"] = _json(spec["schema"])
         responses[code] = response
     operation: dict[str, Any] = {
         "tags": [group],

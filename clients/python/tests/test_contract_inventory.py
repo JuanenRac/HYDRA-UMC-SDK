@@ -68,7 +68,9 @@ class TheUnionIsTheFullDocument(unittest.TestCase):
             for operation in item.values():
                 for response in operation["responses"].values():
                     for content in response.get("content", {}).values():
-                        used.add(content["schema"]["$ref"].rsplit("/", 1)[1])
+                        # an answer the server writes inline (the operator presence) names no shape
+                        if "$ref" in content["schema"]:
+                            used.add(content["schema"]["$ref"].rsplit("/", 1)[1])
         declared = set(SHAPES["shapes"])
         self.assertEqual(used - declared, set(), "an answer names a shape the SDK does not declare")
         # the shapes no response names directly are reached through another shape (the lists of connections) or are used by the clients of the typed slice; they are
