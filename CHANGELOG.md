@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.4.9] - Contracts for tool descriptors and tool states with validators in four languages, an alignment with the ARMOR message formats and a shape for the signed info tickets
+
 - **Two contracts for the tool heads of URTC:** `ToolDescriptor` (a catalogue entry: profile number, name, kind, the metric the tool is judged by, its limits, watchdog and features) and `ToolState` (one reading of a connected head: active tool, firmware, state and error counters of its CAN controller, temperatures, critical error and thermal fault) are published as closed JSON Schemas with a valid and an invalid fixture each, in the Python, Go, Rust and TypeScript clients, in the mock server and in the generated TypeScript, Kotlin and Dart types. The Python client adds `descriptor_problems` and `state_problems` for the rules that join fields, and a test reads the real tool table of URTC when it is next to the SDK. `docs/CONTRACTS.md` no longer lists `ToolDescriptor` as planned.
 
 - **A reading of the contracts of A.R.M.O.R. in the words of this SDK:** `docs/ARMOR_ALIGNMENT.md` sets the conventions side by side (time, identity, version, closed messages) and the Python client converts them: `armor_timestamp_ms_to_utc` and `utc_to_armor_timestamp_ms`, `armor_state_to_event_envelope` (any state message of A.R.M.O.R. becomes an `EventEnvelope` that keeps the original body) and `armor_alarm_to_safety_state`, whose table is a parameter and whose default makes a sounding alarm `INHIBITED` and never `SAFE_STOP`.
