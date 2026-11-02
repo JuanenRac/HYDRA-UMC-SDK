@@ -317,6 +317,8 @@ export interface ProjectManifestService {
   port?: number;
   health_path?: string;
   systemd_unit?: string;
+  grpc_port?: number;
+  grpc_service?: string;
   [extra: string]: unknown;
 }
 

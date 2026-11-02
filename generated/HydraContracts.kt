@@ -289,7 +289,9 @@ data class ProjectManifest(
 data class ProjectManifestService(
     val port: Long? = null,
     val health_path: String? = null,
-    val systemd_unit: String? = null
+    val systemd_unit: String? = null,
+    val grpc_port: Long? = null,
+    val grpc_service: String? = null
 )
 
 data class ProjectManifestNativeVersion(

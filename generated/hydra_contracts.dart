@@ -832,16 +832,22 @@ class ProjectManifestService {
   final int? port;
   final String? health_path;
   final String? systemd_unit;
-  const ProjectManifestService({this.port, this.health_path, this.systemd_unit});
+  final int? grpc_port;
+  final String? grpc_service;
+  const ProjectManifestService({this.port, this.health_path, this.systemd_unit, this.grpc_port, this.grpc_service});
   factory ProjectManifestService.fromJson(Map<String, dynamic> json) => ProjectManifestService(
         port: json["port"] == null ? null : (json["port"] as num).toInt(),
         health_path: json["health_path"] == null ? null : json["health_path"] as String,
         systemd_unit: json["systemd_unit"] == null ? null : json["systemd_unit"] as String,
+        grpc_port: json["grpc_port"] == null ? null : (json["grpc_port"] as num).toInt(),
+        grpc_service: json["grpc_service"] == null ? null : json["grpc_service"] as String,
       );
   Map<String, dynamic> toJson() => {
         if (port != null) "port": port,
         if (health_path != null) "health_path": health_path,
         if (systemd_unit != null) "systemd_unit": systemd_unit,
+        if (grpc_port != null) "grpc_port": grpc_port,
+        if (grpc_service != null) "grpc_service": grpc_service,
       };
 }
 

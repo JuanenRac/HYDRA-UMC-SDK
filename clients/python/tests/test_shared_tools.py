@@ -106,6 +106,50 @@ class PortRegistryTests(Workspace):
         self.assertEqual(len(problems), 1)
         self.assertIn("hydra-umc-ghost.service", problems[0])
 
+    def test_a_grpc_health_port_is_collected_and_written(self):
+        self.repo("HYDRA-UMC-A", {"port": 8100, "grpc_port": 50100, "grpc_service": "hydra.common.v1.HealthService"})
+        self.repo("HYDRA-UMC-B", {"port": 8101})
+        services, problems = PORTS.collect(self.workspace)
+        self.assertEqual(problems, [])
+        self.assertEqual(services[0]["grpc_port"], 50100)
+        self.assertEqual(services[0]["grpc_service"], "hydra.common.v1.HealthService")
+        self.assertNotIn("grpc_port", services[1])
+        text = PORTS.render(services)
+        self.assertNotIn("grpc_port: null", text)
+        self.assertEqual(PORTS.parse(text), services)
+
+    def test_a_grpc_port_equal_to_an_http_port_is_reported(self):
+        self.repo("HYDRA-UMC-A", {"port": 8100})
+        self.repo("HYDRA-UMC-B", {"port": 8101, "grpc_port": 8100, "grpc_service": "x.v1.S"})
+        _, problems = PORTS.collect(self.workspace)
+        self.assertTrue(any("8100" in p and "HYDRA-UMC-A" in p and "HYDRA-UMC-B (gRPC)" in p for p in problems))
+
+    def test_a_service_whose_two_ports_are_equal_is_reported(self):
+        self.repo("HYDRA-UMC-A", {"port": 8100, "grpc_port": 8100, "grpc_service": "x.v1.S"})
+        _, problems = PORTS.collect(self.workspace)
+        self.assertTrue(any("8100" in p for p in problems))
+
+    def test_two_services_on_one_grpc_port_are_reported_and_one_service_name_may_repeat(self):
+        self.repo("HYDRA-UMC-A", {"port": 8100, "grpc_port": 50100, "grpc_service": "x.v1.S"})
+        self.repo("HYDRA-UMC-B", {"port": 8101, "grpc_port": 50100, "grpc_service": "x.v1.S"})
+        self.repo("HYDRA-UMC-C", {"port": 8102, "grpc_port": 50102, "grpc_service": "x.v1.S"})
+        _, problems = PORTS.collect(self.workspace)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("50100", problems[0])
+
+    def test_grpc_port_and_grpc_service_must_go_together_and_be_valid(self):
+        self.repo("HYDRA-UMC-A", {"port": 8100, "grpc_port": 50100})
+        self.repo("HYDRA-UMC-B", {"port": 8101, "grpc_service": "x.v1.S"})
+        self.repo("HYDRA-UMC-C", {"port": 8102, "grpc_port": 70000, "grpc_service": "x.v1.S"})
+        self.repo("HYDRA-UMC-D", {"port": 8103, "grpc_port": 50103, "grpc_service": ""})
+        _, problems = PORTS.collect(self.workspace)
+        joined = "
+".join(problems)
+        self.assertIn("HYDRA-UMC-A: grpc_port and grpc_service go together", joined)
+        self.assertIn("HYDRA-UMC-B: grpc_port and grpc_service go together", joined)
+        self.assertIn("HYDRA-UMC-C: grpc_port must be an integer from 1 to 65535", joined)
+        self.assertIn("HYDRA-UMC-D: grpc_service must be a non-empty string", joined)
+
     def test_the_registry_round_trips(self):
         services = [{"name": "HYDRA-UMC-A", "port": 8100, "health_path": "/health", "systemd_unit": None}]
         self.assertEqual(PORTS.parse(PORTS.render(services)), services)

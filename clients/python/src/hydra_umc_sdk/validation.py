@@ -83,7 +83,7 @@ PROJECT_MANIFEST_KEYS = frozenset({
     "schema_version", "ecosystem", "name", "version", "role", "stack", "technologies", "deployment_target",
     "deployment_target_note", "maturity", "evidence", "hardware_bound", "depends_on", "family", "parent", "native_version", "build", "notes", "service",
 })
-PROJECT_MANIFEST_SERVICE_KEYS = frozenset({"port", "health_path", "systemd_unit"})
+PROJECT_MANIFEST_SERVICE_KEYS = frozenset({"port", "health_path", "systemd_unit", "grpc_port", "grpc_service"})
 
 
 def _is_one_of(value: Any, allowed: Any) -> bool:
@@ -150,10 +150,12 @@ def _validate_project_manifest(payload: dict[str, Any]) -> None:
     if "service" in payload:
         service = payload["service"]
         if not isinstance(service, dict) or set(service) - PROJECT_MANIFEST_SERVICE_KEYS:
-            raise ContractValidationError("service must be an object with only port, health_path and systemd_unit")
+            raise ContractValidationError("service must be an object with only port, health_path, systemd_unit, grpc_port and grpc_service")
         if "port" in service and (type(service["port"]) is not int or not 1 <= service["port"] <= 65535):
             raise ContractValidationError("service.port must be an integer from 1 to 65535")
-        for key in ("health_path", "systemd_unit"):
+        if "grpc_port" in service and (type(service["grpc_port"]) is not int or not 1 <= service["grpc_port"] <= 65535):
+            raise ContractValidationError("service.grpc_port must be an integer from 1 to 65535")
+        for key in ("health_path", "systemd_unit", "grpc_service"):
             if key in service and (not isinstance(service[key], str) or not service[key]):
                 raise ContractValidationError(f"service.{key} must be a non-empty string")
     if not PROJECT_NAME_PATTERN.fullmatch(payload.get("name", "")):

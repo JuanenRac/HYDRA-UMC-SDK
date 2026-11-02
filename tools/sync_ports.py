@@ -7,11 +7,13 @@
 """One registry of the services of the ecosystem: port, health path and systemd unit.
 
 `contracts/ports.yaml` is generated from what each repository already declares: the `service` block of its
-`hydra-umc.project.json` and, when the manifest has no port, the `--port N` of its systemd unit. `--check`
+`hydra-umc.project.json` (with the optional `grpc_port` and `grpc_service` of a service that also serves the gRPC
+health contract) and, when the manifest has no port, the `--port N` of its systemd unit. `--check`
 writes nothing and fails when
 
 * the registry differs from what the repositories declare,
-* two services share a port,
+* two services share a port (the HTTP port and the optional gRPC health port count alike),
+* a manifest declares `grpc_port` without `grpc_service`, or the other way round, or a gRPC port that is not 1 to 65535,
 * a manifest port differs from the port in the repository's own systemd unit,
 * a unit named by a manifest has no file in the repository's `systemd/` folder, or
 * an installer of HYDRA-UMC-OS (`provisioning/install_*.sh`) names a unit that no manifest declares.
@@ -76,16 +78,32 @@ def collect(workspace: Path) -> tuple[list[dict], list[str]]:
         if declared is not None and from_unit is not None and declared != from_unit:
             problems.append(f"{repo.name}: manifest port {declared} differs from the port {from_unit} of {unit}")
         port = declared if declared is not None else from_unit
-        services.append({
+        entry = {
             "name": data.get("name", repo.name),
             "port": port,
             "health_path": service.get("health_path"),
             "systemd_unit": unit,
-        })
+        }
+        grpc_port = service.get("grpc_port")
+        grpc_service = service.get("grpc_service")
+        if (grpc_port is None) != (grpc_service is None):
+            problems.append(f"{repo.name}: grpc_port and grpc_service go together")
+        if grpc_port is not None and (type(grpc_port) is not int or not 1 <= grpc_port <= 65535):
+            problems.append(f"{repo.name}: grpc_port must be an integer from 1 to 65535")
+            grpc_port = None
+        if grpc_service is not None and (not isinstance(grpc_service, str) or not grpc_service.strip()):
+            problems.append(f"{repo.name}: grpc_service must be a non-empty string")
+            grpc_service = None
+        if grpc_port is not None and grpc_service is not None:
+            entry["grpc_port"] = grpc_port
+            entry["grpc_service"] = grpc_service
+        services.append(entry)
     owners: dict[int, list[str]] = {}
     for item in services:
         if item["port"] is not None:
             owners.setdefault(item["port"], []).append(item["name"])
+        if item.get("grpc_port") is not None:
+            owners.setdefault(item["grpc_port"], []).append(item["name"] + " (gRPC)")
     for port, names in sorted(owners.items()):
         if len(names) > 1:
             problems.append(f"port {port} is used by {', '.join(names)}")
@@ -112,7 +130,9 @@ def render(services: list[dict]) -> str:
     lines = [HEADER.rstrip("\n"), "services:"]
     for item in services:
         lines.append(f"  - name: {item['name']}")
-        for key in ("port", "health_path", "systemd_unit"):
+        for key in ("port", "health_path", "systemd_unit", "grpc_port", "grpc_service"):
+            if key.startswith("grpc_") and item.get(key) is None:
+                continue
             value = item[key]
             lines.append(f"    {key}: {'null' if value is None else value}")
     return "\n".join(lines) + "\n"
