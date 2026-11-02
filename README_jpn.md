@@ -185,6 +185,7 @@ HYDRA-UMC-SDK/
 ├── clients/                   Python・Go・TypeScript・Rust のリファレンスクライアント
 ├── generated/                 スキーマから生成した TypeScript・Kotlin・Dart の型
 ├── conformance/               各契約の有効・無効のフィクスチャ
+├── tests/                     安全チェーンをループバック上でシミュレーション実行する統合テスト
 ├── docs/                      契約・API・開発のガイド
 ├── examples/                  実行できる Python の例
 ├── tools/                     契約マトリクス、OpenAPI ゲート、ツール同期、ビルド確認

@@ -102,3 +102,22 @@ toolchain (Flutter, an Android SDK, WSL, ...) without a documented reason.
 Clean up only identified test output - never a user's own data,
 repositories, or profile. Do not download a large model for a contract test
 that a small fixture can already resolve.
+
+## The safety chain in simulation
+
+`tests/integration/` runs the chain that keeps a plan from reaching a robot when the cell is not safe: the zone service signs its
+verdict, the planner releases a plan only on a fresh, correctly signed `READY`, the global stop of the orchestrator blocks dispatch,
+the dead-man of the presence of the operator lowers the speed, and the watchdog marks a failing node and never reads an error as healthy.
+
+    python tools/run_safety_chain_sim.py              # run what this machine can run; the rest is reported as skipped
+    python tools/run_safety_chain_sim.py --require    # a skipped scenario is a failure
+    python tools/run_safety_chain_sim.py -k fencing   # only the scenarios whose name matches
+
+The other repositories are read from the folder next to this one (or `HYDRA_CHAIN_SIM_WORKSPACE`); nothing is installed in them and
+nothing is written in them. Every server listens on loopback on a port that the operating system gives at that moment, and only the
+processes the run started are stopped. It needs pytest, node (the dead-man runs the real TypeScript module of the server through
+the `tsx` of that repository) and go (the watchdog is built with a small `go build` into a temporary folder, or `HYDRA_UMC_NODE_HEALING_BIN`).
+Real parts: the zone service, the planner and its safety gate, the dead-man of the operator and the watchdog program. Stand-ins that
+follow the contract of the real service: the global stop of the orchestrator (the Rust program is not built here), the cell that confirms
+that the robots of a failed node are stopped, and the nodes the watchdog looks at. A pass means "passed in simulation": nothing here
+ran on hardware. It is not part of the CI of this repository, which has no other repositories next to it.

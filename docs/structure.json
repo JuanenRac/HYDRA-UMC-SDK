@@ -124,6 +124,29 @@
           }
         },
         {
+          "name": "tests/",
+          "desc": {
+            "en": "safety-chain simulation",
+            "es": "simulación de la cadena de seguridad",
+            "de": "Simulation der Sicherheitskette",
+            "fr": "simulation de la chaîne de sécurité",
+            "it": "simulazione della catena di sicurezza",
+            "ja": "安全チェーンのシミュレーション",
+            "zh": "安全链模拟",
+            "pt": "simulação da cadeia de segurança"
+          },
+          "tree_desc": {
+            "en": "integration tests that run the safety chain in simulation on loopback",
+            "es": "pruebas de integración que ejecutan la cadena de seguridad en simulación en loopback",
+            "de": "Integrationstests, die die Sicherheitskette in der Simulation auf Loopback ausführen",
+            "fr": "tests d'intégration qui exécutent la chaîne de sécurité en simulation sur loopback",
+            "it": "test di integrazione che eseguono la catena di sicurezza in simulazione su loopback",
+            "ja": "安全チェーンをループバック上でシミュレーション実行する統合テスト",
+            "zh": "在回环地址上模拟运行安全链的集成测试",
+            "pt": "testes de integração que executam a cadeia de segurança em simulação em loopback"
+          }
+        },
+        {
           "name": "docs/",
           "desc": {
             "en": "contract, API and development guides",

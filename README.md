@@ -217,6 +217,7 @@ HYDRA-UMC-SDK/
 ├── clients/                   the Python, Go, TypeScript and Rust reference clients
 ├── generated/                 TypeScript, Kotlin and Dart types generated from the schemas
 ├── conformance/               valid and invalid fixtures for every contract
+├── tests/                     integration tests that run the safety chain in simulation on loopback
 ├── docs/                      contract, API and development guides
 ├── examples/                  runnable Python examples
 ├── tools/                     contract matrix, OpenAPI gate, tooling sync, build check

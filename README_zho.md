@@ -183,6 +183,7 @@ HYDRA-UMC-SDK/
 ├── clients/                   Python、Go、TypeScript 和 Rust 参考客户端
 ├── generated/                 由模式生成的 TypeScript、Kotlin 和 Dart 类型
 ├── conformance/               每个契约的有效和无效夹具
+├── tests/                     在回环地址上模拟运行安全链的集成测试
 ├── docs/                      契约、API 和开发指南
 ├── examples/                  可运行的 Python 示例
 ├── tools/                     契约矩阵、OpenAPI 闸门、工具同步、构建检查
