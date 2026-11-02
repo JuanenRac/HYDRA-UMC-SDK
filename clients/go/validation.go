@@ -65,6 +65,8 @@ var contractFiles = map[string]string{
 	"FrameMeta":             "frame-meta.schema.json",
 	"DetectionFrame":        "detection-frame.schema.json",
 	"MaintenanceIncident":   "maintenance-incident.schema.json",
+	"ToolDescriptor":        "tool-descriptor.schema.json",
+	"ToolState":             "tool-state.schema.json",
 }
 
 // ContractValidationError is returned by Validate when payload fails real

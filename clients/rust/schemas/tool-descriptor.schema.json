@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/tool-descriptor.schema.json",
+  "title": "ToolDescriptor",
+  "description": "What a URTC tool head is, as a catalogue entry: its profile number, name, kind, the metric it shows, its limits, its watchdog and its features. It is static data (the profiles of the URTC tool table), not a reading of a connected head: ToolState is the reading. The Smart Rack, the Studio and the telemetry collector use it to speak about a tool in the same words. The schema is closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "tool_id",
+    "name",
+    "title",
+    "kind"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "tool_id": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255,
+      "description": "The profile number a head reports as its active tool."
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]{0,63}$",
+      "description": "The stable identifier of the profile, in capitals (SOLDERING_IRON)."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "description": "The name shown to a person."
+    },
+    "kind": {
+      "enum": [
+        "motion",
+        "actuator",
+        "telemetry",
+        "external"
+      ],
+      "description": "motion: the head moves or feeds something; actuator: it acts on the work; telemetry: it only measures; external: it needs an expansion board or a host."
+    },
+    "category": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "hero_metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "unit"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "unit": {
+          "type": "string",
+          "maxLength": 16
+        }
+      },
+      "description": "The one number the tool is judged by (TIP TEMP, in degrees Celsius)."
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default",
+        "min",
+        "max"
+      ],
+      "properties": {
+        "default": {
+          "type": "number"
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        }
+      },
+      "description": "The setpoint of the hero metric. A consumer checks min <= default <= max."
+    },
+    "watchdog_ms": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 600000,
+      "description": "How long the head waits without a setpoint before it cuts the output."
+    },
+    "features": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      }
+    },
+    "expansion_board": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "description": "The board the tool needs besides the head, or none."
+    },
+    "min_firmware_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?$",
+      "description": "The first firmware of the head that carries the tool."
+    }
+  }
+}

@@ -82,6 +82,14 @@
       "sha256": "79ff726a0425e6a74bfc39f3bf870177be072eb93a66e99bae752c9f9312a76f"
     },
     {
+      "file": "tool-descriptor.schema.json",
+      "sha256": "eb8a61ed5626d25bca00d2bef1cb6ac4d3982bffc491d53a342a08d2a82a19da"
+    },
+    {
+      "file": "tool-state.schema.json",
+      "sha256": "00dfde067659d063ffa659e065dc26313c44c451d4bd75d0833f5424f8a498f8"
+    },
+    {
       "file": "twin-state.schema.json",
       "sha256": "157e9faa5ea12173b09708d92998e13636ff4fee65727a938c6a000bce46dddd"
     },

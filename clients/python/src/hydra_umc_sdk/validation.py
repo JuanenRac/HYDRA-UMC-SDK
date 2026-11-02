@@ -46,6 +46,8 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "FrameMeta": ("schema_version", "frame_id", "capture_ts_utc", "width", "height", "pixel_format"),
     "DetectionFrame": ("schema_version", "frame_id", "capture_ts_utc", "box_unit", "detections"),
     "MaintenanceIncident": ("incidentId", "sourceNode", "detectedAt", "severity", "component", "symptom", "evidenceRefs", "redactionLevel", "requestedBy", "correlationId"),
+    "ToolDescriptor": ("schema_version", "tool_id", "name", "title", "kind"),
+    "ToolState": ("schema_version", "tool_id", "state", "source", "timestamp_utc"),
     "ConnectionEvent": ("schema_version", "id", "at_utc", "action", "client_kind", "client_id"),
     "ConnectionClient": ("schema_version", "id", "kind", "first_seen_utc", "last_seen_utc", "active_sessions", "logins_ok", "logins_failed"),
     "ServerDiscovery": ("schema_version", "product", "remoteApiVersion", "appVersion", "hostname", "controllerCount", "robotCount", "uptimeSeconds"),
@@ -270,6 +272,16 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
         from .vision_pipeline import validate_detection_frame  # imported here: vision_pipeline.py needs this module's error type
 
         validate_detection_frame(payload)
+        return
+    if contract == "ToolDescriptor":
+        from .tool import validate_tool_descriptor  # imported here: tool.py needs this module's error type
+
+        validate_tool_descriptor(payload)
+        return
+    if contract == "ToolState":
+        from .tool import validate_tool_state  # imported here: tool.py needs this module's error type
+
+        validate_tool_state(payload)
         return
     if contract == "MaintenanceIncident":
         from .maintenance import validate_maintenance_incident  # imported here: maintenance.py needs this module's error type

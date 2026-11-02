@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "tool_id": 0,
+  "state": "active",
+  "source": "urtc-gateway:head-1",
+  "timestamp_utc": "2026-01-01T10:00:00Z",
+  "firmware_version": "0.8.0.0",
+  "can": { "state": "ok", "tec": 0, "rec": 0, "bus_off_count": 0 },
+  "temperature_c": 318.5,
+  "setpoint_c": 320,
+  "mcu_temp_c": 41,
+  "vdda_mv": 3300,
+  "critical_error": false,
+  "thermal_fault": "NONE"
+}

@@ -196,6 +196,26 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "requestedBy": None,
         "correlationId": "0d3f1f0c-6a43-4f3a-9a53-6a1d0c4b8e11"
     },
+    "ToolDescriptor": {
+        "schema_version": "1.0",
+        "tool_id": 0,
+        "name": "SOLDERING_IRON",
+        "title": "Soldering Iron",
+        "kind": "motion",
+        "hero_metric": {"label": "TIP TEMP", "unit": "C"},
+        "limits": {"default": 320, "min": 150, "max": 445},
+        "watchdog_ms": 250
+    },
+    "ToolState": {
+        "schema_version": "1.0",
+        "tool_id": 0,
+        "state": "active",
+        "source": "mock-head",
+        "timestamp_utc": "2026-01-01T10:00:00Z",
+        "can": {"state": "ok", "tec": 0, "rec": 0, "bus_off_count": 0},
+        "temperature_c": 318.5,
+        "setpoint_c": 320
+    },
     "ProductionEvent": {
         "schema_version": "1.0",
         "source_id": "cnc-1",

@@ -50,6 +50,8 @@ CONTRACT_FILES = {
     "FrameMeta": "frame-meta",
     "DetectionFrame": "detection-frame",
     "MaintenanceIncident": "maintenance-incident",
+    "ToolDescriptor": "tool-descriptor",
+    "ToolState": "tool-state",
 }
 
 

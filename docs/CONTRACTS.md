@@ -42,11 +42,24 @@ according to its use case.
 | `FrameMeta` | Vision node, vision streamer | Detection services |
 | `DetectionFrame` | Detection services (vision node, Hailo detection) | Visual servoing, Studio, Suite |
 | `MaintenanceIncident` | Maintenance agent of a node | Development server, local technician, dashboard |
+| `ToolDescriptor` | URTC tool table (one catalogue entry per tool head profile) | Server, Smart Rack, Studio, telemetry collector |
+| `ToolState` | URTC adapter or gateway (one reading of a connected tool head) | Server, Smart Rack, Studio, telemetry collector |
 | `ProjectManifest` | Every repository (`hydra-umc.project.json` or `urtc.project.json`) | Updater, dashboard |
 
-Planned, with no schema yet: `ToolDescriptor` (URTC adapter, for Server, Smart
-Rack and Studio) and `TelemetrySample` (collector and adapters, for DataLake,
-Reports and Anomaly Detector).
+Planned, with no schema yet: `TelemetrySample` (collector and adapters, for
+DataLake, Reports and Anomaly Detector).
+
+`ToolDescriptor` is static (the profile number, name, kind, the metric the tool is judged
+by, its limits, watchdog and features, as the URTC tool table has them) and `ToolState` is
+one reading of a connected head (the active tool, its firmware, the state and error counters
+of its CAN controller, temperatures and faults). Both are closed. A JSON Schema cannot say
+that the limits are ordered or that a thermal fault means the state `fault`, so
+`descriptor_problems` and `state_problems` of the Python client state those rules and
+return the problems as texts. The schemas were written from the frames and the tool table of
+URTC-COMMON (`spec/tools.json`, the health profile and the thermal telemetry) and are checked
+against that table when it is next to the SDK; a head that has not been connected to this
+contract yet is still a head, not a state. How the contracts of A.R.M.O.R. are read in these
+words is in [ARMOR_ALIGNMENT.md](ARMOR_ALIGNMENT.md).
 
 ## Implemented JSON Schema v1
 

@@ -68,6 +68,8 @@ const CONTRACT_FILES: Record<ContractName, string> = {
   FrameMeta: "frame-meta.schema.json",
   DetectionFrame: "detection-frame.schema.json",
   MaintenanceIncident: "maintenance-incident.schema.json",
+  ToolDescriptor: "tool-descriptor.schema.json",
+  ToolState: "tool-state.schema.json",
 };
 
 /**

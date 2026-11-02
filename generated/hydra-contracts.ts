@@ -417,6 +417,60 @@ export interface ServerDiscovery {
   [extra: string]: unknown;
 }
 
+export interface ToolDescriptor {
+  schema_version: "1.0";
+  tool_id: number;
+  name: string;
+  title: string;
+  kind: "motion" | "actuator" | "telemetry" | "external";
+  category?: string;
+  hero_metric?: ToolDescriptorHeroMetric;
+  limits?: ToolDescriptorLimits;
+  watchdog_ms?: number;
+  features?: string[];
+  expansion_board?: string;
+  min_firmware_version?: string;
+  [extra: string]: unknown;
+}
+
+export interface ToolDescriptorHeroMetric {
+  label: string;
+  unit: string;
+  [extra: string]: unknown;
+}
+
+export interface ToolDescriptorLimits {
+  default: number;
+  min: number;
+  max: number;
+  [extra: string]: unknown;
+}
+
+export interface ToolState {
+  schema_version: "1.0";
+  tool_id: number;
+  state: "active" | "idle" | "fault" | "unknown";
+  source: string;
+  timestamp_utc: string;
+  firmware_version?: string;
+  can?: ToolStateCan;
+  temperature_c?: number;
+  setpoint_c?: number;
+  mcu_temp_c?: number;
+  vdda_mv?: number;
+  critical_error?: boolean;
+  thermal_fault?: "NONE" | "MAXTEMP" | "HEATING_NO_RISE" | "DROPPED_AT_TARGET";
+  [extra: string]: unknown;
+}
+
+export interface ToolStateCan {
+  state: "ok" | "error_passive" | "bus_off" | "unknown";
+  tec?: number;
+  rec?: number;
+  bus_off_count?: number;
+  [extra: string]: unknown;
+}
+
 export interface TwinState {
   schema_version: "1.0";
   source: "real" | "simulated";

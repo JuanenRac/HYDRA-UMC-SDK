@@ -26,7 +26,7 @@ GPL-3.0-or-later - see LICENSE
 
 ---
 
-> **Ehrlichkeitscheck - was heute wirklich läuft:** die vierundzwanzig JSON-Schema-v1-Verträge mit je einer gültigen und einer ungültigen Fixture, der Python-Validator, der erste OpenAPI-v1-Ausschnitt von HYDRA-UMC-SERVER, die Go-, TypeScript- und Rust-Clients, die dieselben Schemas durchsetzen, die Bridge-Helfer und die Kompatibilitätsmatrix sind echt und auf einem Rechner getestet (809 Python-Tests, dazu die Suiten der anderen drei Clients). Protobuf ist noch nicht veröffentlicht, das Job-Gate ist eine gemeinsame Software-Funktion und keine zertifizierte Sicherheitsfunktion, und nichts davon lief auf echter Hardware.
+> **Ehrlichkeitscheck - was heute wirklich läuft:** die sechsundzwanzig JSON-Schema-v1-Verträge mit je einer gültigen und einer ungültigen Fixture, der Python-Validator, der erste OpenAPI-v1-Ausschnitt von HYDRA-UMC-SERVER, die Go-, TypeScript- und Rust-Clients, die dieselben Schemas durchsetzen, die Bridge-Helfer und die Kompatibilitätsmatrix sind echt und auf einem Rechner getestet (809 Python-Tests, dazu die Suiten der anderen drei Clients). Protobuf ist noch nicht veröffentlicht, das Job-Gate ist eine gemeinsame Software-Funktion und keine zertifizierte Sicherheitsfunktion, und nichts davon lief auf echter Hardware.
 
 ---
 
@@ -154,7 +154,7 @@ durch die obige Kompatibilitätsmatrix.
 
 | Topic oder Route | Was es trägt |
 |---|---|
-| `contracts/json-schema/v1/` | vierundzwanzig JSON-Schema-v1-Verträge: Fähigkeit, Gerätedeskriptor, Ereignis-Umschlag, Gesundheitsbericht, Operation, Projektmanifest, Sicherheitszustand, Szenarioergebnis, Server-Erkennung, Update-Manifest, Verbindungs-Client, Verbindungsereignis, Pose, Produktionsereignis, Roboterzustand, Zwillingszustand, Ökosystem-Gesundheit, Roboter-Lebenszeichen, Befehlslebenszyklus-Ereignis, Sichtziel-Anfrage, Geschwindigkeitsbefehl, Bildmetadaten, Detektionsbild, Wartungsvorfall |
+| `contracts/json-schema/v1/` | sechsundzwanzig JSON-Schema-v1-Verträge: Fähigkeit, Gerätedeskriptor, Ereignis-Umschlag, Gesundheitsbericht, Operation, Projektmanifest, Sicherheitszustand, Szenarioergebnis, Server-Erkennung, Update-Manifest, Verbindungs-Client, Verbindungsereignis, Pose, Produktionsereignis, Roboterzustand, Zwillingszustand, Ökosystem-Gesundheit, Roboter-Lebenszeichen, Befehlslebenszyklus-Ereignis, Sichtziel-Anfrage, Geschwindigkeitsbefehl, Bildmetadaten, Detektionsbild, Wartungsvorfall, Werkzeugdeskriptor, Werkzeugzustand |
 | `contracts/openapi/v1/server.openapi.json` | der erste OpenAPI-v1-Ausschnitt von HYDRA-UMC-SERVER: Erkennung, Anmeldung, Einstellungen und Befehle (eine Teilmenge der `docs/openapi.json` des Servers selbst) |
 | `contracts/ports.yaml` | das Register von Port, Gesundheitspfad und systemd-Unit jedes Dienstes, erzeugt von `tools/sync_ports.py` |
 | `hydra/bridges/<name>/cmd/#` | wo eine Bridge lauscht; sie antwortet auf `.../<verb>/result` |

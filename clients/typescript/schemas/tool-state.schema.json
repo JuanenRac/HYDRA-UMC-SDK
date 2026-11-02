@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/tool-state.schema.json",
+  "title": "ToolState",
+  "description": "One reading of a connected URTC tool head: which tool is active, its firmware, the state of its CAN controller, its temperatures and its faults. It is what an adapter composes from the frames of the head (active tool, version, error counters, health profile, thermal telemetry); tool_id points to a ToolDescriptor. It says what the head reported at timestamp_utc, nothing about the work. A reading from a simulator says so in source. The schema is closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "tool_id",
+    "state",
+    "source",
+    "timestamp_utc"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "tool_id": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "state": {
+      "enum": [
+        "active",
+        "idle",
+        "fault",
+        "unknown"
+      ],
+      "description": "active: the tool is working; idle: connected and quiet; fault: a critical error or a thermal fault is set; unknown: no reading yet."
+    },
+    "source": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The adapter or head that produced the reading (a simulator names itself here)."
+    },
+    "timestamp_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "firmware_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?$"
+    },
+    "can": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "ok",
+            "error_passive",
+            "bus_off",
+            "unknown"
+          ]
+        },
+        "tec": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "rec": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "bus_off_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        }
+      },
+      "description": "The CAN controller of the head: its error counters (TEC and REC) and how many times it went bus-off."
+    },
+    "temperature_c": {
+      "type": "number",
+      "minimum": -55,
+      "maximum": 1000,
+      "description": "The measured value of the hero metric when it is a temperature (the tip, the hotend, the nozzle)."
+    },
+    "setpoint_c": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1000
+    },
+    "mcu_temp_c": {
+      "type": "number",
+      "minimum": -55,
+      "maximum": 150,
+      "description": "The temperature of the microcontroller of the head."
+    },
+    "vdda_mv": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5000,
+      "description": "The analogue supply of the microcontroller."
+    },
+    "critical_error": {
+      "type": "boolean",
+      "description": "The head holds a critical error and refuses the commands that the protocol gates on it."
+    },
+    "thermal_fault": {
+      "enum": [
+        "NONE",
+        "MAXTEMP",
+        "HEATING_NO_RISE",
+        "DROPPED_AT_TARGET"
+      ]
+    }
+  }
+}

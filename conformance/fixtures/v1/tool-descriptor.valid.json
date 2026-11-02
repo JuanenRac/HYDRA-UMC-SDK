@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "tool_id": 0,
+  "name": "SOLDERING_IRON",
+  "title": "Soldering Iron",
+  "kind": "motion",
+  "category": "Shipped",
+  "hero_metric": { "label": "TIP TEMP", "unit": "C" },
+  "limits": { "default": 320, "min": 150, "max": 445 },
+  "watchdog_ms": 250,
+  "features": ["PID Auto-Tune", "Watchdog Safety Cutoff"],
+  "expansion_board": "none",
+  "min_firmware_version": "0.8.0.0"
+}

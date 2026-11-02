@@ -378,6 +378,55 @@ data class ServerDiscovery(
     val uptimeSeconds: Long
 )
 
+data class ToolDescriptor(
+    val schema_version: String,
+    val tool_id: Long,
+    val name: String,
+    val title: String,
+    val kind: String,
+    val category: String? = null,
+    val hero_metric: ToolDescriptorHeroMetric? = null,
+    val limits: ToolDescriptorLimits? = null,
+    val watchdog_ms: Long? = null,
+    val features: List<String>? = null,
+    val expansion_board: String? = null,
+    val min_firmware_version: String? = null
+)
+
+data class ToolDescriptorHeroMetric(
+    val label: String,
+    val unit: String
+)
+
+data class ToolDescriptorLimits(
+    val default: Double,
+    val min: Double,
+    val max: Double
+)
+
+data class ToolState(
+    val schema_version: String,
+    val tool_id: Long,
+    val state: String,
+    val source: String,
+    val timestamp_utc: String,
+    val firmware_version: String? = null,
+    val can: ToolStateCan? = null,
+    val temperature_c: Double? = null,
+    val setpoint_c: Double? = null,
+    val mcu_temp_c: Double? = null,
+    val vdda_mv: Long? = null,
+    val critical_error: Boolean? = null,
+    val thermal_fault: String? = null
+)
+
+data class ToolStateCan(
+    val state: String,
+    val tec: Long? = null,
+    val rec: Long? = null,
+    val bus_off_count: Long? = null
+)
+
 data class TwinState(
     val schema_version: String,
     val source: String,

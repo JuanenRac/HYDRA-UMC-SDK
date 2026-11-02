@@ -26,7 +26,7 @@ GPL-3.0-or-later - see LICENSE
 
 ---
 
-> **Vérification d'honnêteté - ce qui fonctionne réellement aujourd'hui :** les vingt-quatre contrats JSON Schema v1 avec une fixture valide et une invalide chacun, le validateur Python, la première tranche OpenAPI v1 de HYDRA-UMC-SERVER, les clients Go, TypeScript et Rust qui appliquent les mêmes schémas, les aides pour passerelles et la matrice de compatibilité sont réels et testés sur un ordinateur (809 tests Python, plus les suites des trois autres clients). Protobuf n'est pas encore publié, la porte des jobs est une fonction logicielle partagée et non une fonction de sécurité certifiée, et rien ici n'a tourné sur du vrai matériel.
+> **Vérification d'honnêteté - ce qui fonctionne réellement aujourd'hui :** les vingt-six contrats JSON Schema v1 avec une fixture valide et une invalide chacun, le validateur Python, la première tranche OpenAPI v1 de HYDRA-UMC-SERVER, les clients Go, TypeScript et Rust qui appliquent les mêmes schémas, les aides pour passerelles et la matrice de compatibilité sont réels et testés sur un ordinateur (809 tests Python, plus les suites des trois autres clients). Protobuf n'est pas encore publié, la porte des jobs est une fonction logicielle partagée et non une fonction de sécurité certifiée, et rien ici n'a tourné sur du vrai matériel.
 
 ---
 
@@ -152,7 +152,7 @@ une invalide, vérifiées par la matrice de compatibilité ci-dessus.
 
 | Topic ou route | Ce qu'il porte |
 |---|---|
-| `contracts/json-schema/v1/` | vingt-quatre contrats JSON Schema v1 : capacité, descripteur d'appareil, enveloppe d'événement, rapport de santé, opération, manifeste de projet, état de sécurité, résultat de scénario, découverte de serveur, manifeste de mise à jour, client de connexion, événement de connexion, pose, événement de production, état du robot, état du jumeau, santé de l'écosystème, signe de vie du robot, événement de cycle de vie d'une commande, demande de cible visuelle, commande de vitesse, métadonnées d'image, image de détections, incident de maintenance |
+| `contracts/json-schema/v1/` | vingt-six contrats JSON Schema v1 : capacité, descripteur d'appareil, enveloppe d'événement, rapport de santé, opération, manifeste de projet, état de sécurité, résultat de scénario, découverte de serveur, manifeste de mise à jour, client de connexion, événement de connexion, pose, événement de production, état du robot, état du jumeau, santé de l'écosystème, signe de vie du robot, événement de cycle de vie d'une commande, demande de cible visuelle, commande de vitesse, métadonnées d'image, image de détections, incident de maintenance, descripteur d'outil, état d'outil |
 | `contracts/openapi/v1/server.openapi.json` | la première tranche OpenAPI v1 de HYDRA-UMC-SERVER : découverte, connexion, réglages et commandes (un sous-ensemble du `docs/openapi.json` du serveur lui-même) |
 | `contracts/ports.yaml` | le registre du port, du chemin de santé et de l'unité systemd de chaque service, produit par `tools/sync_ports.py` |
 | `hydra/bridges/<name>/cmd/#` | où une passerelle écoute ; elle répond sur `.../<verbe>/result` |

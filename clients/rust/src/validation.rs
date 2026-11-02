@@ -85,6 +85,8 @@ const CONTRACT_FILES: &[(&str, &str)] = &[
     ("FrameMeta", "frame-meta.schema.json"),
     ("DetectionFrame", "detection-frame.schema.json"),
     ("MaintenanceIncident", "maintenance-incident.schema.json"),
+    ("ToolDescriptor", "tool-descriptor.schema.json"),
+    ("ToolState", "tool-state.schema.json"),
 ];
 
 /// Vendored schema file name -> raw JSON text, embedded at compile time.
@@ -187,6 +189,14 @@ const SCHEMA_FILES: &[(&str, &str)] = &[
     (
         "maintenance-incident.schema.json",
         include_str!("../schemas/maintenance-incident.schema.json"),
+    ),
+    (
+        "tool-descriptor.schema.json",
+        include_str!("../schemas/tool-descriptor.schema.json"),
+    ),
+    (
+        "tool-state.schema.json",
+        include_str!("../schemas/tool-state.schema.json"),
     ),
 ];
 

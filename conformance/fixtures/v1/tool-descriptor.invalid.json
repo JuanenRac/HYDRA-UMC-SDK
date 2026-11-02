@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0",
+  "tool_id": 0,
+  "name": "soldering iron",
+  "title": "Soldering Iron",
+  "kind": "motion"
+}

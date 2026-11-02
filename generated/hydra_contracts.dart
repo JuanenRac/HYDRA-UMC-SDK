@@ -1092,6 +1092,148 @@ class ServerDiscovery {
       };
 }
 
+class ToolDescriptor {
+  final String schema_version;
+  final int tool_id;
+  final String name;
+  final String title;
+  final String kind;
+  final String? category;
+  final ToolDescriptorHeroMetric? hero_metric;
+  final ToolDescriptorLimits? limits;
+  final int? watchdog_ms;
+  final List<String>? features;
+  final String? expansion_board;
+  final String? min_firmware_version;
+  const ToolDescriptor({required this.schema_version, required this.tool_id, required this.name, required this.title, required this.kind, this.category, this.hero_metric, this.limits, this.watchdog_ms, this.features, this.expansion_board, this.min_firmware_version});
+  factory ToolDescriptor.fromJson(Map<String, dynamic> json) => ToolDescriptor(
+        schema_version: json["schema_version"] as String,
+        tool_id: (json["tool_id"] as num).toInt(),
+        name: json["name"] as String,
+        title: json["title"] as String,
+        kind: json["kind"] as String,
+        category: json["category"] == null ? null : json["category"] as String,
+        hero_metric: json["hero_metric"] == null ? null : ToolDescriptorHeroMetric.fromJson(Map<String, dynamic>.from(json["hero_metric"] as Map)),
+        limits: json["limits"] == null ? null : ToolDescriptorLimits.fromJson(Map<String, dynamic>.from(json["limits"] as Map)),
+        watchdog_ms: json["watchdog_ms"] == null ? null : (json["watchdog_ms"] as num).toInt(),
+        features: json["features"] == null ? null : (json["features"] as List).map((e0) => e0 as String).toList(),
+        expansion_board: json["expansion_board"] == null ? null : json["expansion_board"] as String,
+        min_firmware_version: json["min_firmware_version"] == null ? null : json["min_firmware_version"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "schema_version": schema_version,
+        "tool_id": tool_id,
+        "name": name,
+        "title": title,
+        "kind": kind,
+        if (category != null) "category": category,
+        if (hero_metric != null) "hero_metric": hero_metric!.toJson(),
+        if (limits != null) "limits": limits!.toJson(),
+        if (watchdog_ms != null) "watchdog_ms": watchdog_ms,
+        if (features != null) "features": features,
+        if (expansion_board != null) "expansion_board": expansion_board,
+        if (min_firmware_version != null) "min_firmware_version": min_firmware_version,
+      };
+}
+
+class ToolDescriptorHeroMetric {
+  final String label;
+  final String unit;
+  const ToolDescriptorHeroMetric({required this.label, required this.unit});
+  factory ToolDescriptorHeroMetric.fromJson(Map<String, dynamic> json) => ToolDescriptorHeroMetric(
+        label: json["label"] as String,
+        unit: json["unit"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "label": label,
+        "unit": unit,
+      };
+}
+
+class ToolDescriptorLimits {
+  final double default_;
+  final double min;
+  final double max;
+  const ToolDescriptorLimits({required this.default_, required this.min, required this.max});
+  factory ToolDescriptorLimits.fromJson(Map<String, dynamic> json) => ToolDescriptorLimits(
+        default_: (json["default"] as num).toDouble(),
+        min: (json["min"] as num).toDouble(),
+        max: (json["max"] as num).toDouble(),
+      );
+  Map<String, dynamic> toJson() => {
+        "default": default_,
+        "min": min,
+        "max": max,
+      };
+}
+
+class ToolState {
+  final String schema_version;
+  final int tool_id;
+  final String state;
+  final String source;
+  final String timestamp_utc;
+  final String? firmware_version;
+  final ToolStateCan? can;
+  final double? temperature_c;
+  final double? setpoint_c;
+  final double? mcu_temp_c;
+  final int? vdda_mv;
+  final bool? critical_error;
+  final String? thermal_fault;
+  const ToolState({required this.schema_version, required this.tool_id, required this.state, required this.source, required this.timestamp_utc, this.firmware_version, this.can, this.temperature_c, this.setpoint_c, this.mcu_temp_c, this.vdda_mv, this.critical_error, this.thermal_fault});
+  factory ToolState.fromJson(Map<String, dynamic> json) => ToolState(
+        schema_version: json["schema_version"] as String,
+        tool_id: (json["tool_id"] as num).toInt(),
+        state: json["state"] as String,
+        source: json["source"] as String,
+        timestamp_utc: json["timestamp_utc"] as String,
+        firmware_version: json["firmware_version"] == null ? null : json["firmware_version"] as String,
+        can: json["can"] == null ? null : ToolStateCan.fromJson(Map<String, dynamic>.from(json["can"] as Map)),
+        temperature_c: json["temperature_c"] == null ? null : (json["temperature_c"] as num).toDouble(),
+        setpoint_c: json["setpoint_c"] == null ? null : (json["setpoint_c"] as num).toDouble(),
+        mcu_temp_c: json["mcu_temp_c"] == null ? null : (json["mcu_temp_c"] as num).toDouble(),
+        vdda_mv: json["vdda_mv"] == null ? null : (json["vdda_mv"] as num).toInt(),
+        critical_error: json["critical_error"] == null ? null : json["critical_error"] as bool,
+        thermal_fault: json["thermal_fault"] == null ? null : json["thermal_fault"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "schema_version": schema_version,
+        "tool_id": tool_id,
+        "state": state,
+        "source": source,
+        "timestamp_utc": timestamp_utc,
+        if (firmware_version != null) "firmware_version": firmware_version,
+        if (can != null) "can": can!.toJson(),
+        if (temperature_c != null) "temperature_c": temperature_c,
+        if (setpoint_c != null) "setpoint_c": setpoint_c,
+        if (mcu_temp_c != null) "mcu_temp_c": mcu_temp_c,
+        if (vdda_mv != null) "vdda_mv": vdda_mv,
+        if (critical_error != null) "critical_error": critical_error,
+        if (thermal_fault != null) "thermal_fault": thermal_fault,
+      };
+}
+
+class ToolStateCan {
+  final String state;
+  final int? tec;
+  final int? rec;
+  final int? bus_off_count;
+  const ToolStateCan({required this.state, this.tec, this.rec, this.bus_off_count});
+  factory ToolStateCan.fromJson(Map<String, dynamic> json) => ToolStateCan(
+        state: json["state"] as String,
+        tec: json["tec"] == null ? null : (json["tec"] as num).toInt(),
+        rec: json["rec"] == null ? null : (json["rec"] as num).toInt(),
+        bus_off_count: json["bus_off_count"] == null ? null : (json["bus_off_count"] as num).toInt(),
+      );
+  Map<String, dynamic> toJson() => {
+        "state": state,
+        if (tec != null) "tec": tec,
+        if (rec != null) "rec": rec,
+        if (bus_off_count != null) "bus_off_count": bus_off_count,
+      };
+}
+
 class TwinState {
   final String schema_version;
   final String source;

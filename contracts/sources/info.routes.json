@@ -1,0 +1,38 @@
+{
+  "source_version": "1",
+  "group": "info",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "post",
+      "path": "/api/info/ticket",
+      "summary": "POST /api/info/ticket",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "request_body": {
+        "required": false,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [],
+              "properties": {
+                "ttlSeconds": {}
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "InfoTicket"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}

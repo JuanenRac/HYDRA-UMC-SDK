@@ -50,6 +50,8 @@ CONTRACTS = {
     "FrameMeta": "frame-meta",
     "DetectionFrame": "detection-frame",
     "MaintenanceIncident": "maintenance-incident",
+    "ToolDescriptor": "tool-descriptor",
+    "ToolState": "tool-state",
 }
 
 # The Python validator is deliberately stricter than the schema here: the schema
