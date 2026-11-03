@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The presence routes answer with named shapes:** `server.shapes.json` now carries `OperatorPresence` (the state of the operator seen by the server) and `OperatorPresenceAck` (the answer to a heartbeat), and the `operator` source names them instead of declaring the answers inline, so the server and the inventory share one definition. The full inventory keeps the same routes; its answers are now references to those shapes.
+
 - **The port registry lists the kiosk of the Pi:** `contracts/ports.yaml` now carries the unit `hydra-umc-dsi.service` of HYDRA-UMC-DSI (a service without a port, because the app does not serve HTTP), so the check of the installers finds every unit they name.
 
 - **The uniform `GET /health` of the Python services, written once (`tools/canonical/health_route.py`):** closed by default (`404`), opened with `--health-open` or `HYDRA_UMC_<SERVICE>_HEALTH_OPEN`, answered on loopback or with the bearer token, with a body that names the service and its version and nothing else. It needs only the standard library and takes the name of the service and of the environment variable from the package it sits in, so the eight copies that the services carried are now one text; it is vendored byte for byte into those services through `PER_REPOSITORY_FILES` of `sync_repo_tools.py`, with tests against a real server.

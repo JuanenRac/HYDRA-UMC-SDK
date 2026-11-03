@@ -12,59 +12,7 @@
       "responses": {
         "200": {
           "description": "Success. The body is documented in docs/REMOTE_API.md.",
-          "schema": {
-            "type": "object",
-            "required": [
-              "state",
-              "lastSequence",
-              "secondsSinceBeat",
-              "action",
-              "timeoutSeconds",
-              "degradedRobots"
-            ],
-            "properties": {
-              "state": {
-                "type": "string",
-                "enum": [
-                  "unknown",
-                  "present",
-                  "lost",
-                  "left",
-                  "recovering"
-                ]
-              },
-              "lastSequence": {
-                "type": [
-                  "integer",
-                  "null"
-                ]
-              },
-              "secondsSinceBeat": {
-                "type": [
-                  "integer",
-                  "null"
-                ]
-              },
-              "action": {
-                "type": "string",
-                "enum": [
-                  "slow",
-                  "pause",
-                  "notify",
-                  "stop"
-                ]
-              },
-              "timeoutSeconds": {
-                "type": "number"
-              },
-              "degradedRobots": {
-                "type": "array",
-                "items": {
-                  "type": "integer"
-                }
-              }
-            }
-          }
+          "shape": "OperatorPresence"
         },
         "403": {
           "description": "Signed in but not allowed. The body is documented in docs/REMOTE_API.md.",
@@ -123,53 +71,7 @@
       "responses": {
         "200": {
           "description": "Success. The body is documented in docs/REMOTE_API.md.",
-          "schema": {
-            "type": "object",
-            "required": [
-              "accepted",
-              "duplicate",
-              "stale",
-              "state",
-              "sequence",
-              "action",
-              "timeoutSeconds"
-            ],
-            "properties": {
-              "accepted": {
-                "type": "boolean"
-              },
-              "duplicate": {
-                "type": "boolean"
-              },
-              "stale": {
-                "type": "boolean"
-              },
-              "state": {
-                "type": "string",
-                "enum": [
-                  "present",
-                  "lost",
-                  "left",
-                  "recovering"
-                ]
-              },
-              "sequence": {
-                "type": "integer"
-              },
-              "action": {
-                "type": "string",
-                "enum": [
-                  "slow",
-                  "pause",
-                  "notify",
-                  "stop"
-                ]
-              },
-              "timeoutSeconds": {
-                "type": "number"
-              }
-            }
-          }
+          "shape": "OperatorPresenceAck"
         },
         "400": {
           "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
