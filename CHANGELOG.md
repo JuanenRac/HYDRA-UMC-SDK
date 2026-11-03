@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The TypeScript server client drops the trailing slashes of its address in one pass:** a base address ending in a very long run of slashes could take quadratic time with the regular expression used before; a test with a hostile address covers it.
+
 - **The contract declares the optional asymmetric sign-in tokens:** the new group `jwks` has the public `GET /.well-known/jwks.json` (`JwksDocument`, a JWK Set of Ed25519 keys; `404` while the server signs HS256, the default) and the admin group has `GET /api/admin/jwt-keys` (`JwtKeys`) and `POST /api/admin/jwt-keys/rotate` (`JwtKeyRotated`); `PUT /api/admin/server-config` lists its new `500`.
 
 - **The full inventory declares the global robot ids:** `GET /api/robot/{id}`, `POST /api/robot/{id}/heartbeat` and `GET /api/safety-limits` list the `409` (`robot_id_ambiguous`: more than one robot uses that id), and the new admin route `GET /api/admin/robot-ids` (`ok`, `ambiguousCount` and the `ambiguous` ids with their controllers) is declared in the `admin` source; `server.full.openapi.json` is regenerated and `python tools/contract_source.py --check` passes again. The clients keep an unknown error code as a plain `ApiError`, so none changes; the error table of `docs/SERVER_CLIENT.md` names the code.

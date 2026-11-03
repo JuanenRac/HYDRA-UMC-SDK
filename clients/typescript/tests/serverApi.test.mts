@@ -153,3 +153,20 @@ test("a conflict, an unarmed jog and a non-JSON failure raise typed errors", asy
 test("an invalid default controller id is refused", () => {
   assert.throws(() => new api.HydraServerClient("http://x", { controllerId: "no good" }), api.ServerRequestError);
 });
+
+test("the trailing slashes of the server address are dropped in one pass, even a very long run", async () => {
+  const seen: string[] = [];
+  const transport: api.Transport = async (_method, url) => {
+    seen.push(url);
+    return { status: 200, text: "{\"claims\":[]}" };
+  };
+  for (const base of ["http://hydra.local:8080", "http://hydra.local:8080/", "http://hydra.local:8080///"]) {
+    await new api.HydraServerClient(base, { transport }).listClaims();
+  }
+  assert.deepEqual(seen, Array(3).fill("http://hydra.local:8080/api/claims"));
+  const hostile = "http://hydra.local:8080" + "/".repeat(200000) + "x" + "/".repeat(200000);
+  const started = Date.now();
+  await new api.HydraServerClient(hostile, { transport }).listClaims();
+  assert.ok(Date.now() - started < 2000);
+  assert.equal(seen[3], "http://hydra.local:8080" + "/".repeat(200000) + "x/api/claims");
+});

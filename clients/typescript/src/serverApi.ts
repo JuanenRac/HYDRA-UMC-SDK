@@ -536,6 +536,13 @@ export interface ServerClientOptions {
   transport?: Transport;
 }
 
+/** The address without the slashes at its end, found by walking back from the end (no regular expression, so a long run of slashes costs one pass). */
+function withoutTrailingSlashes(address: string): string {
+  let end = address.length;
+  while (end > 0 && address.charCodeAt(end - 1) === 47) end -= 1;
+  return address.slice(0, end);
+}
+
 export class HydraServerClient {
   private readonly baseUrl: string;
   private readonly token: string | undefined;
@@ -543,7 +550,7 @@ export class HydraServerClient {
   private readonly transport: Transport;
 
   constructor(baseUrl: string, options: ServerClientOptions = {}) {
-    this.baseUrl = baseUrl.replace(/\/+$/, "");
+    this.baseUrl = withoutTrailingSlashes(baseUrl);
     this.token = options.token;
     this.defaultController = controller(options.controllerId);
     this.transport = options.transport ?? fetchTransport();
