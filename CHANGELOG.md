@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.5.1] - One canonical health route for the services, the named shapes of the operator presence routes, the kiosk unit of the Pi in the port registry and the registry of the gRPC health port
+
 - **The presence routes answer with named shapes:** `server.shapes.json` now carries `OperatorPresence` (the state of the operator seen by the server) and `OperatorPresenceAck` (the answer to a heartbeat), and the `operator` source names them instead of declaring the answers inline, so the server and the inventory share one definition. The full inventory keeps the same routes; its answers are now references to those shapes.
 
 - **The port registry lists the kiosk of the Pi:** `contracts/ports.yaml` now carries the unit `hydra-umc-dsi.service` of HYDRA-UMC-DSI (a service without a port, because the app does not serve HTTP), so the check of the installers finds every unit they name.
