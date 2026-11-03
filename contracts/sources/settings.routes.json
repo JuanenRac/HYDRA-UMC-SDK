@@ -40,6 +40,35 @@
           "shape": "Error"
         }
       }
+    },
+    {
+      "method": "put",
+      "path": "/api/settings",
+      "summary": "PUT /api/settings",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Success"
+        },
+        "409": {
+          "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "412": {
+          "description": "Changed since it was read (If-Match does not match). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "428": {
+          "description": "A precondition (If-Match) is required. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "500": {
+          "description": "Server error. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
     }
   ]
 }
