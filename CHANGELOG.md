@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The port registry lists the kiosk of the Pi:** `contracts/ports.yaml` now carries the unit `hydra-umc-dsi.service` of HYDRA-UMC-DSI (a service without a port, because the app does not serve HTTP), so the check of the installers finds every unit they name.
+
 - **The uniform `GET /health` of the Python services, written once (`tools/canonical/health_route.py`):** closed by default (`404`), opened with `--health-open` or `HYDRA_UMC_<SERVICE>_HEALTH_OPEN`, answered on loopback or with the bearer token, with a body that names the service and its version and nothing else. It needs only the standard library and takes the name of the service and of the environment variable from the package it sits in, so the eight copies that the services carried are now one text; it is vendored byte for byte into those services through `PER_REPOSITORY_FILES` of `sync_repo_tools.py`, with tests against a real server.
 
 ## [0.5.0] - The full server inventory follows the server again, the error vocabulary of the MCU adapters is defined once, the port registry carries the gRPC health port and the safety chain runs end to end in simulation
