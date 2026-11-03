@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The uniform `GET /health` of the Python services, written once (`tools/canonical/health_route.py`):** closed by default (`404`), opened with `--health-open` or `HYDRA_UMC_<SERVICE>_HEALTH_OPEN`, answered on loopback or with the bearer token, with a body that names the service and its version and nothing else. It needs only the standard library and takes the name of the service and of the environment variable from the package it sits in, so the eight copies that the services carried are now one text; it is vendored byte for byte into those services through `PER_REPOSITORY_FILES` of `sync_repo_tools.py`, with tests against a real server.
+
 ## [0.5.0] - The full server inventory follows the server again, the error vocabulary of the MCU adapters is defined once, the port registry carries the gRPC health port and the safety chain runs end to end in simulation
 
 - **The full server inventory follows the server again:** `contracts/openapi/v1/server.full.openapi.json` now lists `GET` and `POST /api/operator/presence` (the numbered heartbeat of the operator and its state) and `GET` and `PUT /api/telemetry/downsample-plan` (the tier plan of the data lake, with the `preview` query parameter), declared in the new `operator` source and in the `telemetry` source. An inventory source may now give the answer of a status code inline (`"schema"`) instead of naming a shape, as the server does for the presence routes. `python tools/contract_source.py --check` passes against the current server again (34 sources, 87 routes).

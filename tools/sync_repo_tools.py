@@ -92,6 +92,14 @@ PER_REPOSITORY_FILES = {
         f"HYDRA-UMC-{name}": f"src/hydra_umc_{name.lower().replace('-', '_')}/http_common.py"
         for name in ("COGNITIVE-NODE", "VISION-NODE", "VLA-ENGINE")
     },
+    # The uniform `GET /health` of the Python services: closed (404) unless the operator opens it, on loopback or with the bearer token, with a body that names
+    # the service and its version and nothing else. Standard library only; the name of the service and of the environment variable come from the package.
+    "tools/canonical/health_route.py": {
+        f"HYDRA-UMC-{name}": f"src/hydra_umc_{name.lower().replace('-', '_')}/health_route.py"
+        for name in (
+            "ANOMALY-DETECTOR", "COGNITIVE-NODE", "DETECTION-HEF", "DOCS-QA", "SAFETY-ZONES", "SEMANTIC-PLANNER", "VISION-NODE", "VISUAL-SERVOING-API",
+        )
+    },
     # The same `GET /metrics` for the services written in Rust (tiny_http) and in Go (net/http): the same series, the same rules.
     "tools/canonical/service_metrics.rs": {
         "HYDRA-UMC-ORCHESTRATOR": "src/service_metrics.rs",
