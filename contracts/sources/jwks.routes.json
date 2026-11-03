@@ -1,0 +1,28 @@
+{
+  "source_version": "1",
+  "group": "jwks",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "get",
+      "path": "/.well-known/jwks.json",
+      "summary": "GET /.well-known/jwks.json",
+      "description": "No authentication required by the route itself. Answers 404 (as if it did not exist) while the server signs HS256, the default.",
+      "access": "public",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "JwksDocument"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "The key set is not available. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}

@@ -164,6 +164,48 @@
         "400": {
           "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
+        },
+        "500": {
+          "description": "The key file for EdDSA cannot be created or read; nothing was changed. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "get",
+      "path": "/api/admin/jwt-keys",
+      "summary": "GET /api/admin/jwt-keys",
+      "description": "Requires a signed-in account with the admin role. The state of the token signing keys (which one is active, until when a retired one is still accepted); never the private part.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "JwtKeys"
+        },
+        "500": {
+          "description": "The key file cannot be read. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/admin/jwt-keys/rotate",
+      "summary": "POST /api/admin/jwt-keys/rotate",
+      "description": "Requires a signed-in account with the admin role. Makes a new key the active one; the previous key stays published and accepted for the overlap. 409 while the algorithm is HS256.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "JwtKeyRotated"
+        },
+        "409": {
+          "description": "Asymmetric signing is off. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "500": {
+          "description": "The key file cannot be written. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
         }
       }
     }
