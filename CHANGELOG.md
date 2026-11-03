@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.5.2] - The TypeScript server client drops the trailing slashes of its address in one pass: a base address ending in a very long run of slashes could take quadratic time with the regular expression used before; a test with a hostile... (and 5 more changes)
+
 - **The TypeScript server client drops the trailing slashes of its address in one pass:** a base address ending in a very long run of slashes could take quadratic time with the regular expression used before; a test with a hostile address covers it.
 
 - **The contract declares the optional asymmetric sign-in tokens:** the new group `jwks` has the public `GET /.well-known/jwks.json` (`JwksDocument`, a JWK Set of Ed25519 keys; `404` while the server signs HS256, the default) and the admin group has `GET /api/admin/jwt-keys` (`JwtKeys`) and `POST /api/admin/jwt-keys/rotate` (`JwtKeyRotated`); `PUT /api/admin/server-config` lists its new `500`.
