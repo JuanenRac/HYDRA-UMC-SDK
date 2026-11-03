@@ -35,7 +35,7 @@ TAG_PATTERN = re.compile(r"^v\d+\.\d+\.\d+(?:\.\d+)?$")
 _DEPENDENCY = re.compile(r"(HYDRA-UMC-SDK\.git@)([^#\s\"']+)")
 # `repository: JuanenRac/HYDRA-UMC-SDK, ... ref: <ref>` on one line, or a `ref:` on the next line(s)
 _WORKFLOW_INLINE = re.compile(r"(repository:\s*JuanenRac/HYDRA-UMC-SDK\b[^\n}]*?\bref:\s*)([^\s,}]+)")
-_WORKFLOW_BLOCK = re.compile(r"(repository:\s*JuanenRac/HYDRA-UMC-SDK[ \t]*\r?\n(?:[ \t]+[^\n]*\r?\n)*?[ \t]+ref:\s*)([^\s#]+)")
+_WORKFLOW_BLOCK = re.compile(r"(repository:\s*JuanenRac/HYDRA-UMC-SDK[ \t]*\r?\n(?:[ \t][^\r\n]*\r?\n)*?[ \t]+ref:\s*)([^\s#]+)")
 
 SCANNED = ("pyproject.toml", "requirements.txt", "requirements-dev.txt", ".github/workflows/ci.yml")
 

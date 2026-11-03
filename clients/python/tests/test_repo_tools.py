@@ -66,6 +66,13 @@ class RepinTests(unittest.TestCase):
         new, _ = PIN.repin(WORKFLOW_BLOCK.format(ref="main"), "v0.3.4")
         self.assertIn("repository: JuanenRac/OTHER\n      ref: main\n", new)
 
+    def test_a_hostile_workflow_text_is_scanned_in_linear_time(self):
+        import time
+        hostile = "repository: JuanenRac/HYDRA-UMC-SDK\n\t" + "\t\r\n\t" * 4000 + "x"
+        started = time.monotonic()
+        PIN.repin(hostile, "v0.3.4")
+        self.assertLess(time.monotonic() - started, 2.0)
+
     def test_crlf_files_keep_their_line_endings(self):
         text = PYPROJECT.format(ref="main").replace("\n", "\r\n")
         new, _ = PIN.repin(text, "v0.3.4")
