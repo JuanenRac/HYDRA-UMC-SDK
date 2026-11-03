@@ -73,7 +73,7 @@ class ContractTablesTests(unittest.TestCase):
     def test_the_ports_table_follows_the_registry_ordered_by_port(self) -> None:
         text = CHECK.ports_table(SDK / "contracts" / "ports.yaml")
         rows = [line.split("|")[1:-1] for line in text.splitlines()[2:]]
-        ports = [int(row[0]) for row in rows]
+        ports = [int(row[0]) for row in rows if row[0].strip()]  # a unit without a port has an empty cell
         self.assertEqual(ports, sorted(ports))
         self.assertIn("HYDRA-UMC-SERVER", text)
         self.assertNotIn("null", text)
