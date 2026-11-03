@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The Go client has its own tag, `clients/go/v0.1.0`:** the module `github.com/JuanenRac/HYDRA-UMC-SDK/clients/go` can be fetched at that version (a Go module in a subfolder is tagged with the folder in front); the tags `vX.Y.Z` stay for the SDK as a whole.
+
 - **Three more services carry the common `GET /health`:** `PER_REPOSITORY_FILES` of `tools/sync_repo_tools.py` now lists the data lake, the production reports and the development server for `tools/canonical/health_route.py`, so their copy is kept identical to the canonical one like the other eight (the first two used to answer `/health` to anybody and now close it by default).
 
 ## [0.5.1] - One canonical health route for the services, the named shapes of the operator presence routes, the kiosk unit of the Pi in the port registry and the registry of the gRPC health port
