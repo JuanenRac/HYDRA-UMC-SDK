@@ -26,6 +26,10 @@
         "404": {
           "description": "Not found. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
+        },
+        "409": {
+          "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
         }
       }
     },
@@ -183,6 +187,10 @@
         },
         "404": {
           "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "409": {
+          "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
         }
       }

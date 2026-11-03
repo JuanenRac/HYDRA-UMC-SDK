@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The full inventory declares the global robot ids:** `GET /api/robot/{id}`, `POST /api/robot/{id}/heartbeat` and `GET /api/safety-limits` list the `409` (`robot_id_ambiguous`: more than one robot uses that id), and the new admin route `GET /api/admin/robot-ids` (`ok`, `ambiguousCount` and the `ambiguous` ids with their controllers) is declared in the `admin` source; `server.full.openapi.json` is regenerated and `python tools/contract_source.py --check` passes again. The clients keep an unknown error code as a plain `ApiError`, so none changes; the error table of `docs/SERVER_CLIENT.md` names the code.
+
 - **The settings group declares `PUT /api/settings`:** the save of the whole configuration with a mandatory `If-Match` (the ETag of `GET /api/settings`), answering `428` without it and `412` when the settings changed since they were read; the generated full inventory follows.
 
 - **The Go client has its own tag, `clients/go/v0.1.0`:** the module `github.com/JuanenRac/HYDRA-UMC-SDK/clients/go` can be fetched at that version (a Go module in a subfolder is tagged with the folder in front); the tags `vX.Y.Z` stay for the SDK as a whole.

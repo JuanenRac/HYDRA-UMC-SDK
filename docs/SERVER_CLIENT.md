@@ -38,6 +38,7 @@ Every error answer becomes a typed error that keeps the HTTP status, the readabl
 | Malformed controller id | 400 | `invalid-controller-id` | `InvalidControllerIdError` | `*InvalidControllerIDError` | `ApiError::InvalidControllerId` |
 | A jog on a robot that is not armed | 403 | `jog-not-armed` | `JogNotArmedError` | `*JogNotArmedError` | `ApiError::JogNotArmed` |
 | A 409 with a `reservation` and no code (a server that predates the codes) | 409 | none | `ClaimConflictError` with no code | `*ClaimConflictError` | `ApiError::ClaimConflict` |
+| A route by a robot id that more than one robot uses (`GET /api/robot/{id}`, `heartbeat`, `GET /api/safety-limits`, the commands) | 409 | `robot_id_ambiguous` (the administrator sees the ids with `GET /api/admin/robot-ids`) | `ApiError` | `*APIError` | `ApiError::Other` |
 | Anything else, including an unknown code | any | kept | `ApiError` | `*APIError` | `ApiError::Other` |
 
 `ClaimConflictError` and `ControllerIdRequiredError` carry the `reservation` that blocks the caller. In Go every typed error unwraps to `*APIError` (`errors.As`, or `AsAPIError`). A `409` on the settings tree (a revision conflict) has no reservation and stays a plain error.

@@ -53,6 +53,57 @@
       }
     },
     {
+      "method": "get",
+      "path": "/api/admin/robot-ids",
+      "summary": "GET /api/admin/robot-ids",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "schema": {
+            "type": "object",
+            "required": [
+              "ok",
+              "ambiguousCount",
+              "ambiguous"
+            ],
+            "properties": {
+              "ok": {
+                "type": "boolean",
+                "description": "False while at least one robot id is used by more than one robot."
+              },
+              "ambiguousCount": {
+                "type": "integer"
+              },
+              "ambiguous": {
+                "type": "array",
+                "description": "The routes by these ids answer 409 robot_id_ambiguous. Controller ids only.",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "robotId",
+                    "controllers"
+                  ],
+                  "properties": {
+                    "robotId": {
+                      "type": "integer"
+                    },
+                    "controllers": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "method": "put",
       "path": "/api/admin/safety-limits",
       "summary": "PUT /api/admin/safety-limits",
