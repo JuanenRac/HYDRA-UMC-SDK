@@ -1,0 +1,62 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/clients/python"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+    groups:
+      pip_updates:
+        patterns:
+          - "*"
+  - package-ecosystem: "npm"
+    directory: "/clients/typescript"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+    groups:
+      npm_updates:
+        patterns:
+          - "*"
+  - package-ecosystem: "cargo"
+    directory: "/clients/rust"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+    groups:
+      cargo_updates:
+        patterns:
+          - "*"
+  - package-ecosystem: "gomod"
+    directory: "/clients/go"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+    groups:
+      gomod_updates:
+        patterns:
+          - "*"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+    groups:
+      github_actions_updates:
+        patterns:
+          - "*"
