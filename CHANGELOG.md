@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.5.0] - The full server inventory follows the server again, the error vocabulary of the MCU adapters is defined once, the port registry carries the gRPC health port and the safety chain runs end to end in simulation
+
 - **The full server inventory follows the server again:** `contracts/openapi/v1/server.full.openapi.json` now lists `GET` and `POST /api/operator/presence` (the numbered heartbeat of the operator and its state) and `GET` and `PUT /api/telemetry/downsample-plan` (the tier plan of the data lake, with the `preview` query parameter), declared in the new `operator` source and in the `telemetry` source. An inventory source may now give the answer of a status code inline (`"schema"`) instead of naming a shape, as the server does for the presence routes. `python tools/contract_source.py --check` passes against the current server again (34 sources, 87 routes).
 
 - **The error vocabulary of the MCU adapters, defined once (`mcu_errors.py`):** the seven codes (`INVALID_STATE`, `OUT_OF_RANGE`, `ESTOP_ACTIVE`, `TOOL_INCOMPATIBLE`, `TIMEOUT`, `UNSUPPORTED`, `GRIP_LOST_SEAL`) with their meaning and the safe action proposed for each, `is_known_mcu_error`, `describe_mcu_error` and `default_mcu_error_action`; a code outside the list is never guessed and escalates to an operator. Python only for now; the planner and the other consumers adopt it with the next release of the package. 3 tests.
