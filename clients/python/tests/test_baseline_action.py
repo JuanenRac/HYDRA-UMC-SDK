@@ -66,8 +66,9 @@ class ActionTests(unittest.TestCase):
 
     def test_the_caches_are_there(self) -> None:
         body = text(ACTION)
-        for needle in ("cache: pip", "cache: npm", "cache: gradle", "Swatinem/rust-cache@", "cache: true"):
+        for needle in ("cache: pip", "cache: npm", "cache: gradle", "Swatinem/rust-cache@"):
             self.assertIn(needle, body)
+        self.assertNotIn("flutter-action", body)
 
     def test_third_party_actions_are_pinned_to_a_commit(self) -> None:
         for line in text(ACTION).splitlines():
