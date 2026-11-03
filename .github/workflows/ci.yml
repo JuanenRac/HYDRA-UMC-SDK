@@ -128,10 +128,9 @@ jobs:
           go build ./...
       - name: Set up Flutter
         if: ${{ hashFiles('pubspec.yaml') != '' }}
-        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
-        with:
-          channel: stable
-          cache: true
+        run: |
+          git clone --depth 1 --branch stable https://github.com/flutter/flutter.git "$RUNNER_TEMP/flutter"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
       - name: Validate Flutter project
         if: ${{ hashFiles('pubspec.yaml') != '' }}
         run: |
