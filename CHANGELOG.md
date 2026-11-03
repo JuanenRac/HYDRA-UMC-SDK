@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **Three more services carry the common `GET /health`:** `PER_REPOSITORY_FILES` of `tools/sync_repo_tools.py` now lists the data lake, the production reports and the development server for `tools/canonical/health_route.py`, so their copy is kept identical to the canonical one like the other eight (the first two used to answer `/health` to anybody and now close it by default).
+
 ## [0.5.1] - One canonical health route for the services, the named shapes of the operator presence routes, the kiosk unit of the Pi in the port registry and the registry of the gRPC health port
 
 - **The presence routes answer with named shapes:** `server.shapes.json` now carries `OperatorPresence` (the state of the operator seen by the server) and `OperatorPresenceAck` (the answer to a heartbeat), and the `operator` source names them instead of declaring the answers inline, so the server and the inventory share one definition. The full inventory keeps the same routes; its answers are now references to those shapes.

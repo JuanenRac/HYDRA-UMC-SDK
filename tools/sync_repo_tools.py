@@ -97,7 +97,8 @@ PER_REPOSITORY_FILES = {
     "tools/canonical/health_route.py": {
         f"HYDRA-UMC-{name}": f"src/hydra_umc_{name.lower().replace('-', '_')}/health_route.py"
         for name in (
-            "ANOMALY-DETECTOR", "COGNITIVE-NODE", "DETECTION-HEF", "DOCS-QA", "SAFETY-ZONES", "SEMANTIC-PLANNER", "VISION-NODE", "VISUAL-SERVOING-API",
+            "ANOMALY-DETECTOR", "COGNITIVE-NODE", "DATALAKE", "DETECTION-HEF", "DEV-SERVER", "DOCS-QA", "PRODUCTION-REPORTS", "SAFETY-ZONES", "SEMANTIC-PLANNER",
+            "VISION-NODE", "VISUAL-SERVOING-API",
         )
     },
     # The same `GET /metrics` for the services written in Rust (tiny_http) and in Go (net/http): the same series, the same rules.
