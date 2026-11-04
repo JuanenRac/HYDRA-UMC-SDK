@@ -98,6 +98,12 @@ PER_REPOSITORY_FILES = {
         f"HYDRA-UMC-{name}": f"src/hydra_umc_{name.lower().replace('-', '_')}/model_weights.py"
         for name in ("COGNITIVE-NODE", "VLA-ENGINE")
     },
+    # The signed token of HYDRA-UMC-SERVER as the identity of a caller, for the Python services on the standard library HTTP server: off unless the operator names the
+    # signing key (`--identity-key-file`), then a valid token of the SERVER is accepted and nothing is open. Standard library only; pilots first, the others follow.
+    "tools/canonical/server_identity.py": {
+        f"HYDRA-UMC-{name}": f"src/hydra_umc_{name.lower().replace('-', '_')}/server_identity.py"
+        for name in ("COGNITIVE-NODE", "VISION-NODE", "VLA-ENGINE")
+    },
     # The uniform `GET /health` of the Python services: closed (404) unless the operator opens it, on loopback or with the bearer token, with a body that names
     # the service and its version and nothing else. Standard library only; the name of the service and of the environment variable come from the package.
     "tools/canonical/health_route.py": {
