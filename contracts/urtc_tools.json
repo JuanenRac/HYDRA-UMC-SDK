@@ -1,0 +1,157 @@
+{
+  "schema_version": "1.0",
+  "source": "URTC firmware_common.h (ToolMode_t) and docs/TOOLS.TXT",
+  "invalid_tool_id": 25,
+  "tools": [
+    {
+      "tool_id": 0,
+      "name": "TOOL_SOLDERING_IRON",
+      "title": "Soldering Station (T12)",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 1,
+      "name": "TOOL_PASTE_DISPENSER",
+      "title": "SMT Solder Paste Dispenser",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 2,
+      "name": "TOOL_LIQUID_DISPENSER",
+      "title": "Thermal Paste / Liquid Dispenser",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 3,
+      "name": "TOOL_SCREWDRIVER",
+      "title": "Smart Electric Screwdriver",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 4,
+      "name": "TOOL_VACUUM_PICKUP",
+      "title": "Vacuum / Pneumatic Gripper",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 5,
+      "name": "TOOL_DRILL",
+      "title": "Drill (BL4260)",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 6,
+      "name": "TOOL_GRIPPER_GIMBAL",
+      "title": "Gimbal Gripper",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 7,
+      "name": "TOOL_GRIPPER_NEMA",
+      "title": "NEMA Gripper",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 8,
+      "name": "TOOL_AOI_INSPECTION",
+      "title": "AOI (Automated Optical Inspection) System",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 9,
+      "name": "TOOL_LASER_ENGRAVER",
+      "title": "Engraving Laser Diode (10W optical)",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 10,
+      "name": "TOOL_3D_PRINTER",
+      "title": "3D Printing Hotend",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 11,
+      "name": "TOOL_SCAN_PROBE",
+      "title": "3D Scanner Probe",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 12,
+      "name": "TOOL_SMT_PICKPLACE",
+      "title": "SMT Pick & Place Head",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 13,
+      "name": "TOOL_ELECTROMAGNET",
+      "title": "Heavy-Duty Electromagnet",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 14,
+      "name": "TOOL_SPOT_WELDER",
+      "title": "Spot Welder Head",
+      "expansion": "recommended"
+    },
+    {
+      "tool_id": 15,
+      "name": "TOOL_CONFORMAL_COATING",
+      "title": "Conformal Coating Airbrush",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 16,
+      "name": "TOOL_VACUUM_GRIPPER_LG",
+      "title": "Large-Format Vacuum Gripper",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 17,
+      "name": "TOOL_FLYING_PROBE",
+      "title": "Functional Testing Head",
+      "expansion": "unknown"
+    },
+    {
+      "tool_id": 18,
+      "name": "TOOL_UV_CURING",
+      "title": "UV Curing Head",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 19,
+      "name": "TOOL_HOTAIR_REWORK",
+      "title": "Hot Air Rework Nozzle",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 20,
+      "name": "TOOL_PRESSFIT_INSERTER",
+      "title": "Pneumatic Press-Fit Inserter",
+      "expansion": "none"
+    },
+    {
+      "tool_id": 21,
+      "name": "TOOL_CRIMPING_ACTUATOR",
+      "title": "Wire Harnessing / Crimping Actuator",
+      "expansion": "required"
+    },
+    {
+      "tool_id": 22,
+      "name": "TOOL_THERMAL_INSPECTION",
+      "title": "PCB Advanced Inspection",
+      "expansion": "required"
+    },
+    {
+      "tool_id": 23,
+      "name": "TOOL_PASTE_JETTING",
+      "title": "Solder Paste Jetting Valve",
+      "expansion": "required"
+    },
+    {
+      "tool_id": 24,
+      "name": "TOOL_ULTRASONIC_WELDER",
+      "title": "Ultrasonic Welder / Packaging Sealer",
+      "expansion": "recommended"
+    }
+  ]
+}

@@ -164,3 +164,11 @@ The routes of the connections (`GET /api/connections/clients` and `GET /api/conn
 `python tools/generate_types.py` turns every closed schema of `contracts/json-schema/v1` into a TypeScript interface (`generated/hydra-contracts.ts`), a Kotlin data class (`generated/HydraContracts.kt`) and a Dart class with `fromJson` and `toJson` (`generated/hydra_contracts.dart`). The files are never edited by hand: `--check` fails when one is out of date, and a client that copies the file it needs runs the same check against a checkout of the SDK. Keywords that a type cannot say (`anyOf`, `allOf`, `if`/`then`) stay with the validators of the SDK.
 
 `contracts/topics.json` is the registry of the topics that every bridge shares (direction, retained flag, QoS and the schema of the payload). `python tools/hydra_contract_lint.py` runs, in one command, the check of the whole tree of repositories, the check of the route sources and the check of the generated types; `--tables` prints the ports, versions, routes and topics tables that must not be written by hand.
+
+## Answers generated for the apps
+
+`python tools/make_app_fixtures.py` writes `conformance/app-fixtures/v1/server-answers.json` from the shapes of `contracts/openapi/v1/server.full.openapi.json`: for every route that names the shape of an answer, one `minimal` body (the required fields) and one `full` body (every declared field), per status code. An app replays these answers against its own models, so the inventory is the one description of the server that every client is tested with; `--check` fails when the file is not what the inventory produces, and a test proves that every body conforms to its shape.
+
+## Catalogue of the URTC tools
+
+`contracts/urtc_tools.json` is the common list of the tool modes of the URTC family (identifier, constant name, title and whether an expansion board is needed), with the identifier that means "no tool". A service or app resolves a tool by number, name or title from this one list instead of keeping its own. A test checks that the ids are consecutive, that names and titles are unique and that the copy equals the one of the documentation repository when both are checked out side by side.
