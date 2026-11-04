@@ -2,13 +2,11 @@
 
 ## [Unreleased]
 
-<<<<<<< Updated upstream
 - **Answers of the server generated for the apps:** `tools/make_app_fixtures.py` writes `conformance/app-fixtures/v1/server-answers.json` (a minimal and a full body for every status code that names its shape, 90 routes) from the full inventory, with `--check` and a test that every body conforms to its shape, so an app can replay the same answers against its models.
 
 - **The catalogue of the URTC tools is part of the contract:** `contracts/urtc_tools.json` (25 tool modes and the identifier that means no tool) with a test of its structure and of its equality with the documentation copy.
-=======
+
 - **The weights probe is vendored byte for byte into the two services that ask it:** `tools/canonical/model_weights.py` (the same text as `hydra_umc_sdk.model_weights`, compared by a test) is listed in `PER_REPOSITORY_FILES` for COGNITIVE-NODE and VLA-ENGINE, so both use one walk instead of two copies, without taking the SDK package as a dependency.
->>>>>>> Stashed changes
 
 ## [0.5.2] - The TypeScript server client drops the trailing slashes of its address in one pass: a base address ending in a very long run of slashes could take quadratic time with the regular expression used before; a test with a hostile... (and 5 more changes)
 
