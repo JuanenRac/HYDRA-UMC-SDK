@@ -12,3 +12,7 @@ dist-tests/
 node_modules/
 secrets/
 target/
+
+# Dart package build output
+clients/dart_app_common/.dart_tool/
+clients/dart_app_common/pubspec.lock

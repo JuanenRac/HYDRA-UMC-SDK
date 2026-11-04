@@ -1,0 +1,36 @@
+# =============================================================================
+# HYDRA-UMC - Dart app-common package tests
+# Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
+# GPL-3.0 - see LICENSE
+# =============================================================================
+name: Dart app-common tests
+
+on:
+  push:
+    paths:
+      - "clients/dart_app_common/**"
+      - ".github/workflows/dart-common.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dart-common:
+    name: Analyze and test the shared Dart package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Flutter (ships the Dart SDK)
+        run: |
+          git clone --depth 1 --branch stable https://github.com/flutter/flutter.git "$RUNNER_TEMP/flutter"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+      - name: Analyze and test
+        working-directory: clients/dart_app_common
+        run: |
+          dart pub get
+          dart analyze
+          dart test

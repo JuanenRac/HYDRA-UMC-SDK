@@ -1,0 +1,11 @@
+name: hydra_umc_app_common
+description: "Pure Dart code shared by the HYDRA-UMC Flutter apps (SHA-256, global STOP result, PLAY confirmation rules)."
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.0
