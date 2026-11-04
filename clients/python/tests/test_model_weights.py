@@ -73,5 +73,15 @@ class ModelWeightsTests(unittest.TestCase):
         self.assertFalse(contains_model_artifact(self.root))
 
 
+
+
+class CanonicalCopyTests(unittest.TestCase):
+    def test_the_vendored_copy_is_the_same_text_as_the_client_module(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        client = (root / "clients" / "python" / "src" / "hydra_umc_sdk" / "model_weights.py").read_bytes().replace(b"\r\n", b"\n")
+        canonical = (root / "tools" / "canonical" / "model_weights.py").read_bytes().replace(b"\r\n", b"\n")
+        self.assertEqual(client, canonical)
+
+
 if __name__ == "__main__":
     unittest.main()

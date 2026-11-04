@@ -92,6 +92,12 @@ PER_REPOSITORY_FILES = {
         f"HYDRA-UMC-{name}": f"src/hydra_umc_{name.lower().replace('-', '_')}/http_common.py"
         for name in ("COGNITIVE-NODE", "VISION-NODE", "VLA-ENGINE")
     },
+    # The probe "does this models directory hold a real weight file?" that the cognitive node (any weight format) and the accelerator engine
+    # (the compiled model only) both ask. Standard library only; the same text as `clients/python/src/hydra_umc_sdk/model_weights.py`.
+    "tools/canonical/model_weights.py": {
+        f"HYDRA-UMC-{name}": f"src/hydra_umc_{name.lower().replace('-', '_')}/model_weights.py"
+        for name in ("COGNITIVE-NODE", "VLA-ENGINE")
+    },
     # The uniform `GET /health` of the Python services: closed (404) unless the operator opens it, on loopback or with the bearer token, with a body that names
     # the service and its version and nothing else. Standard library only; the name of the service and of the environment variable come from the package.
     "tools/canonical/health_route.py": {
