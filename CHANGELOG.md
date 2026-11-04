@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The registry declares `/health` as the health route of the eight services that serve it behind a switch:** `contracts/ports.yaml` lists `/health` (was `/stats`) for ANOMALY-DETECTOR, COGNITIVE-NODE, DETECTION-HEF, DOCS-QA, SAFETY-ZONES, SEMANTIC-PLANNER, VISION-NODE and VISUAL-SERVOING-API. Those services keep the route closed (404) until their own switch opens it, so the checks that read the registry ask `/stats` after a 404 on `/health`.
+
 - **Answers of the server generated for the apps:** `tools/make_app_fixtures.py` writes `conformance/app-fixtures/v1/server-answers.json` (a minimal and a full body for every status code that names its shape, 90 routes) from the full inventory, with `--check` and a test that every body conforms to its shape, so an app can replay the same answers against its models.
 
 - **The catalogue of the URTC tools is part of the contract:** `contracts/urtc_tools.json` (25 tool modes and the identifier that means no tool) with a test of its structure and of its equality with the documentation copy.
