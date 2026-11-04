@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/canary-deploy-result.schema.json",
+  "title": "CanaryDeployResult",
+  "description": "The outcome of putting an approved proposal on one node: how far it got (staged, applied, built, committed, promoted or rolled back), the output of the build test and where the previous checkout was kept. The wire form is the one the agent writes, with camelCase names, and the schema is closed. schema_version is optional.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "deployId",
+    "proposalId",
+    "projectName",
+    "startedAt",
+    "finishedAt",
+    "promoted",
+    "stageReached",
+    "buildOutput",
+    "detail"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "deployId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "This deploy."
+    },
+    "proposalId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The proposal that was deployed."
+    },
+    "projectName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "The project."
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the deploy began."
+    },
+    "finishedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When it ended."
+    },
+    "promoted": {
+      "type": "boolean",
+      "description": "True only when the change is live and the node answered healthy."
+    },
+    "stageReached": {
+      "enum": [
+        "staged",
+        "diff_applied",
+        "build_verified",
+        "diff_committed",
+        "promoted",
+        "rolled_back"
+      ],
+      "description": "The last step that was reached."
+    },
+    "buildOutput": {
+      "type": "string",
+      "maxLength": 1000000,
+      "description": "The output of the build test (redacted)."
+    },
+    "detail": {
+      "type": "string",
+      "maxLength": 100000,
+      "description": "What happened, in words."
+    },
+    "backupPath": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 4096,
+      "description": "Where the previous checkout was kept."
+    },
+    "patchPath": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 4096,
+      "description": "The canary commit as a patch kept outside the checkout."
+    }
+  }
+}

@@ -66,6 +66,9 @@ Raises `ContractValidationError` (a `ValueError` subclass) on the first rule vio
 | `FrameMeta` | `schema_version`, `frame_id`, `capture_ts_utc`, `width`, `height`, `pixel_format` | Closed contract. `width` and `height` are integers from 1 to 8192; `pixel_format` is `RGB`, `BGR`, `RGBA`, `BGRA`, `GRAY`, `YUYV`, `NV12` or `JPEG`. Optional: `session_id`, `source_id`, `stride` (>= 1), `sequence` (>= 0). See `vision_pipeline.py`. |
 | `DetectionFrame` | `schema_version`, `frame_id`, `capture_ts_utc`, `box_unit`, `detections` | Closed contract. `box_unit` is `pixel` or `normalized` (0 to 1), origin at the top left corner; every detection has `class_id` (>= 0), `label`, `score` (0 to 1) and a `box` with exactly `x_min`, `y_min`, `x_max`, `y_max` (the client also checks that no corner ends before it starts). Optional `session_id` and `model`, the five fields of the compatibility record of the vision node. `box_to_pixels` converts a box. See `vision_pipeline.py`. |
 | `MaintenanceIncident` | `incidentId`, `sourceNode`, `detectedAt`, `severity`, `component`, `symptom`, `evidenceRefs`, `redactionLevel`, `requestedBy`, `correlationId` | Closed contract with the camelCase names the maintenance agent writes; `schema_version` is optional. `severity` is `info`, `warning` or `critical`; `redactionLevel` is `sanitized` or `raw`; `requestedBy` is a text or null; `evidenceRefs` holds at most 50 texts. `incident_may_be_stored` refuses `raw` unless the consumer allows it. See `maintenance.py`. |
+| `NodeSnapshot` | `sourceNode`, `collectedAt`, `correlationId`, `projects`, `manifestIssues`, `systemdAvailable`, `systemdUnavailableReason`, `serviceHealth`, `httpHealth`, `incidents` | Closed contract with the camelCase names the maintenance agent writes; `schema_version` is optional. `systemdAvailable` is `true`, `false` or `null` (never asked); every entry of `incidents` is checked as a `MaintenanceIncident`; the optional `hostHealth` (disks, thermal, backups) holds readings that are `null` when the machine could not give them. See `maintenance_agent.py`. |
+| `ChangeProposal` | `proposalId`, `incidentId`, `correlationId`, `createdAt`, `projectName`, `description`, `diff`, `rationale`, `status` | Closed contract; `status` is `pending`, `approved` or `rejected`. The decision fields (`decidedBy`, `decidedAt`, `decisionReason`, `approvedContentDigest` as 64 lowercase hexadecimal characters, `allowProtectedPaths`, `approvalExpiresAt`, `approvedBaseCommit`, `approvalSignature`, `generatedBy`) are optional and may be null. |
+| `CanaryDeployResult` | `deployId`, `proposalId`, `projectName`, `startedAt`, `finishedAt`, `promoted`, `stageReached`, `buildOutput`, `detail` | Closed contract; `stageReached` is `staged`, `diff_applied`, `build_verified`, `diff_committed`, `promoted` or `rolled_back`; `backupPath` and `patchPath` are optional and may be null. |
 
 Every other required field not listed with an "extra rule" above just needs to be a non-empty string.
 
@@ -126,7 +129,7 @@ device behavior, timing, or concurrency.
 
 ```bash
 $ python -m hydra_umc_sdk.mock_server &
-hydra-umc-sdk-mock-server: serving 26 contracts on http://127.0.0.1:8790/mock/
+hydra-umc-sdk-mock-server: serving 29 contracts on http://127.0.0.1:8790/mock/
 
 $ curl -s http://127.0.0.1:8790/mock/HealthReport
 {"schema_version": "1.0", "state": "READY", "timestamp_utc": "2026-01-01T00:00:00Z", "checks": {"storage": {"state": "PASS"}}}

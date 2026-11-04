@@ -1,6 +1,50 @@
 // Generated from the HYDRA-UMC JSON Schemas by tools/generate_types.py. Do not edit.
 // ignore_for_file: non_constant_identifier_names, constant_identifier_names
 
+class CanaryDeployResult {
+  final String? schema_version;
+  final String deployId;
+  final String proposalId;
+  final String projectName;
+  final String startedAt;
+  final String finishedAt;
+  final bool promoted;
+  final String stageReached;
+  final String buildOutput;
+  final String detail;
+  final String? backupPath;
+  final String? patchPath;
+  const CanaryDeployResult({this.schema_version, required this.deployId, required this.proposalId, required this.projectName, required this.startedAt, required this.finishedAt, required this.promoted, required this.stageReached, required this.buildOutput, required this.detail, this.backupPath, this.patchPath});
+  factory CanaryDeployResult.fromJson(Map<String, dynamic> json) => CanaryDeployResult(
+        schema_version: json["schema_version"] == null ? null : json["schema_version"] as String,
+        deployId: json["deployId"] as String,
+        proposalId: json["proposalId"] as String,
+        projectName: json["projectName"] as String,
+        startedAt: json["startedAt"] as String,
+        finishedAt: json["finishedAt"] as String,
+        promoted: json["promoted"] as bool,
+        stageReached: json["stageReached"] as String,
+        buildOutput: json["buildOutput"] as String,
+        detail: json["detail"] as String,
+        backupPath: json["backupPath"] == null ? null : json["backupPath"] as String,
+        patchPath: json["patchPath"] == null ? null : json["patchPath"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        if (schema_version != null) "schema_version": schema_version,
+        "deployId": deployId,
+        "proposalId": proposalId,
+        "projectName": projectName,
+        "startedAt": startedAt,
+        "finishedAt": finishedAt,
+        "promoted": promoted,
+        "stageReached": stageReached,
+        "buildOutput": buildOutput,
+        "detail": detail,
+        if (backupPath != null) "backupPath": backupPath,
+        if (patchPath != null) "patchPath": patchPath,
+      };
+}
+
 class Capability {
   final String schema_version;
   final CapabilityTarget target;
@@ -47,6 +91,71 @@ class CapabilityTarget {
   Map<String, dynamic> toJson() => {
         "kind": kind,
         "id": id,
+      };
+}
+
+class ChangeProposal {
+  final String? schema_version;
+  final String proposalId;
+  final String incidentId;
+  final String correlationId;
+  final String createdAt;
+  final String projectName;
+  final String description;
+  final String diff;
+  final String rationale;
+  final String status;
+  final String? decidedBy;
+  final String? decidedAt;
+  final String? decisionReason;
+  final String? approvedContentDigest;
+  final bool? allowProtectedPaths;
+  final String? approvalExpiresAt;
+  final String? approvedBaseCommit;
+  final String? approvalSignature;
+  final String? generatedBy;
+  const ChangeProposal({this.schema_version, required this.proposalId, required this.incidentId, required this.correlationId, required this.createdAt, required this.projectName, required this.description, required this.diff, required this.rationale, required this.status, this.decidedBy, this.decidedAt, this.decisionReason, this.approvedContentDigest, this.allowProtectedPaths, this.approvalExpiresAt, this.approvedBaseCommit, this.approvalSignature, this.generatedBy});
+  factory ChangeProposal.fromJson(Map<String, dynamic> json) => ChangeProposal(
+        schema_version: json["schema_version"] == null ? null : json["schema_version"] as String,
+        proposalId: json["proposalId"] as String,
+        incidentId: json["incidentId"] as String,
+        correlationId: json["correlationId"] as String,
+        createdAt: json["createdAt"] as String,
+        projectName: json["projectName"] as String,
+        description: json["description"] as String,
+        diff: json["diff"] as String,
+        rationale: json["rationale"] as String,
+        status: json["status"] as String,
+        decidedBy: json["decidedBy"] == null ? null : json["decidedBy"] as String,
+        decidedAt: json["decidedAt"] == null ? null : json["decidedAt"] as String,
+        decisionReason: json["decisionReason"] == null ? null : json["decisionReason"] as String,
+        approvedContentDigest: json["approvedContentDigest"] == null ? null : json["approvedContentDigest"] as String,
+        allowProtectedPaths: json["allowProtectedPaths"] == null ? null : json["allowProtectedPaths"] as bool,
+        approvalExpiresAt: json["approvalExpiresAt"] == null ? null : json["approvalExpiresAt"] as String,
+        approvedBaseCommit: json["approvedBaseCommit"] == null ? null : json["approvedBaseCommit"] as String,
+        approvalSignature: json["approvalSignature"] == null ? null : json["approvalSignature"] as String,
+        generatedBy: json["generatedBy"] == null ? null : json["generatedBy"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        if (schema_version != null) "schema_version": schema_version,
+        "proposalId": proposalId,
+        "incidentId": incidentId,
+        "correlationId": correlationId,
+        "createdAt": createdAt,
+        "projectName": projectName,
+        "description": description,
+        "diff": diff,
+        "rationale": rationale,
+        "status": status,
+        if (decidedBy != null) "decidedBy": decidedBy,
+        if (decidedAt != null) "decidedAt": decidedAt,
+        if (decisionReason != null) "decisionReason": decisionReason,
+        if (approvedContentDigest != null) "approvedContentDigest": approvedContentDigest,
+        if (allowProtectedPaths != null) "allowProtectedPaths": allowProtectedPaths,
+        if (approvalExpiresAt != null) "approvalExpiresAt": approvalExpiresAt,
+        if (approvedBaseCommit != null) "approvedBaseCommit": approvedBaseCommit,
+        if (approvalSignature != null) "approvalSignature": approvalSignature,
+        if (generatedBy != null) "generatedBy": generatedBy,
       };
 }
 
@@ -547,6 +656,245 @@ class MaintenanceIncident {
         "redactionLevel": redactionLevel,
         if (requestedBy != null) "requestedBy": requestedBy,
         "correlationId": correlationId,
+      };
+}
+
+class NodeSnapshot {
+  final String? schema_version;
+  final String sourceNode;
+  final String collectedAt;
+  final String correlationId;
+  final List<NodeSnapshotProjects> projects;
+  final List<NodeSnapshotManifestIssues> manifestIssues;
+  final bool? systemdAvailable;
+  final String? systemdUnavailableReason;
+  final List<NodeSnapshotServiceHealth> serviceHealth;
+  final List<NodeSnapshotHttpHealth> httpHealth;
+  final List<NodeSnapshotIncidents> incidents;
+  final NodeSnapshotHostHealth? hostHealth;
+  const NodeSnapshot({this.schema_version, required this.sourceNode, required this.collectedAt, required this.correlationId, required this.projects, required this.manifestIssues, this.systemdAvailable, this.systemdUnavailableReason, required this.serviceHealth, required this.httpHealth, required this.incidents, this.hostHealth});
+  factory NodeSnapshot.fromJson(Map<String, dynamic> json) => NodeSnapshot(
+        schema_version: json["schema_version"] == null ? null : json["schema_version"] as String,
+        sourceNode: json["sourceNode"] as String,
+        collectedAt: json["collectedAt"] as String,
+        correlationId: json["correlationId"] as String,
+        projects: (json["projects"] as List).map((e0) => NodeSnapshotProjects.fromJson(Map<String, dynamic>.from(e0 as Map))).toList(),
+        manifestIssues: (json["manifestIssues"] as List).map((e0) => NodeSnapshotManifestIssues.fromJson(Map<String, dynamic>.from(e0 as Map))).toList(),
+        systemdAvailable: json["systemdAvailable"] == null ? null : json["systemdAvailable"] as bool,
+        systemdUnavailableReason: json["systemdUnavailableReason"] == null ? null : json["systemdUnavailableReason"] as String,
+        serviceHealth: (json["serviceHealth"] as List).map((e0) => NodeSnapshotServiceHealth.fromJson(Map<String, dynamic>.from(e0 as Map))).toList(),
+        httpHealth: (json["httpHealth"] as List).map((e0) => NodeSnapshotHttpHealth.fromJson(Map<String, dynamic>.from(e0 as Map))).toList(),
+        incidents: (json["incidents"] as List).map((e0) => NodeSnapshotIncidents.fromJson(Map<String, dynamic>.from(e0 as Map))).toList(),
+        hostHealth: json["hostHealth"] == null ? null : NodeSnapshotHostHealth.fromJson(Map<String, dynamic>.from(json["hostHealth"] as Map)),
+      );
+  Map<String, dynamic> toJson() => {
+        if (schema_version != null) "schema_version": schema_version,
+        "sourceNode": sourceNode,
+        "collectedAt": collectedAt,
+        "correlationId": correlationId,
+        "projects": projects.map((e0) => e0.toJson()).toList(),
+        "manifestIssues": manifestIssues.map((e0) => e0.toJson()).toList(),
+        if (systemdAvailable != null) "systemdAvailable": systemdAvailable,
+        if (systemdUnavailableReason != null) "systemdUnavailableReason": systemdUnavailableReason,
+        "serviceHealth": serviceHealth.map((e0) => e0.toJson()).toList(),
+        "httpHealth": httpHealth.map((e0) => e0.toJson()).toList(),
+        "incidents": incidents.map((e0) => e0.toJson()).toList(),
+        if (hostHealth != null) "hostHealth": hostHealth!.toJson(),
+      };
+}
+
+class NodeSnapshotProjects {
+  final String name;
+  final String version;
+  final String maturity;
+  final String manifestPath;
+  const NodeSnapshotProjects({required this.name, required this.version, required this.maturity, required this.manifestPath});
+  factory NodeSnapshotProjects.fromJson(Map<String, dynamic> json) => NodeSnapshotProjects(
+        name: json["name"] as String,
+        version: json["version"] as String,
+        maturity: json["maturity"] as String,
+        manifestPath: json["manifestPath"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "name": name,
+        "version": version,
+        "maturity": maturity,
+        "manifestPath": manifestPath,
+      };
+}
+
+class NodeSnapshotManifestIssues {
+  final String path;
+  final String reason;
+  const NodeSnapshotManifestIssues({required this.path, required this.reason});
+  factory NodeSnapshotManifestIssues.fromJson(Map<String, dynamic> json) => NodeSnapshotManifestIssues(
+        path: json["path"] as String,
+        reason: json["reason"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "path": path,
+        "reason": reason,
+      };
+}
+
+class NodeSnapshotServiceHealth {
+  final String unitName;
+  final bool active;
+  final String detail;
+  const NodeSnapshotServiceHealth({required this.unitName, required this.active, required this.detail});
+  factory NodeSnapshotServiceHealth.fromJson(Map<String, dynamic> json) => NodeSnapshotServiceHealth(
+        unitName: json["unitName"] as String,
+        active: json["active"] as bool,
+        detail: json["detail"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "unitName": unitName,
+        "active": active,
+        "detail": detail,
+      };
+}
+
+class NodeSnapshotHttpHealth {
+  final String url;
+  final bool reachable;
+  final int? statusCode;
+  final String detail;
+  const NodeSnapshotHttpHealth({required this.url, required this.reachable, this.statusCode, required this.detail});
+  factory NodeSnapshotHttpHealth.fromJson(Map<String, dynamic> json) => NodeSnapshotHttpHealth(
+        url: json["url"] as String,
+        reachable: json["reachable"] as bool,
+        statusCode: json["statusCode"] == null ? null : (json["statusCode"] as num).toInt(),
+        detail: json["detail"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "url": url,
+        "reachable": reachable,
+        if (statusCode != null) "statusCode": statusCode,
+        "detail": detail,
+      };
+}
+
+class NodeSnapshotIncidents {
+  final String? schema_version;
+  final String incidentId;
+  final String sourceNode;
+  final String detectedAt;
+  final String severity;
+  final String component;
+  final String symptom;
+  final List<String> evidenceRefs;
+  final String redactionLevel;
+  final String? requestedBy;
+  final String correlationId;
+  const NodeSnapshotIncidents({this.schema_version, required this.incidentId, required this.sourceNode, required this.detectedAt, required this.severity, required this.component, required this.symptom, required this.evidenceRefs, required this.redactionLevel, this.requestedBy, required this.correlationId});
+  factory NodeSnapshotIncidents.fromJson(Map<String, dynamic> json) => NodeSnapshotIncidents(
+        schema_version: json["schema_version"] == null ? null : json["schema_version"] as String,
+        incidentId: json["incidentId"] as String,
+        sourceNode: json["sourceNode"] as String,
+        detectedAt: json["detectedAt"] as String,
+        severity: json["severity"] as String,
+        component: json["component"] as String,
+        symptom: json["symptom"] as String,
+        evidenceRefs: (json["evidenceRefs"] as List).map((e0) => e0 as String).toList(),
+        redactionLevel: json["redactionLevel"] as String,
+        requestedBy: json["requestedBy"] == null ? null : json["requestedBy"] as String,
+        correlationId: json["correlationId"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        if (schema_version != null) "schema_version": schema_version,
+        "incidentId": incidentId,
+        "sourceNode": sourceNode,
+        "detectedAt": detectedAt,
+        "severity": severity,
+        "component": component,
+        "symptom": symptom,
+        "evidenceRefs": evidenceRefs,
+        "redactionLevel": redactionLevel,
+        if (requestedBy != null) "requestedBy": requestedBy,
+        "correlationId": correlationId,
+      };
+}
+
+class NodeSnapshotHostHealth {
+  final List<NodeSnapshotHostHealthDisks> disks;
+  final NodeSnapshotHostHealthThermal thermal;
+  final NodeSnapshotHostHealthBackups? backups;
+  const NodeSnapshotHostHealth({required this.disks, required this.thermal, this.backups});
+  factory NodeSnapshotHostHealth.fromJson(Map<String, dynamic> json) => NodeSnapshotHostHealth(
+        disks: (json["disks"] as List).map((e0) => NodeSnapshotHostHealthDisks.fromJson(Map<String, dynamic>.from(e0 as Map))).toList(),
+        thermal: NodeSnapshotHostHealthThermal.fromJson(Map<String, dynamic>.from(json["thermal"] as Map)),
+        backups: json["backups"] == null ? null : NodeSnapshotHostHealthBackups.fromJson(Map<String, dynamic>.from(json["backups"] as Map)),
+      );
+  Map<String, dynamic> toJson() => {
+        "disks": disks.map((e0) => e0.toJson()).toList(),
+        "thermal": thermal.toJson(),
+        if (backups != null) "backups": backups!.toJson(),
+      };
+}
+
+class NodeSnapshotHostHealthDisks {
+  final String path;
+  final int? freeBytes;
+  final int? totalBytes;
+  final double? freePercent;
+  final String? error;
+  const NodeSnapshotHostHealthDisks({required this.path, this.freeBytes, this.totalBytes, this.freePercent, this.error});
+  factory NodeSnapshotHostHealthDisks.fromJson(Map<String, dynamic> json) => NodeSnapshotHostHealthDisks(
+        path: json["path"] as String,
+        freeBytes: json["freeBytes"] == null ? null : (json["freeBytes"] as num).toInt(),
+        totalBytes: json["totalBytes"] == null ? null : (json["totalBytes"] as num).toInt(),
+        freePercent: json["freePercent"] == null ? null : (json["freePercent"] as num).toDouble(),
+        error: json["error"] == null ? null : json["error"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "path": path,
+        if (freeBytes != null) "freeBytes": freeBytes,
+        if (totalBytes != null) "totalBytes": totalBytes,
+        if (freePercent != null) "freePercent": freePercent,
+        if (error != null) "error": error,
+      };
+}
+
+class NodeSnapshotHostHealthThermal {
+  final double? celsius;
+  final int? throttledRaw;
+  final List<String> throttledNow;
+  final List<String> throttledPast;
+  final bool vcgencmdAvailable;
+  const NodeSnapshotHostHealthThermal({this.celsius, this.throttledRaw, required this.throttledNow, required this.throttledPast, required this.vcgencmdAvailable});
+  factory NodeSnapshotHostHealthThermal.fromJson(Map<String, dynamic> json) => NodeSnapshotHostHealthThermal(
+        celsius: json["celsius"] == null ? null : (json["celsius"] as num).toDouble(),
+        throttledRaw: json["throttledRaw"] == null ? null : (json["throttledRaw"] as num).toInt(),
+        throttledNow: (json["throttledNow"] as List).map((e0) => e0 as String).toList(),
+        throttledPast: (json["throttledPast"] as List).map((e0) => e0 as String).toList(),
+        vcgencmdAvailable: json["vcgencmdAvailable"] as bool,
+      );
+  Map<String, dynamic> toJson() => {
+        if (celsius != null) "celsius": celsius,
+        if (throttledRaw != null) "throttledRaw": throttledRaw,
+        "throttledNow": throttledNow,
+        "throttledPast": throttledPast,
+        "vcgencmdAvailable": vcgencmdAvailable,
+      };
+}
+
+class NodeSnapshotHostHealthBackups {
+  final String directory;
+  final int? count;
+  final double? newestAgeDays;
+  final String? error;
+  const NodeSnapshotHostHealthBackups({required this.directory, this.count, this.newestAgeDays, this.error});
+  factory NodeSnapshotHostHealthBackups.fromJson(Map<String, dynamic> json) => NodeSnapshotHostHealthBackups(
+        directory: json["directory"] as String,
+        count: json["count"] == null ? null : (json["count"] as num).toInt(),
+        newestAgeDays: json["newestAgeDays"] == null ? null : (json["newestAgeDays"] as num).toDouble(),
+        error: json["error"] == null ? null : json["error"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "directory": directory,
+        if (count != null) "count": count,
+        if (newestAgeDays != null) "newestAgeDays": newestAgeDays,
+        if (error != null) "error": error,
       };
 }
 

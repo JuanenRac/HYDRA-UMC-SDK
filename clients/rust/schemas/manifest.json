@@ -2,8 +2,16 @@
   "schema_version": "1.0",
   "contracts": [
     {
+      "file": "canary-deploy-result.schema.json",
+      "sha256": "2fbd3c1e1591b8a812e4887fc3f26eec8414fee54cea28a9b1b7aa37c02884b7"
+    },
+    {
       "file": "capability.schema.json",
       "sha256": "f435d0562cd27f9b345266b39619b04a7d078355bc900efdbba337ddc5fa0048"
+    },
+    {
+      "file": "change-proposal.schema.json",
+      "sha256": "8f1ef2c2c26870567d1bd02619c37c769e3873beb70bd34deb46d075e0d512f8"
     },
     {
       "file": "command-lifecycle-event.schema.json",
@@ -44,6 +52,10 @@
     {
       "file": "maintenance-incident.schema.json",
       "sha256": "474274308b3679b324019824bb1758f20216a4940b2a03dc6f756c677ee7b33c"
+    },
+    {
+      "file": "node-snapshot.schema.json",
+      "sha256": "f59b6dd1158988c98b46e731298b8f054ad2e03d2eed4898bcf2fd42c8596290"
     },
     {
       "file": "operation.schema.json",

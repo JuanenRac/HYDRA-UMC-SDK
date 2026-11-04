@@ -1,0 +1,20 @@
+{
+  "proposalId": "b0d3f2a4-5c1e-4f7a-9d1e-2a6f3c8e7b10",
+  "incidentId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "correlationId": "0d3f1f0c-6a43-4f3a-9a53-6a1d0c4b8e11",
+  "createdAt": "2026-01-01T10:05:00+00:00",
+  "projectName": "HYDRA-UMC-SERVER",
+  "description": "Raise the health timeout from 2 to 5 seconds.",
+  "diff": "--- a/config.json\n+++ b/config.json\n@@ -1 +1 @@\n-{\"timeout\": 2}\n+{\"timeout\": 5}\n",
+  "rationale": "The route answers in 3 seconds on a loaded board.",
+  "status": "applied",
+  "decidedBy": "ana",
+  "decidedAt": "2026-01-01T10:10:00+00:00",
+  "decisionReason": "Checked on the bench.",
+  "approvedContentDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "allowProtectedPaths": false,
+  "approvalExpiresAt": "2026-01-02T10:10:00+00:00",
+  "approvedBaseCommit": "0123456789abcdef0123456789abcdef01234567",
+  "approvalSignature": "c2lnbmF0dXJl",
+  "generatedBy": null
+}

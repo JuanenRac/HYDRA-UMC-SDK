@@ -1,5 +1,21 @@
 // Generated from the HYDRA-UMC JSON Schemas by tools/generate_types.py. Do not edit.
 
+export interface CanaryDeployResult {
+  schema_version?: "1.0";
+  deployId: string;
+  proposalId: string;
+  projectName: string;
+  startedAt: string;
+  finishedAt: string;
+  promoted: boolean;
+  stageReached: "staged" | "diff_applied" | "build_verified" | "diff_committed" | "promoted" | "rolled_back";
+  buildOutput: string;
+  detail: string;
+  backupPath?: string | null;
+  patchPath?: string | null;
+  [extra: string]: unknown;
+}
+
 export interface Capability {
   schema_version: "1.0";
   target: CapabilityTarget;
@@ -16,6 +32,29 @@ export interface Capability {
 export interface CapabilityTarget {
   kind: string;
   id: string;
+  [extra: string]: unknown;
+}
+
+export interface ChangeProposal {
+  schema_version?: "1.0";
+  proposalId: string;
+  incidentId: string;
+  correlationId: string;
+  createdAt: string;
+  projectName: string;
+  description: string;
+  diff: string;
+  rationale: string;
+  status: "pending" | "approved" | "rejected";
+  decidedBy?: string | null;
+  decidedAt?: string | null;
+  decisionReason?: string | null;
+  approvedContentDigest?: string | null;
+  allowProtectedPaths?: boolean;
+  approvalExpiresAt?: string | null;
+  approvedBaseCommit?: string | null;
+  approvalSignature?: string | null;
+  generatedBy?: string | null;
   [extra: string]: unknown;
 }
 
@@ -204,6 +243,99 @@ export interface MaintenanceIncident {
   redactionLevel: "sanitized" | "raw";
   requestedBy: string | null;
   correlationId: string;
+  [extra: string]: unknown;
+}
+
+export interface NodeSnapshot {
+  schema_version?: "1.0";
+  sourceNode: string;
+  collectedAt: string;
+  correlationId: string;
+  projects: NodeSnapshotProjects[];
+  manifestIssues: NodeSnapshotManifestIssues[];
+  systemdAvailable: boolean | null;
+  systemdUnavailableReason: string | null;
+  serviceHealth: NodeSnapshotServiceHealth[];
+  httpHealth: NodeSnapshotHttpHealth[];
+  incidents: NodeSnapshotIncidents[];
+  hostHealth?: NodeSnapshotHostHealth;
+  [extra: string]: unknown;
+}
+
+export interface NodeSnapshotProjects {
+  name: string;
+  version: string;
+  maturity: string;
+  manifestPath: string;
+  [extra: string]: unknown;
+}
+
+export interface NodeSnapshotManifestIssues {
+  path: string;
+  reason: string;
+  [extra: string]: unknown;
+}
+
+export interface NodeSnapshotServiceHealth {
+  unitName: string;
+  active: boolean;
+  detail: string;
+  [extra: string]: unknown;
+}
+
+export interface NodeSnapshotHttpHealth {
+  url: string;
+  reachable: boolean;
+  statusCode: number | null;
+  detail: string;
+  [extra: string]: unknown;
+}
+
+export interface NodeSnapshotIncidents {
+  schema_version?: "1.0";
+  incidentId: string;
+  sourceNode: string;
+  detectedAt: string;
+  severity: "info" | "warning" | "critical";
+  component: string;
+  symptom: string;
+  evidenceRefs: string[];
+  redactionLevel: "sanitized" | "raw";
+  requestedBy: string | null;
+  correlationId: string;
+  [extra: string]: unknown;
+}
+
+export interface NodeSnapshotHostHealth {
+  disks: NodeSnapshotHostHealthDisks[];
+  thermal: NodeSnapshotHostHealthThermal;
+  backups: NodeSnapshotHostHealthBackups | null;
+  [extra: string]: unknown;
+}
+
+export interface NodeSnapshotHostHealthDisks {
+  path: string;
+  freeBytes: number | null;
+  totalBytes: number | null;
+  freePercent: number | null;
+  error: string | null;
+  [extra: string]: unknown;
+}
+
+export interface NodeSnapshotHostHealthThermal {
+  celsius: number | null;
+  throttledRaw: number | null;
+  throttledNow: string[];
+  throttledPast: string[];
+  vcgencmdAvailable: boolean;
+  [extra: string]: unknown;
+}
+
+export interface NodeSnapshotHostHealthBackups {
+  directory: string;
+  count: number | null;
+  newestAgeDays: number | null;
+  error: string | null;
   [extra: string]: unknown;
 }
 

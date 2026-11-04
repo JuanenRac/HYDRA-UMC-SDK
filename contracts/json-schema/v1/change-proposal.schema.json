@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/change-proposal.schema.json",
+  "title": "ChangeProposal",
+  "description": "A change that the maintenance agent (or a model) proposes for a project, as the file a person reviews: the diff, why, and who decided. A proposal is pending until a person signs or rejects it; the fields after rationale are empty until then. The wire form is the one the agent writes, with camelCase names, and the schema is closed. schema_version is optional so that a proposal written before the contract existed still validates.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "proposalId",
+    "incidentId",
+    "correlationId",
+    "createdAt",
+    "projectName",
+    "description",
+    "diff",
+    "rationale",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "proposalId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The proposal."
+    },
+    "incidentId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The incident the proposal answers."
+    },
+    "correlationId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "Shared with the incident."
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the proposal was made."
+    },
+    "projectName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "The project the diff is for."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100000,
+      "description": "What the change does."
+    },
+    "diff": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 262144,
+      "description": "The unified diff, byte for byte."
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100000,
+      "description": "Why the change is proposed."
+    },
+    "status": {
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "description": "Where the proposal is."
+    },
+    "decidedBy": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Who approved or rejected it."
+    },
+    "decidedAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time",
+      "description": "When it was decided."
+    },
+    "decisionReason": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 100000,
+      "description": "Why it was decided so."
+    },
+    "approvedContentDigest": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 of the content that was approved."
+    },
+    "allowProtectedPaths": {
+      "type": "boolean",
+      "description": "Whether the approver allowed the diff to touch protected paths."
+    },
+    "approvalExpiresAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time",
+      "description": "When the approval stops being valid."
+    },
+    "approvedBaseCommit": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 64,
+      "description": "The commit the approval was given for."
+    },
+    "approvalSignature": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 1024,
+      "description": "The Ed25519 signature of the approval."
+    },
+    "generatedBy": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "The model that drafted it, or null when a person wrote it."
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "sourceNode": "cm5-1",
+  "collectedAt": "2026-01-01T10:00:05+00:00",
+  "correlationId": "0d3f1f0c-6a43-4f3a-9a53-6a1d0c4b8e11",
+  "projects": [
+    {
+      "name": "HYDRA-UMC-SERVER",
+      "version": "0.7.2",
+      "maturity": "established",
+      "manifestPath": "/opt/hydra-umc/server/hydra-umc.project.json"
+    }
+  ],
+  "manifestIssues": [
+    {
+      "path": "/opt/hydra-umc/old",
+      "reason": "manifest is not valid JSON"
+    }
+  ],
+  "systemdAvailable": true,
+  "systemdUnavailableReason": null,
+  "serviceHealth": [
+    {
+      "unitName": "hydra-umc-server.service",
+      "active": false,
+      "detail": "inactive"
+    }
+  ],
+  "httpHealth": [
+    {
+      "url": "http://127.0.0.1:3000/health",
+      "reachable": true,
+      "statusCode": 200,
+      "detail": "HTTP 200"
+    }
+  ],
+  "incidents": [
+    {
+      "incidentId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "sourceNode": "cm5-1",
+      "detectedAt": "2026-01-01T10:00:00+00:00",
+      "severity": "critical",
+      "component": "hydra-umc-server.service",
+      "symptom": "systemd unit is not active: inactive",
+      "evidenceRefs": [
+        "systemctl is-active hydra-umc-server.service"
+      ],
+      "redactionLevel": "sanitized",
+      "requestedBy": "edge-agent:auto",
+      "correlationId": "0d3f1f0c-6a43-4f3a-9a53-6a1d0c4b8e11"
+    }
+  ],
+  "hostHealth": {
+    "disks": [
+      {
+        "path": "/",
+        "freeBytes": 12000000000,
+        "totalBytes": 29000000000,
+        "freePercent": 140,
+        "error": null
+      }
+    ],
+    "thermal": {
+      "celsius": 52.3,
+      "throttledRaw": 0,
+      "throttledNow": [],
+      "throttledPast": [],
+      "vcgencmdAvailable": true
+    },
+    "backups": {
+      "directory": "/var/backups/hydra-umc",
+      "count": 3,
+      "newestAgeDays": 1.5,
+      "error": null
+    }
+  }
+}

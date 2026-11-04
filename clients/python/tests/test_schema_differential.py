@@ -52,6 +52,9 @@ CONTRACT_FILES = {
     "MaintenanceIncident": "maintenance-incident",
     "ToolDescriptor": "tool-descriptor",
     "ToolState": "tool-state",
+    "NodeSnapshot": "node-snapshot",
+    "ChangeProposal": "change-proposal",
+    "CanaryDeployResult": "canary-deploy-result",
 }
 
 

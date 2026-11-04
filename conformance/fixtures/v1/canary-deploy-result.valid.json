@@ -1,0 +1,13 @@
+{
+  "deployId": "4f1c0b52-8d3a-4e7b-a1c9-5d2e6f7a8b90",
+  "proposalId": "b0d3f2a4-5c1e-4f7a-9d1e-2a6f3c8e7b10",
+  "projectName": "HYDRA-UMC-SERVER",
+  "startedAt": "2026-01-01T10:20:00+00:00",
+  "finishedAt": "2026-01-01T10:21:30+00:00",
+  "promoted": true,
+  "stageReached": "promoted",
+  "buildOutput": "ok",
+  "detail": "promoted - the previous checkout was kept, never deleted",
+  "backupPath": "/opt/hydra-umc/backups/server-1",
+  "patchPath": null
+}

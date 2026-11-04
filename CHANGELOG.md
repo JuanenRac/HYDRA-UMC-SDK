@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The snapshot, the change proposal and the canary result of the maintenance agent are contracts:** `NodeSnapshot` (what the edge side saw in one pass, with its incidents and the optional readings of the machine), `ChangeProposal` (the diff a person reviews, with the decision and the signature) and `CanaryDeployResult` (how far an approved change got on one node) are closed, camelCase schemas in `contracts/json-schema/v1` and in the Go, Rust and TypeScript clients, with a valid and an invalid fixture each, a Python validator (`maintenance_agent.py`) that gives the same verdict as the schema, the generated TypeScript, Kotlin and Dart types and a sample in the mock server. The development server and the local technician can validate what they load instead of copying the shape by hand.
+
 - **The registry declares `/health` as the health route of the eight services that serve it behind a switch:** `contracts/ports.yaml` lists `/health` (was `/stats`) for ANOMALY-DETECTOR, COGNITIVE-NODE, DETECTION-HEF, DOCS-QA, SAFETY-ZONES, SEMANTIC-PLANNER, VISION-NODE and VISUAL-SERVOING-API. Those services keep the route closed (404) until their own switch opens it, so the checks that read the registry ask `/stats` after a 404 on `/health`.
 
 - **Answers of the server generated for the apps:** `tools/make_app_fixtures.py` writes `conformance/app-fixtures/v1/server-answers.json` (a minimal and a full body for every status code that names its shape, 90 routes) from the full inventory, with `--check` and a test that every body conforms to its shape, so an app can replay the same answers against its models.

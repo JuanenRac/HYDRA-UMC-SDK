@@ -67,6 +67,9 @@ var contractFiles = map[string]string{
 	"MaintenanceIncident":   "maintenance-incident.schema.json",
 	"ToolDescriptor":        "tool-descriptor.schema.json",
 	"ToolState":             "tool-state.schema.json",
+	"NodeSnapshot":          "node-snapshot.schema.json",
+	"ChangeProposal":        "change-proposal.schema.json",
+	"CanaryDeployResult":    "canary-deploy-result.schema.json",
 }
 
 // ContractValidationError is returned by Validate when payload fails real

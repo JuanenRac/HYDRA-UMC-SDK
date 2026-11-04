@@ -196,6 +196,115 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "requestedBy": None,
         "correlationId": "0d3f1f0c-6a43-4f3a-9a53-6a1d0c4b8e11"
     },
+    "NodeSnapshot": {
+        "sourceNode": "cm5-1",
+        "collectedAt": "2026-01-01T10:00:05+00:00",
+        "correlationId": "0d3f1f0c-6a43-4f3a-9a53-6a1d0c4b8e11",
+        "projects": [
+            {
+                "name": "HYDRA-UMC-SERVER",
+                "version": "0.7.2",
+                "maturity": "established",
+                "manifestPath": "/opt/hydra-umc/server/hydra-umc.project.json"
+            }
+        ],
+        "manifestIssues": [
+            {
+                "path": "/opt/hydra-umc/old",
+                "reason": "manifest is not valid JSON"
+            }
+        ],
+        "systemdAvailable": True,
+        "systemdUnavailableReason": None,
+        "serviceHealth": [
+            {
+                "unitName": "hydra-umc-server.service",
+                "active": False,
+                "detail": "inactive"
+            }
+        ],
+        "httpHealth": [
+            {
+                "url": "http://127.0.0.1:3000/health",
+                "reachable": True,
+                "statusCode": 200,
+                "detail": "HTTP 200"
+            }
+        ],
+        "incidents": [
+            {
+                "incidentId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+                "sourceNode": "cm5-1",
+                "detectedAt": "2026-01-01T10:00:00+00:00",
+                "severity": "critical",
+                "component": "hydra-umc-server.service",
+                "symptom": "systemd unit is not active: inactive",
+                "evidenceRefs": [
+                    "systemctl is-active hydra-umc-server.service"
+                ],
+                "redactionLevel": "sanitized",
+                "requestedBy": "edge-agent:auto",
+                "correlationId": "0d3f1f0c-6a43-4f3a-9a53-6a1d0c4b8e11"
+            }
+        ],
+        "hostHealth": {
+            "disks": [
+                {
+                    "path": "/",
+                    "freeBytes": 12000000000,
+                    "totalBytes": 29000000000,
+                    "freePercent": 41.4,
+                    "error": None
+                }
+            ],
+            "thermal": {
+                "celsius": 52.3,
+                "throttledRaw": 0,
+                "throttledNow": [],
+                "throttledPast": [],
+                "vcgencmdAvailable": True
+            },
+            "backups": {
+                "directory": "/var/backups/hydra-umc",
+                "count": 3,
+                "newestAgeDays": 1.5,
+                "error": None
+            }
+        }
+    },
+    "ChangeProposal": {
+        "proposalId": "b0d3f2a4-5c1e-4f7a-9d1e-2a6f3c8e7b10",
+        "incidentId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "correlationId": "0d3f1f0c-6a43-4f3a-9a53-6a1d0c4b8e11",
+        "createdAt": "2026-01-01T10:05:00+00:00",
+        "projectName": "HYDRA-UMC-SERVER",
+        "description": "Raise the health timeout from 2 to 5 seconds.",
+        "diff": "--- a/config.json\n+++ b/config.json\n@@ -1 +1 @@\n-{\"timeout\": 2}\n+{\"timeout\": 5}\n",
+        "rationale": "The route answers in 3 seconds on a loaded board.",
+        "status": "approved",
+        "decidedBy": "ana",
+        "decidedAt": "2026-01-01T10:10:00+00:00",
+        "decisionReason": "Checked on the bench.",
+        "approvedContentDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "allowProtectedPaths": False,
+        "approvalExpiresAt": "2026-01-02T10:10:00+00:00",
+        "approvedBaseCommit": "0123456789abcdef0123456789abcdef01234567",
+        "approvalSignature": "c2lnbmF0dXJl",
+        "generatedBy": None
+    },
+    "CanaryDeployResult": {
+        "deployId": "4f1c0b52-8d3a-4e7b-a1c9-5d2e6f7a8b90",
+        "proposalId": "b0d3f2a4-5c1e-4f7a-9d1e-2a6f3c8e7b10",
+        "projectName": "HYDRA-UMC-SERVER",
+        "startedAt": "2026-01-01T10:20:00+00:00",
+        "finishedAt": "2026-01-01T10:21:30+00:00",
+        "promoted": True,
+        "stageReached": "promoted",
+        "buildOutput": "ok",
+        "detail": "promoted - the previous checkout was kept, never deleted",
+        "backupPath": "/opt/hydra-umc/backups/server-1",
+        "patchPath": None
+    },
     "ToolDescriptor": {
         "schema_version": "1.0",
         "tool_id": 0,

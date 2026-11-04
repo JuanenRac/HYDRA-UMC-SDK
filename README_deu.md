@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-834%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-856%20passing-2ea44f.svg" alt="Tests">
   <img src="https://img.shields.io/badge/Version-0.5.2-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **Ehrlichkeitscheck - was heute wirklich läuft:** die sechsundzwanzig JSON-Schema-v1-Verträge mit je einer gültigen und einer ungültigen Fixture, der Python-Validator, der erste OpenAPI-v1-Ausschnitt von HYDRA-UMC-SERVER, die Go-, TypeScript- und Rust-Clients, die dieselben Schemas durchsetzen, die Bridge-Helfer und die Kompatibilitätsmatrix sind echt und auf einem Rechner getestet (834 Python-Tests, dazu die Suiten der anderen drei Clients). Protobuf ist noch nicht veröffentlicht, das Job-Gate ist eine gemeinsame Software-Funktion und keine zertifizierte Sicherheitsfunktion, und nichts davon lief auf echter Hardware.
+> **Ehrlichkeitscheck - was heute wirklich läuft:** die neunundzwanzig JSON-Schema-v1-Verträge mit je einer gültigen und einer ungültigen Fixture, der Python-Validator, der erste OpenAPI-v1-Ausschnitt von HYDRA-UMC-SERVER, die Go-, TypeScript- und Rust-Clients, die dieselben Schemas durchsetzen, die Bridge-Helfer und die Kompatibilitätsmatrix sind echt und auf einem Rechner getestet (856 Python-Tests, dazu die Suiten der anderen drei Clients). Protobuf ist noch nicht veröffentlicht, das Job-Gate ist eine gemeinsame Software-Funktion und keine zertifizierte Sicherheitsfunktion, und nichts davon lief auf echter Hardware.
 
 ---
 
@@ -40,7 +40,7 @@ GPL-3.0-or-later - see LICENSE
 |---|---|
 | Version | `0.5.2` |
 | Reifegrad | Etabliert |
-| Tests | 834 (`python -m unittest discover -s clients/python/tests`) |
+| Tests | 856 (`python -m unittest discover -s clients/python/tests`) |
 | Technik | Python / TypeScript / Go / Rust / JSON Schema |
 | Auf echter Hardware | Nicht zutreffend: nichts hiervon läuft auf Hardware |
 
@@ -55,7 +55,7 @@ Jede Zeile ist ein Teil dieses Repositorys, und die Ampel sagt, wie weit er heut
 | Bereich | Stand | Was das hier bedeutet |
 |---|---|---|
 | Software | 🟢 | Für seinen Zweck vollständig und stabil; die Ehrlichkeitsprüfung oben nennt die bekannten Grenzen |
-| Tests | 🟢 | 834 automatische Tests, bei jeder Änderung ausgeführt |
+| Tests | 🟢 | 856 automatische Tests, bei jeder Änderung ausgeführt |
 | Echte Hardware | 🟢 | Nicht zutreffend: nichts hiervon läuft auf Hardware |
 | Bereitstellung | 🟠 | Als Release veröffentlicht; die Installation auf einem frischen Rechner ist dokumentiert, aber nicht vermerkt |
 | Verträge und Clients | 🟢 | Jeder geschlossene Vertrag hat ein gültiges und ein ungültiges Beispiel und wird in Python, Go, Rust und TypeScript gegen dieselben Schemas geprüft |
@@ -154,7 +154,7 @@ durch die obige Kompatibilitätsmatrix.
 
 | Topic oder Route | Was es trägt |
 |---|---|
-| `contracts/json-schema/v1/` | sechsundzwanzig JSON-Schema-v1-Verträge: Fähigkeit, Gerätedeskriptor, Ereignis-Umschlag, Gesundheitsbericht, Operation, Projektmanifest, Sicherheitszustand, Szenarioergebnis, Server-Erkennung, Update-Manifest, Verbindungs-Client, Verbindungsereignis, Pose, Produktionsereignis, Roboterzustand, Zwillingszustand, Ökosystem-Gesundheit, Roboter-Lebenszeichen, Befehlslebenszyklus-Ereignis, Sichtziel-Anfrage, Geschwindigkeitsbefehl, Bildmetadaten, Detektionsbild, Wartungsvorfall, Werkzeugdeskriptor, Werkzeugzustand |
+| `contracts/json-schema/v1/` | neunundzwanzig JSON-Schema-v1-Verträge: Fähigkeit, Gerätedeskriptor, Ereignis-Umschlag, Gesundheitsbericht, Operation, Projektmanifest, Sicherheitszustand, Szenarioergebnis, Server-Erkennung, Update-Manifest, Verbindungs-Client, Verbindungsereignis, Pose, Produktionsereignis, Roboterzustand, Zwillingszustand, Ökosystem-Gesundheit, Roboter-Lebenszeichen, Befehlslebenszyklus-Ereignis, Sichtziel-Anfrage, Geschwindigkeitsbefehl, Bildmetadaten, Detektionsbild, Wartungsvorfall, Werkzeugdeskriptor, Werkzeugzustand, Knoten-Momentaufnahme, Änderungsvorschlag, Canary-Deploy-Ergebnis |
 | `contracts/openapi/v1/server.openapi.json` | der erste OpenAPI-v1-Ausschnitt von HYDRA-UMC-SERVER: Erkennung, Anmeldung, Einstellungen und Befehle (eine Teilmenge der `docs/openapi.json` des Servers selbst) |
 | `contracts/ports.yaml` | das Register von Port, Gesundheitspfad und systemd-Unit jedes Dienstes, erzeugt von `tools/sync_ports.py` |
 | `hydra/bridges/<name>/cmd/#` | wo eine Bridge lauscht; sie antwortet auf `.../<verb>/result` |
@@ -184,7 +184,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 Tests
 
-834 automatische Tests laufen mit `python -m unittest discover -s clients/python/tests`. Die anderen Clients haben eigene Suiten: 29 Tests in Go (`go test ./...`), 133 in TypeScript (`npm test`) und 31 in Rust (`cargo test`), ausgeführt von `tools/extra_build_steps.py`, wenn die Toolchain installiert ist. Keiner braucht Hardware.
+856 automatische Tests laufen mit `python -m unittest discover -s clients/python/tests`. Die anderen Clients haben eigene Suiten: 29 Tests in Go (`go test ./...`), 133 in TypeScript (`npm test`) und 31 in Rust (`cargo test`), ausgeführt von `tools/extra_build_steps.py`, wenn die Toolchain installiert ist. Keiner braucht Hardware.
 
 Die CI führt `HYDRA_UMC_CI=1 python tools/ci_validate.py` aus; das prüft das Manifest, die Dokumente, die acht READMEs und die Bilder.
 

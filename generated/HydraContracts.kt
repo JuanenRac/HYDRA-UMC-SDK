@@ -1,6 +1,21 @@
 // Generated from the HYDRA-UMC JSON Schemas by tools/generate_types.py. Do not edit.
 package hydra.umc.contracts
 
+data class CanaryDeployResult(
+    val schema_version: String? = null,
+    val deployId: String,
+    val proposalId: String,
+    val projectName: String,
+    val startedAt: String,
+    val finishedAt: String,
+    val promoted: Boolean,
+    val stageReached: String,
+    val buildOutput: String,
+    val detail: String,
+    val backupPath: String? = null,
+    val patchPath: String? = null
+)
+
 data class Capability(
     val schema_version: String,
     val target: CapabilityTarget,
@@ -16,6 +31,28 @@ data class Capability(
 data class CapabilityTarget(
     val kind: String,
     val id: String
+)
+
+data class ChangeProposal(
+    val schema_version: String? = null,
+    val proposalId: String,
+    val incidentId: String,
+    val correlationId: String,
+    val createdAt: String,
+    val projectName: String,
+    val description: String,
+    val diff: String,
+    val rationale: String,
+    val status: String,
+    val decidedBy: String? = null,
+    val decidedAt: String? = null,
+    val decisionReason: String? = null,
+    val approvedContentDigest: String? = null,
+    val allowProtectedPaths: Boolean? = null,
+    val approvalExpiresAt: String? = null,
+    val approvedBaseCommit: String? = null,
+    val approvalSignature: String? = null,
+    val generatedBy: String? = null
 )
 
 data class CommandLifecycleEvent(
@@ -188,6 +225,89 @@ data class MaintenanceIncident(
     val redactionLevel: String,
     val requestedBy: String? = null,
     val correlationId: String
+)
+
+data class NodeSnapshot(
+    val schema_version: String? = null,
+    val sourceNode: String,
+    val collectedAt: String,
+    val correlationId: String,
+    val projects: List<NodeSnapshotProjects>,
+    val manifestIssues: List<NodeSnapshotManifestIssues>,
+    val systemdAvailable: Boolean? = null,
+    val systemdUnavailableReason: String? = null,
+    val serviceHealth: List<NodeSnapshotServiceHealth>,
+    val httpHealth: List<NodeSnapshotHttpHealth>,
+    val incidents: List<NodeSnapshotIncidents>,
+    val hostHealth: NodeSnapshotHostHealth? = null
+)
+
+data class NodeSnapshotProjects(
+    val name: String,
+    val version: String,
+    val maturity: String,
+    val manifestPath: String
+)
+
+data class NodeSnapshotManifestIssues(
+    val path: String,
+    val reason: String
+)
+
+data class NodeSnapshotServiceHealth(
+    val unitName: String,
+    val active: Boolean,
+    val detail: String
+)
+
+data class NodeSnapshotHttpHealth(
+    val url: String,
+    val reachable: Boolean,
+    val statusCode: Long? = null,
+    val detail: String
+)
+
+data class NodeSnapshotIncidents(
+    val schema_version: String? = null,
+    val incidentId: String,
+    val sourceNode: String,
+    val detectedAt: String,
+    val severity: String,
+    val component: String,
+    val symptom: String,
+    val evidenceRefs: List<String>,
+    val redactionLevel: String,
+    val requestedBy: String? = null,
+    val correlationId: String
+)
+
+data class NodeSnapshotHostHealth(
+    val disks: List<NodeSnapshotHostHealthDisks>,
+    val thermal: NodeSnapshotHostHealthThermal,
+    val backups: NodeSnapshotHostHealthBackups? = null
+)
+
+data class NodeSnapshotHostHealthDisks(
+    val path: String,
+    val freeBytes: Long? = null,
+    val totalBytes: Long? = null,
+    val freePercent: Double? = null,
+    val error: String? = null
+)
+
+data class NodeSnapshotHostHealthThermal(
+    val celsius: Double? = null,
+    val throttledRaw: Long? = null,
+    val throttledNow: List<String>,
+    val throttledPast: List<String>,
+    val vcgencmdAvailable: Boolean
+)
+
+data class NodeSnapshotHostHealthBackups(
+    val directory: String,
+    val count: Long? = null,
+    val newestAgeDays: Double? = null,
+    val error: String? = null
 )
 
 data class Operation(

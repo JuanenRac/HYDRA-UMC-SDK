@@ -298,4 +298,7 @@ export type ContractName =
   | "DetectionFrame"
   | "MaintenanceIncident"
   | "ToolDescriptor"
-  | "ToolState";
+  | "ToolState"
+  | "NodeSnapshot"
+  | "ChangeProposal"
+  | "CanaryDeployResult";

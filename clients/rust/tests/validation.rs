@@ -58,6 +58,9 @@ const CONTRACT_FIXTURE_STEM: &[(&str, &str)] = &[
     ("MaintenanceIncident", "maintenance-incident"),
     ("ToolDescriptor", "tool-descriptor"),
     ("ToolState", "tool-state"),
+    ("NodeSnapshot", "node-snapshot"),
+    ("ChangeProposal", "change-proposal"),
+    ("CanaryDeployResult", "canary-deploy-result"),
 ];
 
 #[test]
@@ -105,8 +108,8 @@ fn known_contracts_lists_all_twenty_six() {
     let names = known_contracts();
     assert_eq!(
         names.len(),
-        26,
-        "expected 26 known contracts, got {names:?}"
+        29,
+        "expected 29 known contracts, got {names:?}"
     );
 }
 

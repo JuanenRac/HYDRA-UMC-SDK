@@ -70,6 +70,9 @@ const CONTRACT_FILES: Record<ContractName, string> = {
   MaintenanceIncident: "maintenance-incident.schema.json",
   ToolDescriptor: "tool-descriptor.schema.json",
   ToolState: "tool-state.schema.json",
+  NodeSnapshot: "node-snapshot.schema.json",
+  ChangeProposal: "change-proposal.schema.json",
+  CanaryDeployResult: "canary-deploy-result.schema.json",
 };
 
 /**

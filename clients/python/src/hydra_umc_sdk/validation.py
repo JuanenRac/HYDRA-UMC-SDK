@@ -48,6 +48,9 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "MaintenanceIncident": ("incidentId", "sourceNode", "detectedAt", "severity", "component", "symptom", "evidenceRefs", "redactionLevel", "requestedBy", "correlationId"),
     "ToolDescriptor": ("schema_version", "tool_id", "name", "title", "kind"),
     "ToolState": ("schema_version", "tool_id", "state", "source", "timestamp_utc"),
+    "NodeSnapshot": ("sourceNode", "collectedAt", "correlationId", "projects", "manifestIssues", "systemdAvailable", "systemdUnavailableReason", "serviceHealth", "httpHealth", "incidents"),
+    "ChangeProposal": ("proposalId", "incidentId", "correlationId", "createdAt", "projectName", "description", "diff", "rationale", "status"),
+    "CanaryDeployResult": ("deployId", "proposalId", "projectName", "startedAt", "finishedAt", "promoted", "stageReached", "buildOutput", "detail"),
     "ConnectionEvent": ("schema_version", "id", "at_utc", "action", "client_kind", "client_id"),
     "ConnectionClient": ("schema_version", "id", "kind", "first_seen_utc", "last_seen_utc", "active_sessions", "logins_ok", "logins_failed"),
     "ServerDiscovery": ("schema_version", "product", "remoteApiVersion", "appVersion", "hostname", "controllerCount", "robotCount", "uptimeSeconds"),
@@ -289,6 +292,12 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
         from .maintenance import validate_maintenance_incident  # imported here: maintenance.py needs this module's error type
 
         validate_maintenance_incident(payload)
+        return
+    if contract in ("NodeSnapshot", "ChangeProposal", "CanaryDeployResult"):
+        from . import maintenance_agent  # imported here: maintenance_agent.py needs this module's error type
+
+        {"NodeSnapshot": maintenance_agent.validate_node_snapshot, "ChangeProposal": maintenance_agent.validate_change_proposal,
+         "CanaryDeployResult": maintenance_agent.validate_canary_deploy_result}[contract](payload)
         return
     for field in REQUIRED[contract]:
         if field not in payload:
