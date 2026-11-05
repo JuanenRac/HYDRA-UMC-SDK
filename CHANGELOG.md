@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.5.3] - The stand-in server answers the feeds of the sibling services: GET /api/faults (the faults a test raises), POST /api/ingest/scenario-outcome, POST /api/ingest/developer-node/status (the token of a node, not a user account) and... (and 21 more changes)
+
 - **The stand-in server answers the feeds of the sibling services:** `GET /api/faults` (the faults a test raises), `POST /api/ingest/scenario-outcome`, `POST /api/ingest/developer-node/status` (the token of a node, not a user account) and `POST /api/trajectory/proposals/verify` (a listed key and a fixed fake signature; no cryptography), so a client of these routes is tested against a server that keeps state.
 
 - **The update manifest can carry its signature and what it needs from the board, all optional:** `signature`, `signature_alg` (`ed25519`), `key_id`, `min_bootloader` and `target` are named in `UpdateManifest` and in its types for Go, Rust, TypeScript, Kotlin, Dart and Python, so an installer can check that a manifest comes from the owner of the image keys and refuse an artifact built for another controller or for a bootloader that is too old. A manifest without them is valid as before, and the version stays `1.0`.
