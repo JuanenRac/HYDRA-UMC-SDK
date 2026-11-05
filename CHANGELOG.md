@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+- **The Dart package carries the second contract, the HOME/RESET rules and the WebSocket client too:** `contract_v2` (conditional writes, the `table` command, the audit chain) with the reservations and safety limits it uses, the rules of HOME/RESET without the phrases (those need the localizations of each app), and the WebSocket client with its errors as a small type of its own and the HTTP client of the TLS choices injected, so the pure Dart tests of the connection (handshake, reconnect with back-off, the token only as a subprotocol, the 1008 close) run here too. Version 0.2.0 of the package.
+
+- **A Kotlin module for the code the Android apps share:** `clients/kotlin_app_common` holds the stable release version the update check compares, with its test; an app compiles a pinned copy and its validator checks the copy against a lock of SHA-256 digests (and against this directory when it is at hand).
+
+- **One stand-in server with state for every app and client:** `conformance/fake-server/hydra_fake_server.py` answers sign-in, refresh turn-over, reservations by account and controller, revisions with `If-Match`, the armed jog, safe mode and the global STOP with the stable refusal codes, and every other route of the inventory with its `full` answer; `tests/integration/test_fake_server.py` tests it.
+
 - **The routes of the switch that requires a pass verdict of the twin are declared in the contract:** `GET` and `POST /api/hil-bridge/settings` (changed by an administrator only, with a confirmation in both directions) are a source of their own, so the generated server inventory, the app fixtures and the check against the server cover them.
 
 - **The routes of the proposals of the node watchdog are declared in the contract:** `GET /api/ops-agent/proposals` and `POST /api/ops-agent/proposals/decide` (administrators only; approving needs a confirmation) are a source of their own, so the generated server inventory, the app fixtures and the check against the server cover them.

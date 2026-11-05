@@ -121,3 +121,16 @@ Real parts: the zone service, the planner and its safety gate, the dead-man of t
 follow the contract of the real service: the global stop of the orchestrator (the Rust program is not built here), the cell that confirms
 that the robots of a failed node are stopped, and the nodes the watchdog looks at. A pass means "passed in simulation": nothing here
 ran on hardware. It is not part of the CI of this repository, which has no other repositories next to it.
+
+## One stand-in server for every app
+
+`conformance/fake-server/hydra_fake_server.py` is the one pretend server that the apps and clients are tested against (standard library only):
+
+    python conformance/fake-server/hydra_fake_server.py --port 3000    # user admin, password admin
+
+It keeps state, so a test can tell a story: the refresh token turns over, a reservation belongs to the account and the controller (`other-account`, `other-controller`, `controller-id-required`), every accepted write moves the revision of the robot and an old `If-Match` is answered with 412, the jog has to be armed first, a robot in safe mode only stops, and the global STOP stops every robot and says so robot by robot. Every other route of the server inventory answers with the `full` body of `conformance/app-fixtures/v1/server-answers.json`, the same file the apps replay against their models, so there is a single description of what the server may answer. `tests/integration/test_fake_server.py` holds its own tests. Nothing here moves hardware and nothing reads a secret.
+
+## Code shared by the apps
+
+The Flutter apps depend on the pure Dart package `clients/dart_app_common` by a pinned commit (SHA-256, the global STOP result, the PLAY rules, the second contract of the server, the HOME/RESET rules and the WebSocket client; `dart test` runs its tests). The Android app compiles a pinned copy of `clients/kotlin_app_common` (a lock with the SHA-256 of every file, checked by the app's validator), because a pinned copy builds without the SDK checkout. A change is made once, here, and the apps take it by moving the pin or running their sync tool.
+

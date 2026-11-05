@@ -9,6 +9,10 @@
 
 library;
 
+export 'src/access.dart';
+export 'src/contract_v2.dart';
+export 'src/home_reset.dart';
+export 'src/hydra_websocket.dart';
 export 'src/play_confirmation.dart';
 export 'src/sha256.dart';
 export 'src/stop_all_result.dart';
