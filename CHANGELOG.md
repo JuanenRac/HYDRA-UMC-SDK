@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The identity of the server reaches twelve Python services, closes the health path with it on and refuses a doubtful expiry:** the canonical copy lists the services that carry it, `GET /health` of the canonical health route asks for the identity too when the key is on, a token whose expiry is not a finite number or that was issued in the future is refused, and `python -m <package>.server_identity probe --port PORT --key-file FILE` is the probe for a container, which signs a short-lived token of its own.
+
 - **The signed token of the server as the identity of a caller of a service, off by default:** `tools/canonical/server_identity.py` (standard library only, vendored by `tools/sync_repo_tools.py` into the cognitive node, the vision node and the VLA engine as a first step) verifies the JWT that HYDRA-UMC-SERVER issues at login (HS256 only, signature in constant time, `exp` required, `nbf` honoured, role `admin`, `operator` or `viewer`). Without a key file nothing changes; with `--identity-key-file` (or `HYDRA_UMC_<SERVICE>_IDENTITY_KEY_FILE`) a valid token of the server is accepted next to the token of the service, a viewer may read but not change, and a request with no credential is refused even on loopback. 9 tests.
 
 - **A Dart package for the code the two Flutter apps kept as identical copies:** `clients/dart_app_common` (`hydra_umc_app_common`, pure Dart) holds the SHA-256 of the audit chain, the result of the global STOP and the rules of the PLAY confirmation, with its own tests and a workflow that analyzes and tests it. IOS-CONTROL and DSI depend on it instead of carrying a copy each.

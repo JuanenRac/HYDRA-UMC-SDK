@@ -71,6 +71,9 @@ class VerifyTests(unittest.TestCase):
             "no expiry": make_token({"username": "ana", "role": "admin"}),
             "boolean expiry": make_token({**good_claims(), "exp": True}),
             "not yet": make_token(good_claims(nbf=int(now) + 300)),
+            "expiry that is not a number": make_token({**good_claims(), "exp": float("nan")}),
+            "expiry without end": make_token({**good_claims(), "exp": float("inf")}),
+            "issued in the future": make_token(good_claims(iat=int(now) + 300)),
             "no user": make_token({**good_claims(), "username": ""}),
             "unknown role": make_token(good_claims("root")),
             "not a token": "abc",
@@ -182,6 +185,20 @@ class ServerTests(unittest.TestCase):
         forged = make_token(good_claims(), key=b"another-key-of-more-than-32-characters!")
         self.assertEqual(self.call(port, "GET", forged)[0], 401)
         self.assertEqual(self.call(port, "GET", make_token({**good_claims(), "exp": 1}))[0], 401)
+
+    def test_the_probe_of_a_container_signs_its_own_viewer_token(self) -> None:
+        port = self.start(OWN_TOKEN, KEY)
+        with tempfile.TemporaryDirectory() as folder:
+            good, bad = Path(folder, "good.key"), Path(folder, "bad.key")
+            good.write_text(KEY.decode(), encoding="utf-8")
+            bad.write_text("another-key-of-more-than-32-characters!", encoding="utf-8")
+            self.assertTrue(IDENTITY.probe(port, "/health", str(good)))
+            self.assertFalse(IDENTITY.probe(port, "/health", str(bad)))
+            self.assertEqual(IDENTITY.main(["probe", "--port", str(port), "--key-file", str(good)]), 0)
+            self.assertEqual(IDENTITY.main(["probe", "--port", str(port), "--key-file", str(bad)]), 1)
+        claims = json.loads(base64.urlsafe_b64decode(IDENTITY.sign_token(KEY).split(".")[1] + "=="))
+        self.assertEqual((claims["role"], claims["username"]), ("viewer", "health-probe"))
+        self.assertLessEqual(claims["exp"] - time.time(), 61)
 
 
 if __name__ == "__main__":
