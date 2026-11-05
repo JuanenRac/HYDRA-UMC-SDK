@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The canonical secret redaction finds private-key blocks in one linear pass:** a text with thousands of private-key BEGIN markers (with or without an END marker) was quadratic to redact; the truncated and the complete block are now each found with one search for the markers, and a test with 20000 markers bounds the time. The copies in the ops agent, the local technician and the vision streamer carry the same text.
+
 - **The routes of the decision gate of the connector hub are declared in the contract:** `GET /api/connector-hub/gate/audit`, `POST /api/connector-hub/gate/evaluate` and, new, `GET` and `POST /api/connector-hub/gate/settings` (the switch for a caller with no identity, changed by an administrator only) are a source of their own, so the generated server inventory and the check against the server cover them.
 
 - **The identity of the server reaches twelve Python services, closes the health path with it on and refuses a doubtful expiry:** the canonical copy lists the services that carry it, `GET /health` of the canonical health route asks for the identity too when the key is on, a token whose expiry is not a finite number or that was issued in the future is refused, and `python -m <package>.server_identity probe --port PORT --key-file FILE` is the probe for a container, which signs a short-lived token of its own.

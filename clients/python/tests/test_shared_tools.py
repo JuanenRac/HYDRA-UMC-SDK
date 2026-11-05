@@ -46,6 +46,22 @@ class RedactionVectorTests(unittest.TestCase):
             with self.subTest(case["name"]):
                 self.assertEqual(REDACTION.redact_lines(case["input"]), case["expected"])
 
+    def test_many_repeated_begin_markers_are_redacted_in_linear_time(self):
+        import time
+
+        hostile = "-----BEGIN PRIVATE KEY-----" * 20000
+        started = time.perf_counter()
+        self.assertEqual(REDACTION.redact_secrets(hostile), "[REDACTED]")
+        self.assertLess(time.perf_counter() - started, 2.0)
+        # with an END marker at the very end every BEGIN marker belongs to one block, and the time is linear as well
+        started = time.perf_counter()
+        REDACTION.redact_secrets(hostile + "-----END PRIVATE KEY-----")
+        self.assertLess(time.perf_counter() - started, 2.0)
+        # a BEGIN marker followed by a long run of capitals but no key name is not a quadratic search either
+        started = time.perf_counter()
+        REDACTION.redact_secrets(("-----BEGIN " + "A" * 200) * 2000)
+        self.assertLess(time.perf_counter() - started, 2.0)
+
     def test_the_marker_is_the_one_the_vectors_name(self):
         self.assertEqual(REDACTION._REDACTED, VECTORS["marker"])
 
