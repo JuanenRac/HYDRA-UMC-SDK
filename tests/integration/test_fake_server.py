@@ -123,3 +123,30 @@ def test_every_other_route_of_the_inventory_answers_with_its_full_body(server):
     status, answer = call(base, "GET", "/api/ecosystem/status", None, token)
     assert status == 200 and "projects" in answer
     assert call(base, "GET", "/api/not/a/route", None, token)[0] == 404
+
+
+def test_the_feeds_of_the_sibling_services(server):
+    state, base = server
+    token = sign_in(base)["token"]
+    # faults: needs a session, shows what a test raised
+    assert call(base, "GET", "/api/faults")[0] == 401
+    state.raise_fault("mcu", "ESTOP_ACTIVE", "critical", "stop", "1")
+    status, answer = call(base, "GET", "/api/faults?active=1", None, token)
+    assert status == 200 and answer["active"][0]["code"] == "ESTOP_ACTIVE" and "recent" not in answer
+    # scenario outcome: a session and a ScenarioOutcome 1.0
+    assert call(base, "POST", "/api/ingest/scenario-outcome", {"schema_version": "1.0", "scenario_id": "s"}, token)[0] == 201
+    assert call(base, "POST", "/api/ingest/scenario-outcome", {"scenario_id": "s"}, token)[0] == 400
+    assert len(state.scenario_outcomes) == 1
+    # developer node: the token of a node and not a user account
+    state.node_tokens["node-token"] = "dev-1"
+    doc = {"schema": "developer-node-status/1"}
+    assert call(base, "POST", "/api/ingest/developer-node/status", doc, token)[0] == 401
+    status, answer = call(base, "POST", "/api/ingest/developer-node/status", doc, "node-token")
+    assert status == 201 and answer["node_id"] == "dev-1"
+    # proposal verification
+    body = {"proposal": {"key_id": "k1", "signature": "fake-valid", "robot_id": "1"}, "expected_robot_id": "1"}
+    assert call(base, "POST", "/api/trajectory/proposals/verify", body, token)[0] == 503
+    state.proposal_keys.add("k1")
+    assert call(base, "POST", "/api/trajectory/proposals/verify", body, token)[1]["valid"] is True
+    body["expected_robot_id"] = "2"
+    assert call(base, "POST", "/api/trajectory/proposals/verify", body, token)[1]["reason"] == "wrong-robot"

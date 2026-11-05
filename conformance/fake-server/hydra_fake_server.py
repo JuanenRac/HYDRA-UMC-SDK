@@ -14,6 +14,10 @@ It keeps state, so a test can tell a story and not only replay one answer:
     (`other-account`, `other-controller`, `controller-id-required`);
   * the jog that has to be armed first (`jog-not-armed`), the robot in safe mode (423 `robot-disabled`), the global STOP
     that stops every robot and says so robot by robot;
+  * the feeds the sibling services hand to the server: `GET /api/faults` (the faults a test raises with `raise_fault`),
+    `POST /api/ingest/scenario-outcome` (a ScenarioOutcome 1.0 is kept, one that does not fit is a 400),
+    `POST /api/ingest/developer-node/status` (the token of a node, `node_tokens`, and not a user account) and
+    `POST /api/trajectory/proposals/verify` (a listed key and the signature `fake-valid`: no cryptography here);
   * every other route of the full server inventory answers with the `full` body of
     `conformance/app-fixtures/v1/server-answers.json` (the same file the apps replay), so a client can call any route the
     server declares; a route the inventory does not know is a 404.
@@ -54,6 +58,12 @@ class FakeHydra:
             for i in range(1, robots + 1)
         }
         self.requests: list[tuple[str, str]] = []  # (method, path) of every request, for a test to look at
+        self.faults: list[dict[str, Any]] = []  # the active faults of GET /api/faults
+        self.scenario_outcomes: list[dict[str, Any]] = []
+        self.node_tokens: dict[str, str] = {}  # token -> node id, for the developer node
+        self.node_statuses: dict[str, dict[str, Any]] = {}
+        self.proposal_keys: set[str] = set()  # the key ids the verify route knows
+        self.verified: list[dict[str, Any]] = []  # the bodies of the verify calls
 
     # ---- helpers ------------------------------------------------------------------------------------
     def bump(self, robot: dict[str, Any]) -> str:
@@ -211,6 +221,50 @@ class FakeHydra:
         return 200, {"controllers": [{"id": "fake", "name": "Fake controller", "robots": [self.view(r) for r in self.robots.values()]}]}
 
 
+    # ---- the feeds ----------------------------------------------------------------------------------
+    def raise_fault(self, source: str, code: str, severity: str = "error", text: str = "", robot_id: str | None = None) -> None:
+        """A `fault-event/1` raised, the way the server keeps it (camelCase `robotId`, `since` in milliseconds)."""
+        self.faults.append({"schema": "fault-event/1", "source": source, "robotId": robot_id, "code": code, "severity": severity, "text": text, "state": "raised", "since": self.now_ms})
+
+    def faults_answer(self, active_only: bool) -> tuple[int, dict[str, Any]]:
+        body: dict[str, Any] = {"active": list(self.faults)}
+        if not active_only:
+            body["recent"] = list(self.faults)
+        return 200, body
+
+    def ingest_scenario(self, body: dict[str, Any]) -> tuple[int, dict[str, Any]]:
+        if body.get("schema_version") != "1.0" or not isinstance(body.get("scenario_id"), str) or not body.get("scenario_id"):
+            return 400, {"error": "not a ScenarioOutcome 1.0"}
+        self.scenario_outcomes.append(body)
+        return 201, {"seq": len(self.scenario_outcomes), "hash": f"{len(self.scenario_outcomes):064x}"}
+
+    def ingest_node_status(self, token: str, body: dict[str, Any]) -> tuple[int, dict[str, Any]]:
+        node = self.node_tokens.get(token)
+        if node is None:
+            return 401, {"error": "a valid node token is required"}
+        if body.get("schema") != "developer-node-status/1":
+            return 400, {"error": "not a developer-node-status/1"}
+        self.node_statuses[node] = body
+        return 201, {"node_id": node, "seq": len(self.node_statuses)}
+
+    def verify_proposal(self, body: dict[str, Any]) -> tuple[int, dict[str, Any]]:
+        proposal = body.get("proposal")
+        if not isinstance(proposal, dict) or not isinstance(body.get("expected_robot_id"), str):
+            return 400, {"error": "proposal and expected_robot_id are required"}
+        if not self.proposal_keys:
+            return 503, {"error": "no proposal key is listed"}
+        self.verified.append(body)
+        key_id = str(proposal.get("key_id", ""))
+        reason = "ok"
+        if key_id not in self.proposal_keys:
+            reason = "unknown-key"
+        elif proposal.get("signature") != "fake-valid":
+            reason = "bad-signature"
+        elif str(proposal.get("robot_id")) != body["expected_robot_id"]:
+            reason = "wrong-robot"
+        return 200, {"valid": reason == "ok", "reason": reason, "key_id": key_id}
+
+
 def load_answers() -> dict[str, Any]:
     return json.loads(ANSWERS.read_text(encoding="utf-8"))["routes"]
 
@@ -247,11 +301,16 @@ class Handler(BaseHTTPRequestHandler):
         return value if isinstance(value, dict) else {}
 
     def _handle(self, method: str) -> None:
-        path = urlparse(self.path).path
+        parsed = urlparse(self.path)
+        path = parsed.path
         state = self.server.state
         body = self._body() if method in ("POST", "PUT", "PATCH") else {}
         with state.lock:
             state.requests.append((method, path))
+            if (method, path) == ("POST", "/api/ingest/developer-node/status"):
+                header = self.headers.get("Authorization", "")
+                status, answer = state.ingest_node_status(header[7:] if header.startswith("Bearer ") else "", body)
+                return self._send(status, answer)
             user = None
             if (method, path) not in OPEN_ROUTES:
                 header = self.headers.get("Authorization", "")
@@ -276,6 +335,12 @@ class Handler(BaseHTTPRequestHandler):
             return state.claims()
         if (method, path) == ("GET", "/api/settings"):
             return state.settings()
+        if (method, path) == ("GET", "/api/faults"):
+            return state.faults_answer("active=1" in (urlparse(self.path).query or "").split("&"))
+        if (method, path) == ("POST", "/api/ingest/scenario-outcome"):
+            return state.ingest_scenario(body)
+        if (method, path) == ("POST", "/api/trajectory/proposals/verify"):
+            return state.verify_proposal(body)
         found = re.fullmatch(r"/api/robot/(\d+)(?:/(claim|release|jog-arm|command))?", path)
         if found:
             robot_id, action = int(found.group(1)), found.group(2)
