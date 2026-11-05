@@ -36,6 +36,8 @@ from pathlib import Path
 from typing import Any, Callable
 
 SDK_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(SDK_ROOT / "tools"))
+from local_build import local_build_refusal  # noqa: E402  (the lock on builds that compile on this PC)
 WORKSPACE = Path(os.environ.get("HYDRA_CHAIN_SIM_WORKSPACE", str(SDK_ROOT.parent))).resolve()
 EXE = ".exe" if os.name == "nt" else ""
 
@@ -388,7 +390,7 @@ def build_node_healing(out_dir: Path) -> Path | None:
     if given and Path(given).is_file():
         return Path(given)
     source = repo("NODE-HEALING")
-    if not (source / "main.go").is_file() or shutil.which("go") is None:
+    if not (source / "main.go").is_file() or shutil.which("go") is None or local_build_refusal() is not None:
         return None
     target = out_dir / f"node-healing{EXE}"
     result = subprocess.run(["go", "build", "-o", str(target), "."], cwd=source, capture_output=True, text=True, timeout=300)

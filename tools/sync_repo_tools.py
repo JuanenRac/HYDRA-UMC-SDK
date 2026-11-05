@@ -126,6 +126,14 @@ PER_REPOSITORY_FILES = {
     "tools/canonical/service_metrics.go": {
         "HYDRA-UMC-JOB-DISPATCHER": "src/api/service_metrics.go",
     },
+    # The lock on builds that compile on the PC of the developer (a CI runner, or ALLOW_LOCAL_BUILD=1, may build): standard library only, kept by the repositories
+    # whose tests or tools run a compiler, Cargo or Go.
+    "tools/canonical/local_build.py": {
+        "HYDRA-UMC": "tools/local_build.py",
+        "HYDRA-UMC-DOCS": "tools/local_build.py",
+        "HYDRA-UMC-ORCHESTRATOR": "tools/local_build.py",
+        "HYDRA-UMC-SDK": "tools/local_build.py",
+    },
     # The installers of the OS read the port, the health route and the unit of a service from this registry.
     "contracts/ports.yaml": {
         "HYDRA-UMC-OS": "provisioning/ports.yaml",

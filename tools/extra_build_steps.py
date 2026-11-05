@@ -14,6 +14,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from local_build import local_build_refusal  # noqa: E402  (the lock on builds that compile on this PC)
 
 
 def fail(message: str) -> None:
@@ -58,6 +60,9 @@ def run_native_clients() -> None:
             continue
         if shutil.which(tool if tool != "npm" else npm) is None:
             print(f"{label}=SKIPPED {tool} is not installed on this host")
+            continue
+        if tool in ("go", "cargo") and local_build_refusal() is not None:
+            print(f"{label}=SKIPPED {local_build_refusal()}")   # compiling on this PC is locked: skipped, never passed
             continue
         if tool == "npm":
             if not (directory / "node_modules").is_dir():

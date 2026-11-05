@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **Nothing compiles on the PC of the developer by accident:** a build that needs a C compiler, Cargo, Go, Gradle or an npm build runs only on a CI runner (`CI` or `GITHUB_ACTIONS` set) or when `ALLOW_LOCAL_BUILD=1` says so; anywhere else it says SKIPPED, never passed. The check is `tools/local_build.py`, one canonical text kept by `tools/sync_repo_tools.py` (`--check` compares the copies) (`tools/canonical/local_build.py`, carried by the core, the documentation hub, the orchestrator and this repository); the Go and Rust client tests of `tools/extra_build_steps.py` and the Go program the safety-chain scenarios build are skipped on a plain PC. Tests of the lock added.
+
 - **The canonical secret redaction finds private-key blocks in one linear pass:** a text with thousands of private-key BEGIN markers (with or without an END marker) was quadratic to redact; the truncated and the complete block are now each found with one search for the markers, and a test with 20000 markers bounds the time. The copies in the ops agent, the local technician and the vision streamer carry the same text.
 
 - **The routes of the decision gate of the connector hub are declared in the contract:** `GET /api/connector-hub/gate/audit`, `POST /api/connector-hub/gate/evaluate` and, new, `GET` and `POST /api/connector-hub/gate/settings` (the switch for a caller with no identity, changed by an administrator only) are a source of their own, so the generated server inventory and the check against the server cover them.
