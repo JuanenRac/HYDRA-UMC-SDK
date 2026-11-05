@@ -37,7 +37,7 @@ enum ConditionalMode {
 }
 
 /// Commands sent many times a second while a control is held: a revision can not follow them.
-const Set<String> continuousCommands = {'jog', 'speed', 'jogStep'};
+const Set<String> continuousCommands = {'jog', 'jogHeartbeat', 'speed', 'jogStep'};
 
 /// Whether a command carries If-Match in a mode. Reservations are `claim` and `release`. STOP never does.
 bool isConditional(ConditionalMode mode, String command) {
