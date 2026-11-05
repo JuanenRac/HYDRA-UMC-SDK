@@ -1,0 +1,32 @@
+{
+  "source_version": "1",
+  "group": "semantic-planner",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "get",
+      "path": "/api/semantic-planner/settings",
+      "summary": "GET /api/semantic-planner/settings",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md."
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/semantic-planner/settings",
+      "summary": "POST /api/semantic-planner/settings",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "responses": {
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}

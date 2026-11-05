@@ -1615,6 +1615,16 @@
         }
       }
     },
+    "POST /api/semantic-planner/settings": {
+      "400": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      }
+    },
     "GET /api/settings": {
       "200": {
         "minimal": {},
