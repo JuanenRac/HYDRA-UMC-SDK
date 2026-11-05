@@ -1021,6 +1021,16 @@
         }
       }
     },
+    "POST /api/hil-bridge/settings": {
+      "400": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      }
+    },
     "GET /api/hydra-info": {
       "200": {
         "minimal": {
