@@ -1291,6 +1291,16 @@
         }
       }
     },
+    "POST /api/ops-agent/proposals/decide": {
+      "400": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      }
+    },
     "POST /api/push/devices": {
       "200": {
         "minimal": {
