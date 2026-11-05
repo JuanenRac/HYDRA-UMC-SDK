@@ -75,6 +75,13 @@ type UpdateManifest struct {
 	Version       string `json:"version"`
 	ArtifactURL   string `json:"artifact_url"`
 	SHA256        string `json:"sha256"`
+
+	// Optional: the signature and what the installer checks it with, the oldest bootloader and the controller the artifact is for.
+	Signature     *string `json:"signature,omitempty"`
+	SignatureAlg  *string `json:"signature_alg,omitempty"`
+	KeyID         *string `json:"key_id,omitempty"`
+	MinBootloader *string `json:"min_bootloader,omitempty"`
+	Target        *string `json:"target,omitempty"`
 }
 
 // EventEnvelope mirrors event-envelope.schema.json. CorrelationID is

@@ -67,6 +67,11 @@ export interface UpdateManifest {
   version: string;
   artifact_url: string;
   sha256: string;
+  signature?: string;
+  signature_alg?: "ed25519";
+  key_id?: string;
+  min_bootloader?: string;
+  target?: string;
   [extra: string]: unknown;
 }
 

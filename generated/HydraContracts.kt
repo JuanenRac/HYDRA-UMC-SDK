@@ -597,7 +597,12 @@ data class UpdateManifest(
     val project: String,
     val version: String,
     val artifact_url: String,
-    val sha256: String
+    val sha256: String,
+    val signature: String? = null,
+    val signature_alg: String? = null,
+    val key_id: String? = null,
+    val min_bootloader: String? = null,
+    val target: String? = null
 )
 
 data class VelocityCommand(

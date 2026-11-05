@@ -107,7 +107,7 @@
     },
     {
       "file": "update-manifest.schema.json",
-      "sha256": "650f04ce9c503c809deafca638f19de9a90920ca1cf7b4b4eb5699c5c5872d36"
+      "sha256": "41ec0084fd64cbca01f59c8032d9732ba607e69b750bcfcc0bae1181ec17fa6c"
     },
     {
       "file": "velocity-command.schema.json",

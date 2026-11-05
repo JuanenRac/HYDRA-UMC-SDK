@@ -3,5 +3,10 @@
   "project": "HYDRA-UMC-SERVER",
   "version": "0.2.4",
   "artifact_url": "https://github.com/JuanenRac/HYDRA-UMC-SERVER/releases/download/v0.2.4/server.tar.gz",
-  "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+  "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "signature": "99c2e2f969adddd97ae560d15d4e45327e42b91987ceac7253d3cc45a0acfad4a8cfe4d76fe18cf7c695bcb72afa207a121fbb44ee79f526cf27261c76f7bf02",
+  "signature_alg": "ed25519",
+  "key_id": "ed4242ead4ac6948",
+  "min_bootloader": "0.1.0",
+  "target": "h745-cm7"
 }

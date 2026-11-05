@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+- **The update manifest can carry its signature and what it needs from the board, all optional:** `signature`, `signature_alg` (`ed25519`), `key_id`, `min_bootloader` and `target` are named in `UpdateManifest` and in its types for Go, Rust, TypeScript, Kotlin, Dart and Python, so an installer can check that a manifest comes from the owner of the image keys and refuse an artifact built for another controller or for a bootloader that is too old. A manifest without them is valid as before, and the version stays `1.0`.
+
+- **The routes of the feeds that the services hand to the server are declared in the contract:** the scenario outcomes, the status of the developer node, the faults, the anomaly verdicts, the signed record of the voice commands and the check of a signed trajectory proposal are a source of their own, so the generated server inventory, the app fixtures and the check against the server cover them.
+
 - **The Dart package carries the second contract, the HOME/RESET rules and the WebSocket client too:** `contract_v2` (conditional writes, the `table` command, the audit chain) with the reservations and safety limits it uses, the rules of HOME/RESET without the phrases (those need the localizations of each app), and the WebSocket client with its errors as a small type of its own and the HTTP client of the TLS choices injected, so the pure Dart tests of the connection (handshake, reconnect with back-off, the token only as a subprotocol, the 1008 close) run here too. Version 0.2.0 of the package.
 
 - **A Kotlin module for the code the Android apps share:** `clients/kotlin_app_common` holds the stable release version the update check compares, with its test; an app compiles a pinned copy and its validator checks the copy against a lock of SHA-256 digests (and against this directory when it is at hand).

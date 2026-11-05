@@ -77,6 +77,9 @@ PROJECT_MANIFEST_ENUMS = {
 PROJECT_MANIFEST_EVIDENCE = {"none", "host-test", "simulator", "bench", "field"}
 PROJECT_NAME_PATTERN = re.compile(r"^(HYDRA-UMC|URTC)(-[A-Z0-9-]+)?$")
 SEMVER_PATTERN = re.compile(r"^\d+\.\d+\.\d+(?:\.\d+)?$")
+_HEX128 = re.compile(r"^[0-9a-f]{128}$")
+_HEX16 = re.compile(r"^[0-9a-f]{16}$")
+_TARGET_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
 # RFC 3339 allows a lowercase "t" and "z"; the schema validators of the other
 # clients accept them, so this one does too.
 RFC3339_DATE_TIME = re.compile(
@@ -385,6 +388,16 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
         parsed_artifact_url = urlparse(payload["artifact_url"])
         if parsed_artifact_url.scheme != "https" or not parsed_artifact_url.hostname:
             raise ContractValidationError("artifact_url must be an https URL with a hostname")
+        for name, pattern, rule in (
+            ("signature", _HEX128, "128 lowercase hexadecimal characters"),
+            ("key_id", _HEX16, "16 lowercase hexadecimal characters"),
+            ("min_bootloader", SEMVER_PATTERN, "MAJOR.MINOR.PATCH"),
+            ("target", _TARGET_PATTERN, "a short lowercase name such as g474 or h745-cm7"),
+        ):
+            if name in payload and not (isinstance(payload[name], str) and pattern.fullmatch(payload[name])):
+                raise ContractValidationError(f"{name} must be {rule}")
+        if "signature_alg" in payload and payload["signature_alg"] != "ed25519":
+            raise ContractValidationError("signature_alg must be ed25519")
     if contract == "EventEnvelope":
         _require_integer(payload, "sequence", 0)
         if "correlation_id" in payload and not isinstance(payload["correlation_id"], str):

@@ -1717,13 +1717,23 @@ class UpdateManifest {
   final String version;
   final String artifact_url;
   final String sha256;
-  const UpdateManifest({required this.schema_version, required this.project, required this.version, required this.artifact_url, required this.sha256});
+  final String? signature;
+  final String? signature_alg;
+  final String? key_id;
+  final String? min_bootloader;
+  final String? target;
+  const UpdateManifest({required this.schema_version, required this.project, required this.version, required this.artifact_url, required this.sha256, this.signature, this.signature_alg, this.key_id, this.min_bootloader, this.target});
   factory UpdateManifest.fromJson(Map<String, dynamic> json) => UpdateManifest(
         schema_version: json["schema_version"] as String,
         project: json["project"] as String,
         version: json["version"] as String,
         artifact_url: json["artifact_url"] as String,
         sha256: json["sha256"] as String,
+        signature: json["signature"] == null ? null : json["signature"] as String,
+        signature_alg: json["signature_alg"] == null ? null : json["signature_alg"] as String,
+        key_id: json["key_id"] == null ? null : json["key_id"] as String,
+        min_bootloader: json["min_bootloader"] == null ? null : json["min_bootloader"] as String,
+        target: json["target"] == null ? null : json["target"] as String,
       );
   Map<String, dynamic> toJson() => {
         "schema_version": schema_version,
@@ -1731,6 +1741,11 @@ class UpdateManifest {
         "version": version,
         "artifact_url": artifact_url,
         "sha256": sha256,
+        if (signature != null) "signature": signature,
+        if (signature_alg != null) "signature_alg": signature_alg,
+        if (key_id != null) "key_id": key_id,
+        if (min_bootloader != null) "min_bootloader": min_bootloader,
+        if (target != null) "target": target,
       };
 }
 

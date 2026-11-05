@@ -6,6 +6,11 @@
   "properties": {
     "schema_version": {"const": "1.0"}, "project": {"type": "string", "minLength": 1},
     "version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(\\.\\d+)?$"}, "artifact_url": {"type": "string", "minLength": 1, "pattern": "^https://"},
-    "sha256": {"type": "string", "pattern": "^[A-Fa-f0-9]{64}$"}
+    "sha256": {"type": "string", "pattern": "^[A-Fa-f0-9]{64}$"},
+    "signature": {"type": "string", "pattern": "^[0-9a-f]{128}$", "description": "Optional. The Ed25519 signature, in lowercase hex, over the manifest without this field, written as canonical JSON (keys sorted, no spaces, UTF-8)."},
+    "signature_alg": {"enum": ["ed25519"], "description": "Optional. The algorithm of the signature; named so that another one can be added later."},
+    "key_id": {"type": "string", "pattern": "^[0-9a-f]{16}$", "description": "Optional. The first eight bytes of the SHA-512 of the public key that made the signature, in lowercase hex."},
+    "min_bootloader": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(\\.\\d+)?$", "description": "Optional. The oldest bootloader version the artifact can be installed over."},
+    "target": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$", "description": "Optional. The controller the artifact is built for (for example g474 or h745-cm7)."}
   }, "additionalProperties": true
 }
