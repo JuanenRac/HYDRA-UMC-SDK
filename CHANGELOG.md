@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The build test of the repository compiles only on CI or when allowed:** for the stacks that compile (`rust`, `go`, `android`, `flutter`, `firmware-c`), `tools/build_test.py` asks `tools/local_build.py` first (or the same rule inline when a repository does not carry the helper) and prints `BUILD_TEST=SKIPPED` with exit status 2 on a plain PC, never a pass; `ALLOW_LOCAL_BUILD=1` allows it and a CI runner always may. The `python` and `node` stacks are not locked.
+
 - **The routes of the settings of the semantic planner are declared in the contract:** `GET` and `POST /api/semantic-planner/settings` (the switch that relaxes the identity of the approval of a plan, changed by an administrator only, with a confirmation to relax it) are a source of their own, so the generated server inventory, the app fixtures and the check against the server cover them.
 
 - **The route of the identity of the server in its calls to the services is in the contract:** `GET /api/admin/service-identity` (administrators) with the new named shape `ServiceIdentityStatus` (the switch, where it comes from, whether the key can sign, the state, which services take the identity and the codes of the safe order), and the app fixtures regenerated from the inventory.

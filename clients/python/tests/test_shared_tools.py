@@ -443,5 +443,43 @@ class PerRepositoryCopyTests(Workspace):
         self.assertEqual(SYNC.write_per_repository(self.workspace), [])
 
 
+class LocalBuildLockTests(unittest.TestCase):
+    """The canonical build test is locked for the stacks that compile: skipped with exit 2 on a plain PC, never a pass, and nothing is started."""
+
+    def run_build_test(self, stack, **extra_env):
+        import os
+        import shutil
+        import subprocess
+
+        environment = {k: v for k, v in os.environ.items() if k not in ("CI", "GITHUB_ACTIONS", "ALLOW_LOCAL_BUILD")}
+        environment.update(extra_env)
+        environment["PATH"] = ""
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            (repo / "tools").mkdir()
+            shutil.copy(SDK / "tools" / "canonical" / "build_test.py", repo / "tools" / "build_test.py")
+            (repo / "hydra-umc.project.json").write_text(json.dumps({"name": "HYDRA-UMC-EXAMPLE", "stack": stack}), encoding="utf-8")
+            (repo / "a.py").write_text("x = 1\n", encoding="utf-8")
+            return subprocess.run([sys.executable, str(repo / "tools" / "build_test.py")], capture_output=True, text=True, cwd=repo, env=environment)
+
+    def test_every_stack_that_compiles_is_skipped_without_permission(self):
+        for stack in ("rust", "go", "android", "flutter", "firmware-c"):
+            result = self.run_build_test(stack)
+            self.assertEqual(result.returncode, 2, stack + result.stderr)
+            self.assertIn("BUILD_TEST=SKIPPED", result.stdout)
+            self.assertNotIn("BUILD_TEST=PASS", result.stdout)
+
+    def test_the_permission_lets_the_build_start(self):
+        for extra in ({"CI": "true"}, {"GITHUB_ACTIONS": "true"}, {"ALLOW_LOCAL_BUILD": "1"}):
+            result = self.run_build_test("rust", **extra)
+            self.assertNotEqual(result.returncode, 2)   # cargo is not on the empty PATH: a failure, not a skip
+            self.assertNotIn("BUILD_TEST=SKIPPED", result.stdout)
+
+    def test_a_python_stack_is_not_locked(self):
+        result = self.run_build_test("python")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("BUILD_TEST=PASS", result.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()
