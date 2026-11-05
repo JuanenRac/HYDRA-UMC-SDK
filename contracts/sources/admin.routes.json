@@ -173,6 +173,19 @@
     },
     {
       "method": "get",
+      "path": "/api/admin/service-identity",
+      "summary": "GET /api/admin/service-identity",
+      "description": "Requires a signed-in account with the admin role. The identity this server presents to the services it calls: the switch, whether the key can sign and which services take it.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "ServiceIdentityStatus"
+        }
+      }
+    },
+    {
+      "method": "get",
       "path": "/api/admin/jwt-keys",
       "summary": "GET /api/admin/jwt-keys",
       "description": "Requires a signed-in account with the admin role. The state of the token signing keys (which one is active, until when a retired one is still accepted); never the private part.",

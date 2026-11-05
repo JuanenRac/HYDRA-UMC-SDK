@@ -255,6 +255,35 @@
         }
       }
     },
+    "GET /api/admin/service-identity": {
+      "200": {
+        "minimal": {
+          "enabled": false,
+          "source": "env",
+          "locked": false,
+          "key": "usable",
+          "state": "presenting",
+          "services": [],
+          "order": []
+        },
+        "full": {
+          "enabled": false,
+          "source": "env",
+          "locked": false,
+          "key": "usable",
+          "state": "presenting",
+          "services": [
+            {
+              "name": "sample",
+              "support": "accepts"
+            }
+          ],
+          "order": [
+            "server_first"
+          ]
+        }
+      }
+    },
     "GET /api/audit": {
       "404": {
         "minimal": {
