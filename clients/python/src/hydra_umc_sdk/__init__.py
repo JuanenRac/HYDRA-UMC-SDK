@@ -58,6 +58,7 @@ from .signed_commands import load_key as load_command_key, settings_from_environ
 from .bridge_health import BridgeHealth, health_enabled_from_environment, health_report, health_topic, read_health
 from .job_intake import JobMessage, read_job_message
 from .maintenance import incident_may_be_stored, validate_maintenance_incident
+from .evidence_bundle import bundle_checksum, bundle_matches_checksum, seal_bundle, validate_evidence_bundle
 from .fault_event import validate_fault_event
 from .maintenance_agent import validate_canary_deploy_result, validate_change_proposal, validate_node_snapshot
 from .armor_alignment import DEFAULT_ALARM_TO_SAFETY, armor_alarm_to_safety_state, armor_state_to_event_envelope, armor_timestamp_ms_to_utc, utc_to_armor_timestamp_ms
@@ -152,6 +153,10 @@ __all__ = [
     "read_job_message",
     "validate_maintenance_incident",
     "validate_fault_event",
+    "validate_evidence_bundle",
+    "bundle_checksum",
+    "bundle_matches_checksum",
+    "seal_bundle",
     "validate_node_snapshot",
     "validate_change_proposal",
     "validate_canary_deploy_result",

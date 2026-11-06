@@ -305,6 +305,18 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "backupPath": "/opt/hydra-umc/backups/server-1",
         "patchPath": None
     },
+    "EvidenceBundle": {
+        "componentVersions": {"hydra-umc-server": "0.8.2.4"},
+        "relevantManifests": ["{\"name\": \"HYDRA-UMC-SERVER\", \"version\": \"0.8.2.4\"}"],
+        "redactedLogExcerpts": ["hydra-umc-server.service: Main process exited, code=exited, status=1/FAILURE"],
+        "reproductionSteps": ["Start hydra-umc-server.service with the broker unreachable."],
+        "failedTests": [],
+        "impact": "The server does not start.",
+        "actionsAttempted": [],
+        "checksum": "3f786850e387550fdab836ed7e6dc881de23001b8f7d6b3f1b2c1c58d4ae5b7e",
+        "date": "2026-01-01T10:00:00Z",
+        "localValidationResult": "failed"
+    },
     "FaultEvent": {
         "schema": "fault-event/1",
         "source": "safety-zones",

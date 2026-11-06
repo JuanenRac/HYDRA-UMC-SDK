@@ -209,6 +209,20 @@ export interface EventEnvelope {
   [extra: string]: unknown;
 }
 
+export interface EvidenceBundle {
+  componentVersions: Record<string, unknown>;
+  relevantManifests: string[];
+  redactedLogExcerpts: string[];
+  reproductionSteps: string[];
+  failedTests: string[];
+  impact: string;
+  actionsAttempted: string[];
+  checksum: string;
+  date: string;
+  localValidationResult: string;
+  [extra: string]: unknown;
+}
+
 export interface FaultEvent {
   schema: "fault-event/1";
   source: string;

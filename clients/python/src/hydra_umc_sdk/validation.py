@@ -52,6 +52,7 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "ChangeProposal": ("proposalId", "incidentId", "correlationId", "createdAt", "projectName", "description", "diff", "rationale", "status"),
     "CanaryDeployResult": ("deployId", "proposalId", "projectName", "startedAt", "finishedAt", "promoted", "stageReached", "buildOutput", "detail"),
     "FaultEvent": ("schema", "source", "code", "state"),
+    "EvidenceBundle": ("componentVersions", "relevantManifests", "redactedLogExcerpts", "reproductionSteps", "failedTests", "impact", "actionsAttempted", "checksum", "date", "localValidationResult"),
     "ConnectionEvent": ("schema_version", "id", "at_utc", "action", "client_kind", "client_id"),
     "ConnectionClient": ("schema_version", "id", "kind", "first_seen_utc", "last_seen_utc", "active_sessions", "logins_ok", "logins_failed"),
     "ServerDiscovery": ("schema_version", "product", "remoteApiVersion", "appVersion", "hostname", "controllerCount", "robotCount", "uptimeSeconds"),
@@ -296,6 +297,11 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
         from .maintenance import validate_maintenance_incident  # imported here: maintenance.py needs this module's error type
 
         validate_maintenance_incident(payload)
+        return
+    if contract == "EvidenceBundle":
+        from .evidence_bundle import validate_evidence_bundle  # imported here: evidence_bundle.py needs this module's error type
+
+        validate_evidence_bundle(payload)
         return
     if contract == "FaultEvent":
         from .fault_event import validate_fault_event  # imported here: fault_event.py needs this module's error type

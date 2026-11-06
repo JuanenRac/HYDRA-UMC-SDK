@@ -75,6 +75,7 @@ var contractFixtureFile = map[string]string{
 	"ChangeProposal":        "change-proposal",
 	"CanaryDeployResult":    "canary-deploy-result",
 	"FaultEvent":            "fault-event",
+	"EvidenceBundle":        "evidence-bundle",
 }
 
 func TestAcceptsEveryValidFixture(t *testing.T) {
@@ -115,8 +116,8 @@ func TestUnknownContractIsRejected(t *testing.T) {
 
 func TestKnownContractsListsAllTwentySix(t *testing.T) {
 	names := KnownContracts()
-	if len(names) != 30 {
-		t.Fatalf("expected 30 known contracts, got %d: %v", len(names), names)
+	if len(names) != 31 {
+		t.Fatalf("expected 31 known contracts, got %d: %v", len(names), names)
 	}
 }
 

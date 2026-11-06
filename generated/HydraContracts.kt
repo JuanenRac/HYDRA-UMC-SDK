@@ -193,6 +193,19 @@ data class EventEnvelope(
     val correlation_id: String? = null
 )
 
+data class EvidenceBundle(
+    val componentVersions: Map<String, Any?>,
+    val relevantManifests: List<String>,
+    val redactedLogExcerpts: List<String>,
+    val reproductionSteps: List<String>,
+    val failedTests: List<String>,
+    val impact: String,
+    val actionsAttempted: List<String>,
+    val checksum: String,
+    val date: String,
+    val localValidationResult: String
+)
+
 data class FaultEvent(
     val schema: String,
     val source: String,

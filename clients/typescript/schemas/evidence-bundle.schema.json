@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/evidence-bundle.schema.json",
+  "title": "EvidenceBundle",
+  "description": "What a node hands to a development node when an incident needs a change of code: the versions of its components, the manifests that matter, redacted excerpts of its logs, the steps that reproduce the incident, the tests that failed, the impact, what was already tried and what the local validation said. A bundle never carries a secret, a key, a token or the conversation of a person; the texts are redacted before the bundle is built. checksum is the SHA-256 (hex) of the canonical JSON of the bundle without the checksum field (keys sorted, no ASCII escaping): a bundle edited after it was assembled no longer matches. The schema checks the shape; the checksum and the absence of a secret are checked by the reader. The schema is closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "componentVersions",
+    "relevantManifests",
+    "redactedLogExcerpts",
+    "reproductionSteps",
+    "failedTests",
+    "impact",
+    "actionsAttempted",
+    "checksum",
+    "date",
+    "localValidationResult"
+  ],
+  "properties": {
+    "componentVersions": {
+      "type": "object",
+      "description": "Component name to the version it runs."
+    },
+    "relevantManifests": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "The manifests (as text) that matter for the incident."
+    },
+    "redactedLogExcerpts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Excerpts of the logs, already redacted."
+    },
+    "reproductionSteps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      },
+      "description": "The steps that reproduce the incident; at least one."
+    },
+    "failedTests": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "The tests that failed."
+    },
+    "impact": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What the incident stops or endangers."
+    },
+    "actionsAttempted": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "What was already tried."
+    },
+    "checksum": {
+      "type": "string",
+      "minLength": 1,
+      "description": "SHA-256 (hex) of the canonical JSON of the bundle without this field."
+    },
+    "date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the bundle was assembled."
+    },
+    "localValidationResult": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What the validation on the node itself said."
+    }
+  }
+}

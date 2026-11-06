@@ -37,6 +37,7 @@ NAMES = {
     "ChangeProposal": "change-proposal",
     "CanaryDeployResult": "canary-deploy-result",
     "FaultEvent": "fault-event",
+    "EvidenceBundle": "evidence-bundle",
 }
 
 

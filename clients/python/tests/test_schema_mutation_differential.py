@@ -56,6 +56,7 @@ CONTRACTS = {
     "ChangeProposal": "change-proposal",
     "CanaryDeployResult": "canary-deploy-result",
     "FaultEvent": "fault-event",
+    "EvidenceBundle": "evidence-bundle",
 }
 
 # The Python validator is deliberately stricter than the schema here: the schema
@@ -129,7 +130,7 @@ class MutationDifferentialTests(unittest.TestCase):
                 for replacement in REPLACEMENTS:
                     # `format: date-time` is only an annotation for a plain JSON Schema
                     # validator; the date forms are covered by the validator's own tests.
-                    if path[-1].endswith(("_utc", "detectedAt", "collectedAt", "createdAt", "startedAt", "finishedAt", "decidedAt", "approvalExpiresAt")) and isinstance(replacement, str):
+                    if (path[-1] == "date" or path[-1].endswith(("_utc", "detectedAt", "collectedAt", "createdAt", "startedAt", "finishedAt", "decidedAt", "approvalExpiresAt"))) and isinstance(replacement, str):
                         continue
                     damaged = _mutated(payload, path, replacement)
                     schema_ok, python_ok = self.verdicts(contract, damaged)

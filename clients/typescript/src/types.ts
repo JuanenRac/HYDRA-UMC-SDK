@@ -307,4 +307,5 @@ export type ContractName =
   | "NodeSnapshot"
   | "ChangeProposal"
   | "CanaryDeployResult"
-  | "FaultEvent";
+  | "FaultEvent"
+  | "EvidenceBundle";

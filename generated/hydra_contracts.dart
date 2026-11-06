@@ -560,6 +560,44 @@ class EventEnvelope {
       };
 }
 
+class EvidenceBundle {
+  final Map<String, Object?> componentVersions;
+  final List<String> relevantManifests;
+  final List<String> redactedLogExcerpts;
+  final List<String> reproductionSteps;
+  final List<String> failedTests;
+  final String impact;
+  final List<String> actionsAttempted;
+  final String checksum;
+  final String date;
+  final String localValidationResult;
+  const EvidenceBundle({required this.componentVersions, required this.relevantManifests, required this.redactedLogExcerpts, required this.reproductionSteps, required this.failedTests, required this.impact, required this.actionsAttempted, required this.checksum, required this.date, required this.localValidationResult});
+  factory EvidenceBundle.fromJson(Map<String, dynamic> json) => EvidenceBundle(
+        componentVersions: Map<String, dynamic>.from(json["componentVersions"] as Map),
+        relevantManifests: (json["relevantManifests"] as List).map((e0) => e0 as String).toList(),
+        redactedLogExcerpts: (json["redactedLogExcerpts"] as List).map((e0) => e0 as String).toList(),
+        reproductionSteps: (json["reproductionSteps"] as List).map((e0) => e0 as String).toList(),
+        failedTests: (json["failedTests"] as List).map((e0) => e0 as String).toList(),
+        impact: json["impact"] as String,
+        actionsAttempted: (json["actionsAttempted"] as List).map((e0) => e0 as String).toList(),
+        checksum: json["checksum"] as String,
+        date: json["date"] as String,
+        localValidationResult: json["localValidationResult"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "componentVersions": componentVersions,
+        "relevantManifests": relevantManifests,
+        "redactedLogExcerpts": redactedLogExcerpts,
+        "reproductionSteps": reproductionSteps,
+        "failedTests": failedTests,
+        "impact": impact,
+        "actionsAttempted": actionsAttempted,
+        "checksum": checksum,
+        "date": date,
+        "localValidationResult": localValidationResult,
+      };
+}
+
 class FaultEvent {
   final String schema;
   final String source;

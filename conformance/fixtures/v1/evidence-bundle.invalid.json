@@ -1,0 +1,23 @@
+{
+  "componentVersions": {
+    "hydra-umc-server": "0.8.2.4",
+    "hydra-umc-semantic-planner": "0.2.0"
+  },
+  "relevantManifests": [
+    "{\"name\": \"HYDRA-UMC-SERVER\", \"version\": \"0.8.2.4\"}"
+  ],
+  "redactedLogExcerpts": [
+    "hydra-umc-server.service: Main process exited, code=exited, status=1/FAILURE"
+  ],
+  "reproductionSteps": [],
+  "failedTests": [
+    "tests/ingest.test.ts"
+  ],
+  "impact": "The server does not start, so no app can reach the robots of this cell.",
+  "actionsAttempted": [
+    "Restarted the unit once; it failed the same way."
+  ],
+  "date": "2026-01-01T10:00:00Z",
+  "localValidationResult": "systemctl is-active hydra-umc-server.service answered failed",
+  "checksum": "dbd918354cbbbb7ec7ca06229793a6b7eebfdb2a1ba2be172eda71f3cbbc5f8a"
+}
