@@ -1,5 +1,5 @@
 name: hydra_umc_app_common
-description: "Pure Dart code shared by the HYDRA-UMC Flutter apps (SHA-256, global STOP result, PLAY confirmation rules, the second contract, the HOME/RESET rules, the WebSocket client)."
+description: "Pure Dart code shared by the HYDRA-UMC Flutter apps (SHA-256, global STOP result, PLAY confirmation rules, the second contract, the HOME/RESET rules, the WebSocket client, the pairing link)."
 version: 0.2.0
 publish_to: none
 

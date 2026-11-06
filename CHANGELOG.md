@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The reading of a pairing link is in the shared Dart package:** `PairingLink`, `PairingOffer`, `PairingProblem` and `normalizeFingerprint` (host, port, SHA-256 fingerprint and a bounded name, no repeated fields, the fingerprint required) moved to `clients/dart_app_common` with their tests, and the limits are a `PairingLimits` value that defaults to the ones of the command contract. The iOS and the DSI app both take it from there instead of keeping a copy.
+
 - **`fault-event/1` is a contract of the SDK and not only what the parser of the server accepts:** `FaultEvent` is a closed JSON Schema in `contracts/json-schema/v1` and in the Go, Rust and TypeScript clients (`schema`, `source`, `code`, `state`, and optionally `severity`, `robot_id` and `text`), with a valid and an invalid fixture, a Python validator (`validate_fault_event`) that gives the same verdict as the schema, the generated TypeScript, Kotlin and Dart types and a sample in the mock server. An emitter checks its message against it before it publishes.
 
 - **The evidence bundle of an incident is a contract of the SDK:** `EvidenceBundle` (versions, manifests, redacted log excerpts, reproduction steps, failed tests, impact, what was tried, the checksum of the content, the date and the local validation) is a closed JSON Schema in `contracts/json-schema/v1` and in the Go, Rust and TypeScript clients, with a valid and an invalid fixture, a Python validator, `bundle_checksum` / `seal_bundle` / `bundle_matches_checksum`, the generated types and a sample in the mock server. The shape used to live only in the development node; the checksum is the one it already reads.
