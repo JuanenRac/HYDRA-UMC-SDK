@@ -78,6 +78,11 @@ def compare_runs(before: dict[str, Any], after: dict[str, Any]) -> ScenarioCompa
             after_run_id=after["run_id"],
         )
 
+    if "live-service" in (before.get("fingerprint_kind"), after.get("fingerprint_kind")):
+        return result(
+            "inconclusive",
+            "the fingerprint of a live service check is not a state of the source, so the pair cannot show that a fix was applied",
+        )
     if before["phase"] != "before" or after["phase"] != "after":
         return result("inconclusive", "the runs are not a before/after pair (check each run's phase)")
     if before["scenario_id"] != after["scenario_id"]:

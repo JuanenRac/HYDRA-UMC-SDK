@@ -67,6 +67,17 @@ class CompareRunsTests(unittest.TestCase):
         self.assertEqual(c.verdict, "inconclusive")
         self.assertIn("different repro case", c.reason)
 
+    def test_a_live_service_pair_is_never_called_fixed(self):
+        for side in ("before", "after"):
+            runs = {"before": _before(), "after": _after()}
+            runs[side]["fingerprint_kind"] = "live-service"
+            self.assertEqual(compare_runs(runs["before"], runs["after"]).verdict, "inconclusive")
+        self.assertEqual(compare_runs(_before(fingerprint_kind="manifest"), _after(fingerprint_kind="manifest")).verdict, "regression-fixed")
+
+    def test_an_unknown_fingerprint_kind_is_rejected(self):
+        with self.assertRaises(ContractValidationError):
+            compare_runs(_before(fingerprint_kind="guess"), _after())
+
     def test_different_scenario_id_is_inconclusive(self):
         c = compare_runs(_before(), _after(scenario_id="dev-server/other"))
         self.assertEqual(c.verdict, "inconclusive")

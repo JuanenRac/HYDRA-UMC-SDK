@@ -540,6 +540,7 @@ export interface ScenarioOutcome {
   repro_case: string;
   observed: ScenarioOutcomeObserved;
   timestamp_utc: string;
+  fingerprint_kind?: "manifest" | "live-service";
   [extra: string]: unknown;
 }
 

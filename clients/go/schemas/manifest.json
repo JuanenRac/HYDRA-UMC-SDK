@@ -91,7 +91,7 @@
     },
     {
       "file": "scenario-outcome.schema.json",
-      "sha256": "3b5addfe24bab9fb4fa11d0e7a73b159b40b9fbb3c567a919ae5e9450e1a03cb"
+      "sha256": "f1818e36fc12b70035d4e7501b9a02fba053f4c3c08e7b70afe5ddd30b8fc318"
     },
     {
       "file": "server-discovery.schema.json",

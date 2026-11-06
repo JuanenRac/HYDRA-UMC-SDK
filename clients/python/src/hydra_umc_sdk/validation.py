@@ -378,6 +378,8 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
             raise ContractValidationError("observed.exit_code must be an integer")
         if "evidence" in observed and not isinstance(observed["evidence"], str):
             raise ContractValidationError("observed.evidence must be a string")
+        if "fingerprint_kind" in payload and not _is_one_of(payload["fingerprint_kind"], {"manifest", "live-service"}):
+            raise ContractValidationError("fingerprint_kind must be 'manifest' or 'live-service'")
     if contract == "DeviceDescriptor" and not isinstance(payload["interfaces"], list):
         raise ContractValidationError("interfaces must be an array")
     if contract == "DeviceDescriptor" and not all(isinstance(item, str) and item for item in payload["interfaces"]):

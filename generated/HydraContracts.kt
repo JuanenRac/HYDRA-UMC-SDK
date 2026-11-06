@@ -490,7 +490,8 @@ data class ScenarioOutcome(
     val phase: String,
     val repro_case: String,
     val observed: ScenarioOutcomeObserved,
-    val timestamp_utc: String
+    val timestamp_utc: String,
+    val fingerprint_kind: String? = null
 )
 
 data class ScenarioOutcomeObserved(

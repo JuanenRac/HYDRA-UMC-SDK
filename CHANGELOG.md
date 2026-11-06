@@ -4,6 +4,8 @@
 
 - **`fault-event/1` is a contract of the SDK and not only what the parser of the server accepts:** `FaultEvent` is a closed JSON Schema in `contracts/json-schema/v1` and in the Go, Rust and TypeScript clients (`schema`, `source`, `code`, `state`, and optionally `severity`, `robot_id` and `text`), with a valid and an invalid fixture, a Python validator (`validate_fault_event`) that gives the same verdict as the schema, the generated TypeScript, Kotlin and Dart types and a sample in the mock server. An emitter checks its message against it before it publishes.
 
+- **A scenario outcome says what its fingerprint is the fingerprint of:** `ScenarioOutcome` takes an optional `fingerprint_kind`, `manifest` (the default: a state of the source) or `live-service` (the identity of a check on a running service), in the schema, the three clients' copies, the generated types and the Python validator. `compare_runs` never calls a pair with a `live-service` run fixed: it is inconclusive.
+
 - **`tools/pin_sdk.py` pins every place that names the SDK:** besides `pyproject.toml` and `ci.yml` it now covers every other workflow of a consumer (the SITL and install-smoke ones, also when the owner is `${{ github.repository_owner }}`), a dependency installed from the release tarball, the `ref` of a Flutter `git:` dependency in `pubspec.yaml` and the `ref` / `resolved-ref` pair of `pubspec.lock` (written with the commit of the tag). Each form has a test.
 
 ## [0.5.4] - The shared Kotlin module also carries the text helper and the release gate: JsonText (optStr, a JSON null is the fallback and not the word "null") and ReleaseMetadataParser (stable tag, newer than the installed version, the... (and 1 more changes)

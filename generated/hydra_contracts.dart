@@ -1403,7 +1403,8 @@ class ScenarioOutcome {
   final String repro_case;
   final ScenarioOutcomeObserved observed;
   final String timestamp_utc;
-  const ScenarioOutcome({required this.schema_version, required this.scenario_id, required this.run_id, required this.base_fingerprint, required this.phase, required this.repro_case, required this.observed, required this.timestamp_utc});
+  final String? fingerprint_kind;
+  const ScenarioOutcome({required this.schema_version, required this.scenario_id, required this.run_id, required this.base_fingerprint, required this.phase, required this.repro_case, required this.observed, required this.timestamp_utc, this.fingerprint_kind});
   factory ScenarioOutcome.fromJson(Map<String, dynamic> json) => ScenarioOutcome(
         schema_version: json["schema_version"] as String,
         scenario_id: json["scenario_id"] as String,
@@ -1413,6 +1414,7 @@ class ScenarioOutcome {
         repro_case: json["repro_case"] as String,
         observed: ScenarioOutcomeObserved.fromJson(Map<String, dynamic>.from(json["observed"] as Map)),
         timestamp_utc: json["timestamp_utc"] as String,
+        fingerprint_kind: json["fingerprint_kind"] == null ? null : json["fingerprint_kind"] as String,
       );
   Map<String, dynamic> toJson() => {
         "schema_version": schema_version,
@@ -1423,6 +1425,7 @@ class ScenarioOutcome {
         "repro_case": repro_case,
         "observed": observed.toJson(),
         "timestamp_utc": timestamp_utc,
+        if (fingerprint_kind != null) "fingerprint_kind": fingerprint_kind,
       };
 }
 
