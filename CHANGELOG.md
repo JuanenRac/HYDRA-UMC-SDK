@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.5.7] - The stored session of the mobile apps has one schema, one set of rules and shared vectors: docs/SESSIONSTORE.md lists what is kept (access token, user name, refresh token, the sign-out marker, the installation marker), where,... (and 1 more changes)
+
 - **The stored session of the mobile apps has one schema, one set of rules and shared vectors:** `docs/SESSION_STORE.md` lists what is kept (access token, user name, refresh token, the sign-out marker, the installation marker), where, and the seven rules (secure storage only, a failed save reverts what it wrote, a renewal keeps the refresh token while a sign-in replaces it, the marker is set before the delete, no invented session, move a plain legacy copy in, do not resume the session of a previous installation). `SessionStore` in `clients/dart_app_common` implements them over two seams, `SecureTokenBackend` and `SessionPlainStore`, and `conformance/session-store/vectors.json` is a list of sequences (sign in, renew, sign out, restart, failing storage) that the Dart package and the Android app both replay.
 
 - **The server entry and the views over the settings tree are in the shared Dart package:** `ServerInfo` (one entry of the discovery list, with the TLS flag only a real probe sets) and `HydraState`, `ControllerView` and `RobotView` (thin, write-through views over the raw settings tree that keep every field they have no accessor for) moved to `clients/dart_app_common` with their tests. The iOS and the DSI app both re-export them instead of keeping a copy; the DSI app gains `RobotView.setOnline`, which the iOS app already had.
