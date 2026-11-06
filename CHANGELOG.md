@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 - **The HTTP client of the Flutter apps is in the shared Dart package, with injected interfaces and no plugin:** `HydraApiCore` (headers, bearer token, controller id, `If-Match`, the numbering of motion commands, the error answers as `HydraApiException`, and the endpoints every app calls) speaks through an `HttpTransport` that each app provides; `RenewingTransport` renews an expired session once and repeats the request; `CommandSequence` numbers the motion commands. `conformance/api-client/vectors.json` and `api_client_test.dart` check numbering, error reading and the renewal conversation; `docs/APP_API_CLIENT.md` describes the pieces.
+- **The error type, the connection history, the server access options and the preferences of the Flutter apps are shared too:** `HydraError` and `HydraErrorKind` (the typed error without text; each app keeps its own wording), `ConnectionHistory` (times in milliseconds with `DateTime` views), `ServerSecurity` (the same static functions plus instance methods, and `OptionSource.defaultValue`), and `PrefsStore`, `ClientPrefsCore` and `AuthPrefsCore` (the ordinary preferences and the last server over an injected store).
 
 ## [0.5.7] - The stored session of the mobile apps has one schema, one set of rules and shared vectors: docs/SESSIONSTORE.md lists what is kept (access token, user name, refresh token, the sign-out marker, the installation marker), where,... (and 1 more changes)
 

@@ -87,7 +87,7 @@ class HydraApiCore {
   final Map<String, String> _clientHeaders;
   late final HttpTransport _transport;
 
-  String get controllerId => controllerIdOf();
+  String get controllerIdValue => controllerIdOf();
 
   bool get usesTls => baseUrl.startsWith('https://');
 
@@ -98,7 +98,7 @@ class HydraApiCore {
 
   Map<String, String> get clientHeaders => _clientHeaders;
   Map<String, String> get authHeaders => authToken != null ? {'Authorization': 'Bearer $authToken'} : const {};
-  Map<String, String> get controllerHeaders => {'X-Controller-Id': controllerId};
+  Map<String, String> get controllerHeaders => {'X-Controller-Id': controllerIdValue};
 
   /// Headers for media the app fetches on its own (images, streams).
   Map<String, String> get mediaHeaders => {..._clientHeaders, ...authHeaders};
@@ -213,7 +213,7 @@ class HydraApiCore {
           ...authHeaders,
           'If-Match': ?ifMatch,
         },
-        body: jsonEncode({...body, 'controllerId': controllerId}),
+        body: jsonEncode({...body, 'controllerId': controllerIdValue}),
         timeout: timeout);
     return expectJson(resp);
   }
