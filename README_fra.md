@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-870%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-891%20passing-2ea44f.svg" alt="Tests">
   <img src="https://img.shields.io/badge/Version-0.5.5-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **Vérification d'honnêteté - ce qui fonctionne réellement aujourd'hui :** les vingt-neuf contrats JSON Schema v1 avec une fixture valide et une invalide chacun, le validateur Python, la première tranche OpenAPI v1 de HYDRA-UMC-SERVER, les clients Go, TypeScript et Rust qui appliquent les mêmes schémas, les aides pour passerelles et la matrice de compatibilité sont réels et testés sur un ordinateur (870 tests Python, plus les suites des trois autres clients). Protobuf n'est pas encore publié, la porte des jobs est une fonction logicielle partagée et non une fonction de sécurité certifiée, et rien ici n'a tourné sur du vrai matériel.
+> **Vérification d'honnêteté - ce qui fonctionne réellement aujourd'hui :** les trente et un contrats JSON Schema v1 avec une fixture valide et une invalide chacun, le validateur Python, la première tranche OpenAPI v1 de HYDRA-UMC-SERVER, les clients Go, TypeScript et Rust qui appliquent les mêmes schémas, les aides pour passerelles et la matrice de compatibilité sont réels et testés sur un ordinateur (891 tests Python, plus les suites des trois autres clients). Protobuf n'est pas encore publié, la porte des jobs est une fonction logicielle partagée et non une fonction de sécurité certifiée, et rien ici n'a tourné sur du vrai matériel.
 
 ---
 
@@ -40,7 +40,7 @@ GPL-3.0-or-later - see LICENSE
 |---|---|
 | Version | `0.5.5` |
 | Maturité | Établi |
-| Tests | 870 (`python -m unittest discover -s clients/python/tests`) |
+| Tests | 891 (`python -m unittest discover -s clients/python/tests`) |
 | Technologie | Python / TypeScript / Go / Rust / JSON Schema |
 | Sur matériel réel | Sans objet : rien ici ne s'exécute sur du matériel |
 
@@ -55,7 +55,7 @@ Chaque ligne est une partie de ce dépôt et le feu dit où elle en est aujourd'
 | Domaine | État | Ce que cela veut dire ici |
 |---|---|---|
 | Logiciel | 🟢 | Complet pour son usage et stable ; la vérification d'honnêteté ci-dessus liste les limites connues |
-| Tests | 🟢 | 870 tests automatiques, exécutés à chaque modification |
+| Tests | 🟢 | 891 tests automatiques, exécutés à chaque modification |
 | Matériel réel | 🟢 | Sans objet : rien ici ne s'exécute sur du matériel |
 | Déploiement | 🟠 | Publié comme release ; l'installation sur une machine propre est documentée mais non consignée |
 | Contrats et clients | 🟢 | Chaque contrat fermé a un exemple valide et un invalide et est validé en Python, Go, Rust et TypeScript par rapport aux mêmes schémas |
@@ -152,7 +152,7 @@ une invalide, vérifiées par la matrice de compatibilité ci-dessus.
 
 | Topic ou route | Ce qu'il porte |
 |---|---|
-| `contracts/json-schema/v1/` | vingt-neuf contrats JSON Schema v1 : capacité, descripteur d'appareil, enveloppe d'événement, rapport de santé, opération, manifeste de projet, état de sécurité, résultat de scénario, découverte de serveur, manifeste de mise à jour, client de connexion, événement de connexion, pose, événement de production, état du robot, état du jumeau, santé de l'écosystème, signe de vie du robot, événement de cycle de vie d'une commande, demande de cible visuelle, commande de vitesse, métadonnées d'image, image de détections, incident de maintenance, descripteur d'outil, état d'outil, instantané de nœud, proposition de changement, résultat de déploiement canari |
+| `contracts/json-schema/v1/` | trente et un contrats JSON Schema v1 : capacité, descripteur d'appareil, enveloppe d'événement, rapport de santé, opération, manifeste de projet, état de sécurité, résultat de scénario, découverte de serveur, manifeste de mise à jour, client de connexion, événement de connexion, pose, événement de production, état du robot, état du jumeau, santé de l'écosystème, signe de vie du robot, événement de cycle de vie d'une commande, demande de cible visuelle, commande de vitesse, métadonnées d'image, image de détections, incident de maintenance, descripteur d'outil, état d'outil, instantané de nœud, proposition de changement, résultat de déploiement canari, événement de défaut, dossier de preuves |
 | `contracts/openapi/v1/server.openapi.json` | la première tranche OpenAPI v1 de HYDRA-UMC-SERVER : découverte, connexion, réglages et commandes (un sous-ensemble du `docs/openapi.json` du serveur lui-même) |
 | `contracts/ports.yaml` | le registre du port, du chemin de santé et de l'unité systemd de chaque service, produit par `tools/sync_ports.py` |
 | `hydra/bridges/<name>/cmd/#` | où une passerelle écoute ; elle répond sur `.../<verbe>/result` |
@@ -182,7 +182,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 Tests
 
-870 tests automatiques s'exécutent avec `python -m unittest discover -s clients/python/tests`. Les autres clients ont leurs propres suites : 29 tests en Go (`go test ./...`), 133 en TypeScript (`npm test`) et 31 en Rust (`cargo test`), lancés par `tools/extra_build_steps.py` si la chaîne d'outils est installée. Aucun n'a besoin de matériel.
+891 tests automatiques s'exécutent avec `python -m unittest discover -s clients/python/tests`. Les autres clients ont leurs propres suites : 29 tests en Go (`go test ./...`), 133 en TypeScript (`npm test`) et 31 en Rust (`cargo test`), lancés par `tools/extra_build_steps.py` si la chaîne d'outils est installée. Aucun n'a besoin de matériel.
 
 La CI exécute `HYDRA_UMC_CI=1 python tools/ci_validate.py`, qui vérifie le manifeste, les documents, les huit README et les images.
 
