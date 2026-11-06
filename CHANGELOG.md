@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The server entry and the views over the settings tree are in the shared Dart package:** `ServerInfo` (one entry of the discovery list, with the TLS flag only a real probe sets) and `HydraState`, `ControllerView` and `RobotView` (thin, write-through views over the raw settings tree that keep every field they have no accessor for) moved to `clients/dart_app_common` with their tests. The iOS and the DSI app both re-export them instead of keeping a copy; the DSI app gains `RobotView.setOnline`, which the iOS app already had.
+
 ## [0.5.6] - The typed slice server.openapi.json is generated from a source of the SDK: contracts/sources/slice holds the header of the document, the closed schemas and one file of operations per tag, and python tools/contractsource.py... (and 1 more changes)
 
 - **The typed slice `server.openapi.json` is generated from a source of the SDK:** `contracts/sources/slice` holds the header of the document, the closed schemas and one file of operations per tag, and `python tools/contract_source.py` writes the document byte-for-byte as it was when it was written by hand. `--check` fails when the document is out of date, when a route of it is not in the full inventory or when the access differs; the tests inject each drift.
