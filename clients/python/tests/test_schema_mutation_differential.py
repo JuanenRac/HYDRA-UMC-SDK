@@ -55,6 +55,7 @@ CONTRACTS = {
     "NodeSnapshot": "node-snapshot",
     "ChangeProposal": "change-proposal",
     "CanaryDeployResult": "canary-deploy-result",
+    "FaultEvent": "fault-event",
 }
 
 # The Python validator is deliberately stricter than the schema here: the schema

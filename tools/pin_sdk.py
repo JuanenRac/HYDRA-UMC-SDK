@@ -10,6 +10,12 @@ A consumer names the SDK in two places: the dependency line of its
 `pyproject.toml` (`hydra-umc-sdk @ git+https://github.com/JuanenRac/HYDRA-UMC-SDK.git@<ref>#...`)
 and, for the repositories that check the contract fixtures out in CI, the
 `ref:` next to `repository: JuanenRac/HYDRA-UMC-SDK` in `.github/workflows/ci.yml`.
+The same goes for every other workflow of a consumer (`sitl.yml`, `install-smoke.yml`, ...,
+including a `repository:` whose owner is `${{ github.repository_owner }}`), for a dependency
+installed from the release tarball (`.../HYDRA-UMC-SDK/archive/refs/tags/<tag>.tar.gz`), for the
+`ref:` of a Flutter `git:` dependency in `pubspec.yaml` and for the `ref` / `resolved-ref` pair of
+`pubspec.lock` (the lock records the commit of the tag, read from this checkout).
+
 A branch name or a bare commit there means a change of the SDK can break a
 consumer without anyone touching it. This script rewrites both to a tag.
 
@@ -34,10 +40,27 @@ TAG_PATTERN = re.compile(r"^v\d+\.\d+\.\d+(?:\.\d+)?$")
 # `...HYDRA-UMC-SDK.git@<ref>#subdirectory=...` in pyproject.toml / requirements files
 _DEPENDENCY = re.compile(r"(HYDRA-UMC-SDK\.git@)([^#\s\"']+)")
 # `repository: JuanenRac/HYDRA-UMC-SDK, ... ref: <ref>` on one line, or a `ref:` on the next line(s)
-_WORKFLOW_INLINE = re.compile(r"(repository:\s*JuanenRac/HYDRA-UMC-SDK\b[^\n}]*?\bref:\s*)([^\s,}]+)")
-_WORKFLOW_BLOCK = re.compile(r"(repository:\s*JuanenRac/HYDRA-UMC-SDK[ \t]*\r?\n(?:[ \t][^\r\n]*\r?\n)*?[ \t]+ref:\s*)([^\s#]+)")
+# The owner may be spelled out or come from the workflow context (`${{ github.repository_owner }}`).
+_OWNER = r"(?:JuanenRac|\$\{\{[^}\r\n]*\}\})"
+_WORKFLOW_INLINE = re.compile(r"(repository:\s*" + _OWNER + r"/HYDRA-UMC-SDK\b[^\n}]*?\bref:\s*)([^\s,}]+)")
+_WORKFLOW_BLOCK = re.compile(r"(repository:\s*" + _OWNER + r"/HYDRA-UMC-SDK[ \t]*\r?\n(?:[ \t][^\r\n]*\r?\n)*?[ \t]+ref:\s*)([^\s#]+)")
+# `.../HYDRA-UMC-SDK/archive/refs/tags/<tag>.tar.gz` (a dependency installed from the release tarball)
+_TARBALL = re.compile(r"(HYDRA-UMC-SDK/archive/refs/tags/)(v\d+\.\d+\.\d+(?:\.\d+)?)(\.(?:tar\.gz|zip))")
+# a Flutter `git:` dependency in pubspec.yaml: the `url:` line, then the `ref:` of the same block
+# (the `ref:` has to sit at the indentation of the `url:` line, so it can never be the one of the next dependency)
+_PUBSPEC = re.compile(
+    r"^(?P<ind>[ \t]+)(?P<head>url:\s*\"?https://github\.com/JuanenRac/HYDRA-UMC-SDK\.git\"?[ \t]*\r?\n"
+    r"(?:(?P=ind)(?!ref:)[^\r\n]*\r?\n)*?(?P=ind)ref:\s*)(?P<ref>[^\s#\"']+)",
+    re.MULTILINE,
+)
+# the same dependency in pubspec.lock: `ref:` and `resolved-ref:` come before the `url:` line
+_LOCK = re.compile(
+    r"(\bref:\s*)(\"?)([^\s\"]+)(\"?)(\r?\n[ \t]+resolved-ref:\s*)(\"?)([^\s\"]+)(\"?)"
+    r"(\r?\n[ \t]+url:\s*\"?https://github\.com/JuanenRac/HYDRA-UMC-SDK\.git)"
+)
 
-SCANNED = ("pyproject.toml", "requirements.txt", "requirements-dev.txt", ".github/workflows/ci.yml")
+SCANNED = ("pyproject.toml", "requirements.txt", "requirements-dev.txt", "pubspec.yaml", "pubspec.lock")
+WORKFLOWS = ".github/workflows"
 
 
 def newest_tag(sdk_root: Path = SDK_ROOT) -> str:
@@ -48,17 +71,45 @@ def newest_tag(sdk_root: Path = SDK_ROOT) -> str:
     return max(tags, key=lambda tag: tuple(int(part) for part in tag[1:].split(".")))
 
 
-def repin(text: str, tag: str) -> tuple[str, list[str]]:
-    """Return the text with every SDK reference on `tag`, and the refs that were replaced."""
+def tag_commit(tag: str, sdk_root: Path = SDK_ROOT) -> str | None:
+    """The commit a tag of this checkout points at (what a lock file records), or None."""
+    result = subprocess.run(["git", "rev-parse", "--verify", "--quiet", f"{tag}^{{commit}}"], cwd=sdk_root, capture_output=True, text=True, check=False)
+    sha = result.stdout.strip()
+    return sha if result.returncode == 0 and re.fullmatch(r"[0-9a-f]{40}", sha) else None
+
+
+def repin(text: str, tag: str, commit: str | None = None) -> tuple[str, list[str]]:
+    """Return the text with every SDK reference on `tag`, and the refs that were replaced.
+
+    `commit` is the commit of the tag; a pubspec.lock records it as `resolved-ref`, so
+    without it a lock file is left alone (a lock whose `ref` and `resolved-ref` disagree
+    would make `flutter pub get` fail).
+    """
     replaced: list[str] = []
 
     def swap(match: re.Match[str]) -> str:
         if match.group(2) != tag:
             replaced.append(match.group(2))
-        return match.group(1) + tag
+        return match.group(1) + tag + (match.group(3) if match.lastindex and match.lastindex >= 3 else "")
 
-    for pattern in (_DEPENDENCY, _WORKFLOW_INLINE, _WORKFLOW_BLOCK):
+    def swap_lock(match: re.Match[str]) -> str:
+        if commit is None:
+            return match.group(0)
+        if match.group(3) != tag or match.group(7) != commit:
+            replaced.append(match.group(3))
+        quote = match.group(2)
+        return (match.group(1) + quote + tag + match.group(4) + match.group(5) + match.group(6)
+                + commit + match.group(8) + match.group(9))
+
+    def swap_pubspec(match: re.Match[str]) -> str:
+        if match.group("ref") != tag:
+            replaced.append(match.group("ref"))
+        return match.group("ind") + match.group("head") + tag
+
+    for pattern in (_DEPENDENCY, _WORKFLOW_INLINE, _WORKFLOW_BLOCK, _TARBALL):
         text = pattern.sub(swap, text)
+    text = _PUBSPEC.sub(swap_pubspec, text)
+    text = _LOCK.sub(swap_lock, text)
     return text, replaced
 
 
@@ -70,15 +121,22 @@ def consumers(workspace: Path) -> list[Path]:
     return found
 
 
-def process(workspace: Path, tag: str, write: bool) -> list[tuple[str, list[str]]]:
+def scanned_files(repo: Path) -> list[Path]:
+    """Every file of a consumer that may name the SDK: manifests, locks and every workflow."""
+    files = [repo / relative for relative in SCANNED]
+    workflows = repo / WORKFLOWS
+    if workflows.is_dir():
+        files += sorted(path for path in workflows.iterdir() if path.suffix in (".yml", ".yaml"))
+    return [path for path in files if path.is_file()]
+
+
+def process(workspace: Path, tag: str, write: bool, commit: str | None = None) -> list[tuple[str, list[str]]]:
     changes: list[tuple[str, list[str]]] = []
     for repo in consumers(workspace):
-        for relative in SCANNED:
-            path = repo / relative
-            if not path.is_file():
-                continue
+        for path in scanned_files(repo):
+            relative = path.relative_to(repo).as_posix()
             raw = path.read_bytes().decode("utf-8")
-            new, replaced = repin(raw, tag)
+            new, replaced = repin(raw, tag, commit)
             if not replaced:
                 continue
             changes.append((f"{repo.name}/{relative}", replaced))
@@ -97,7 +155,7 @@ def main(argv: list[str] | None = None) -> int:
     if not TAG_PATTERN.match(tag):
         print(f"not a release tag: {tag}", file=sys.stderr)
         return 2
-    changes = process(args.workspace.resolve(), tag, write=not args.check)
+    changes = process(args.workspace.resolve(), tag, write=not args.check, commit=tag_commit(tag))
     for where, refs in changes:
         print(("not on " if args.check else "pinned to ") + f"{tag}: {where} (was {', '.join(refs)})")
     verdict = "FAIL" if (args.check and changes) else "PASS"

@@ -45,6 +45,7 @@ according to its use case.
 | `NodeSnapshot` | Maintenance agent of a node (what its edge side saw in one pass, with the incidents and, when switched on, the readings of the machine) | Development server, local technician, dashboard |
 | `ChangeProposal` | Maintenance agent of a node (a change a person reviews: diff, rationale, decision and signature) | Development server, local technician |
 | `CanaryDeployResult` | Maintenance agent of a node (how far an approved change got on one node) | Development server, local technician, dashboard |
+| `FaultEvent` | Every service that raises a fault (the message `fault-event/1` on the broker under `hydra/faults/`; the field that names it is `schema`) | Server (active faults and history), MTConnect and OPC UA feeds |
 | `ToolDescriptor` | URTC tool table (one catalogue entry per tool head profile) | Server, Smart Rack, Studio, telemetry collector |
 | `ToolState` | URTC adapter or gateway (one reading of a connected tool head) | Server, Smart Rack, Studio, telemetry collector |
 | `ProjectManifest` | Every repository (`hydra-umc.project.json` or `urtc.project.json`) | Updater, dashboard |

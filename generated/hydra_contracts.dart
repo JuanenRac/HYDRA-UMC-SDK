@@ -560,6 +560,35 @@ class EventEnvelope {
       };
 }
 
+class FaultEvent {
+  final String schema;
+  final String source;
+  final String code;
+  final String state;
+  final String? severity;
+  final String? robot_id;
+  final String? text;
+  const FaultEvent({required this.schema, required this.source, required this.code, required this.state, this.severity, this.robot_id, this.text});
+  factory FaultEvent.fromJson(Map<String, dynamic> json) => FaultEvent(
+        schema: json["schema"] as String,
+        source: json["source"] as String,
+        code: json["code"] as String,
+        state: json["state"] as String,
+        severity: json["severity"] == null ? null : json["severity"] as String,
+        robot_id: json["robot_id"] == null ? null : json["robot_id"] as String,
+        text: json["text"] == null ? null : json["text"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "schema": schema,
+        "source": source,
+        "code": code,
+        "state": state,
+        if (severity != null) "severity": severity,
+        if (robot_id != null) "robot_id": robot_id,
+        if (text != null) "text": text,
+      };
+}
+
 class FrameMeta {
   final String schema_version;
   final String frame_id;

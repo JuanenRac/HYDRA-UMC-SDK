@@ -305,6 +305,15 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "backupPath": "/opt/hydra-umc/backups/server-1",
         "patchPath": None
     },
+    "FaultEvent": {
+        "schema": "fault-event/1",
+        "source": "safety-zones",
+        "robot_id": "arm-1",
+        "code": "safety-state",
+        "severity": "critical",
+        "text": "SAFE_STOP: the tool left the allowed area.",
+        "state": "raised"
+    },
     "ToolDescriptor": {
         "schema_version": "1.0",
         "tool_id": 0,

@@ -209,6 +209,17 @@ export interface EventEnvelope {
   [extra: string]: unknown;
 }
 
+export interface FaultEvent {
+  schema: "fault-event/1";
+  source: string;
+  code: string;
+  state: "raised" | "cleared";
+  severity?: "info" | "warning" | "error" | "critical";
+  robot_id?: string | null;
+  text?: string;
+  [extra: string]: unknown;
+}
+
 export interface FrameMeta {
   schema_version: "1.0";
   frame_id: string;

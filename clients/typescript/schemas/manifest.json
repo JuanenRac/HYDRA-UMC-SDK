@@ -42,6 +42,10 @@
       "sha256": "16ed230b5967b48a5a42597956687d419bcdefd013719e8c3a725a47d24aceeb"
     },
     {
+      "file": "fault-event.schema.json",
+      "sha256": "dfd5e73ea01cbc59737964b7691cc51d6badf10345df42009a04bee69321a3f5"
+    },
+    {
       "file": "frame-meta.schema.json",
       "sha256": "1869c3fdf24ae72bc14371cec57663407e02a9e1de24058ff956a81f15432c7e"
     },

@@ -52,13 +52,14 @@ const CONTRACT_FIXTURE_STEM: Record<ContractName, string> = {
   NodeSnapshot: "node-snapshot",
   ChangeProposal: "change-proposal",
   CanaryDeployResult: "canary-deploy-result",
+  FaultEvent: "fault-event",
 };
 
 function readFixture(name: string): unknown {
   return JSON.parse(fs.readFileSync(path.join(FIXTURES, name), "utf-8"));
 }
 
-test("knownContracts lists all 29 real contracts", () => {
+test("knownContracts lists all 30 real contracts", () => {
   assert.deepEqual(knownContracts(), [
     "CanaryDeployResult",
     "Capability",
@@ -70,6 +71,7 @@ test("knownContracts lists all 29 real contracts", () => {
     "DeviceDescriptor",
     "EcosystemHealth",
     "EventEnvelope",
+    "FaultEvent",
     "FrameMeta",
     "HealthReport",
     "MaintenanceIncident",

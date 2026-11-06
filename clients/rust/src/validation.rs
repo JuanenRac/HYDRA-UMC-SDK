@@ -90,6 +90,7 @@ const CONTRACT_FILES: &[(&str, &str)] = &[
     ("NodeSnapshot", "node-snapshot.schema.json"),
     ("ChangeProposal", "change-proposal.schema.json"),
     ("CanaryDeployResult", "canary-deploy-result.schema.json"),
+    ("FaultEvent", "fault-event.schema.json"),
 ];
 
 /// Vendored schema file name -> raw JSON text, embedded at compile time.
@@ -212,6 +213,10 @@ const SCHEMA_FILES: &[(&str, &str)] = &[
     (
         "canary-deploy-result.schema.json",
         include_str!("../schemas/canary-deploy-result.schema.json"),
+    ),
+    (
+        "fault-event.schema.json",
+        include_str!("../schemas/fault-event.schema.json"),
     ),
 ];
 

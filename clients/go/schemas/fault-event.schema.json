@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/fault-event.schema.json",
+  "title": "FaultEvent",
+  "description": "One fault of a machine or a service that is raised or cleared, the way a service publishes it on the broker under hydra/faults/. The server reads these messages, keeps the active faults and the history and offers them to the feeds (MTConnect, OPC UA). A fault is identified by source, robot_id and code: a cleared event closes the raised one with the same three. The field that names the contract is called schema (the value carries its own version) and not schema_version, because the messages predate the other contracts. The texts are short on purpose, a fault is a line and not a log; a reader cuts anything longer. The schema is closed: a service that wants to say more says it in another message.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "source",
+    "code",
+    "state"
+  ],
+  "properties": {
+    "schema": {
+      "const": "fault-event/1"
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "The service or node that raises the fault."
+    },
+    "code": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "The fault, as a stable code the source chooses."
+    },
+    "state": {
+      "enum": [
+        "raised",
+        "cleared"
+      ],
+      "description": "raised opens the fault, cleared closes it."
+    },
+    "severity": {
+      "enum": [
+        "info",
+        "warning",
+        "error",
+        "critical"
+      ],
+      "description": "How serious the fault is. A reader that does not know the value takes error."
+    },
+    "robot_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "The robot the fault belongs to; absent or null when it belongs to the source as a whole."
+    },
+    "text": {
+      "type": "string",
+      "maxLength": 240,
+      "description": "One line for the person who reads the fault."
+    }
+  }
+}

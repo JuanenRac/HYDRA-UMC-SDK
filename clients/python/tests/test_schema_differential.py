@@ -55,6 +55,7 @@ CONTRACT_FILES = {
     "NodeSnapshot": "node-snapshot",
     "ChangeProposal": "change-proposal",
     "CanaryDeployResult": "canary-deploy-result",
+    "FaultEvent": "fault-event",
 }
 
 

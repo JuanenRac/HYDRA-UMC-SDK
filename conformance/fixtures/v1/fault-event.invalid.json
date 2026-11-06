@@ -1,0 +1,7 @@
+{
+  "schema": "fault-event/1",
+  "source": "safety-zones",
+  "code": "safety-state",
+  "severity": "fatal",
+  "state": "raised"
+}

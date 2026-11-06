@@ -73,6 +73,7 @@ const CONTRACT_FILES: Record<ContractName, string> = {
   NodeSnapshot: "node-snapshot.schema.json",
   ChangeProposal: "change-proposal.schema.json",
   CanaryDeployResult: "canary-deploy-result.schema.json",
+  FaultEvent: "fault-event.schema.json",
 };
 
 /**

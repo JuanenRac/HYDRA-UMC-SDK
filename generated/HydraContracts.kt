@@ -193,6 +193,16 @@ data class EventEnvelope(
     val correlation_id: String? = null
 )
 
+data class FaultEvent(
+    val schema: String,
+    val source: String,
+    val code: String,
+    val state: String,
+    val severity: String? = null,
+    val robot_id: String? = null,
+    val text: String? = null
+)
+
 data class FrameMeta(
     val schema_version: String,
     val frame_id: String,

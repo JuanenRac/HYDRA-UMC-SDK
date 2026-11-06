@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+- **`fault-event/1` is a contract of the SDK and not only what the parser of the server accepts:** `FaultEvent` is a closed JSON Schema in `contracts/json-schema/v1` and in the Go, Rust and TypeScript clients (`schema`, `source`, `code`, `state`, and optionally `severity`, `robot_id` and `text`), with a valid and an invalid fixture, a Python validator (`validate_fault_event`) that gives the same verdict as the schema, the generated TypeScript, Kotlin and Dart types and a sample in the mock server. An emitter checks its message against it before it publishes.
+
+- **`tools/pin_sdk.py` pins every place that names the SDK:** besides `pyproject.toml` and `ci.yml` it now covers every other workflow of a consumer (the SITL and install-smoke ones, also when the owner is `${{ github.repository_owner }}`), a dependency installed from the release tarball, the `ref` of a Flutter `git:` dependency in `pubspec.yaml` and the `ref` / `resolved-ref` pair of `pubspec.lock` (written with the commit of the tag). Each form has a test.
+
 ## [0.5.4] - The shared Kotlin module also carries the text helper and the release gate: JsonText (optStr, a JSON null is the fallback and not the word "null") and ReleaseMetadataParser (stable tag, newer than the installed version, the... (and 1 more changes)
 
 - **The shared Kotlin module also carries the text helper and the release gate:** `JsonText` (`optStr`, a JSON null is the fallback and not the word "null") and `ReleaseMetadataParser` (stable tag, newer than the installed version, the exact HTTPS asset, the SHA-256 digest) with the result types of the update check. The gate works on an already-read release (`ReleaseInfo`), so an app that reads the feed with another JSON library gets the same verdict; the app that reads it with `org.json` calls `parseLatestStable`. Both Android apps compile a pinned copy.

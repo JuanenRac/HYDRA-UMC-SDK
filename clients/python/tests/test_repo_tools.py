@@ -79,6 +79,54 @@ class RepinTests(unittest.TestCase):
         self.assertNotIn("\n", new.replace("\r\n", ""))
 
 
+WORKFLOW_OWNER_FROM_CONTEXT = (
+    "steps:\n  - uses: actions/checkout@v5\n    with:\n"
+    "      repository: ${{{{ github.repository_owner }}}}/HYDRA-UMC-SDK\n      ref: {ref}\n      path: repos/HYDRA-UMC-SDK\n"
+)
+TARBALL = 'dependencies = ["hydra-umc-sdk @ https://github.com/JuanenRac/HYDRA-UMC-SDK/archive/refs/tags/{ref}.tar.gz#subdirectory=clients/python"]\n'
+PUBSPEC = (
+    "dependencies:\n  hydra_umc_app_common:\n    git:\n      url: https://github.com/JuanenRac/HYDRA-UMC-SDK.git\n"
+    "      ref: {ref}\n      path: clients/dart_app_common\n  other:\n    git:\n      url: https://github.com/x/y.git\n      ref: main\n"
+)
+LOCK = (
+    "  hydra_umc_app_common:\n    dependency: \"direct main\"\n    description:\n      path: \"clients/dart_app_common\"\n"
+    "      ref: {ref}\n      resolved-ref: {resolved}\n      url: \"https://github.com/JuanenRac/HYDRA-UMC-SDK.git\"\n"
+    "    source: git\n  other:\n    description:\n      ref: main\n      resolved-ref: abc\n      url: \"https://github.com/x/y.git\"\n"
+)
+SHA_OLD = "d27ec150a0cdc1a185348406962bbd9bfe4622f0"
+SHA_NEW = "1" * 40
+
+
+class MoreReferenceTests(unittest.TestCase):
+    def test_owner_taken_from_the_workflow_context(self):
+        new, replaced = PIN.repin(WORKFLOW_OWNER_FROM_CONTEXT.format(ref="v0.3.2"), "v0.3.4")
+        self.assertEqual(replaced, ["v0.3.2"])
+        self.assertIn("      ref: v0.3.4\n      path: repos/HYDRA-UMC-SDK\n", new)
+
+    def test_release_tarball_url(self):
+        new, replaced = PIN.repin(TARBALL.format(ref="v0.3.2"), "v0.3.4")
+        self.assertEqual(replaced, ["v0.3.2"])
+        self.assertIn("archive/refs/tags/v0.3.4.tar.gz#subdirectory=clients/python", new)
+
+    def test_pubspec_ref_moves_and_other_git_dependencies_stay(self):
+        new, replaced = PIN.repin(PUBSPEC.format(ref=SHA_OLD), "v0.3.4")
+        self.assertEqual(replaced, [SHA_OLD])
+        self.assertIn("SDK.git\n      ref: v0.3.4\n      path: clients/dart_app_common\n", new)
+        self.assertIn("y.git\n      ref: main\n", new)
+
+    def test_lock_records_the_tag_and_the_commit_of_the_tag(self):
+        new, replaced = PIN.repin(LOCK.format(ref=SHA_OLD, resolved=SHA_OLD), "v0.3.4", SHA_NEW)
+        self.assertEqual(replaced, [SHA_OLD])
+        self.assertIn(f"ref: v0.3.4\n      resolved-ref: {SHA_NEW}\n      url: \"https://github.com/JuanenRac/HYDRA-UMC-SDK.git\"", new)
+        self.assertIn("ref: main\n      resolved-ref: abc\n", new)
+        again, replaced = PIN.repin(new, "v0.3.4", SHA_NEW)
+        self.assertEqual((again, replaced), (new, []))
+
+    def test_lock_is_left_alone_without_the_commit_of_the_tag(self):
+        text = LOCK.format(ref=SHA_OLD, resolved=SHA_OLD)
+        self.assertEqual(PIN.repin(text, "v0.3.4"), (text, []))
+
+
 class WorkspaceFixture(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
@@ -111,6 +159,22 @@ class PinWorkspaceTests(WorkspaceFixture):
         })
         self.assertEqual(len(PIN.process(self.workspace, "v0.3.4", write=True)), 2)
         self.assertEqual(PIN.process(self.workspace, "v0.3.4", write=False), [])
+
+    def test_every_workflow_and_the_flutter_files_are_scanned(self):
+        self.repo("HYDRA-UMC-BRIDGE-X", {
+            ".github/workflows/sitl.yml": WORKFLOW_INLINE.format(ref="main"),
+            ".github/workflows/install-smoke.yml": WORKFLOW_OWNER_FROM_CONTEXT.format(ref="main"),
+            "pubspec.yaml": PUBSPEC.format(ref=SHA_OLD),
+            "pubspec.lock": LOCK.format(ref=SHA_OLD, resolved=SHA_OLD),
+        })
+        found = sorted(where for where, _ in PIN.process(self.workspace, "v0.3.4", write=True, commit=SHA_NEW))
+        self.assertEqual(found, [
+            "HYDRA-UMC-BRIDGE-X/.github/workflows/install-smoke.yml",
+            "HYDRA-UMC-BRIDGE-X/.github/workflows/sitl.yml",
+            "HYDRA-UMC-BRIDGE-X/pubspec.lock",
+            "HYDRA-UMC-BRIDGE-X/pubspec.yaml",
+        ])
+        self.assertEqual(PIN.process(self.workspace, "v0.3.4", write=False, commit=SHA_NEW), [])
 
     def test_main_exit_codes(self):
         self.repo("HYDRA-UMC-BRIDGE-X", {"pyproject.toml": PYPROJECT.format(ref="main")})
