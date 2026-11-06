@@ -125,6 +125,9 @@ class ServerSecurityOptions {
   /// True when the server reports none of them (a server that predates all of these options).
   bool get isEmpty => _all.every((o) => o == null);
 
+  /// [ServerSecurity.parse], for callers that read the options through their own type.
+  static ServerSecurityOptions? parse(String body) => ServerSecurity.parse(body);
+
   /// The body of the change from these options to [next] (same as [ServerSecurity.patch]).
   Map<String, dynamic>? patch(ServerSecurityValues next) => ServerSecurity.patch(this, next);
 

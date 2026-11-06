@@ -169,5 +169,7 @@ void main() {
     final next = o.toValues().copyWith(healthOpen: true);
     expect(o.patch(next), ServerSecurity.patch(o, next));
     expect(o.lowerings(next), ServerSecurity.lowerings(o, next));
+    expect(ServerSecurityOptions.parse(full)!.toValues().healthOpen, o.toValues().healthOpen);
+    expect(ServerSecurityOptions.parse('not json'), isNull);
   });
 }
