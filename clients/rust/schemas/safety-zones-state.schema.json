@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/safety-zones-state.schema.json",
+  "title": "SafetyZonesState",
+  "description": "The latest verdict of the safety zones service, as GET /state answers it: the safety state the consumers act on (and, when the service signs, its signature), the reason, the hash of the configuration that judged, and what the panels show next to the verdict (which zone each object is in and at which level, how many, and how many stops were asked). The breaches are at most 20 and carry no positions. The signed state is the one SafetyState describes; a consumer acts on the signed state and never on the counts. The schema is closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "sdkSafetyState",
+    "reason"
+  ],
+  "properties": {
+    "sdkSafetyState": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "state",
+        "source",
+        "timestamp_utc"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "state": {
+          "enum": [
+            "READY",
+            "INHIBITED",
+            "FAULT",
+            "SAFE_STOP"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timestamp_utc": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "sdkSafetyStateSignature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "alg",
+        "key_id",
+        "counter",
+        "sig"
+      ],
+      "properties": {
+        "alg": {
+          "enum": [
+            "HMAC-SHA256",
+            "Ed25519"
+          ]
+        },
+        "key_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "counter": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sig": {
+          "type": "string",
+          "pattern": "^([0-9a-f]{64}|[0-9a-f]{128})$"
+        }
+      }
+    },
+    "reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "armorInhibitOnly": {
+      "const": true
+    },
+    "configSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "separation": {
+      "type": "object"
+    },
+    "breaches": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "zone_id",
+          "level",
+          "object_id"
+        ],
+        "properties": {
+          "zone_id": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "level": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "object_id": {
+            "type": "string",
+            "maxLength": 128
+          }
+        }
+      }
+    },
+    "breachCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "estopRequestCount": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

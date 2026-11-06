@@ -326,6 +326,22 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "text": "SAFE_STOP: the tool left the allowed area.",
         "state": "raised"
     },
+    "SafetyZonesState": {
+        "sdkSafetyState": {"schema_version": "1.0", "state": "SAFE_STOP", "source": "safety-zones", "timestamp_utc": "2026-01-01T00:00:00Z"},
+        "reason": "arm-1 is inside the red zone",
+        "breaches": [{"zone_id": "cell-red", "level": "red", "object_id": "arm-1"}],
+        "breachCount": 1,
+        "estopRequestCount": 1
+    },
+    "VlaApproval": {
+        "approved": True,
+        "fingerprint": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "robot_id": "arm-1",
+        "operator": "ana",
+        "approved_at_ms": 1767225600000,
+        "expires_at_ms": 1767225610000,
+        "signature": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    },
     "ToolDescriptor": {
         "schema_version": "1.0",
         "tool_id": 0,

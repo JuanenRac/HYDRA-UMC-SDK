@@ -74,6 +74,8 @@ const CONTRACT_FILES: Record<ContractName, string> = {
   ChangeProposal: "change-proposal.schema.json",
   CanaryDeployResult: "canary-deploy-result.schema.json",
   FaultEvent: "fault-event.schema.json",
+  SafetyZonesState: "safety-zones-state.schema.json",
+  VlaApproval: "vla-approval.schema.json",
   EvidenceBundle: "evidence-bundle.schema.json",
 };
 

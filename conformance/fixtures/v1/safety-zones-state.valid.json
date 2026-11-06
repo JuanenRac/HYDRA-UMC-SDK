@@ -1,0 +1,25 @@
+{
+  "sdkSafetyState": {
+    "schema_version": "1.0",
+    "state": "SAFE_STOP",
+    "source": "safety-zones",
+    "timestamp_utc": "2026-01-01T00:00:00Z"
+  },
+  "sdkSafetyStateSignature": {
+    "alg": "HMAC-SHA256",
+    "key_id": "fleet-1",
+    "counter": 1767225600000,
+    "sig": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+  },
+  "reason": "arm-1 is inside the red zone",
+  "configSha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "breaches": [
+    {
+      "zone_id": "cell-red",
+      "level": "red",
+      "object_id": "arm-1"
+    }
+  ],
+  "breachCount": 1,
+  "estopRequestCount": 1
+}

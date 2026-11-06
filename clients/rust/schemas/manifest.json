@@ -94,6 +94,10 @@
       "sha256": "2db5c302cf5c8be0631879bc844ace2d3d2796336c736df6500e553e6cbdaf84"
     },
     {
+      "file": "safety-zones-state.schema.json",
+      "sha256": "05bfc567802c83e9c239de51177d18adee6cd185097518f0210eb2037fba6540"
+    },
+    {
       "file": "scenario-outcome.schema.json",
       "sha256": "f1818e36fc12b70035d4e7501b9a02fba053f4c3c08e7b70afe5ddd30b8fc318"
     },
@@ -124,6 +128,10 @@
     {
       "file": "visual-target-request.schema.json",
       "sha256": "f276ad113b0b9ff492fb1e83efba918ca22b1480dbaca564c461d60d83082d51"
+    },
+    {
+      "file": "vla-approval.schema.json",
+      "sha256": "2f1b3cc7f37d4ac999aa597ad8c8f1c6db2f281e4ae732b0149d4b302b8abae9"
     }
   ]
 }

@@ -1,0 +1,9 @@
+{
+  "approved": true,
+  "fingerprint": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "robot_id": "arm-1",
+  "operator": "ana",
+  "approved_at_ms": 1767225600000,
+  "expires_at_ms": 1767225610000,
+  "signature": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+}

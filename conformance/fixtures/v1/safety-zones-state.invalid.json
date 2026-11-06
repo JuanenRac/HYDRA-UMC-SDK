@@ -1,0 +1,9 @@
+{
+  "sdkSafetyState": {
+    "schema_version": "1.0",
+    "state": "GREEN",
+    "source": "safety-zones",
+    "timestamp_utc": "2026-01-01T00:00:00Z"
+  },
+  "reason": null
+}

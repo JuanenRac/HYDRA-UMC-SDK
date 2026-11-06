@@ -308,4 +308,6 @@ export type ContractName =
   | "ChangeProposal"
   | "CanaryDeployResult"
   | "FaultEvent"
+  | "SafetyZonesState"
+  | "VlaApproval"
   | "EvidenceBundle";

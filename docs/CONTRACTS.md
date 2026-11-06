@@ -46,6 +46,8 @@ according to its use case.
 | `ChangeProposal` | Maintenance agent of a node (a change a person reviews: diff, rationale, decision and signature) | Development server, local technician |
 | `CanaryDeployResult` | Maintenance agent of a node (how far an approved change got on one node) | Development server, local technician, dashboard |
 | `EvidenceBundle` | Local technician and maintenance agent (what a node hands to a development node when an incident needs a change of code: versions, manifests, redacted logs, reproduction steps, impact, a checksum of the content) | Development node, development server |
+| `SafetyZonesState` | HYDRA-UMC-SAFETY-ZONES (the answer of `GET /state`: the latest signed verdict, the reason, the configuration hash and the short list of breaches) | Visual servoing, orchestrator, bridges and the panels of STUDIO and SUITE |
+| `VlaApproval` | HYDRA-UMC-VLA-ENGINE (the answer of `POST /confirmations/<id>/confirm`: the signed approval of a person for exactly one trajectory) | The layer that executes the motion; the confirmation screens of the apps |
 | `FaultEvent` | Every service that raises a fault (the message `fault-event/1` on the broker under `hydra/faults/`; the field that names it is `schema`) | Server (active faults and history), MTConnect and OPC UA feeds |
 | `ToolDescriptor` | URTC tool table (one catalogue entry per tool head profile) | Server, Smart Rack, Studio, telemetry collector |
 | `ToolState` | URTC adapter or gateway (one reading of a connected tool head) | Server, Smart Rack, Studio, telemetry collector |

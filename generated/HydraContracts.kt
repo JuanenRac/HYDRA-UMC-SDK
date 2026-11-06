@@ -495,6 +495,38 @@ data class SafetyState(
     val timestamp_utc: String
 )
 
+data class SafetyZonesState(
+    val sdkSafetyState: SafetyZonesStateSdkSafetyState,
+    val sdkSafetyStateSignature: SafetyZonesStateSdkSafetyStateSignature? = null,
+    val reason: String? = null,
+    val armorInhibitOnly: Boolean? = null,
+    val configSha256: String? = null,
+    val separation: Map<String, Any?>? = null,
+    val breaches: List<SafetyZonesStateBreaches>? = null,
+    val breachCount: Long? = null,
+    val estopRequestCount: Long? = null
+)
+
+data class SafetyZonesStateSdkSafetyState(
+    val schema_version: String,
+    val state: String,
+    val source: String,
+    val timestamp_utc: String
+)
+
+data class SafetyZonesStateSdkSafetyStateSignature(
+    val alg: String,
+    val key_id: String,
+    val counter: Long,
+    val sig: String
+)
+
+data class SafetyZonesStateBreaches(
+    val zone_id: String,
+    val level: String,
+    val object_id: String
+)
+
 data class ScenarioOutcome(
     val schema_version: String,
     val scenario_id: String,
@@ -673,4 +705,14 @@ data class VisualTargetRequestTarget(
     val roll: Double,
     val pitch: Double,
     val yaw: Double
+)
+
+data class VlaApproval(
+    val approved: Boolean,
+    val fingerprint: String,
+    val robot_id: String,
+    val operator: String,
+    val approved_at_ms: Long,
+    val expires_at_ms: Long,
+    val signature: String
 )

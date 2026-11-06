@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/vla-approval.schema.json",
+  "title": "VlaApproval",
+  "description": "The approval a person gives to a proposed trajectory of the VLA engine (the answer of POST /confirmations/<id>/confirm): the fingerprint of exactly that trajectory, the robot, the operator, the moment of the approval and the moment it stops being valid, and an HMAC-SHA256 signature of those fields. The layer that executes the motion checks the signature, the fingerprint, the robot and the validity; an approval is used once and is short-lived. The schema is closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "approved",
+    "fingerprint",
+    "robot_id",
+    "operator",
+    "approved_at_ms",
+    "expires_at_ms",
+    "signature"
+  ],
+  "properties": {
+    "approved": {
+      "const": true
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "robot_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "operator": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "approved_at_ms": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "expires_at_ms": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "signature": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

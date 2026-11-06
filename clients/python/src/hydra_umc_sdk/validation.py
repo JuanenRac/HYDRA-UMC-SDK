@@ -52,6 +52,8 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "ChangeProposal": ("proposalId", "incidentId", "correlationId", "createdAt", "projectName", "description", "diff", "rationale", "status"),
     "CanaryDeployResult": ("deployId", "proposalId", "projectName", "startedAt", "finishedAt", "promoted", "stageReached", "buildOutput", "detail"),
     "FaultEvent": ("schema", "source", "code", "state"),
+    "SafetyZonesState": ("sdkSafetyState", "reason"),
+    "VlaApproval": ("approved", "fingerprint", "robot_id", "operator", "approved_at_ms", "expires_at_ms", "signature"),
     "EvidenceBundle": ("componentVersions", "relevantManifests", "redactedLogExcerpts", "reproductionSteps", "failedTests", "impact", "actionsAttempted", "checksum", "date", "localValidationResult"),
     "ConnectionEvent": ("schema_version", "id", "at_utc", "action", "client_kind", "client_id"),
     "ConnectionClient": ("schema_version", "id", "kind", "first_seen_utc", "last_seen_utc", "active_sessions", "logins_ok", "logins_failed"),
@@ -307,6 +309,16 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
         from .fault_event import validate_fault_event  # imported here: fault_event.py needs this module's error type
 
         validate_fault_event(payload)
+        return
+    if contract == "SafetyZonesState":
+        from .safety_zones_state import validate_safety_zones_state  # imported here: the module needs this module's error type
+
+        validate_safety_zones_state(payload)
+        return
+    if contract == "VlaApproval":
+        from .vla_approval import validate_vla_approval  # imported here: the module needs this module's error type
+
+        validate_vla_approval(payload)
         return
     if contract in ("NodeSnapshot", "ChangeProposal", "CanaryDeployResult"):
         from . import maintenance_agent  # imported here: maintenance_agent.py needs this module's error type

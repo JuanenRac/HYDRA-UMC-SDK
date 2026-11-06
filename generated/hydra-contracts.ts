@@ -545,6 +545,42 @@ export interface SafetyState {
   [extra: string]: unknown;
 }
 
+export interface SafetyZonesState {
+  sdkSafetyState: SafetyZonesStateSdkSafetyState;
+  sdkSafetyStateSignature?: SafetyZonesStateSdkSafetyStateSignature;
+  reason: string | null;
+  armorInhibitOnly?: true;
+  configSha256?: string;
+  separation?: Record<string, unknown>;
+  breaches?: SafetyZonesStateBreaches[];
+  breachCount?: number;
+  estopRequestCount?: number;
+  [extra: string]: unknown;
+}
+
+export interface SafetyZonesStateSdkSafetyState {
+  schema_version: "1.0";
+  state: "READY" | "INHIBITED" | "FAULT" | "SAFE_STOP";
+  source: string;
+  timestamp_utc: string;
+  [extra: string]: unknown;
+}
+
+export interface SafetyZonesStateSdkSafetyStateSignature {
+  alg: "HMAC-SHA256" | "Ed25519";
+  key_id: string;
+  counter: number;
+  sig: string;
+  [extra: string]: unknown;
+}
+
+export interface SafetyZonesStateBreaches {
+  zone_id: string;
+  level: string;
+  object_id: string;
+  [extra: string]: unknown;
+}
+
 export interface ScenarioOutcome {
   schema_version: "1.0";
   scenario_id: string;
@@ -741,5 +777,16 @@ export interface VisualTargetRequestTarget {
   roll: number;
   pitch: number;
   yaw: number;
+  [extra: string]: unknown;
+}
+
+export interface VlaApproval {
+  approved: true;
+  fingerprint: string;
+  robot_id: string;
+  operator: string;
+  approved_at_ms: number;
+  expires_at_ms: number;
+  signature: string;
   [extra: string]: unknown;
 }

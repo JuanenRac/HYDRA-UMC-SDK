@@ -1432,6 +1432,98 @@ class SafetyState {
       };
 }
 
+class SafetyZonesState {
+  final SafetyZonesStateSdkSafetyState sdkSafetyState;
+  final SafetyZonesStateSdkSafetyStateSignature? sdkSafetyStateSignature;
+  final String? reason;
+  final Object? armorInhibitOnly;
+  final String? configSha256;
+  final Map<String, Object?>? separation;
+  final List<SafetyZonesStateBreaches>? breaches;
+  final int? breachCount;
+  final int? estopRequestCount;
+  const SafetyZonesState({required this.sdkSafetyState, this.sdkSafetyStateSignature, this.reason, this.armorInhibitOnly, this.configSha256, this.separation, this.breaches, this.breachCount, this.estopRequestCount});
+  factory SafetyZonesState.fromJson(Map<String, dynamic> json) => SafetyZonesState(
+        sdkSafetyState: SafetyZonesStateSdkSafetyState.fromJson(Map<String, dynamic>.from(json["sdkSafetyState"] as Map)),
+        sdkSafetyStateSignature: json["sdkSafetyStateSignature"] == null ? null : SafetyZonesStateSdkSafetyStateSignature.fromJson(Map<String, dynamic>.from(json["sdkSafetyStateSignature"] as Map)),
+        reason: json["reason"] == null ? null : json["reason"] as String,
+        armorInhibitOnly: json["armorInhibitOnly"] == null ? null : json["armorInhibitOnly"] as Object,
+        configSha256: json["configSha256"] == null ? null : json["configSha256"] as String,
+        separation: json["separation"] == null ? null : Map<String, dynamic>.from(json["separation"] as Map),
+        breaches: json["breaches"] == null ? null : (json["breaches"] as List).map((e0) => SafetyZonesStateBreaches.fromJson(Map<String, dynamic>.from(e0 as Map))).toList(),
+        breachCount: json["breachCount"] == null ? null : (json["breachCount"] as num).toInt(),
+        estopRequestCount: json["estopRequestCount"] == null ? null : (json["estopRequestCount"] as num).toInt(),
+      );
+  Map<String, dynamic> toJson() => {
+        "sdkSafetyState": sdkSafetyState.toJson(),
+        if (sdkSafetyStateSignature != null) "sdkSafetyStateSignature": sdkSafetyStateSignature!.toJson(),
+        if (reason != null) "reason": reason,
+        if (armorInhibitOnly != null) "armorInhibitOnly": armorInhibitOnly,
+        if (configSha256 != null) "configSha256": configSha256,
+        if (separation != null) "separation": separation,
+        if (breaches != null) "breaches": breaches!.map((e0) => e0.toJson()).toList(),
+        if (breachCount != null) "breachCount": breachCount,
+        if (estopRequestCount != null) "estopRequestCount": estopRequestCount,
+      };
+}
+
+class SafetyZonesStateSdkSafetyState {
+  final String schema_version;
+  final String state;
+  final String source;
+  final String timestamp_utc;
+  const SafetyZonesStateSdkSafetyState({required this.schema_version, required this.state, required this.source, required this.timestamp_utc});
+  factory SafetyZonesStateSdkSafetyState.fromJson(Map<String, dynamic> json) => SafetyZonesStateSdkSafetyState(
+        schema_version: json["schema_version"] as String,
+        state: json["state"] as String,
+        source: json["source"] as String,
+        timestamp_utc: json["timestamp_utc"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "schema_version": schema_version,
+        "state": state,
+        "source": source,
+        "timestamp_utc": timestamp_utc,
+      };
+}
+
+class SafetyZonesStateSdkSafetyStateSignature {
+  final String alg;
+  final String key_id;
+  final int counter;
+  final String sig;
+  const SafetyZonesStateSdkSafetyStateSignature({required this.alg, required this.key_id, required this.counter, required this.sig});
+  factory SafetyZonesStateSdkSafetyStateSignature.fromJson(Map<String, dynamic> json) => SafetyZonesStateSdkSafetyStateSignature(
+        alg: json["alg"] as String,
+        key_id: json["key_id"] as String,
+        counter: (json["counter"] as num).toInt(),
+        sig: json["sig"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "alg": alg,
+        "key_id": key_id,
+        "counter": counter,
+        "sig": sig,
+      };
+}
+
+class SafetyZonesStateBreaches {
+  final String zone_id;
+  final String level;
+  final String object_id;
+  const SafetyZonesStateBreaches({required this.zone_id, required this.level, required this.object_id});
+  factory SafetyZonesStateBreaches.fromJson(Map<String, dynamic> json) => SafetyZonesStateBreaches(
+        zone_id: json["zone_id"] as String,
+        level: json["level"] as String,
+        object_id: json["object_id"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "zone_id": zone_id,
+        "level": level,
+        "object_id": object_id,
+      };
+}
+
 class ScenarioOutcome {
   final String schema_version;
   final String scenario_id;
@@ -1950,5 +2042,34 @@ class VisualTargetRequestTarget {
         "roll": roll,
         "pitch": pitch,
         "yaw": yaw,
+      };
+}
+
+class VlaApproval {
+  final Object approved;
+  final String fingerprint;
+  final String robot_id;
+  final String operator_;
+  final int approved_at_ms;
+  final int expires_at_ms;
+  final String signature;
+  const VlaApproval({required this.approved, required this.fingerprint, required this.robot_id, required this.operator_, required this.approved_at_ms, required this.expires_at_ms, required this.signature});
+  factory VlaApproval.fromJson(Map<String, dynamic> json) => VlaApproval(
+        approved: json["approved"] as Object,
+        fingerprint: json["fingerprint"] as String,
+        robot_id: json["robot_id"] as String,
+        operator_: json["operator"] as String,
+        approved_at_ms: (json["approved_at_ms"] as num).toInt(),
+        expires_at_ms: (json["expires_at_ms"] as num).toInt(),
+        signature: json["signature"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "approved": approved,
+        "fingerprint": fingerprint,
+        "robot_id": robot_id,
+        "operator": operator_,
+        "approved_at_ms": approved_at_ms,
+        "expires_at_ms": expires_at_ms,
+        "signature": signature,
       };
 }

@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The verdict of the safety zones service and the approval of a VLA trajectory are closed contracts of the SDK:** `SafetyZonesState` is what `GET /state` answers (the signed safety state and its signature, the reason, the configuration hash, at most 20 breaches without positions and the counts) and `VlaApproval` is the answer of the confirmation of a proposal (the fingerprint of exactly one trajectory, the robot, the operator, the two times and an HMAC-SHA256 signature). Both have a closed JSON Schema, a valid and an invalid fixture, a Python validator that gives the same verdict as the schema, the generated TypeScript, Kotlin and Dart types, the registrations of the Go, Rust and TypeScript clients and a sample in the mock server.
+
 ## [0.5.8] - The HTTP client of the Flutter apps is in the shared Dart package, with injected interfaces and no plugin: HydraApiCore (headers, bearer token, controller id, If-Match, the numbering of motion commands, the error answers as... (and 1 more changes)
 
 - **The HTTP client of the Flutter apps is in the shared Dart package, with injected interfaces and no plugin:** `HydraApiCore` (headers, bearer token, controller id, `If-Match`, the numbering of motion commands, the error answers as `HydraApiException`, and the endpoints every app calls) speaks through an `HttpTransport` that each app provides; `RenewingTransport` renews an expired session once and repeats the request; `CommandSequence` numbers the motion commands. `conformance/api-client/vectors.json` and `api_client_test.dart` check numbering, error reading and the renewal conversation; `docs/APP_API_CLIENT.md` describes the pieces.

@@ -56,6 +56,8 @@ CONTRACTS = {
     "ChangeProposal": "change-proposal",
     "CanaryDeployResult": "canary-deploy-result",
     "FaultEvent": "fault-event",
+    "SafetyZonesState": "safety-zones-state",
+    "VlaApproval": "vla-approval",
     "EvidenceBundle": "evidence-bundle",
 }
 

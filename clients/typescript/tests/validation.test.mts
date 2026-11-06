@@ -53,6 +53,8 @@ const CONTRACT_FIXTURE_STEM: Record<ContractName, string> = {
   ChangeProposal: "change-proposal",
   CanaryDeployResult: "canary-deploy-result",
   FaultEvent: "fault-event",
+  SafetyZonesState: "safety-zones-state",
+  VlaApproval: "vla-approval",
   EvidenceBundle: "evidence-bundle",
 };
 
@@ -60,7 +62,7 @@ function readFixture(name: string): unknown {
   return JSON.parse(fs.readFileSync(path.join(FIXTURES, name), "utf-8"));
 }
 
-test("knownContracts lists all 31 real contracts", () => {
+test("knownContracts lists all 33 real contracts", () => {
   assert.deepEqual(knownContracts(), [
     "CanaryDeployResult",
     "Capability",
@@ -85,6 +87,7 @@ test("knownContracts lists all 31 real contracts", () => {
     "RobotLiveness",
     "RobotState",
     "SafetyState",
+    "SafetyZonesState",
     "ScenarioOutcome",
     "ServerDiscovery",
     "ToolDescriptor",
@@ -93,6 +96,7 @@ test("knownContracts lists all 31 real contracts", () => {
     "UpdateManifest",
     "VelocityCommand",
     "VisualTargetRequest",
+    "VlaApproval",
   ]);
 });
 
