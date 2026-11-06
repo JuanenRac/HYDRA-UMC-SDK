@@ -10,6 +10,7 @@ on:
     paths:
       - "clients/dart_app_common/**"
       - "conformance/session-store/**"
+      - "conformance/api-client/**"
       - ".github/workflows/dart-common.yml"
   workflow_dispatch:
 

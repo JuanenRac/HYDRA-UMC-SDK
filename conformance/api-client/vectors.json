@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "about": "Behaviour every HYDRA-UMC app client must share. sequence: the number put on numbered commands (a clock that only moves when a step says so). session_answers: which answers an expired session produces. errors: how an error answer is read. renewal: a scripted conversation with a transport; each answer is [status, body]; the client sends calls in order and the renewer returns the given token (null: renewal failed).",
+  "sequence": {
+    "numbered": ["stop", "jog", "jogStart", "jogStop", "table", "reset", "joints"],
+    "steps": [
+      {"clock": 1000, "command": "jog", "seq": 1000},
+      {"clock": 1000, "command": "jog", "seq": 1001},
+      {"clock": 1000, "command": "speed", "seq": null},
+      {"clock": 1000, "command": "stop", "seq": 1002},
+      {"clock": 5000, "command": "jogStart", "seq": 5000},
+      {"clock": 4000, "command": "jogStop", "seq": 5001},
+      {"clock": 4000, "command": "play", "seq": null}
+    ]
+  },
+  "session_answers": [
+    {"status": 401, "body": "", "expired": true},
+    {"status": 403, "body": "{\"code\":\"TOKEN_EXPIRED\"}", "expired": true},
+    {"status": 403, "body": "{\"code\":\"TOKEN_INVALID\"}", "expired": true},
+    {"status": 403, "body": "{\"code\":\"admin-required\"}", "expired": false},
+    {"status": 403, "body": "not json", "expired": false},
+    {"status": 500, "body": "{\"code\":\"TOKEN_EXPIRED\"}", "expired": false},
+    {"status": 200, "body": "{}", "expired": false}
+  ],
+  "errors": [
+    {"status": 412, "body": "{\"code\":\"revision-mismatch\",\"revision\":\"r9\"}", "code": "revision-mismatch", "revision": "r9", "flags": ["isRevisionMismatch"]},
+    {"status": 409, "body": "{\"code\":\"stale-sequence\"}", "code": "stale-sequence", "flags": ["isReservedByAnother", "isStaleSequence"]},
+    {"status": 409, "body": "{\"code\":\"other-account\",\"error\":\"taken\"}", "code": "other-account", "serverMessage": "taken", "flags": ["isReservedByAnother", "isOtherAccount"]},
+    {"status": 403, "body": "{\"code\":\"jog-not-armed\"}", "code": "jog-not-armed", "flags": ["isJogNotArmed"]},
+    {"status": 403, "body": "{\"code\":\"nope\"}", "code": "nope", "flags": ["isPermissionDenied"]},
+    {"status": 401, "body": "", "code": null, "flags": ["isSessionProblem"]},
+    {"status": 423, "body": "", "code": null, "flags": ["isRobotDisabled"]},
+    {"status": 400, "body": "{\"code\":\"home-pose-mismatch\"}", "code": "home-pose-mismatch", "flags": ["isRejectedCommand", "isHomeRejected"]},
+    {"status": 429, "body": "{}", "code": null, "flags": ["isRateLimited"]},
+    {"status": 404, "body": "<html>", "code": null, "flags": ["isNotFound"]}
+  ],
+  "renewal": [
+    {
+      "name": "expired token renewed once and the call repeated",
+      "bearer": "old", "renew": "new",
+      "answers": [[403, "{\"code\":\"TOKEN_EXPIRED\"}"], [200, "{\"ok\":true}"]],
+      "sent_bearers": ["old", "new"], "renewals": 1, "final": [200, "{\"ok\":true}"]
+    },
+    {
+      "name": "a role refusal is not renewed",
+      "bearer": "old", "renew": "new",
+      "answers": [[403, "{\"code\":\"admin-required\"}"]],
+      "sent_bearers": ["old"], "renewals": 0, "final": [403, "{\"code\":\"admin-required\"}"]
+    },
+    {
+      "name": "a failed renewal returns the original answer",
+      "bearer": "old", "renew": null,
+      "answers": [[401, ""]],
+      "sent_bearers": ["old"], "renewals": 1, "final": [401, ""]
+    },
+    {
+      "name": "no bearer token, no renewal",
+      "bearer": null, "renew": "new",
+      "answers": [[401, ""]],
+      "sent_bearers": [null], "renewals": 0, "final": [401, ""]
+    },
+    {
+      "name": "the repeat is sent once even if it is refused again",
+      "bearer": "old", "renew": "new",
+      "answers": [[401, ""], [401, ""]],
+      "sent_bearers": ["old", "new"], "renewals": 1, "final": [401, ""]
+    }
+  ]
+}

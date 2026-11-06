@@ -10,9 +10,12 @@
 library;
 
 export 'src/access.dart';
+export 'src/command_sequence.dart';
 export 'src/contract_v2.dart';
 export 'src/home_reset.dart';
+export 'src/hydra_api_core.dart';
 export 'src/hydra_state.dart';
+export 'src/http_transport.dart';
 export 'src/hydra_websocket.dart';
 export 'src/pairing_link.dart';
 export 'src/play_confirmation.dart';

@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The HTTP client of the Flutter apps is in the shared Dart package, with injected interfaces and no plugin:** `HydraApiCore` (headers, bearer token, controller id, `If-Match`, the numbering of motion commands, the error answers as `HydraApiException`, and the endpoints every app calls) speaks through an `HttpTransport` that each app provides; `RenewingTransport` renews an expired session once and repeats the request; `CommandSequence` numbers the motion commands. `conformance/api-client/vectors.json` and `api_client_test.dart` check numbering, error reading and the renewal conversation; `docs/APP_API_CLIENT.md` describes the pieces.
+
 ## [0.5.7] - The stored session of the mobile apps has one schema, one set of rules and shared vectors: docs/SESSIONSTORE.md lists what is kept (access token, user name, refresh token, the sign-out marker, the installation marker), where,... (and 1 more changes)
 
 - **The stored session of the mobile apps has one schema, one set of rules and shared vectors:** `docs/SESSION_STORE.md` lists what is kept (access token, user name, refresh token, the sign-out marker, the installation marker), where, and the seven rules (secure storage only, a failed save reverts what it wrote, a renewal keeps the refresh token while a sign-in replaces it, the marker is set before the delete, no invented session, move a plain legacy copy in, do not resume the session of a previous installation). `SessionStore` in `clients/dart_app_common` implements them over two seams, `SecureTokenBackend` and `SessionPlainStore`, and `conformance/session-store/vectors.json` is a list of sequences (sign in, renew, sign out, restart, failing storage) that the Dart package and the Android app both replay.
