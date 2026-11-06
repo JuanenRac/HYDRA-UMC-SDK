@@ -17,3 +17,12 @@
 An app extends `HydraApiCore`: it adds its typed endpoints, overrides `resolveScheme()` (the choice between http and https stays in the app, with its TLS policy) and keeps its own public API. The conformance vectors in `conformance/api-client/vectors.json` (command numbering, which answers mean an expired session, how error answers are read, the renewal conversation) are replayed by the Dart package tests; a native app that talks to the same server (the Kotlin Android app) can replay them against its own client.
 
 What stays in each app on purpose: the adapters over `package:http`, `flutter_secure_storage` (with its platform options) and `shared_preferences`; the TLS policy and certificate pinning (`tls_settings`, which needs `dart:io`); the localized texts of `HydraError`; the view model; and the robot command contract of the app while the two apps differ in the functions they offer.
+
+## Decisions behind the shared types
+
+- **Transport, not plugin.** The package never imports `package:http`. An app wraps its client (with its TLS pinning) in an `HttpTransport`; tests use a scripted one. The same seam is used for preferences (`PrefsStore`) and secrets (`SecureTokenBackend`).
+- **Numbering and renewal are common behaviour.** Every app numbers the motion commands and renews an expired session once; an app that has no owner for the session leaves `tokenRenewer` null and nothing changes.
+- **Times are milliseconds.** `ConnectionClient` and `ConnectionEvent` keep UTC milliseconds (cheap to compare, no time zone); `firstSeen`, `lastSeen` and `at` give the `DateTime`, and `ConnectionHistory.agoDates` is the date form of `ago`.
+- **Server options keep both call styles.** `ServerSecurity.parse/patch/lowerings` (static) and `ServerSecurityOptions.parse/patch/lowerings` (static and instance) do the same thing; the source of a default value is `OptionSource.defaultValue`.
+- **The error type has no text.** `HydraErrorKind` holds the kinds of both apps; an app gives the kinds it never builds a neutral text.
+- **Not shared yet:** the robot command contract of the Flutter apps (the DSI one is a subset of the iOS one until the panel offers the same functions), the view models, and `tls_settings` (it needs `dart:io`).
