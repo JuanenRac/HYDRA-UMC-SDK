@@ -9,6 +9,7 @@ on:
   push:
     paths:
       - "clients/dart_app_common/**"
+      - "conformance/session-store/**"
       - ".github/workflows/dart-common.yml"
   workflow_dispatch:
 

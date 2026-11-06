@@ -17,5 +17,6 @@ export 'src/hydra_websocket.dart';
 export 'src/pairing_link.dart';
 export 'src/play_confirmation.dart';
 export 'src/server_info.dart';
+export 'src/session_store.dart';
 export 'src/sha256.dart';
 export 'src/stop_all_result.dart';

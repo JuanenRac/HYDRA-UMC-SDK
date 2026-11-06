@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "about": "Sequences every implementation of the stored session must pass. Operations: login (a real sign-in: an absent refresh token erases the stored one), renew (keeps the stored refresh token when none is given), logout, restart (a new store over the same storage, as after closing the app), faults (what the secure storage refuses from now on), expect (what a read returns; null means nothing). 'requires' lists capabilities a platform may lack: 'secure_faults' = the secure storage can fail, 'username_after_logout_cleared' = logout also forgets the user name.",
+  "vectors": [
+    {
+      "name": "login stores the three values",
+      "steps": [
+        {"op": "login", "token": "t1", "username": "ana", "refresh": "r1"},
+        {"op": "expect", "token": "t1", "username": "ana", "refresh": "r1"},
+        {"op": "restart"},
+        {"op": "expect", "token": "t1", "username": "ana", "refresh": "r1"}
+      ]
+    },
+    {
+      "name": "a login without a refresh token erases the previous one",
+      "steps": [
+        {"op": "login", "token": "t1", "username": "ana", "refresh": "r1"},
+        {"op": "login", "token": "t2", "username": "bob"},
+        {"op": "expect", "token": "t2", "username": "bob", "refresh": null},
+        {"op": "restart"},
+        {"op": "expect", "token": "t2", "username": "bob", "refresh": null}
+      ]
+    },
+    {
+      "name": "a renewal without a refresh token keeps the stored one",
+      "steps": [
+        {"op": "login", "token": "t1", "username": "ana", "refresh": "r1"},
+        {"op": "renew", "token": "t2", "username": "ana"},
+        {"op": "expect", "token": "t2", "username": "ana", "refresh": "r1"},
+        {"op": "restart"},
+        {"op": "expect", "token": "t2", "username": "ana", "refresh": "r1"}
+      ]
+    },
+    {
+      "name": "a renewal with a refresh token replaces it",
+      "steps": [
+        {"op": "login", "token": "t1", "username": "ana", "refresh": "r1"},
+        {"op": "renew", "token": "t2", "username": "ana", "refresh": "r2"},
+        {"op": "restart"},
+        {"op": "expect", "token": "t2", "username": "ana", "refresh": "r2"}
+      ]
+    },
+    {
+      "name": "logout forgets the token and the refresh token, also after a restart",
+      "steps": [
+        {"op": "login", "token": "t1", "username": "ana", "refresh": "r1"},
+        {"op": "logout"},
+        {"op": "expect", "token": null, "refresh": null},
+        {"op": "restart"},
+        {"op": "expect", "token": null, "refresh": null}
+      ]
+    },
+    {
+      "name": "logout forgets the user name",
+      "requires": ["username_after_logout_cleared"],
+      "steps": [
+        {"op": "login", "token": "t1", "username": "ana", "refresh": "r1"},
+        {"op": "logout"},
+        {"op": "expect", "username": null}
+      ]
+    },
+    {
+      "name": "a login after a logout works",
+      "steps": [
+        {"op": "login", "token": "t1", "username": "ana", "refresh": "r1"},
+        {"op": "logout"},
+        {"op": "login", "token": "t3", "username": "carl", "refresh": "r3"},
+        {"op": "restart"},
+        {"op": "expect", "token": "t3", "username": "carl", "refresh": "r3"}
+      ]
+    },
+    {
+      "name": "a secure delete that fails can not bring the ended session back",
+      "requires": ["secure_faults"],
+      "steps": [
+        {"op": "login", "token": "t1", "username": "ana", "refresh": "r1"},
+        {"op": "faults", "delete": true},
+        {"op": "logout"},
+        {"op": "faults"},
+        {"op": "expect", "token": null, "refresh": null},
+        {"op": "restart"},
+        {"op": "expect", "token": null, "refresh": null}
+      ]
+    },
+    {
+      "name": "unavailable secure storage keeps the session in memory only",
+      "requires": ["secure_faults"],
+      "steps": [
+        {"op": "faults", "unavailable": true},
+        {"op": "login", "token": "t1", "username": "ana", "refresh": "r1"},
+        {"op": "expect", "token": "t1", "username": "ana", "refresh": "r1"},
+        {"op": "faults"},
+        {"op": "restart"},
+        {"op": "expect", "token": null, "refresh": null}
+      ]
+    },
+    {
+      "name": "a save that fails half way leaves nothing stored",
+      "requires": ["secure_faults"],
+      "steps": [
+        {"op": "faults", "write_fails": ["username"]},
+        {"op": "login", "token": "t1", "username": "ana", "refresh": "r1"},
+        {"op": "faults"},
+        {"op": "expect", "token": "t1"},
+        {"op": "restart"},
+        {"op": "expect", "token": null, "username": null, "refresh": null}
+      ]
+    }
+  ]
+}
