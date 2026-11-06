@@ -23,12 +23,13 @@ It keeps state, so a test can tell a story and not only replay one answer:
     server declares; a route the inventory does not know is a 404.
 
 Standard library only. Run it with `python hydra_fake_server.py --port 3000` (user `admin`, password `admin`; change them with
-`--user` / `--password`); nothing here ever moves hardware and nothing reads a secret.
+`--user` / `--password`; `--port 0` takes a free port and says which; `HYDRA_FAKE_ANSWERS` names another copy of the answers file); nothing here ever moves hardware and nothing reads a secret.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import secrets
 import threading
@@ -266,7 +267,9 @@ class FakeHydra:
 
 
 def load_answers() -> dict[str, Any]:
-    return json.loads(ANSWERS.read_text(encoding="utf-8"))["routes"]
+    # An app that carries a copy of the answers next to its tests points here instead of at the SDK tree.
+    source = Path(os.environ["HYDRA_FAKE_ANSWERS"]) if os.environ.get("HYDRA_FAKE_ANSWERS") else ANSWERS
+    return json.loads(source.read_text(encoding="utf-8"))["routes"]
 
 
 def _template_regex(path: str) -> re.Pattern[str]:
@@ -409,7 +412,7 @@ def main() -> int:
     parser.add_argument("--robots", type=int, default=2)
     args = parser.parse_args()
     server, thread = start(FakeHydra(args.user, args.password, args.robots), args.port, args.host)
-    print(f"fake HYDRA-UMC server on http://{args.host}:{server.server_address[1]} (user {args.user})")
+    print(f"fake HYDRA-UMC server on http://{args.host}:{server.server_address[1]} (user {args.user})", flush=True)  # flushed: a test that starts this as a process reads the port from this line
     try:
         thread.join()
     except KeyboardInterrupt:

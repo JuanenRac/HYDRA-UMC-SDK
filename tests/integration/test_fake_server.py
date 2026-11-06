@@ -150,3 +150,23 @@ def test_the_feeds_of_the_sibling_services(server):
     assert call(base, "POST", "/api/trajectory/proposals/verify", body, token)[1]["valid"] is True
     body["expected_robot_id"] = "2"
     assert call(base, "POST", "/api/trajectory/proposals/verify", body, token)[1]["reason"] == "wrong-robot"
+
+
+def test_it_runs_as_a_process_for_an_app_with_its_own_copy_of_the_answers(tmp_path):
+    """An app test starts it with `--port 0` and a copy of the answers; the first line says where it listens."""
+    import os
+    import subprocess
+
+    answers = tmp_path / "server-answers.json"
+    answers.write_bytes(fake.ANSWERS.read_bytes())
+    env = dict(os.environ, HYDRA_FAKE_ANSWERS=str(answers))
+    process = subprocess.Popen([sys.executable, fake.__file__, "--port", "0"], stdout=subprocess.PIPE, text=True, env=env)
+    try:
+        line = process.stdout.readline()
+        port = int(line.split("http://127.0.0.1:")[1].split()[0])
+        status, body = call(f"http://127.0.0.1:{port}", "POST", "/api/login", {"username": "admin", "password": "admin"})
+        assert status == 200 and body["token"]
+    finally:
+        process.kill()
+        process.wait()
+        process.stdout.close()
