@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.5.4] - The shared Kotlin module also carries the text helper and the release gate: JsonText (optStr, a JSON null is the fallback and not the word "null") and ReleaseMetadataParser (stable tag, newer than the installed version, the... (and 1 more changes)
+
 - **The shared Kotlin module also carries the text helper and the release gate:** `JsonText` (`optStr`, a JSON null is the fallback and not the word "null") and `ReleaseMetadataParser` (stable tag, newer than the installed version, the exact HTTPS asset, the SHA-256 digest) with the result types of the update check. The gate works on an already-read release (`ReleaseInfo`), so an app that reads the feed with another JSON library gets the same verdict; the app that reads it with `org.json` calls `parseLatestStable`. Both Android apps compile a pinned copy.
 
 - **The stand-in server can run as a process for an app test:** `--port 0` takes a free port and the first line says which (flushed), and `HYDRA_FAKE_ANSWERS` names the copy of the answers an app carries next to its tests. A test of the repository starts it that way.
