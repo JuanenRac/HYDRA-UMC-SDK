@@ -1,0 +1,44 @@
+{
+  "tag": "ai",
+  "operations": [
+    {
+      "path": "/api/rul/config",
+      "method": "get",
+      "operation": {
+        "tags": [
+          "ai"
+        ],
+        "operationId": "getRulConfig",
+        "summary": "Whether the remaining-useful-life relay is open, and its limits (any signed-in account)",
+        "description": "Read only. It tells a client whether the relay of the estimate (`POST /api/ai/anomaly-detector/rul`) is open to operators (`rul.enabled`, off by default) and how large a request it accepts, so the card of the AI dashboard shows itself only when the server has the option on. It answers exactly the three fields of `RulConfig`, with `Cache-Control: no-store`. It is fail-closed: a configuration that is missing or cannot be read gives `enabled` false with the default limits (5000 points, 8000 ms) instead of an error. A server that predates the route answers `404`, which a client reads as closed.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The switch and the limits of the relay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RulConfig"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "tag": "discovery",
+  "operations": [
+    {
+      "path": "/api/hydra-info",
+      "method": "get",
+      "operation": {
+        "tags": [
+          "discovery"
+        ],
+        "operationId": "getHydraInfo",
+        "summary": "Real server identity and discovery metadata",
+        "description": "Unauthenticated by default. Real, per-client remote-access gating (Config > Remote Access) can make this respond 404 for a given X-Hydra-Client caller instead of exposing whether a server exists at all at that address.",
+        "parameters": [
+          {
+            "name": "X-Hydra-Client",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifies which real client is asking (e.g. suite, android, ios), so the per-client remote-access gate in Config can allow/deny it independently of the others."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Real server identity, mirroring the published ServerDiscovery contract (contracts/json-schema/v1/server-discovery.schema.json).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerDiscovery"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Remote access is disabled for this X-Hydra-Client caller - deliberately indistinguishable from 'no server running here' to a scanning client. Empty body."
+          }
+        }
+      }
+    }
+  ]
+}

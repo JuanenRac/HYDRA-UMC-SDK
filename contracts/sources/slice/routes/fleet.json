@@ -1,0 +1,319 @@
+{
+  "tag": "fleet",
+  "operations": [
+    {
+      "path": "/api/settings",
+      "method": "get",
+      "operation": {
+        "tags": [
+          "fleet"
+        ],
+        "operationId": "getSettings",
+        "summary": "Read the real, current full settings document, including the controller/robot roster",
+        "description": "Any signed-in account may read it (an administrator also sees the camera credentials). The `settings` object is intentionally not modeled field by field: the server treats it as an opaque, forward-compatible blob - only the `controllers` roster that typed clients consume is modeled below. The response carries an `ETag`; send it back as `If-Match` when saving.",
+        "responses": {
+          "200": {
+            "description": "The real, current settings document.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsDocument"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "The revision of the document.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The settings file on disk could not be read.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/settings",
+      "method": "post",
+      "operation": {
+        "tags": [
+          "fleet"
+        ],
+        "operationId": "replaceSettings",
+        "summary": "Replace the real settings document (admin only)",
+        "description": "Real, admin-only write. Persists the payload verbatim (queued, debounced disk write) and broadcasts it to every other connected client - and, on a real HYDRA-UMC-SERVER build with the camera process supervisor, reconciles each camera's own capture process against its new configuration.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettingsDocument"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Real, successful write.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsWriteResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "A valid, non-admin JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The document changed since the revision in If-Match.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsConflict"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The write itself failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ETag received with the document being replaced. When it no longer matches, the write is refused with 409 instead of overwriting another client's change."
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/robot/{id}",
+      "method": "get",
+      "operation": {
+        "tags": [
+          "fleet"
+        ],
+        "operationId": "getRobot",
+        "summary": "One robot with its revision",
+        "description": "Send the revision back as `If-Match` on `command`, `claim` or `release` to be refused when the robot changed in between.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "A robot own numeric id."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The robot, its revision and the header `ETag`.",
+            "headers": {
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "The revision, quoted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RobotView"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No robot with this id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/robots/liveness",
+      "method": "get",
+      "operation": {
+        "tags": [
+          "fleet"
+        ],
+        "operationId": "getRobotsLiveness",
+        "summary": "The signal of life of each robot of the roster",
+        "description": "`live` when the server had news of the robot (a command it carried out, a change of its state or a heartbeat) within `stale_after_s`, `stale` when the last news is older and `unknown` when there has been none since the server started. It is not the `online` flag of the settings and not a measurement of the hardware.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The liveness of every robot.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RobotLiveness"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/robot/{id}/heartbeat",
+      "method": "post",
+      "operation": {
+        "tags": [
+          "fleet"
+        ],
+        "operationId": "postRobotHeartbeat",
+        "summary": "Tell the server that a robot is alive (administrators and operators)",
+        "description": "For a bridge or controller account that has real news of a robot. No body.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "A robot own numeric id."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The heartbeat was recorded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No robot with this id in the roster.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

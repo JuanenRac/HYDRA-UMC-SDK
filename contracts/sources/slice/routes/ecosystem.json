@@ -1,0 +1,67 @@
+{
+  "tag": "ecosystem",
+  "operations": [
+    {
+      "path": "/api/ecosystem/health",
+      "method": "get",
+      "operation": {
+        "tags": [
+          "ecosystem"
+        ],
+        "operationId": "getEcosystemHealth",
+        "summary": "The health of the services of the ecosystem (operators and administrators)",
+        "description": "Read only. It answers only once an administrator turned on `ecosystemHealth.enabled`; while it is off a signed-in client gets a plain `404` with no body, exactly as a server without the route would answer. A viewer gets `403`. The port, health path, unit and active state of each service are only in the answer to an administrator.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The health of the ecosystem.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EcosystemHealth"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Signed in as a viewer: only an operator or an administrator may read the health.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The option `ecosystemHealth.enabled` is off (the default): a plain `404` with no body, as if the route did not exist."
+          },
+          "503": {
+            "description": "The health could not be read.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

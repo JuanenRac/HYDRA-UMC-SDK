@@ -1,0 +1,201 @@
+{
+  "tag": "command",
+  "operations": [
+    {
+      "path": "/api/robot/{id}/command",
+      "method": "post",
+      "operation": {
+        "tags": [
+          "command"
+        ],
+        "operationId": "sendRobotCommand",
+        "summary": "Dispatch one real, atomic, broadcast command to a robot (and its combined sibling, where the command type fans out)",
+        "description": "Real command plane: mutates in-memory state, queues a debounced full-settings write, and broadcasts a small per-robot delta to every other connected client via the same request/response cycle - there is no separate polling step. See this document's own top-level description for the real (not the aspirational ACCEPTED/REJECTED/... ) response shape. A command that is recognised but whose parameters were discarded still answers 200 and lists the discarded field in `warnings`. The optional controller id (`X-Controller-Id` header or `controllerId` in the body) names the client that sends it; while `jog.armRequired` is on a `jog` needs the robot to be armed first.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "A real robot's own numeric id (distinct from a controller's own, sometimes string, id - see HYDRA-UMC-TOOL-CLI's own robots.go for that real, confirmed API inconsistency)."
+          },
+          {
+            "$ref": "#/components/parameters/ControllerIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/IfMatchHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/CommandStop"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandPlay"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandPause"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandJog"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandReset"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandJogStep"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandReset3D"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandTool"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandValve"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandPump"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandSpeed"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandTrajectory"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandVision"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandTable"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandDisable"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CommandEnable"
+                  }
+                ],
+                "discriminator": {
+                  "propertyName": "command",
+                  "mapping": {
+                    "stop": "#/components/schemas/CommandStop",
+                    "play": "#/components/schemas/CommandPlay",
+                    "pause": "#/components/schemas/CommandPause",
+                    "jog": "#/components/schemas/CommandJog",
+                    "reset": "#/components/schemas/CommandReset",
+                    "jogStep": "#/components/schemas/CommandJogStep",
+                    "reset3D": "#/components/schemas/CommandReset3D",
+                    "tool": "#/components/schemas/CommandTool",
+                    "valve": "#/components/schemas/CommandValve",
+                    "pump": "#/components/schemas/CommandPump",
+                    "speed": "#/components/schemas/CommandSpeed",
+                    "trajectory": "#/components/schemas/CommandTrajectory",
+                    "vision": "#/components/schemas/CommandVision",
+                    "table": "#/components/schemas/CommandTable",
+                    "disable": "#/components/schemas/CommandDisable",
+                    "enable": "#/components/schemas/CommandEnable"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Real, applied mutation - see this document's own top-level description for why this is not the ACCEPTED/REJECTED/... envelope docs/API_DESIGN.md describes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RobotCommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The command is unknown, or its parameters are invalid (a trajectory outside 1-10000 points, for example). A refused `table` move is `400` with `table-invalid`, `table-out-of-limit` or `table-missing`, and nothing changed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No robot with this id exists in the current settings document.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A robot this command would move is claimed by another account (`other-account`), by another controller of your account (`other-controller`) or by a controller you did not name (`controller-id-required`). `stop` is never blocked.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservationConflict"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The jog is not armed for this robot (`jog-not-armed`); arm it with `POST /api/robot/{id}/jog-arm`. Or `enable` is refused: `enable-not-allowed` (the server option is off, the default) or `admin-required`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "`If-Match` did not agree with the robot (`revision-mismatch`): read it again with `GET /api/robot/{id}` and retry.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionConflict"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "The robot is disabled (`robot-disabled`): only `stop`, `disable` and `enable` work on it until it is enabled again.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

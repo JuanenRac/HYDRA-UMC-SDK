@@ -18,6 +18,7 @@ The checks are the ones that already exist, called in one place so that a person
 * `contract_source --check`: the generated OpenAPI documents, the vendored
   schemas and the server and the clients against the sources;
 * `generate_types --check`: the TypeScript, Kotlin and Dart types.
+* `generate_routes --check`: the route tables for JSON, TypeScript, Kotlin and Dart.
 
 Exit status 1 when any check fails; read-only except for `--write-tables`.
 """
@@ -46,7 +47,7 @@ def lint(workspace: Path) -> list[tuple[str, bool, str]]:
     report = contract_check.check_workspace(workspace)
     summary = report["summary"]
     outcomes = [("contract_check", summary["problems"] == 0, f"{summary['repositories']} repositories, {summary['problems']} problems")]
-    for label, script, arguments in (("contract_source", "contract_source.py", ("--check",)), ("generate_types", "generate_types.py", ("--check",))):
+    for label, script, arguments in (("contract_source", "contract_source.py", ("--check",)), ("generate_types", "generate_types.py", ("--check",)), ("generate_routes", "generate_routes.py", ("--check",))):
         ok, last = run_tool(script, *arguments)
         outcomes.append((label, ok, last))
     return outcomes

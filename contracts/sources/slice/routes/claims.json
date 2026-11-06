@@ -1,0 +1,255 @@
+{
+  "tag": "claims",
+  "operations": [
+    {
+      "path": "/api/robot/{id}/claim",
+      "method": "post",
+      "operation": {
+        "tags": [
+          "claims"
+        ],
+        "operationId": "claimRobot",
+        "summary": "Take exclusive, time-limited control of a robot",
+        "description": "Re-claiming your own claim renews it. With a controller id the claim belongs to that controller of the account.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "A robot own numeric id."
+          },
+          {
+            "$ref": "#/components/parameters/ControllerIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/IfMatchHeader"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The claim is yours.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid-controller-id`, or `controller-id-required` when the server demands one to claim.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No robot with this id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Claimed by another account (`other-account`) or by another controller of your account (`other-controller`).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservationConflict"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "`If-Match` did not agree with the robot (`revision-mismatch`): read it again with `GET /api/robot/{id}` and retry.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionConflict"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/robot/{id}/release",
+      "method": "post",
+      "operation": {
+        "tags": [
+          "claims"
+        ],
+        "operationId": "releaseRobot",
+        "summary": "Give up the claim on a robot",
+        "description": "Idempotent: releasing a robot nobody claims succeeds. Only the holder (same account and, when the claim has one, same controller) or an administrator may release.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "A robot own numeric id."
+          },
+          {
+            "$ref": "#/components/parameters/ControllerIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/IfMatchHeader"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReleaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The robot is not claimed any more.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid-controller-id`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No robot with this id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Held by another account, by another controller or by a controller that must be named (`other-account`, `other-controller`, `controller-id-required`).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservationConflict"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "`If-Match` did not agree with the robot (`revision-mismatch`): read it again with `GET /api/robot/{id}` and retry.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionConflict"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/claims",
+      "method": "get",
+      "operation": {
+        "tags": [
+          "claims"
+        ],
+        "operationId": "listClaims",
+        "summary": "Who controls which robot",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Every active claim.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

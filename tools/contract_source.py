@@ -60,6 +60,8 @@ ROOT = Path(__file__).resolve().parent.parent
 SOURCES = ROOT / "contracts" / "sources"
 SHAPES_FILE = SOURCES / "server.shapes.json"
 UNION_OUTPUT = ROOT / "contracts" / "openapi" / "v1" / "server.full.openapi.json"
+SLICE_DIR = SOURCES / "slice"
+SLICE_OUTPUT = ROOT / "contracts" / "openapi" / "v1" / "server.openapi.json"
 SCHEMAS = ROOT / "contracts" / "json-schema" / "v1"
 OPENAPI_ROOT = ROOT / "contracts"
 HTTP_METHODS = ("get", "put", "post", "delete", "patch")
@@ -266,6 +268,63 @@ def output_path(source: dict[str, Any]) -> Path:
     return OPENAPI_ROOT / source["output"]
 
 
+def load_slice(directory: Path = SLICE_DIR) -> dict[str, Any]:
+    """The typed slice source: the document header, the closed schemas and one file of operations per tag."""
+    head = _read(directory / "document.json")
+    for key in ("path_order", "document"):
+        if key not in head:
+            raise SourceError(f"{directory / 'document.json'}: no {key!r}")
+    groups = {path.stem: _read(path) for path in sorted((directory / "routes").glob("*.json"))}
+    return {"head": head, "schemas": _read(directory / "schemas.json"), "groups": groups}
+
+
+def slice_operations(slice_source: dict[str, Any]) -> dict[tuple[str, str], dict[str, Any]]:
+    found: dict[tuple[str, str], dict[str, Any]] = {}
+    for tag, group in slice_source["groups"].items():
+        for entry in group["operations"]:
+            key = (entry["method"], entry["path"])
+            if key in found:
+                raise SourceError(f"{entry['method'].upper()} {entry['path']} is declared twice in the typed slice")
+            if entry["operation"].get("tags", [tag])[0] != tag:
+                raise SourceError(f"{entry['method'].upper()} {entry['path']} is in the file of {tag!r} but tagged otherwise")
+            found[key] = entry["operation"]
+    return found
+
+
+def build_slice(slice_source: dict[str, Any]) -> dict[str, Any]:
+    """The typed slice document, in the order the source declares."""
+    operations = slice_operations(slice_source)
+    order = [tuple(entry.split(" ", 1)) for entry in slice_source["head"]["path_order"]]
+    if sorted(order) != sorted(operations):
+        raise SourceError("path_order of the typed slice and its operations do not list the same routes")
+    paths: dict[str, Any] = {}
+    for method, path in order:
+        paths.setdefault(path, {})[method] = operations[(method, path)]
+    document = json.loads(json.dumps(slice_source["head"]["document"]))
+    document["paths"] = paths
+    document["components"]["schemas"] = slice_source["schemas"]
+    return document
+
+
+def check_slice(slice_source: dict[str, Any], sources: dict[str, dict[str, Any]]) -> list[str]:
+    """The typed slice document is exactly what its source produces, and every route of it is in the full inventory with the same access."""
+    problems: list[str] = []
+    try:
+        current = SLICE_OUTPUT.read_text(encoding="utf-8").replace("\r\n", "\n")
+    except OSError:
+        return [f"{SLICE_OUTPUT.name} is missing - run: python tools/contract_source.py"]
+    if current != render(build_slice(slice_source)):
+        problems.append(f"{SLICE_OUTPUT.name} is out of date with its source - run: python tools/contract_source.py")
+    inventory = {(route["method"], route["path"]): route for source in sources.values() for route in source["routes"]}
+    for (method, path), operation in slice_operations(slice_source).items():
+        route = inventory.get((method, path))
+        if route is None:
+            problems.append(f"typed slice: {method.upper()} {path} is not in the full inventory")
+        elif "x-access" in operation and operation["x-access"] != route["access"]:
+            problems.append(f"typed slice: {method.upper()} {path} has access {operation['x-access']!r}, the inventory says {route['access']!r}")
+    return problems
+
+
 # ---------------------------------------------------------------- checks
 
 def check_union(sources: dict[str, dict[str, Any]], shapes: dict[str, Any]) -> list[str]:
@@ -464,6 +523,7 @@ def run_check(workspace: Path, server: str | None, consumers: list[str]) -> int:
     problems += duplicate_routes(sources)
     shapes = load_shapes()
     problems += check_union(sources, shapes)
+    problems += check_slice(load_slice(), sources)
     server_root = _find(workspace, "HYDRA-UMC-SERVER", server, "HYDRA_UMC_SERVER_DIR")
     consumer_roots = [Path(c).resolve() for c in consumers] or [workspace / n for n in CONSUMER_REPOSITORIES if (workspace / n).is_dir()]
     for name, source in sources.items():
@@ -519,6 +579,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"wrote {path.relative_to(ROOT).as_posix()} ({name})")
         UNION_OUTPUT.write_text(render(build_union(sources, load_shapes())), encoding="utf-8", newline="\n")
         print(f"wrote {UNION_OUTPUT.relative_to(ROOT).as_posix()} (the union of {len(sources)} sources)")
+        SLICE_OUTPUT.write_text(render(build_slice(load_slice())), encoding="utf-8", newline="\n")
+        print(f"wrote {SLICE_OUTPUT.relative_to(ROOT).as_posix()} (the typed slice)")
         return 0
     except SourceError as error:
         print(f"CONTRACT_SOURCE=FAIL {error}", file=sys.stderr)
