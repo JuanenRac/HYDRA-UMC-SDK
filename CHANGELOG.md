@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.5.6] - The typed slice server.openapi.json is generated from a source of the SDK: contracts/sources/slice holds the header of the document, the closed schemas and one file of operations per tag, and python tools/contractsource.py... (and 1 more changes)
+
 - **The typed slice `server.openapi.json` is generated from a source of the SDK:** `contracts/sources/slice` holds the header of the document, the closed schemas and one file of operations per tag, and `python tools/contract_source.py` writes the document byte-for-byte as it was when it was written by hand. `--check` fails when the document is out of date, when a route of it is not in the full inventory or when the access differs; the tests inject each drift.
 
 - **Route tables for the clients are generated from the contract:** `python tools/generate_routes.py` writes `generated/hydra-routes.json`, `hydra-routes.ts`, `HydraRoutes.kt` and `hydra_routes.dart` (method, path, access, group, query parameters and status codes of the 111 routes), checked in the build and in CI, so a client tests the routes it calls against a table and not against a list of its own.
