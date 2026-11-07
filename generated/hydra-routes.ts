@@ -116,6 +116,7 @@ export const HYDRA_ROUTES: readonly HydraRoute[] = [
   { method: "PUT", path: "/api/telemetry/downsample-plan", access: "admin", group: "telemetry", query: ["preview"], statuses: ["200"] },
   { method: "GET", path: "/api/telemetry/query", access: "user", group: "telemetry", query: [], statuses: ["200"] },
   { method: "GET", path: "/api/tool-arms", access: "user", group: "tool-arms", query: [], statuses: ["200", "400", "404", "502", "503"] },
+  { method: "POST", path: "/api/tool-arms/reset", access: "admin", group: "tool-arms", query: [], statuses: ["200", "400", "404", "409", "502", "503"] },
   { method: "POST", path: "/api/totp/begin", access: "user", group: "totp", query: [], statuses: ["200", "401", "409"] },
   { method: "POST", path: "/api/totp/confirm", access: "user", group: "totp", query: [], statuses: ["200", "400"] },
   { method: "POST", path: "/api/totp/disable", access: "user", group: "totp", query: [], statuses: ["200", "401", "429"] },

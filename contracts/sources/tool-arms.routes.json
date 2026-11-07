@@ -31,6 +31,65 @@
           "shape": "Error"
         }
       }
+    },
+    {
+      "method": "post",
+      "path": "/api/tool-arms/reset",
+      "summary": "POST /api/tool-arms/reset",
+      "description": "Requires a signed-in account with the admin role. Puts back the arm state of one URTC tool changer: the reset is forwarded to the URTC tool changer service, moves nothing mechanical and is accepted only while the robot is stopped and disarmed. The route exists only while its switch (atc.resetEnabled) is on; otherwise it answers 404. The request names the robot and the tool and types the robot id again as the confirmation.",
+      "access": "admin",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "robot",
+                "toolId",
+                "confirm"
+              ],
+              "properties": {
+                "robot": {
+                  "type": "string"
+                },
+                "toolId": {
+                  "type": "integer"
+                },
+                "confirm": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "The arm state was put back. The body is documented in docs/REMOTE_API.md.",
+          "shape": "ToolArmResetResult"
+        },
+        "400": {
+          "description": "Invalid request, or the confirmation does not repeat the robot id. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found: the switch of the reset is off. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "409": {
+          "description": "The robot is armed, moving, or its state could not be read, so nothing was reset. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "502": {
+          "description": "The tool changer service rejected the request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "The tool changer service is not configured or not reachable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
     }
   ]
 }

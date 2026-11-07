@@ -2472,6 +2472,60 @@
         }
       }
     },
+    "POST /api/tool-arms/reset": {
+      "200": {
+        "minimal": {
+          "success": false,
+          "robot": "sample",
+          "toolId": 0
+        },
+        "full": {
+          "success": false,
+          "robot": "sample",
+          "toolId": 0
+        }
+      },
+      "400": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      },
+      "404": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      },
+      "409": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      },
+      "502": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      },
+      "503": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      }
+    },
     "POST /api/totp/begin": {
       "200": {
         "minimal": {

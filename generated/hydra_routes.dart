@@ -115,6 +115,7 @@ const List<HydraRoute> hydraRoutes = <HydraRoute>[
   HydraRoute('PUT', '/api/telemetry/downsample-plan', 'admin', 'telemetry', <String>['preview'], <String>['200']),
   HydraRoute('GET', '/api/telemetry/query', 'user', 'telemetry', <String>[], <String>['200']),
   HydraRoute('GET', '/api/tool-arms', 'user', 'tool-arms', <String>[], <String>['200', '400', '404', '502', '503']),
+  HydraRoute('POST', '/api/tool-arms/reset', 'admin', 'tool-arms', <String>[], <String>['200', '400', '404', '409', '502', '503']),
   HydraRoute('POST', '/api/totp/begin', 'user', 'totp', <String>[], <String>['200', '401', '409']),
   HydraRoute('POST', '/api/totp/confirm', 'user', 'totp', <String>[], <String>['200', '400']),
   HydraRoute('POST', '/api/totp/disable', 'user', 'totp', <String>[], <String>['200', '401', '429']),

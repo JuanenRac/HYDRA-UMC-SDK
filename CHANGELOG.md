@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The reset of the arm state of one URTC tool changer is in the contract:** `POST /api/tool-arms/reset` (admin role) takes the robot, the tool and the robot id typed again as the confirmation, and answers with the robot and the tool that were reset. The reset puts back the arm state the tool changer reports and moves nothing mechanical; it is accepted only while the robot is stopped and disarmed (409 otherwise), it answers 404 while its switch is off, 502 when the tool changer service rejects it and 503 when that service is not configured or not reachable.
+
 - **The read route of the arm state of the URTC tools is in the contract:** `GET /api/tool-arms` (any signed-in account) carries the answer of `GET /tool-arms` of the safety zones service to the panels of the screen, with the shape `ToolArmsReport`; the route answers 503 until the server is told the address of that service, and the TypeScript, Kotlin and Dart route tables and the OpenAPI document are regenerated.
 
 - **A pull request that changes the contract or a client runs the container bench:** `integration.yml` calls the reusable workflow of HYDRA-UMC-DEV-SERVER (pinned by commit hash) that starts the swarm cell as real containers and runs its scenarios; it also runs by hand and never on a push to main.
