@@ -115,6 +115,63 @@
       ]
     },
     {
+      "method": "POST",
+      "path": "/api/admin/maintenance/install",
+      "access": "admin",
+      "group": "maintenance",
+      "query": [],
+      "statuses": [
+        "200",
+        "400",
+        "404",
+        "409",
+        "502"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/maintenance/prune",
+      "access": "admin",
+      "group": "maintenance",
+      "query": [],
+      "statuses": [
+        "200",
+        "400",
+        "404",
+        "409",
+        "502"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/maintenance/rollback",
+      "access": "admin",
+      "group": "maintenance",
+      "query": [],
+      "statuses": [
+        "200",
+        "400",
+        "404",
+        "409",
+        "502"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/maintenance/status",
+      "access": "admin",
+      "group": "maintenance",
+      "query": [
+        "component"
+      ],
+      "statuses": [
+        "200",
+        "400",
+        "404",
+        "502"
+      ]
+    },
+    {
       "method": "GET",
       "path": "/api/admin/push",
       "access": "admin",

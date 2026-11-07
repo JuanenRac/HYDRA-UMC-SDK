@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/tool-arms.schema.json",
+  "title": "ToolArms",
+  "description": "The arm state of the URTC tools as the safety zones service lists it (GET /tool-arms): the last report of each pair of robot and tool, how old it is, and whether it is stale. A tool is armed when its power stage may act. The service only records what the driving service reports; it never arms, disarms or stops anything. A report older than ttlSeconds is stale and is not counted in armedCount: a consumer shows a stale armed tool as a warning and never as safe, and a stale disarmed tool as unknown. The schema is closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "ttlSeconds",
+    "arms",
+    "armedCount",
+    "staleCount"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "ttlSeconds": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "arms": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "robot",
+          "toolId",
+          "armed",
+          "by",
+          "seq",
+          "ageSeconds",
+          "stale"
+        ],
+        "properties": {
+          "robot": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:\\-]{0,63}$"
+          },
+          "toolId": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 24
+          },
+          "armed": {
+            "type": "boolean"
+          },
+          "by": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "seq": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "ageSeconds": {
+            "type": "number",
+            "minimum": 0
+          },
+          "stale": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "armedCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "staleCount": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

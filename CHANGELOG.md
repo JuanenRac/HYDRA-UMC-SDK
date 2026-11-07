@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The arm state of the URTC tools and the maintenance routes of the server are in the contract:** `ToolArms` is the closed schema of the answer of `GET /tool-arms` of the safety zones service (the last report of each robot and tool, with its age and whether it is stale), and `/api/admin/maintenance/status`, `/install`, `/rollback` and `/prune` are declared with the shape `MaintenanceOutcome`.
+
 ## [0.5.9] - The routes of the device tokens, of the newest published versions and the addresses of the discovery answer are in the contract: POST / GET /api/admin/device-tokens, DELETE /api/admin/device-tokens/{id} and POST... (and 1 more changes)
 
 - **The routes of the device tokens, of the newest published versions and the addresses of the discovery answer are in the contract:** `POST` / `GET /api/admin/device-tokens`, `DELETE /api/admin/device-tokens/{id}` and `POST /api/device/login` (a token issued for one device, exchanged for a short sign-in), `GET /api/admin/updates` (the installed version of each program against its newest release) and the optional `addresses` of `GET /api/hydra-info`, each with its shapes (`DeviceTokenIssued`, `DeviceTokenView`, `DeviceTokenList`, `DeviceTokenRevoked`, `UpdateReport`, `UpdateItem`) and the generated route tables.

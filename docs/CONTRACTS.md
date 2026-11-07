@@ -51,6 +51,7 @@ according to its use case.
 | `FaultEvent` | Every service that raises a fault (the message `fault-event/1` on the broker under `hydra/faults/`; the field that names it is `schema`) | Server (active faults and history), MTConnect and OPC UA feeds |
 | `ToolDescriptor` | URTC tool table (one catalogue entry per tool head profile) | Server, Smart Rack, Studio, telemetry collector |
 | `ToolState` | URTC adapter or gateway (one reading of a connected tool head) | Server, Smart Rack, Studio, telemetry collector |
+| `ToolArms` | HYDRA-UMC-SAFETY-ZONES (the answer of `GET /tool-arms`: the last report of each pair of robot and tool, with its age) | The panels of STUDIO, SUITE and DSI |
 | `ProjectManifest` | Every repository (`hydra-umc.project.json` or `urtc.project.json`) | Updater, dashboard |
 
 Planned, with no schema yet: `TelemetrySample` (collector and adapters, for

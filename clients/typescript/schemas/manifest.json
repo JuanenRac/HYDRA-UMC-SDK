@@ -106,6 +106,10 @@
       "sha256": "79ff726a0425e6a74bfc39f3bf870177be072eb93a66e99bae752c9f9312a76f"
     },
     {
+      "file": "tool-arms.schema.json",
+      "sha256": "c661d3bd6b8ed7634b7fb992e92acb945c291d7387d3e743219808ad5f3073c1"
+    },
+    {
       "file": "tool-descriptor.schema.json",
       "sha256": "eb8a61ed5626d25bca00d2bef1cb6ac4d3982bffc491d53a342a08d2a82a19da"
     },
@@ -135,4 +139,3 @@
     }
   ]
 }
-
