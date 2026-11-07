@@ -333,6 +333,13 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "breachCount": 1,
         "estopRequestCount": 1
     },
+    "ToolArms": {
+        "schema_version": "1.0",
+        "ttlSeconds": 30.0,
+        "arms": [{"robot": "arm-1", "toolId": 0, "armed": True, "by": "token", "seq": 1, "ageSeconds": 2.0, "stale": False}],
+        "armedCount": 1,
+        "staleCount": 0
+    },
     "VlaApproval": {
         "approved": True,
         "fingerprint": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
