@@ -1608,6 +1608,58 @@ class ServerDiscovery {
       };
 }
 
+class ToolArms {
+  final String schema_version;
+  final double ttlSeconds;
+  final List<ToolArmsArms> arms;
+  final int armedCount;
+  final int staleCount;
+  const ToolArms({required this.schema_version, required this.ttlSeconds, required this.arms, required this.armedCount, required this.staleCount});
+  factory ToolArms.fromJson(Map<String, dynamic> json) => ToolArms(
+        schema_version: json["schema_version"] as String,
+        ttlSeconds: (json["ttlSeconds"] as num).toDouble(),
+        arms: (json["arms"] as List).map((e0) => ToolArmsArms.fromJson(Map<String, dynamic>.from(e0 as Map))).toList(),
+        armedCount: (json["armedCount"] as num).toInt(),
+        staleCount: (json["staleCount"] as num).toInt(),
+      );
+  Map<String, dynamic> toJson() => {
+        "schema_version": schema_version,
+        "ttlSeconds": ttlSeconds,
+        "arms": arms.map((e0) => e0.toJson()).toList(),
+        "armedCount": armedCount,
+        "staleCount": staleCount,
+      };
+}
+
+class ToolArmsArms {
+  final String robot;
+  final int toolId;
+  final bool armed;
+  final String by;
+  final int seq;
+  final double ageSeconds;
+  final bool stale;
+  const ToolArmsArms({required this.robot, required this.toolId, required this.armed, required this.by, required this.seq, required this.ageSeconds, required this.stale});
+  factory ToolArmsArms.fromJson(Map<String, dynamic> json) => ToolArmsArms(
+        robot: json["robot"] as String,
+        toolId: (json["toolId"] as num).toInt(),
+        armed: json["armed"] as bool,
+        by: json["by"] as String,
+        seq: (json["seq"] as num).toInt(),
+        ageSeconds: (json["ageSeconds"] as num).toDouble(),
+        stale: json["stale"] as bool,
+      );
+  Map<String, dynamic> toJson() => {
+        "robot": robot,
+        "toolId": toolId,
+        "armed": armed,
+        "by": by,
+        "seq": seq,
+        "ageSeconds": ageSeconds,
+        "stale": stale,
+      };
+}
+
 class ToolDescriptor {
   final String schema_version;
   final int tool_id;

@@ -556,6 +556,24 @@ data class ServerDiscovery(
     val uptimeSeconds: Long
 )
 
+data class ToolArms(
+    val schema_version: String,
+    val ttlSeconds: Double,
+    val arms: List<ToolArmsArms>,
+    val armedCount: Long,
+    val staleCount: Long
+)
+
+data class ToolArmsArms(
+    val robot: String,
+    val toolId: Long,
+    val armed: Boolean,
+    val by: String,
+    val seq: Long,
+    val ageSeconds: Double,
+    val stale: Boolean
+)
+
 data class ToolDescriptor(
     val schema_version: String,
     val tool_id: Long,

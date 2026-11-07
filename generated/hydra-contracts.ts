@@ -613,6 +613,26 @@ export interface ServerDiscovery {
   [extra: string]: unknown;
 }
 
+export interface ToolArms {
+  schema_version: "1.0";
+  ttlSeconds: number;
+  arms: ToolArmsArms[];
+  armedCount: number;
+  staleCount: number;
+  [extra: string]: unknown;
+}
+
+export interface ToolArmsArms {
+  robot: string;
+  toolId: number;
+  armed: boolean;
+  by: string;
+  seq: number;
+  ageSeconds: number;
+  stale: boolean;
+  [extra: string]: unknown;
+}
+
 export interface ToolDescriptor {
   schema_version: "1.0";
   tool_id: number;
