@@ -477,6 +477,11 @@
           "events": {
             "jobFinished": false,
             "globalStop": false
+          },
+          "liveActivity": {
+            "enabled": false,
+            "level": "status",
+            "activities": 0
           }
         }
       }
@@ -1766,6 +1771,50 @@
       }
     },
     "DELETE /api/push/devices/{token}": {
+      "200": {
+        "minimal": {
+          "removed": false
+        },
+        "full": {
+          "removed": false
+        }
+      },
+      "400": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      }
+    },
+    "POST /api/push/live-activities": {
+      "200": {
+        "minimal": {
+          "registered": false
+        },
+        "full": {
+          "registered": false
+        }
+      },
+      "400": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      },
+      "409": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      }
+    },
+    "DELETE /api/push/live-activities/{token}": {
       "200": {
         "minimal": {
           "removed": false

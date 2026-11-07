@@ -84,6 +84,8 @@ const List<HydraRoute> hydraRoutes = <HydraRoute>[
   HydraRoute('POST', '/api/ops-agent/proposals/decide', 'admin', 'ops-agent', <String>[], <String>['200', '400']),
   HydraRoute('POST', '/api/push/devices', 'user', 'push', <String>[], <String>['200', '400', '404']),
   HydraRoute('DELETE', '/api/push/devices/{token}', 'user', 'push', <String>[], <String>['200', '400', '404']),
+  HydraRoute('POST', '/api/push/live-activities', 'user', 'push', <String>[], <String>['200', '400', '404', '409']),
+  HydraRoute('DELETE', '/api/push/live-activities/{token}', 'user', 'push', <String>[], <String>['200', '400', '404']),
   HydraRoute('POST', '/api/refresh', 'public', 'refresh', <String>[], <String>['200', '400', '401']),
   HydraRoute('GET', '/api/robot/{id}', 'user', 'robot', <String>[], <String>['200', '404', '409']),
   HydraRoute('POST', '/api/robot/{id}/claim', 'user', 'robot', <String>[], <String>['200', '400', '404', '409', '412']),

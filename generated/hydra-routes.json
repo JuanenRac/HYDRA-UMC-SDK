@@ -882,6 +882,31 @@
     },
     {
       "method": "POST",
+      "path": "/api/push/live-activities",
+      "access": "user",
+      "group": "push",
+      "query": [],
+      "statuses": [
+        "200",
+        "400",
+        "404",
+        "409"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/push/live-activities/{token}",
+      "access": "user",
+      "group": "push",
+      "query": [],
+      "statuses": [
+        "200",
+        "400",
+        "404"
+      ]
+    },
+    {
+      "method": "POST",
       "path": "/api/refresh",
       "access": "public",
       "group": "refresh",

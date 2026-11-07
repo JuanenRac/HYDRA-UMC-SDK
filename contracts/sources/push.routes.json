@@ -103,6 +103,82 @@
           "description": "Not found. No body."
         }
       }
+    },
+    {
+      "method": "post",
+      "path": "/api/push/live-activities",
+      "summary": "POST /api/push/live-activities",
+      "description": "Requires a signed-in account (bearer token). The phone sends the token of the Live Activity it started for a robot; the server then updates the card on the lock screen through the Apple push service. The route exists only while push.liveActivity.enabled is on; otherwise it answers 404.",
+      "access": "user",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "activityToken",
+                "robotId"
+              ],
+              "properties": {
+                "activityToken": {
+                  "type": "string"
+                },
+                "robotId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "LiveActivityRegistered"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. No body."
+        },
+        "409": {
+          "description": "Too many Live Activities. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "delete",
+      "path": "/api/push/live-activities/{token}",
+      "summary": "DELETE /api/push/live-activities/{token}",
+      "description": "Requires a signed-in account (bearer token). An account removes only its own activity. The route exists only while push.liveActivity.enabled is on; otherwise it answers 404.",
+      "access": "user",
+      "parameters": [
+        {
+          "name": "token",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "LiveActivityRemoved"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. No body."
+        }
+      }
     }
   ]
 }

@@ -77,6 +77,8 @@ val HYDRA_ROUTES: List<HydraRoute> = listOf(
     HydraRoute("POST", "/api/ops-agent/proposals/decide", "admin", "ops-agent", listOf(), listOf("200", "400")),
     HydraRoute("POST", "/api/push/devices", "user", "push", listOf(), listOf("200", "400", "404")),
     HydraRoute("DELETE", "/api/push/devices/{token}", "user", "push", listOf(), listOf("200", "400", "404")),
+    HydraRoute("POST", "/api/push/live-activities", "user", "push", listOf(), listOf("200", "400", "404", "409")),
+    HydraRoute("DELETE", "/api/push/live-activities/{token}", "user", "push", listOf(), listOf("200", "400", "404")),
     HydraRoute("POST", "/api/refresh", "public", "refresh", listOf(), listOf("200", "400", "401")),
     HydraRoute("GET", "/api/robot/{id}", "user", "robot", listOf(), listOf("200", "404", "409")),
     HydraRoute("POST", "/api/robot/{id}/claim", "user", "robot", listOf(), listOf("200", "400", "404", "409", "412")),

@@ -85,6 +85,8 @@ export const HYDRA_ROUTES: readonly HydraRoute[] = [
   { method: "POST", path: "/api/ops-agent/proposals/decide", access: "admin", group: "ops-agent", query: [], statuses: ["200", "400"] },
   { method: "POST", path: "/api/push/devices", access: "user", group: "push", query: [], statuses: ["200", "400", "404"] },
   { method: "DELETE", path: "/api/push/devices/{token}", access: "user", group: "push", query: [], statuses: ["200", "400", "404"] },
+  { method: "POST", path: "/api/push/live-activities", access: "user", group: "push", query: [], statuses: ["200", "400", "404", "409"] },
+  { method: "DELETE", path: "/api/push/live-activities/{token}", access: "user", group: "push", query: [], statuses: ["200", "400", "404"] },
   { method: "POST", path: "/api/refresh", access: "public", group: "refresh", query: [], statuses: ["200", "400", "401"] },
   { method: "GET", path: "/api/robot/{id}", access: "user", group: "robot", query: [], statuses: ["200", "404", "409"] },
   { method: "POST", path: "/api/robot/{id}/claim", access: "user", group: "robot", query: [], statuses: ["200", "400", "404", "409", "412"] },
