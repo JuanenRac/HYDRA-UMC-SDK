@@ -9,16 +9,6 @@
       "summary": "GET /api/tool-arms",
       "description": "Requires a signed-in account (bearer token). The arm state of the URTC tools as the safety zones service lists it, carried unchanged; the route answers 503 until the address of that service is configured.",
       "access": "user",
-      "parameters": [
-        {
-          "name": "robot",
-          "in": "query",
-          "required": false,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
       "responses": {
         "200": {
           "description": "Success. The body is documented in docs/REMOTE_API.md.",

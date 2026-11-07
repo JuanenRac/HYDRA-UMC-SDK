@@ -7318,16 +7318,6 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "robot",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "security": [
           {
             "bearerAuth": []

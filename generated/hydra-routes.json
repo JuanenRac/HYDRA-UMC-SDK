@@ -1231,9 +1231,7 @@
       "path": "/api/tool-arms",
       "access": "user",
       "group": "tool-arms",
-      "query": [
-        "robot"
-      ],
+      "query": [],
       "statuses": [
         "200",
         "400",

@@ -107,7 +107,7 @@ val HYDRA_ROUTES: List<HydraRoute> = listOf(
     HydraRoute("GET", "/api/telemetry/downsample-plan", "admin", "telemetry", listOf(), listOf("200")),
     HydraRoute("PUT", "/api/telemetry/downsample-plan", "admin", "telemetry", listOf("preview"), listOf("200")),
     HydraRoute("GET", "/api/telemetry/query", "user", "telemetry", listOf(), listOf("200")),
-    HydraRoute("GET", "/api/tool-arms", "user", "tool-arms", listOf("robot"), listOf("200", "400", "404", "502", "503")),
+    HydraRoute("GET", "/api/tool-arms", "user", "tool-arms", listOf(), listOf("200", "400", "404", "502", "503")),
     HydraRoute("POST", "/api/totp/begin", "user", "totp", listOf(), listOf("200", "401", "409")),
     HydraRoute("POST", "/api/totp/confirm", "user", "totp", listOf(), listOf("200", "400")),
     HydraRoute("POST", "/api/totp/disable", "user", "totp", listOf(), listOf("200", "401", "429")),
