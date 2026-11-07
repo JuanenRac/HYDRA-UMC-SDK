@@ -45,6 +45,42 @@
     },
     {
       "method": "GET",
+      "path": "/api/admin/device-tokens",
+      "access": "admin",
+      "group": "device",
+      "query": [],
+      "statuses": [
+        "200",
+        "404"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/device-tokens",
+      "access": "admin",
+      "group": "device",
+      "query": [],
+      "statuses": [
+        "200",
+        "400",
+        "404",
+        "409"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/device-tokens/{id}",
+      "access": "admin",
+      "group": "device",
+      "query": [],
+      "statuses": [
+        "200",
+        "400",
+        "404"
+      ]
+    },
+    {
+      "method": "GET",
       "path": "/api/admin/jwt-keys",
       "access": "admin",
       "group": "admin",
@@ -149,6 +185,20 @@
       "query": [],
       "statuses": [
         "200"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/updates",
+      "access": "admin",
+      "group": "updates",
+      "query": [
+        "refresh"
+      ],
+      "statuses": [
+        "200",
+        "404",
+        "503"
       ]
     },
     {
@@ -457,6 +507,19 @@
       ],
       "statuses": [
         "200"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/device/login",
+      "access": "public",
+      "group": "device",
+      "query": [],
+      "statuses": [
+        "200",
+        "401",
+        "403",
+        "404"
       ]
     },
     {

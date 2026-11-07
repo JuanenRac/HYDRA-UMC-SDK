@@ -1,0 +1,152 @@
+{
+  "source_version": "1",
+  "group": "device",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "post",
+      "path": "/api/admin/device-tokens",
+      "summary": "POST /api/admin/device-tokens",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "name",
+                "username",
+                "confirm"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "ttlDays": {
+                  "type": "number"
+                },
+                "confirm": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "DeviceTokenIssued"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "409": {
+          "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "get",
+      "path": "/api/admin/device-tokens",
+      "summary": "GET /api/admin/device-tokens",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "DeviceTokenList"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "delete",
+      "path": "/api/admin/device-tokens/{id}",
+      "summary": "DELETE /api/admin/device-tokens/{id}",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "DeviceTokenRevoked"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/device/login",
+      "summary": "POST /api/device/login",
+      "description": "No authentication required by the route itself.",
+      "access": "public",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "token"
+              ],
+              "properties": {
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "LoginResult"
+        },
+        "401": {
+          "description": "Not signed in or token rejected. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "403": {
+          "description": "Signed in but not allowed. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}
