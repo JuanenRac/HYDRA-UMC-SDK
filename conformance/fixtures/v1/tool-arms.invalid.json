@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "ttlSeconds": 30.0,
+  "arms": [
+    {
+      "robot": "arm-3",
+      "toolId": 25,
+      "armed": true,
+      "by": "token",
+      "seq": 1,
+      "ageSeconds": 0.5,
+      "stale": false
+    }
+  ],
+  "armedCount": 1,
+  "staleCount": 0
+}

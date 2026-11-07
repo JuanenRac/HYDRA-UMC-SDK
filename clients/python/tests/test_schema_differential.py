@@ -57,6 +57,7 @@ CONTRACT_FILES = {
     "CanaryDeployResult": "canary-deploy-result",
     "FaultEvent": "fault-event",
     "SafetyZonesState": "safety-zones-state",
+    "ToolArms": "tool-arms",
     "VlaApproval": "vla-approval",
     "EvidenceBundle": "evidence-bundle",
 }

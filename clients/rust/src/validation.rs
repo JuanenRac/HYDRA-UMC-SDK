@@ -92,6 +92,7 @@ const CONTRACT_FILES: &[(&str, &str)] = &[
     ("CanaryDeployResult", "canary-deploy-result.schema.json"),
     ("FaultEvent", "fault-event.schema.json"),
     ("SafetyZonesState", "safety-zones-state.schema.json"),
+    ("ToolArms", "tool-arms.schema.json"),
     ("VlaApproval", "vla-approval.schema.json"),
     ("EvidenceBundle", "evidence-bundle.schema.json"),
 ];
@@ -224,6 +225,10 @@ const SCHEMA_FILES: &[(&str, &str)] = &[
     (
         "safety-zones-state.schema.json",
         include_str!("../schemas/safety-zones-state.schema.json"),
+    ),
+    (
+        "tool-arms.schema.json",
+        include_str!("../schemas/tool-arms.schema.json"),
     ),
     (
         "vla-approval.schema.json",

@@ -72,6 +72,7 @@ var contractFiles = map[string]string{
 	"CanaryDeployResult":    "canary-deploy-result.schema.json",
 	"FaultEvent":            "fault-event.schema.json",
 	"SafetyZonesState":      "safety-zones-state.schema.json",
+	"ToolArms":              "tool-arms.schema.json",
 	"VlaApproval":           "vla-approval.schema.json",
 	"EvidenceBundle":        "evidence-bundle.schema.json",
 }
