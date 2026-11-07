@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.5.9] - The routes of the device tokens, of the newest published versions and the addresses of the discovery answer are in the contract: POST / GET /api/admin/device-tokens, DELETE /api/admin/device-tokens/{id} and POST... (and 1 more changes)
+
 - **The routes of the device tokens, of the newest published versions and the addresses of the discovery answer are in the contract:** `POST` / `GET /api/admin/device-tokens`, `DELETE /api/admin/device-tokens/{id}` and `POST /api/device/login` (a token issued for one device, exchanged for a short sign-in), `GET /api/admin/updates` (the installed version of each program against its newest release) and the optional `addresses` of `GET /api/hydra-info`, each with its shapes (`DeviceTokenIssued`, `DeviceTokenView`, `DeviceTokenList`, `DeviceTokenRevoked`, `UpdateReport`, `UpdateItem`) and the generated route tables.
 - **The verdict of the safety zones service and the approval of a VLA trajectory are closed contracts of the SDK:** `SafetyZonesState` is what `GET /state` answers (the signed safety state and its signature, the reason, the configuration hash, at most 20 breaches without positions and the counts) and `VlaApproval` is the answer of the confirmation of a proposal (the fingerprint of exactly one trajectory, the robot, the operator, the two times and an HMAC-SHA256 signature). Both have a closed JSON Schema, a valid and an invalid fixture, a Python validator that gives the same verdict as the schema, the generated TypeScript, Kotlin and Dart types, the registrations of the Go, Rust and TypeScript clients and a sample in the mock server.
 
