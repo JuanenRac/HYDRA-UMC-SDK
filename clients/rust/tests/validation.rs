@@ -112,7 +112,7 @@ fn known_contracts_lists_all_twenty_six() {
     let names = known_contracts();
     assert_eq!(
         names.len(),
-        33,
+        34,
         "expected 33 known contracts, got {names:?}"
     );
 }
