@@ -1,0 +1,25 @@
+# =============================================================================
+# HYDRA-UMC-SDK - the integration bench on pull requests that touch the contract
+# Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
+# GPL-3.0 - see LICENSE
+# =============================================================================
+# Calls the reusable workflow of HYDRA-UMC-DEV-SERVER that starts the swarm cell as real containers and runs its scenarios (the container bench). The called
+# workflow is pinned by commit hash, like every other action of the repository. It runs for a pull request that changes the contract or a client, and by hand;
+# it never runs on a push to main.
+name: Integration bench
+
+on:
+  pull_request:
+    paths:
+      - "contracts/**"
+      - "clients/**"
+      - "generated/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integration:
+    name: Container bench of the swarm cell
+    uses: JuanenRac/HYDRA-UMC-DEV-SERVER/.github/workflows/compose-bench.yml@68075ca77abad38137bf87d4f127559a4b6fe456

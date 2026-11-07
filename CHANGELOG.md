@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **A pull request that changes the contract or a client runs the container bench:** `integration.yml` calls the reusable workflow of HYDRA-UMC-DEV-SERVER (pinned by commit hash) that starts the swarm cell as real containers and runs its scenarios; it also runs by hand and never on a push to main.
+
 - **The arm state of the URTC tools and the maintenance routes of the server are in the contract:** `ToolArms` is the closed schema of the answer of `GET /tool-arms` of the safety zones service (the last report of each robot and tool, with its age and whether it is stale), and `/api/admin/maintenance/status`, `/install`, `/rollback` and `/prune` are declared with the shape `MaintenanceOutcome`.
 
 ## [0.5.9] - The routes of the device tokens, of the newest published versions and the addresses of the discovery answer are in the contract: POST / GET /api/admin/device-tokens, DELETE /api/admin/device-tokens/{id} and POST... (and 1 more changes)
