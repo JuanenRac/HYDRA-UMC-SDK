@@ -63,6 +63,7 @@ const CONTRACT_FIXTURE_STEM: &[(&str, &str)] = &[
     ("CanaryDeployResult", "canary-deploy-result"),
     ("FaultEvent", "fault-event"),
     ("SafetyZonesState", "safety-zones-state"),
+    ("ToolArms", "tool-arms"),
     ("VlaApproval", "vla-approval"),
     ("EvidenceBundle", "evidence-bundle"),
 ];
@@ -113,7 +114,7 @@ fn known_contracts_lists_all_twenty_six() {
     assert_eq!(
         names.len(),
         34,
-        "expected 33 known contracts, got {names:?}"
+        "expected 34 known contracts, got {names:?}"
     );
 }
 
