@@ -1227,6 +1227,22 @@
       ]
     },
     {
+      "method": "GET",
+      "path": "/api/tool-arms",
+      "access": "user",
+      "group": "tool-arms",
+      "query": [
+        "robot"
+      ],
+      "statuses": [
+        "200",
+        "400",
+        "404",
+        "502",
+        "503"
+      ]
+    },
+    {
       "method": "POST",
       "path": "/api/totp/begin",
       "access": "user",

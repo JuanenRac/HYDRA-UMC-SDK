@@ -1,0 +1,46 @@
+{
+  "source_version": "1",
+  "group": "tool-arms",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "get",
+      "path": "/api/tool-arms",
+      "summary": "GET /api/tool-arms",
+      "description": "Requires a signed-in account (bearer token). The arm state of the URTC tools as the safety zones service lists it, carried unchanged; the route answers 503 until the address of that service is configured.",
+      "access": "user",
+      "parameters": [
+        {
+          "name": "robot",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "ToolArmsReport"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "502": {
+          "description": "Upstream service rejected the request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "The safety zones service is not configured or not reachable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}

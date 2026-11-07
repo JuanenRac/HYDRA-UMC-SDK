@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The read route of the arm state of the URTC tools is in the contract:** `GET /api/tool-arms` (any signed-in account, optional `robot` filter) carries the answer of `GET /tool-arms` of the safety zones service to the panels of the screen, with the shape `ToolArmsReport`; the route answers 503 until the server is told the address of that service, and the TypeScript, Kotlin and Dart route tables and the OpenAPI document are regenerated.
+
 - **A pull request that changes the contract or a client runs the container bench:** `integration.yml` calls the reusable workflow of HYDRA-UMC-DEV-SERVER (pinned by commit hash) that starts the swarm cell as real containers and runs its scenarios; it also runs by hand and never on a push to main.
 
 - **The arm state of the URTC tools and the maintenance routes of the server are in the contract:** `ToolArms` is the closed schema of the answer of `GET /tool-arms` of the safety zones service (the last report of each robot and tool, with its age and whether it is stale), and `/api/admin/maintenance/status`, `/install`, `/rollback` and `/prune` are declared with the shape `MaintenanceOutcome`.
