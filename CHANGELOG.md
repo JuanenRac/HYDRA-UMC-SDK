@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **A weekly workflow checks that the shared tooling of every repository still agrees:** `sync-check.yml` clones every HYDRA-UMC and URTC repository next to the SDK and runs `tools/sync_repo_tools.py --check --all` (the canonical copies of the shared tools and of the baseline action, the document policy, the README parity check and the script banners). Nothing is written; a repository whose copy drifted fails the run, which names it. It runs on Mondays and by hand.
+
 ## [0.6.1] - The F-RAM erase and self-test of the kinematic brain are in the contract: `POST /api/hardware/fram/erase` (admin role; the body is `{ "confirm": "ERASE" }`) and `POST /api/hardware/fram/selftest` (admin role) are declared in `contracts/sources/hardware.routes
 
 - **The F-RAM erase and self-test of the kinematic brain are in the contract:** `POST /api/hardware/fram/erase` (admin role; the body is `{ "confirm": "ERASE" }`) and `POST /api/hardware/fram/selftest` (admin role) are declared in `contracts/sources/hardware.routes.json`, and `GET /api/hardware/canota/version` already carries `capabilities.fram_erase`, true only when the SPI bridge and the server both offer the operation. Both routes are off by default on the server (403 while its switch is off). The union of the sources, the route tables of the clients and the fixtures of the apps are regenerated.

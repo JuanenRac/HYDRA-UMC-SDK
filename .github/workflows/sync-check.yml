@@ -1,0 +1,45 @@
+# =============================================================================
+# HYDRA-UMC-SDK - the weekly check that the shared tooling and documents of every repository still agree
+# Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
+# GPL-3.0 - see LICENSE
+# =============================================================================
+# Clones every HYDRA-UMC and URTC repository next to this one and runs `tools/sync_repo_tools.py --check --all`: the canonical copies of the shared tools, the
+# document policy, the README parity check and the script banners, none of which is written. A repository whose copy drifted fails the run and the run says
+# which. It runs once a week and by hand; it never writes to any repository.
+name: Sync check
+
+on:
+  schedule:
+    - cron: "41 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    name: Check the shared files of every repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out the SDK
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: HYDRA-UMC-SDK
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Fetch the other repositories next to it
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh repo list "${{ github.repository_owner }}" --limit 400 --json name --jq '.[].name' \
+            | grep -E '^(HYDRA-UMC|URTC)($|-)' | grep -vx 'HYDRA-UMC-SDK' | sort > repos.txt
+          echo "repositories: $(wc -l < repos.txt)"
+          test "$(wc -l < repos.txt)" -ge 30
+          while read -r name; do
+            git clone --quiet --depth 1 "https://github.com/${{ github.repository_owner }}/${name}.git" "$name" || echo "could not clone ${name}"
+          done < repos.txt
+      - name: Run the checks, which write nothing
+        run: python HYDRA-UMC-SDK/tools/sync_repo_tools.py --check --all --workspace "$PWD"
