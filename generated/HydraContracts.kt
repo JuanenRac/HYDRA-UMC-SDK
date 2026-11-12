@@ -8,13 +8,37 @@ data class CanIds(
     val slot_base: Long,
     val slot_window: Long,
     val slots: Long,
-    val messages: List<CanIdsMessages>
+    val messages: List<CanIdsMessages>,
+    val estop_frame: CanIdsEstopFrame? = null,
+    val tool_head: CanIdsToolHead? = null
 )
 
 data class CanIdsMessages(
     val name: String,
     val offset: Long,
     val emitter: String
+)
+
+data class CanIdsEstopFrame(
+    val dlc: Double,
+    val bytes: Double,
+    val kinds: Map<String, Long>,
+    val trip_reasons: Map<String, Long>,
+    val sources: Map<String, Long>
+)
+
+data class CanIdsToolHead(
+    val source: String,
+    val protocol_version: Long,
+    val bit_rate_bps: Long,
+    val bus: String,
+    val messages: List<CanIdsToolHeadMessages>
+)
+
+data class CanIdsToolHeadMessages(
+    val id: Long,
+    val name: String,
+    val direction: String
 )
 
 data class CanaryDeployResult(

@@ -186,7 +186,7 @@ The routes of the connections (`GET /api/connections/clients` and `GET /api/conn
 
 ## CAN identifiers of the stack bus
 
-`contracts/can_ids.json` is the one document of the identifiers of the HYDRA-UMC stack bus: the emergency stop identifier, the base and width of the slot windows, the number of slots and the messages of a slot (an offset inside the window and the one node that sends it). The identifier of a message is `slot_base + slot * slot_window + offset`. The closed schema `can-ids.schema.json` describes it and the Python validator checks the rest. A firmware table or a reader of the bus (the telemetry collector) is to be written against this document.
+`contracts/can_ids.json` is the one document of the identifiers of the HYDRA-UMC stack bus: the emergency stop identifier, the base and width of the slot windows, the number of slots and the messages of a slot (an offset inside the window and the one node that sends it). The identifier of a message is `slot_base + slot * slot_window + offset`. The closed schema `can-ids.schema.json` describes it and the Python validator checks the rest. It also holds, as optional sections, the 8-byte frame of the emergency stop (`estop_frame`) and the identifiers of the URTC tool head protocol (`tool_head`, copied from the URTC spec and compared with it by a test). A firmware table or a reader of the bus (the telemetry collector) is to be written against this document.
 
 ## gRPC contracts
 

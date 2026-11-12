@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "note": "The identifiers of the stack bus of HYDRA-UMC (STACK A). A message of a controller board has the identifier slot_base + slot * slot_window + offset; the emergency stop is one identifier for the whole stack, below every slot. Each identifier has one emitter. The firmware, its host tools and HYDRA-UMC-TELEMETRY-COLLECTOR read this document; nothing here has run on a board.",
+  "note": "The identifiers of the stack bus of HYDRA-UMC (STACK A), of the tool head bus of URTC and the frame of the emergency stop. A message of a controller board has the identifier slot_base + slot * slot_window + offset; the emergency stop is one identifier for the whole stack, below every slot; the tool head messages are on the downlink bus of a controller board, not on STACK A, and their numbers are those of the URTC protocol (spec/can_protocol.json of URTC-COMMON). Each identifier has one emitter. The firmware, its host tools and HYDRA-UMC-TELEMETRY-COLLECTOR read this document; nothing here has run on a board.",
   "estop_id": 1,
   "slot_base": 1536,
   "slot_window": 64,
@@ -26,5 +26,63 @@
       "offset": 17,
       "emitter": "controller-board"
     }
-  ]
+  ],
+  "estop_frame": {
+    "dlc": 8,
+    "bytes": [
+      "kind",
+      "detail",
+      "source",
+      "epoch",
+      "sequence_low",
+      "sequence_high",
+      "kind_complement",
+      "detail_complement"
+    ],
+    "kinds": {
+      "TRIP": 1,
+      "RELEASE": 2,
+      "ALIVE": 3
+    },
+    "trip_reasons": {
+      "OPERATOR": 1,
+      "STOP_ALL": 2,
+      "HARDWARE_INPUT": 3,
+      "SAFETY_ZONE": 4,
+      "HOST_LINK_LOST": 5,
+      "CONTROLLER_FAULT": 6,
+      "BUS_FAULT": 7,
+      "POWER_LOSS": 8,
+      "UNSPECIFIED": 255
+    },
+    "sources": {
+      "KINEMATIC_BRAIN": 0,
+      "SLOT_BOARD_FIRST": 1,
+      "SLOT_BOARD_LAST": 8,
+      "HOST_BRIDGE": 16
+    }
+  },
+  "tool_head": {
+    "source": "URTC-COMMON spec/can_protocol.json",
+    "protocol_version": 1,
+    "bit_rate_bps": 500000,
+    "bus": "tool_head_downlink",
+    "messages": [
+      {
+        "id": 149,
+        "name": "IMPACT_EVENT",
+        "direction": "board_to_host"
+      },
+      {
+        "id": 256,
+        "name": "GLOBAL_STATUS",
+        "direction": "host_to_board"
+      },
+      {
+        "id": 272,
+        "name": "QUERY_ACTIVE_TOOL",
+        "direction": "host_to_board"
+      }
+    ]
+  }
 }

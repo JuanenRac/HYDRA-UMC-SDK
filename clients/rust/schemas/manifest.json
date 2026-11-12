@@ -3,7 +3,7 @@
   "contracts": [
     {
       "file": "can-ids.schema.json",
-      "sha256": "ff078941778f1153d133e9b23a42643cac42baca5f546ea9a031660d9e1ae128"
+      "sha256": "7d6aeac8c1eaafeb6cb2d5a8b6c195a71868274994f009c6890c91c5c4331503"
     },
     {
       "file": "canary-deploy-result.schema.json",

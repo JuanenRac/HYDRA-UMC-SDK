@@ -2,17 +2,48 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/can-ids.schema.json",
   "title": "CanIds",
-  "description": "The CAN identifiers of the stack bus of HYDRA-UMC (standard 11-bit identifiers): the identifier of the emergency stop, the base of the slot windows, the width of a window and the number of slots, and the messages of a slot, each as an offset inside the window with the one node that may send it. The identifier of a message is slot_base + slot * slot_window + offset (checked by the clients: it must fit in 11 bits, and an offset must be inside the window). The schema is closed.",
+  "description": "The CAN identifiers of the stack bus of HYDRA-UMC (standard 11-bit identifiers): the identifier of the emergency stop, the base of the slot windows, the width of a window and the number of slots, and the messages of a slot, each as an offset inside the window with the one node that may send it. The identifier of a message is slot_base + slot * slot_window + offset (checked by the clients: it must fit in 11 bits, and an offset must be inside the window). Optionally the frame of the emergency stop (its 8 bytes, kinds, reasons and sources) and the messages of the tool head bus of URTC (identifier, name and direction, as the URTC protocol numbers them). The schema is closed.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "estop_id", "slot_base", "slot_window", "slots", "messages"],
+  "required": [
+    "schema_version",
+    "estop_id",
+    "slot_base",
+    "slot_window",
+    "slots",
+    "messages"
+  ],
   "properties": {
-    "schema_version": {"const": "1.0"},
-    "note": {"type": "string", "maxLength": 2000},
-    "estop_id": {"type": "integer", "minimum": 1, "maximum": 2047, "description": "The identifier of the emergency stop frame, one for the whole stack."},
-    "slot_base": {"type": "integer", "minimum": 0, "maximum": 2047, "description": "The identifier where the window of slot 0 starts."},
-    "slot_window": {"type": "integer", "minimum": 1, "maximum": 2048, "description": "How many identifiers a slot owns."},
-    "slots": {"type": "integer", "minimum": 1, "maximum": 64},
+    "schema_version": {
+      "const": "1.0"
+    },
+    "note": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "estop_id": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2047,
+      "description": "The identifier of the emergency stop frame, one for the whole stack."
+    },
+    "slot_base": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2047,
+      "description": "The identifier where the window of slot 0 starts."
+    },
+    "slot_window": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2048,
+      "description": "How many identifiers a slot owns."
+    },
+    "slots": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 64
+    },
     "messages": {
       "type": "array",
       "minItems": 1,
@@ -20,11 +51,151 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name", "offset", "emitter"],
+        "required": [
+          "name",
+          "offset",
+          "emitter"
+        ],
         "properties": {
-          "name": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]{0,63}$"},
-          "offset": {"type": "integer", "minimum": 0, "maximum": 2047, "description": "Inside the window of a slot."},
-          "emitter": {"enum": ["kinematic-brain", "controller-board", "bootloader", "host"]}
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{0,63}$"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2047,
+            "description": "Inside the window of a slot."
+          },
+          "emitter": {
+            "enum": [
+              "kinematic-brain",
+              "controller-board",
+              "bootloader",
+              "host"
+            ]
+          }
+        }
+      }
+    },
+    "estop_frame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dlc",
+        "bytes",
+        "kinds",
+        "trip_reasons",
+        "sources"
+      ],
+      "properties": {
+        "dlc": {
+          "const": 8
+        },
+        "bytes": {
+          "const": [
+            "kind",
+            "detail",
+            "source",
+            "epoch",
+            "sequence_low",
+            "sequence_high",
+            "kind_complement",
+            "detail_complement"
+          ]
+        },
+        "kinds": {
+          "type": "object",
+          "minProperties": 3,
+          "maxProperties": 3,
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 255
+          }
+        },
+        "trip_reasons": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 32,
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 255
+          }
+        },
+        "sources": {
+          "type": "object",
+          "minProperties": 4,
+          "maxProperties": 4,
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255
+          }
+        }
+      }
+    },
+    "tool_head": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "protocol_version",
+        "bit_rate_bps",
+        "bus",
+        "messages"
+      ],
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "protocol_version": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "bit_rate_bps": {
+          "type": "integer",
+          "minimum": 10000,
+          "maximum": 1000000
+        },
+        "bus": {
+          "const": "tool_head_downlink"
+        },
+        "messages": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 512,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "direction"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2047
+              },
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]{0,63}$"
+              },
+              "direction": {
+                "enum": [
+                  "host_to_board",
+                  "board_to_host",
+                  "both"
+                ]
+              }
+            }
+          }
         }
       }
     }

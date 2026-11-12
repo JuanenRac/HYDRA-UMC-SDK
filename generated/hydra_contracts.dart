@@ -9,7 +9,9 @@ class CanIds {
   final int slot_window;
   final int slots;
   final List<CanIdsMessages> messages;
-  const CanIds({required this.schema_version, this.note, required this.estop_id, required this.slot_base, required this.slot_window, required this.slots, required this.messages});
+  final CanIdsEstopFrame? estop_frame;
+  final CanIdsToolHead? tool_head;
+  const CanIds({required this.schema_version, this.note, required this.estop_id, required this.slot_base, required this.slot_window, required this.slots, required this.messages, this.estop_frame, this.tool_head});
   factory CanIds.fromJson(Map<String, dynamic> json) => CanIds(
         schema_version: json["schema_version"] as String,
         note: json["note"] == null ? null : json["note"] as String,
@@ -18,6 +20,8 @@ class CanIds {
         slot_window: (json["slot_window"] as num).toInt(),
         slots: (json["slots"] as num).toInt(),
         messages: (json["messages"] as List).map((e0) => CanIdsMessages.fromJson(Map<String, dynamic>.from(e0 as Map))).toList(),
+        estop_frame: json["estop_frame"] == null ? null : CanIdsEstopFrame.fromJson(Map<String, dynamic>.from(json["estop_frame"] as Map)),
+        tool_head: json["tool_head"] == null ? null : CanIdsToolHead.fromJson(Map<String, dynamic>.from(json["tool_head"] as Map)),
       );
   Map<String, dynamic> toJson() => {
         "schema_version": schema_version,
@@ -27,6 +31,8 @@ class CanIds {
         "slot_window": slot_window,
         "slots": slots,
         "messages": messages.map((e0) => e0.toJson()).toList(),
+        if (estop_frame != null) "estop_frame": estop_frame!.toJson(),
+        if (tool_head != null) "tool_head": tool_head!.toJson(),
       };
 }
 
@@ -44,6 +50,69 @@ class CanIdsMessages {
         "name": name,
         "offset": offset,
         "emitter": emitter,
+      };
+}
+
+class CanIdsEstopFrame {
+  final Object dlc;
+  final Object bytes;
+  final Map<String, int> kinds;
+  final Map<String, int> trip_reasons;
+  final Map<String, int> sources;
+  const CanIdsEstopFrame({required this.dlc, required this.bytes, required this.kinds, required this.trip_reasons, required this.sources});
+  factory CanIdsEstopFrame.fromJson(Map<String, dynamic> json) => CanIdsEstopFrame(
+        dlc: json["dlc"] as Object,
+        bytes: json["bytes"] as Object,
+        kinds: (json["kinds"] as Map).map((k0, e0) => MapEntry(k0 as String, (e0 as num).toInt())),
+        trip_reasons: (json["trip_reasons"] as Map).map((k0, e0) => MapEntry(k0 as String, (e0 as num).toInt())),
+        sources: (json["sources"] as Map).map((k0, e0) => MapEntry(k0 as String, (e0 as num).toInt())),
+      );
+  Map<String, dynamic> toJson() => {
+        "dlc": dlc,
+        "bytes": bytes,
+        "kinds": kinds,
+        "trip_reasons": trip_reasons,
+        "sources": sources,
+      };
+}
+
+class CanIdsToolHead {
+  final String source;
+  final int protocol_version;
+  final int bit_rate_bps;
+  final String bus;
+  final List<CanIdsToolHeadMessages> messages;
+  const CanIdsToolHead({required this.source, required this.protocol_version, required this.bit_rate_bps, required this.bus, required this.messages});
+  factory CanIdsToolHead.fromJson(Map<String, dynamic> json) => CanIdsToolHead(
+        source: json["source"] as String,
+        protocol_version: (json["protocol_version"] as num).toInt(),
+        bit_rate_bps: (json["bit_rate_bps"] as num).toInt(),
+        bus: json["bus"] as String,
+        messages: (json["messages"] as List).map((e0) => CanIdsToolHeadMessages.fromJson(Map<String, dynamic>.from(e0 as Map))).toList(),
+      );
+  Map<String, dynamic> toJson() => {
+        "source": source,
+        "protocol_version": protocol_version,
+        "bit_rate_bps": bit_rate_bps,
+        "bus": bus,
+        "messages": messages.map((e0) => e0.toJson()).toList(),
+      };
+}
+
+class CanIdsToolHeadMessages {
+  final int id;
+  final String name;
+  final String direction;
+  const CanIdsToolHeadMessages({required this.id, required this.name, required this.direction});
+  factory CanIdsToolHeadMessages.fromJson(Map<String, dynamic> json) => CanIdsToolHeadMessages(
+        id: (json["id"] as num).toInt(),
+        name: json["name"] as String,
+        direction: json["direction"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "name": name,
+        "direction": direction,
       };
 }
 

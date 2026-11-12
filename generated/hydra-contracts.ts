@@ -8,6 +8,8 @@ export interface CanIds {
   slot_window: number;
   slots: number;
   messages: CanIdsMessages[];
+  estop_frame?: CanIdsEstopFrame;
+  tool_head?: CanIdsToolHead;
   [extra: string]: unknown;
 }
 
@@ -15,6 +17,31 @@ export interface CanIdsMessages {
   name: string;
   offset: number;
   emitter: "kinematic-brain" | "controller-board" | "bootloader" | "host";
+  [extra: string]: unknown;
+}
+
+export interface CanIdsEstopFrame {
+  dlc: 8;
+  bytes: ["kind", "detail", "source", "epoch", "sequence_low", "sequence_high", "kind_complement", "detail_complement"];
+  kinds: Record<string, number>;
+  trip_reasons: Record<string, number>;
+  sources: Record<string, number>;
+  [extra: string]: unknown;
+}
+
+export interface CanIdsToolHead {
+  source: string;
+  protocol_version: number;
+  bit_rate_bps: number;
+  bus: "tool_head_downlink";
+  messages: CanIdsToolHeadMessages[];
+  [extra: string]: unknown;
+}
+
+export interface CanIdsToolHeadMessages {
+  id: number;
+  name: string;
+  direction: "host_to_board" | "board_to_host" | "both";
   [extra: string]: unknown;
 }
 

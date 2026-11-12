@@ -26,6 +26,7 @@ CANONICAL = ROOT / "contracts" / "can_ids.json"
 SCHEMA = ROOT / "contracts" / "json-schema" / "v1" / "can-ids.schema.json"
 FIXTURES = ROOT / "conformance" / "fixtures" / "v1"
 FIRMWARE_TABLE = ROOT.parent / "HYDRA-UMC" / "tools" / "can_ids.py"
+URTC_SPEC = ROOT.parent / "URTC-COMMON" / "spec" / "can_protocol.json"
 
 
 def load(path: Path):
@@ -99,6 +100,48 @@ class CanIdsTests(unittest.TestCase):
         self.refused(lambda d: d["messages"][0].update(emitter="everybody"))
         self.refused(lambda d: d.update(messages=[]))
         self.refused(lambda d: d.update(note=5))
+
+    def test_the_emergency_stop_frame_is_complete_and_checked(self) -> None:
+        frame = self.document["estop_frame"]
+        self.assertEqual(frame["bytes"][6:], ["kind_complement", "detail_complement"])
+        self.refused(lambda d: d["estop_frame"].update(dlc=7))
+        self.refused(lambda d: d["estop_frame"].update(bytes=list(reversed(d["estop_frame"]["bytes"]))))
+        self.refused(lambda d: d["estop_frame"]["kinds"].update(ALIVE=1))
+        self.refused(lambda d: d["estop_frame"]["kinds"].pop("ALIVE"))
+        self.refused(lambda d: d["estop_frame"]["trip_reasons"].update(STOP_ALL=1))
+        self.refused(lambda d: d["estop_frame"]["trip_reasons"].update(operator=9))
+        self.refused(lambda d: d["estop_frame"]["sources"].update(KINEMATIC_BRAIN=1))
+        self.refused(lambda d: d["estop_frame"]["sources"].update(HOST_BRIDGE=4))
+        self.refused(lambda d: d["estop_frame"].update(surprise=1))
+
+    def test_the_tool_head_identifiers_are_unique_and_the_stop_is_not_one_of_them(self) -> None:
+        head = self.document["tool_head"]
+        ids = [m["id"] for m in head["messages"]]
+        self.assertEqual(len(ids), len(set(ids)))
+        self.assertNotIn(self.document["estop_id"], ids)
+        self.assertEqual(min(ids), 0x095)
+        self.refused(lambda d: d["tool_head"]["messages"][1].update(id=d["tool_head"]["messages"][0]["id"]))
+        self.refused(lambda d: d["tool_head"]["messages"][1].update(name=d["tool_head"]["messages"][0]["name"]))
+        self.refused(lambda d: d["tool_head"]["messages"][0].update(direction="sideways"))
+        self.refused(lambda d: d["tool_head"]["messages"][0].update(id=2048))
+        self.refused(lambda d: d["tool_head"].update(bus="stack_a"))
+        self.refused(lambda d: d["tool_head"].update(bit_rate_bps=5))
+        self.refused(lambda d: d["tool_head"].update(messages=[]))
+        self.refused(lambda d: d["tool_head"].update(surprise=1))
+
+    def test_the_optional_sections_may_be_left_out(self) -> None:
+        document = copy.deepcopy(self.document)
+        del document["estop_frame"], document["tool_head"]
+        validate_can_ids(document)
+
+    @unittest.skipUnless(URTC_SPEC.is_file(), "URTC-COMMON is not next to this repository")
+    def test_the_tool_head_messages_are_those_of_the_urtc_spec(self) -> None:
+        spec = json.loads(URTC_SPEC.read_text(encoding="utf-8"))
+        theirs = {int(m["id"], 16): (m["name"], m["direction"]) for m in spec["messages"]}
+        ours = {m["id"]: (m["name"], m["direction"]) for m in self.document["tool_head"]["messages"]}
+        self.assertEqual(theirs, ours)
+        self.assertEqual(next(c["value"] for c in spec["constants"] if c["name"] == "BITRATE"), self.document["tool_head"]["bit_rate_bps"])
+        self.assertEqual(spec["protocol_version"], self.document["tool_head"]["protocol_version"])
 
     @unittest.skipUnless(FIRMWARE_TABLE.is_file(), "HYDRA-UMC is not next to this repository")
     def test_the_table_of_the_firmware_says_the_same(self) -> None:
