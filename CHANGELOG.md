@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **More tests for the tool arms contract, the serial port opening and the mock server:** every refusal of the ToolArms checks is exercised one field at a time (list size, robot id, tool id range, booleans, counts, closed schema), the opening of a serial port is checked with the library replaced (the control lines are declared off before the port opens, a missing library says what to install, a USB identifier resolves to the path it has now or fails), and the mock server is run on a small OpenAPI document of its own (405 with the allowed methods, 404, the 401 of a protected operation, the entity tag, a body that is read and ignored, the command line). The Python client goes from 96 % to 97 % line coverage, and the three modules from 79 %, 86 % and 82 % to 95 %, 94 % and 100 %.
+
 ## [0.6.0] - The Live Activity of a robot on the lock screen is in the contract: `POST /api/push/live-activities` (the phone sends the token of the activity it started for a robot) and `DELETE /api/push/live-activities/{token}` answer 404 while the switch `push.liveActivit
 
 - **The Live Activity of a robot on the lock screen is in the contract:** `POST /api/push/live-activities` (the phone sends the token of the activity it started for a robot) and `DELETE /api/push/live-activities/{token}` answer 404 while the switch `push.liveActivity.enabled` is off, which is the default; `PushStatus` carries `liveActivity` (whether it is sent, the level it may show: `status`, `progress` or `full`, with `status` the default, and how many activities are registered). The level is applied by the server before anything leaves it.
