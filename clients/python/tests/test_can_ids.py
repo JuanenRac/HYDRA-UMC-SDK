@@ -126,6 +126,9 @@ class CanIdsTests(unittest.TestCase):
         self.refused(lambda d: d["tool_head"]["messages"][0].update(id=2048))
         self.refused(lambda d: d["tool_head"].update(bus="stack_a"))
         self.refused(lambda d: d["tool_head"].update(bit_rate_bps=5))
+        self.refused(lambda d: d["tool_head"].update(legacy_bit_rate_bps=5))
+        self.assertEqual(self.document["tool_head"]["bit_rate_bps"], 1_000_000)
+        self.assertEqual(self.document["tool_head"]["legacy_bit_rate_bps"], 500_000)
         self.refused(lambda d: d["tool_head"].update(messages=[]))
         self.refused(lambda d: d["tool_head"].update(surprise=1))
 
@@ -140,7 +143,9 @@ class CanIdsTests(unittest.TestCase):
         theirs = {int(m["id"], 16): (m["name"], m["direction"]) for m in spec["messages"]}
         ours = {m["id"]: (m["name"], m["direction"]) for m in self.document["tool_head"]["messages"]}
         self.assertEqual(theirs, ours)
-        self.assertEqual(next(c["value"] for c in spec["constants"] if c["name"] == "BITRATE"), self.document["tool_head"]["bit_rate_bps"])
+        # the spec moves to 1 Mbit/s with the heads; until it does it still says 500 kbit/s, which the contract keeps as its legacy value
+        spec_rate = next(c["value"] for c in spec["constants"] if c["name"] == "BITRATE")
+        self.assertIn(spec_rate, (self.document["tool_head"]["bit_rate_bps"], self.document["tool_head"]["legacy_bit_rate_bps"]))
         self.assertEqual(spec["protocol_version"], self.document["tool_head"]["protocol_version"])
 
     @unittest.skipUnless(FIRMWARE_TABLE.is_file(), "HYDRA-UMC is not next to this repository")

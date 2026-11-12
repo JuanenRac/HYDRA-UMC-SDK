@@ -35,6 +35,7 @@ export interface CanIdsToolHead {
   bit_rate_bps: number;
   bus: "tool_head_downlink";
   messages: CanIdsToolHeadMessages[];
+  legacy_bit_rate_bps?: number;
   [extra: string]: unknown;
 }
 

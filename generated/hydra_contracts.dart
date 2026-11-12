@@ -82,13 +82,15 @@ class CanIdsToolHead {
   final int bit_rate_bps;
   final String bus;
   final List<CanIdsToolHeadMessages> messages;
-  const CanIdsToolHead({required this.source, required this.protocol_version, required this.bit_rate_bps, required this.bus, required this.messages});
+  final int? legacy_bit_rate_bps;
+  const CanIdsToolHead({required this.source, required this.protocol_version, required this.bit_rate_bps, required this.bus, required this.messages, this.legacy_bit_rate_bps});
   factory CanIdsToolHead.fromJson(Map<String, dynamic> json) => CanIdsToolHead(
         source: json["source"] as String,
         protocol_version: (json["protocol_version"] as num).toInt(),
         bit_rate_bps: (json["bit_rate_bps"] as num).toInt(),
         bus: json["bus"] as String,
         messages: (json["messages"] as List).map((e0) => CanIdsToolHeadMessages.fromJson(Map<String, dynamic>.from(e0 as Map))).toList(),
+        legacy_bit_rate_bps: json["legacy_bit_rate_bps"] == null ? null : (json["legacy_bit_rate_bps"] as num).toInt(),
       );
   Map<String, dynamic> toJson() => {
         "source": source,
@@ -96,6 +98,7 @@ class CanIdsToolHead {
         "bit_rate_bps": bit_rate_bps,
         "bus": bus,
         "messages": messages.map((e0) => e0.toJson()).toList(),
+        if (legacy_bit_rate_bps != null) "legacy_bit_rate_bps": legacy_bit_rate_bps,
       };
 }
 

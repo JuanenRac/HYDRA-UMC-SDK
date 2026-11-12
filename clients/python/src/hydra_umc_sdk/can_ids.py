@@ -63,11 +63,13 @@ def _validate_estop_frame(value) -> None:
 
 def _validate_tool_head(value) -> None:
     head = require_object(value, "tool_head")
-    check_fields(head, ("source", "protocol_version", "bit_rate_bps", "bus", "messages"), (), "tool_head")
+    check_fields(head, ("source", "protocol_version", "bit_rate_bps", "bus", "messages"), ("legacy_bit_rate_bps",), "tool_head")
     if not isinstance(head["source"], str) or not 1 <= len(head["source"]) <= 200:
         raise ContractValidationError("tool_head.source must be a text of 1 to 200 characters")
     _integer(head["protocol_version"], "tool_head.protocol_version", 1, 65535)
     _integer(head["bit_rate_bps"], "tool_head.bit_rate_bps", 10000, 1000000)
+    if "legacy_bit_rate_bps" in head:
+        _integer(head["legacy_bit_rate_bps"], "tool_head.legacy_bit_rate_bps", 10000, 1000000)
     if head["bus"] != "tool_head_downlink":
         raise ContractValidationError("tool_head.bus must be tool_head_downlink")
     messages = head["messages"]

@@ -160,7 +160,8 @@
         "bit_rate_bps": {
           "type": "integer",
           "minimum": 10000,
-          "maximum": 1000000
+          "maximum": 1000000,
+          "description": "The bit rate of the tool head bus. 1 Mbit/s since the decision of the owner."
         },
         "bus": {
           "const": "tool_head_downlink"
@@ -196,6 +197,12 @@
               }
             }
           }
+        },
+        "legacy_bit_rate_bps": {
+          "type": "integer",
+          "minimum": 10000,
+          "maximum": 1000000,
+          "description": "The bit rate the earlier URTC protocol used (500 kbit/s), kept for heads that were not updated yet. Optional."
         }
       }
     }

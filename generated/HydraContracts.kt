@@ -32,7 +32,8 @@ data class CanIdsToolHead(
     val protocol_version: Long,
     val bit_rate_bps: Long,
     val bus: String,
-    val messages: List<CanIdsToolHeadMessages>
+    val messages: List<CanIdsToolHeadMessages>,
+    val legacy_bit_rate_bps: Long? = null
 )
 
 data class CanIdsToolHeadMessages(
