@@ -77,6 +77,7 @@ var contractFixtureFile = map[string]string{
 	"FaultEvent":            "fault-event",
 	"SafetyZonesState":      "safety-zones-state",
 	"ToolArms":              "tool-arms",
+	"Kinematics":            "kinematics",
 	"VlaApproval":           "vla-approval",
 	"EvidenceBundle":        "evidence-bundle",
 }

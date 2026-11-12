@@ -73,6 +73,7 @@ var contractFiles = map[string]string{
 	"FaultEvent":            "fault-event.schema.json",
 	"SafetyZonesState":      "safety-zones-state.schema.json",
 	"ToolArms":              "tool-arms.schema.json",
+	"Kinematics":            "kinematics.schema.json",
 	"VlaApproval":           "vla-approval.schema.json",
 	"EvidenceBundle":        "evidence-bundle.schema.json",
 }

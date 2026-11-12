@@ -310,5 +310,6 @@ export type ContractName =
   | "FaultEvent"
   | "SafetyZonesState"
   | "ToolArms"
+  | "Kinematics"
   | "VlaApproval"
   | "EvidenceBundle";

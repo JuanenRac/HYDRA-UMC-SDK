@@ -64,6 +64,7 @@ const CONTRACT_FIXTURE_STEM: &[(&str, &str)] = &[
     ("FaultEvent", "fault-event"),
     ("SafetyZonesState", "safety-zones-state"),
     ("ToolArms", "tool-arms"),
+    ("Kinematics", "kinematics"),
     ("VlaApproval", "vla-approval"),
     ("EvidenceBundle", "evidence-bundle"),
 ];

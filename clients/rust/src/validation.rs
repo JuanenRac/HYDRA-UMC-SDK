@@ -93,6 +93,7 @@ const CONTRACT_FILES: &[(&str, &str)] = &[
     ("FaultEvent", "fault-event.schema.json"),
     ("SafetyZonesState", "safety-zones-state.schema.json"),
     ("ToolArms", "tool-arms.schema.json"),
+    ("Kinematics", "kinematics.schema.json"),
     ("VlaApproval", "vla-approval.schema.json"),
     ("EvidenceBundle", "evidence-bundle.schema.json"),
 ];
@@ -229,6 +230,10 @@ const SCHEMA_FILES: &[(&str, &str)] = &[
     (
         "tool-arms.schema.json",
         include_str!("../schemas/tool-arms.schema.json"),
+    ),
+    (
+        "kinematics.schema.json",
+        include_str!("../schemas/kinematics.schema.json"),
     ),
     (
         "vla-approval.schema.json",

@@ -55,6 +55,7 @@ const CONTRACT_FIXTURE_STEM: Record<ContractName, string> = {
   FaultEvent: "fault-event",
   SafetyZonesState: "safety-zones-state",
   ToolArms: "tool-arms",
+  Kinematics: "kinematics",
   VlaApproval: "vla-approval",
   EvidenceBundle: "evidence-bundle",
 };
@@ -79,6 +80,7 @@ test("knownContracts lists all 34 real contracts", () => {
     "FaultEvent",
     "FrameMeta",
     "HealthReport",
+    "Kinematics",
     "MaintenanceIncident",
     "NodeSnapshot",
     "Operation",
