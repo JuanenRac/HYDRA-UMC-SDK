@@ -74,6 +74,8 @@ MTConnect.
 
 **HYDRA-UMC-SDK** is the shared language of the ecosystem: the JSON Schema v1 contracts, the first OpenAPI slice of the server, reference clients in Python, Go, TypeScript and Rust, the bridge helpers every bridge and the connector hub use, and the tools that keep the tooling of every repository identical. It runs no service of its own and replaces no official API.
 
+> **Platform:** where this README says CM5, it means the pilot bench that runs today; the target platform of HYDRA-UMC is an NVIDIA Jetson Orin NX 16 GB, a design that has not been built or tested.
+
 ## 🏛️ Architecture
 
 <p align="center">

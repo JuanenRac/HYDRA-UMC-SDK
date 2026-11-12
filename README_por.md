@@ -69,6 +69,8 @@ O HYDRA-UMC-SDK define a linguagem estável partilhada pelos serviços, clientes
 
 O **HYDRA-UMC-SDK** é a língua comum do ecossistema: os contratos JSON Schema v1, a primeira fatia OpenAPI do servidor, clientes de referência em Python, Go, TypeScript e Rust, os auxiliares de ponte que todas as pontes e o concentrador de conectores usam, e as ferramentas que mantêm idênticas as ferramentas de cada repositório. Não corre nenhum serviço próprio nem substitui nenhuma API oficial.
 
+> **Plataforma:** onde este README diz CM5, refere-se ao banco piloto que funciona hoje; a plataforma objetivo do HYDRA-UMC é uma NVIDIA Jetson Orin NX de 16 GB, um desenho que não foi construído nem testado.
+
 ## 🏛️ Arquitetura
 
 <p align="center">

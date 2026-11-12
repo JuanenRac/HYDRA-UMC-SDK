@@ -72,6 +72,8 @@ MQTT、OPC-UA 或 MTConnect 各自的官方 API。
 
 **HYDRA-UMC-SDK** 是生态系统的共同语言：JSON Schema v1 契约、服务器的第一部分 OpenAPI、Python、Go、TypeScript 和 Rust 参考客户端、所有桥接和连接器中枢都用的桥接辅助代码，以及让每个仓库的工具保持一致的工具。它不运行自己的服务，也不替代任何官方 API。
 
+> **平台：** 本 README 中的 CM5 指的是目前正在运行的试验台；HYDRA-UMC 的目标平台是 NVIDIA Jetson Orin NX 16 GB，这是尚未制造或测试的设计。
+
 ## 🏛️ 架构
 
 <p align="center">
