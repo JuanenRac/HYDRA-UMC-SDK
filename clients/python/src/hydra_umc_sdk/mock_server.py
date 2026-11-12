@@ -340,6 +340,15 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "armedCount": 1,
         "staleCount": 0
     },
+    "Kinematics": {
+        "schema_version": "1.0",
+        "models": {
+            "Parol6 (6-DOF)": {
+                "limits": {"j1": [-97.4, 187.4], "j2": [-56.15, 57.3]},
+                "home": {"j1": 0, "j2": -25}
+            }
+        }
+    },
     "VlaApproval": {
         "approved": True,
         "fingerprint": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
