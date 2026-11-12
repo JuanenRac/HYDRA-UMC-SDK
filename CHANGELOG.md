@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.6.1] - The F-RAM erase and self-test of the kinematic brain are in the contract: `POST /api/hardware/fram/erase` (admin role; the body is `{ "confirm": "ERASE" }`) and `POST /api/hardware/fram/selftest` (admin role) are declared in `contracts/sources/hardware.routes
+
 - **The F-RAM erase and self-test of the kinematic brain are in the contract:** `POST /api/hardware/fram/erase` (admin role; the body is `{ "confirm": "ERASE" }`) and `POST /api/hardware/fram/selftest` (admin role) are declared in `contracts/sources/hardware.routes.json`, and `GET /api/hardware/canota/version` already carries `capabilities.fram_erase`, true only when the SPI bridge and the server both offer the operation. Both routes are off by default on the server (403 while its switch is off). The union of the sources, the route tables of the clients and the fixtures of the apps are regenerated.
 
 - **The kinematic data of the robot models is one document of the contract:** `contracts/kinematics.json` holds the range of every joint, the home pose and, where it is known, the chain of the arm as a URDF writes it (the offset, the rotation and the axis of each joint, with the numbers it was built from; the three classic Universal Robots arms carry one), and the closed schema `Kinematics` (`kinematics.schema.json`, with valid and invalid fixtures and the generated types) describes it. The Python client validates it, and the tests check that the ranges are ordered, that every home pose is inside its range, that a chain follows its own numbers and that the copies the apps keep of the ranges are the same. The apps take it from the SDK they are pinned to once a tag carries it.
