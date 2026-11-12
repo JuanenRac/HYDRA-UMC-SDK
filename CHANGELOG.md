@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.6.0] - The Live Activity of a robot on the lock screen is in the contract: `POST /api/push/live-activities` (the phone sends the token of the activity it started for a robot) and `DELETE /api/push/live-activities/{token}` answer 404 while the switch `push.liveActivit
+
 - **The Live Activity of a robot on the lock screen is in the contract:** `POST /api/push/live-activities` (the phone sends the token of the activity it started for a robot) and `DELETE /api/push/live-activities/{token}` answer 404 while the switch `push.liveActivity.enabled` is off, which is the default; `PushStatus` carries `liveActivity` (whether it is sent, the level it may show: `status`, `progress` or `full`, with `status` the default, and how many activities are registered). The level is applied by the server before anything leaves it.
 
 - **The reset of the arm state of one URTC tool changer is in the contract:** `POST /api/tool-arms/reset` (admin role) takes the robot, the tool and the robot id typed again as the confirmation, and answers with the robot and the tool that were reset. The reset puts back the arm state the tool changer reports and moves nothing mechanical; it is accepted only while the robot is stopped and disarmed (409 otherwise), it answers 404 while its switch is off, 502 when the tool changer service rejects it and 503 when that service is not configured or not reachable.
