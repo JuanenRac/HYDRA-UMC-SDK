@@ -12,6 +12,7 @@ library;
 export 'src/access.dart';
 export 'src/command_sequence.dart';
 export 'src/connection_history.dart';
+export 'src/discovery.dart';
 export 'src/hydra_error.dart';
 export 'src/server_security.dart';
 export 'src/contract_v2.dart';
