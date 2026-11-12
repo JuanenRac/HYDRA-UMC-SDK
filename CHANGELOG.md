@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The compatibility rule of an update manifest is one function (`update_compat.check_update_compat`):** given a manifest, the target of the board and the version of its bootloader it returns the reasons the image must not be flashed: another target, a board that did not say its target, a bootloader older than `min_bootloader` (compared as numbers, four parts allowed), or a bootloader version that is missing or unreadable; a manifest without the two optional fields forbids nothing. The updater calls it before it flashes. It does not check the signature, which needs the key. 8 tests.
+
 - **README: the platform statement:** a note says that where the README speaks of the CM5 it means the pilot bench that runs today, and that the target platform of HYDRA-UMC, an NVIDIA Jetson Orin NX 16 GB, is a design that has not been built or tested.
 - **The tool head bus is 1 Mbit/s in the CAN contract (decision of the owner):** `tool_head.bit_rate_bps` is 1000000, like STACK A, and the optional `legacy_bit_rate_bps` (500000) keeps the number of the earlier URTC protocol, documented, for heads that were not updated yet. The URTC spec and the head firmware move to 1 Mbit/s on the URTC side; until the spec says so, the test that compares the contract with the spec accepts its rate as the legacy value.
 
