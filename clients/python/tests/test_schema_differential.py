@@ -58,6 +58,7 @@ CONTRACT_FILES = {
     "FaultEvent": "fault-event",
     "SafetyZonesState": "safety-zones-state",
     "ToolArms": "tool-arms",
+    "Kinematics": "kinematics",
     "VlaApproval": "vla-approval",
     "EvidenceBundle": "evidence-bundle",
 }

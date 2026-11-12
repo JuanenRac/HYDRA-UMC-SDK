@@ -51,6 +51,7 @@ according to its use case.
 | `FaultEvent` | Every service that raises a fault (the message `fault-event/1` on the broker under `hydra/faults/`; the field that names it is `schema`) | Server (active faults and history), MTConnect and OPC UA feeds |
 | `ToolDescriptor` | URTC tool table (one catalogue entry per tool head profile) | Server, Smart Rack, Studio, telemetry collector |
 | `ToolState` | URTC adapter or gateway (one reading of a connected tool head) | Server, Smart Rack, Studio, telemetry collector |
+| `Kinematics` | The SDK (`contracts/kinematics.json`: the range of every joint, the home pose and, where it is known, the chain of the arm as a URDF writes it) | The solvers and panels of STUDIO and SUITE and the planner of the SERVER, in place of the copy each one keeps |
 | `ToolArms` | HYDRA-UMC-SAFETY-ZONES (the answer of `GET /tool-arms`: the last report of each pair of robot and tool, with its age) | The panels of STUDIO, SUITE and DSI |
 | `ProjectManifest` | Every repository (`hydra-umc.project.json` or `urtc.project.json`) | Updater, dashboard |
 
@@ -176,6 +177,10 @@ The routes of the connections (`GET /api/connections/clients` and `GET /api/conn
 ## Answers generated for the apps
 
 `python tools/make_app_fixtures.py` writes `conformance/app-fixtures/v1/server-answers.json` from the shapes of `contracts/openapi/v1/server.full.openapi.json`: for every route that names the shape of an answer, one `minimal` body (the required fields) and one `full` body (every declared field), per status code. An app replays these answers against its own models, so the inventory is the one description of the server that every client is tested with; `--check` fails when the file is not what the inventory produces, and a test proves that every body conforms to its shape.
+
+## Kinematic data of the robot models
+
+`contracts/kinematics.json` is the one document of the joint ranges (degrees), the home pose (degrees) and, where it is known, the chain of the arm of each robot model; the closed schema `kinematics.schema.json` describes it. A chain is written as a URDF writes its joints (the offset in meters from the parent, the rotation in radians, the axis) together with the numbers it was built from (the Denavit-Hartenberg values of the maker). The three classic Universal Robots arms carry a chain today; the other models carry their ranges and home pose and the chain is added as it is checked against the solver of each. A test checks that the ranges are ordered, that every home pose is inside its range, that a chain follows its own numbers, and that the copies of the ranges that the apps keep are the same when their repositories are next to this one. An app moves to this document by taking it from the SDK it is pinned to; until it does, its copy is checked against this one.
 
 ## Catalogue of the URTC tools
 

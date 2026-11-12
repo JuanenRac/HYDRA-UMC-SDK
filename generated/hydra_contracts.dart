@@ -685,6 +685,23 @@ class HealthReport {
       };
 }
 
+class Kinematics {
+  final String schema_version;
+  final String? note;
+  final Map<String, Object?> models;
+  const Kinematics({required this.schema_version, this.note, required this.models});
+  factory Kinematics.fromJson(Map<String, dynamic> json) => Kinematics(
+        schema_version: json["schema_version"] as String,
+        note: json["note"] == null ? null : json["note"] as String,
+        models: Map<String, dynamic>.from(json["models"] as Map),
+      );
+  Map<String, dynamic> toJson() => {
+        "schema_version": schema_version,
+        if (note != null) "note": note,
+        "models": models,
+      };
+}
+
 class MaintenanceIncident {
   final String? schema_version;
   final String incidentId;

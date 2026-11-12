@@ -236,6 +236,12 @@ data class HealthReport(
     val checks: Map<String, Any?>
 )
 
+data class Kinematics(
+    val schema_version: String,
+    val note: String? = null,
+    val models: Map<String, Any?>
+)
+
 data class MaintenanceIncident(
     val schema_version: String? = null,
     val incidentId: String,

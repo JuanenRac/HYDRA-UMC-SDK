@@ -256,6 +256,13 @@ export interface HealthReport {
   [extra: string]: unknown;
 }
 
+export interface Kinematics {
+  schema_version: "1.0";
+  note?: string;
+  models: Record<string, unknown>;
+  [extra: string]: unknown;
+}
+
 export interface MaintenanceIncident {
   schema_version?: "1.0";
   incidentId: string;

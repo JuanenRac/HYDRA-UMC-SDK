@@ -54,6 +54,7 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "FaultEvent": ("schema", "source", "code", "state"),
     "SafetyZonesState": ("sdkSafetyState", "reason"),
     "ToolArms": ("schema_version", "ttlSeconds", "arms", "armedCount", "staleCount"),
+    "Kinematics": ("schema_version", "models"),
     "VlaApproval": ("approved", "fingerprint", "robot_id", "operator", "approved_at_ms", "expires_at_ms", "signature"),
     "EvidenceBundle": ("componentVersions", "relevantManifests", "redactedLogExcerpts", "reproductionSteps", "failedTests", "impact", "actionsAttempted", "checksum", "date", "localValidationResult"),
     "ConnectionEvent": ("schema_version", "id", "at_utc", "action", "client_kind", "client_id"),
@@ -320,6 +321,11 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
         from .tool_arms import validate_tool_arms  # imported here: the module needs this module's error type
 
         validate_tool_arms(payload)
+        return
+    if contract == "Kinematics":
+        from .kinematics import validate_kinematics  # imported here: the module needs this module's error type
+
+        validate_kinematics(payload)
         return
     if contract == "VlaApproval":
         from .vla_approval import validate_vla_approval  # imported here: the module needs this module's error type

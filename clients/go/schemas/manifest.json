@@ -58,6 +58,10 @@
       "sha256": "8c2278b6d803314f9273ad61de564597d706b3795578045a47c44fcfe4748a5c"
     },
     {
+      "file": "kinematics.schema.json",
+      "sha256": "5afe2fb3499ae0f9045b226697da9deeae3812b51561f9b99936423362bb0019"
+    },
+    {
       "file": "maintenance-incident.schema.json",
       "sha256": "474274308b3679b324019824bb1758f20216a4940b2a03dc6f756c677ee7b33c"
     },
