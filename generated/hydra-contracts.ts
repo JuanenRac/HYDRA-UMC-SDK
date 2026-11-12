@@ -256,6 +256,37 @@ export interface HealthReport {
   [extra: string]: unknown;
 }
 
+export interface JointPoses {
+  schema_version: "1.0";
+  frame: "base";
+  checked?: boolean;
+  note?: string;
+  poses: JointPosesPoses[];
+  [extra: string]: unknown;
+}
+
+export interface JointPosesPoses {
+  joint: string;
+  position: JointPosesPosesPosition;
+  quaternion: JointPosesPosesQuaternion;
+  [extra: string]: unknown;
+}
+
+export interface JointPosesPosesPosition {
+  x: number;
+  y: number;
+  z: number;
+  [extra: string]: unknown;
+}
+
+export interface JointPosesPosesQuaternion {
+  w: number;
+  x: number;
+  y: number;
+  z: number;
+  [extra: string]: unknown;
+}
+
 export interface Kinematics {
   schema_version: "1.0";
   note?: string;

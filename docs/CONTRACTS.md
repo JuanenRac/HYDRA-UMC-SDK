@@ -52,6 +52,7 @@ according to its use case.
 | `ToolDescriptor` | URTC tool table (one catalogue entry per tool head profile) | Server, Smart Rack, Studio, telemetry collector |
 | `ToolState` | URTC adapter or gateway (one reading of a connected tool head) | Server, Smart Rack, Studio, telemetry collector |
 | `Kinematics` | The SDK (`contracts/kinematics.json`: the range of every joint, the home pose and, where it is known, the chain of the arm as a URDF writes it) | The solvers and panels of STUDIO and SUITE and the planner of the SERVER, in place of the copy each one keeps |
+| `JointPoses` | HYDRA-UMC-PHYSICS-REPLICA (the answer of forward kinematics, `POST /fk` and `fk --envelope`: the position and the unit quaternion of every joint, listed from the root to the tip, in the frame `base`) | TWIN, PATH-PLANNER-3D, SAFETY-ZONES and the panels of STUDIO and SUITE |
 | `ToolArms` | HYDRA-UMC-SAFETY-ZONES (the answer of `GET /tool-arms`: the last report of each pair of robot and tool, with its age) | The panels of STUDIO, SUITE and DSI |
 | `ProjectManifest` | Every repository (`hydra-umc.project.json` or `urtc.project.json`) | Updater, dashboard |
 

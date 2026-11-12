@@ -59,6 +59,7 @@ CONTRACT_FILES = {
     "SafetyZonesState": "safety-zones-state",
     "ToolArms": "tool-arms",
     "Kinematics": "kinematics",
+    "JointPoses": "joint-poses",
     "VlaApproval": "vla-approval",
     "EvidenceBundle": "evidence-bundle",
 }

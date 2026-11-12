@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "frame": "base",
+  "checked": true,
+  "note": "forward kinematics at the given joint positions",
+  "poses": [
+    {
+      "joint": "shoulder",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.1
+      },
+      "quaternion": {
+        "w": 0.968912422,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.247403959
+      }
+    },
+    {
+      "joint": "elbow",
+      "position": {
+        "x": 0.2,
+        "y": 0.05,
+        "z": 0.1
+      },
+      "quaternion": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    {
+      "joint": "tcp",
+      "position": {
+        "x": 0.25,
+        "y": 0.05,
+        "z": 0.1
+      },
+      "quaternion": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    }
+  ]
+}

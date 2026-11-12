@@ -152,6 +152,23 @@ def test_the_feeds_of_the_sibling_services(server):
     assert call(base, "POST", "/api/trajectory/proposals/verify", body, token)[1]["reason"] == "wrong-robot"
 
 
+def test_a_camera_ticket_is_issued_to_a_signed_in_account_and_runs_out_with_the_clock(server):
+    state, base = server
+    assert call(base, "POST", "/api/camera/ticket", {})[0] == 401
+    token = sign_in(base)["token"]
+    status, answer = call(base, "POST", "/api/camera/ticket", {}, token)
+    assert status == 200
+    assert answer["expiresInSeconds"] == 300 and answer["ticket"].startswith("tkt-")
+    assert state.tickets[answer["ticket"]][0] == "admin"
+    assert state.ticket_valid(answer["ticket"])
+    other = call(base, "POST", "/api/camera/ticket", {}, token)[1]["ticket"]
+    assert other != answer["ticket"]
+    state.now_ms += 299_000
+    assert state.ticket_valid(answer["ticket"])
+    state.now_ms += 2_000
+    assert not state.ticket_valid(answer["ticket"]) and not state.ticket_valid("tkt-unknown")
+
+
 def test_it_runs_as_a_process_for_an_app_with_its_own_copy_of_the_answers(tmp_path):
     """An app test starts it with `--port 0` and a copy of the answers; the first line says where it listens."""
     import os

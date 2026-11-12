@@ -311,5 +311,6 @@ export type ContractName =
   | "SafetyZonesState"
   | "ToolArms"
   | "Kinematics"
+  | "JointPoses"
   | "VlaApproval"
   | "EvidenceBundle";

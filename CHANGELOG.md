@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+- **The pose of every joint is a closed contract (`JointPoses`):** `joint-poses.schema.json` (with its copies in the Go, Rust and TypeScript clients, the manifests, the generated types, the Python validator, a valid and an invalid fixture and 8 tests) describes the answer of forward kinematics of the physics replica: `schema_version`, the `frame` the poses are written in (`base`, the root link of the model), optional `checked` and `note`, and `poses`, from the root to the tip, each with the joint name, the position in meters and the unit quaternion (w, x, y, z) within 1e-5. The schema is closed, so a consumer such as the digital twin, the path planner or the safety zones reads one shape instead of guessing one.
+
+- **The stand-in server issues camera tickets (`POST /api/camera/ticket`):** the fake server of the conformance suite answers the route with `{ticket, expiresInSeconds: 300}` for a signed-in account (a request with no session is `401`), keeps the tickets with their account and expiry on the test clock (`tickets`, `ticket_valid`), and a ticket stops being valid when the test moves the clock past it. Before, the route fell through to the inventory, which has no body for it, so a client could not test the ticket against the shared server. 1 test.
+
 - **A weekly workflow checks that the shared tooling of every repository still agrees:** `sync-check.yml` clones every HYDRA-UMC and URTC repository next to the SDK and runs `tools/sync_repo_tools.py --check --all` (the canonical copies of the shared tools and of the baseline action, the document policy, the README parity check and the script banners). Nothing is written; a repository whose copy drifted fails the run, which names it. It runs on Mondays and by hand.
 
 ## [0.6.1] - The F-RAM erase and self-test of the kinematic brain are in the contract: `POST /api/hardware/fram/erase` (admin role; the body is `{ "confirm": "ERASE" }`) and `POST /api/hardware/fram/selftest` (admin role) are declared in `contracts/sources/hardware.routes

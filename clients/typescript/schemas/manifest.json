@@ -58,6 +58,10 @@
       "sha256": "8c2278b6d803314f9273ad61de564597d706b3795578045a47c44fcfe4748a5c"
     },
     {
+      "file": "joint-poses.schema.json",
+      "sha256": "cd921a36d004c46660de6ce44a15ec9f734d6caa6574c266afc8fb29fcd3b947"
+    },
+    {
       "file": "kinematics.schema.json",
       "sha256": "5afe2fb3499ae0f9045b226697da9deeae3812b51561f9b99936423362bb0019"
     },

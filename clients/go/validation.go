@@ -74,6 +74,7 @@ var contractFiles = map[string]string{
 	"SafetyZonesState":      "safety-zones-state.schema.json",
 	"ToolArms":              "tool-arms.schema.json",
 	"Kinematics":            "kinematics.schema.json",
+	"JointPoses":            "joint-poses.schema.json",
 	"VlaApproval":           "vla-approval.schema.json",
 	"EvidenceBundle":        "evidence-bundle.schema.json",
 }

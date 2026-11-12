@@ -340,6 +340,13 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "armedCount": 1,
         "staleCount": 0
     },
+    "JointPoses": {
+        "schema_version": "1.0",
+        "frame": "base",
+        "poses": [
+            {"joint": "j1", "position": {"x": 0.0, "y": 0.0, "z": 0.1}, "quaternion": {"w": 1.0, "x": 0.0, "y": 0.0, "z": 0.0}}
+        ]
+    },
     "Kinematics": {
         "schema_version": "1.0",
         "models": {

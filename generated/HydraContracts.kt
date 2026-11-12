@@ -236,6 +236,33 @@ data class HealthReport(
     val checks: Map<String, Any?>
 )
 
+data class JointPoses(
+    val schema_version: String,
+    val frame: String,
+    val checked: Boolean? = null,
+    val note: String? = null,
+    val poses: List<JointPosesPoses>
+)
+
+data class JointPosesPoses(
+    val joint: String,
+    val position: JointPosesPosesPosition,
+    val quaternion: JointPosesPosesQuaternion
+)
+
+data class JointPosesPosesPosition(
+    val x: Double,
+    val y: Double,
+    val z: Double
+)
+
+data class JointPosesPosesQuaternion(
+    val w: Double,
+    val x: Double,
+    val y: Double,
+    val z: Double
+)
+
 data class Kinematics(
     val schema_version: String,
     val note: String? = null,

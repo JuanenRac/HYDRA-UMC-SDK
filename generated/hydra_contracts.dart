@@ -685,6 +685,83 @@ class HealthReport {
       };
 }
 
+class JointPoses {
+  final String schema_version;
+  final String frame;
+  final bool? checked;
+  final String? note;
+  final List<JointPosesPoses> poses;
+  const JointPoses({required this.schema_version, required this.frame, this.checked, this.note, required this.poses});
+  factory JointPoses.fromJson(Map<String, dynamic> json) => JointPoses(
+        schema_version: json["schema_version"] as String,
+        frame: json["frame"] as String,
+        checked: json["checked"] == null ? null : json["checked"] as bool,
+        note: json["note"] == null ? null : json["note"] as String,
+        poses: (json["poses"] as List).map((e0) => JointPosesPoses.fromJson(Map<String, dynamic>.from(e0 as Map))).toList(),
+      );
+  Map<String, dynamic> toJson() => {
+        "schema_version": schema_version,
+        "frame": frame,
+        if (checked != null) "checked": checked,
+        if (note != null) "note": note,
+        "poses": poses.map((e0) => e0.toJson()).toList(),
+      };
+}
+
+class JointPosesPoses {
+  final String joint;
+  final JointPosesPosesPosition position;
+  final JointPosesPosesQuaternion quaternion;
+  const JointPosesPoses({required this.joint, required this.position, required this.quaternion});
+  factory JointPosesPoses.fromJson(Map<String, dynamic> json) => JointPosesPoses(
+        joint: json["joint"] as String,
+        position: JointPosesPosesPosition.fromJson(Map<String, dynamic>.from(json["position"] as Map)),
+        quaternion: JointPosesPosesQuaternion.fromJson(Map<String, dynamic>.from(json["quaternion"] as Map)),
+      );
+  Map<String, dynamic> toJson() => {
+        "joint": joint,
+        "position": position.toJson(),
+        "quaternion": quaternion.toJson(),
+      };
+}
+
+class JointPosesPosesPosition {
+  final double x;
+  final double y;
+  final double z;
+  const JointPosesPosesPosition({required this.x, required this.y, required this.z});
+  factory JointPosesPosesPosition.fromJson(Map<String, dynamic> json) => JointPosesPosesPosition(
+        x: (json["x"] as num).toDouble(),
+        y: (json["y"] as num).toDouble(),
+        z: (json["z"] as num).toDouble(),
+      );
+  Map<String, dynamic> toJson() => {
+        "x": x,
+        "y": y,
+        "z": z,
+      };
+}
+
+class JointPosesPosesQuaternion {
+  final double w;
+  final double x;
+  final double y;
+  final double z;
+  const JointPosesPosesQuaternion({required this.w, required this.x, required this.y, required this.z});
+  factory JointPosesPosesQuaternion.fromJson(Map<String, dynamic> json) => JointPosesPosesQuaternion(
+        w: (json["w"] as num).toDouble(),
+        x: (json["x"] as num).toDouble(),
+        y: (json["y"] as num).toDouble(),
+        z: (json["z"] as num).toDouble(),
+      );
+  Map<String, dynamic> toJson() => {
+        "w": w,
+        "x": x,
+        "y": y,
+        "z": z,
+      };
+}
+
 class Kinematics {
   final String schema_version;
   final String? note;
