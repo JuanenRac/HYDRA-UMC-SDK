@@ -65,6 +65,8 @@ const List<HydraRoute> hydraRoutes = <HydraRoute>[
   HydraRoute('GET', '/api/faults', 'user', 'feeds', <String>['active', 'limit', 'verify'], <String>['200']),
   HydraRoute('POST', '/api/hardware/canota/flash', 'admin', 'hardware', <String>[], <String>['200', '400', '502', '503']),
   HydraRoute('GET', '/api/hardware/canota/version', 'user', 'hardware', <String>['relay', 'slot', 'tier'], <String>['200', '503']),
+  HydraRoute('POST', '/api/hardware/fram/erase', 'admin', 'hardware', <String>[], <String>['200', '400', '403', '409', '503', '504']),
+  HydraRoute('POST', '/api/hardware/fram/selftest', 'admin', 'hardware', <String>[], <String>['200', '400', '403', '409', '503', '504']),
   HydraRoute('GET', '/api/hil-bridge/settings', 'user', 'hil-bridge', <String>[], <String>['200']),
   HydraRoute('POST', '/api/hil-bridge/settings', 'admin', 'hil-bridge', <String>[], <String>['400']),
   HydraRoute('GET', '/api/hydra-info', 'public', 'hydra-info', <String>[], <String>['200', '404']),

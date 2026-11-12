@@ -66,6 +66,8 @@ export const HYDRA_ROUTES: readonly HydraRoute[] = [
   { method: "GET", path: "/api/faults", access: "user", group: "feeds", query: ["active", "limit", "verify"], statuses: ["200"] },
   { method: "POST", path: "/api/hardware/canota/flash", access: "admin", group: "hardware", query: [], statuses: ["200", "400", "502", "503"] },
   { method: "GET", path: "/api/hardware/canota/version", access: "user", group: "hardware", query: ["relay", "slot", "tier"], statuses: ["200", "503"] },
+  { method: "POST", path: "/api/hardware/fram/erase", access: "admin", group: "hardware", query: [], statuses: ["200", "400", "403", "409", "503", "504"] },
+  { method: "POST", path: "/api/hardware/fram/selftest", access: "admin", group: "hardware", query: [], statuses: ["200", "400", "403", "409", "503", "504"] },
   { method: "GET", path: "/api/hil-bridge/settings", access: "user", group: "hil-bridge", query: [], statuses: ["200"] },
   { method: "POST", path: "/api/hil-bridge/settings", access: "admin", group: "hil-bridge", query: [], statuses: ["400"] },
   { method: "GET", path: "/api/hydra-info", access: "public", group: "hydra-info", query: [], statuses: ["200", "404"] },

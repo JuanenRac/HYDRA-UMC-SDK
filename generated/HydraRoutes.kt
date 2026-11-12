@@ -58,6 +58,8 @@ val HYDRA_ROUTES: List<HydraRoute> = listOf(
     HydraRoute("GET", "/api/faults", "user", "feeds", listOf("active", "limit", "verify"), listOf("200")),
     HydraRoute("POST", "/api/hardware/canota/flash", "admin", "hardware", listOf(), listOf("200", "400", "502", "503")),
     HydraRoute("GET", "/api/hardware/canota/version", "user", "hardware", listOf("relay", "slot", "tier"), listOf("200", "503")),
+    HydraRoute("POST", "/api/hardware/fram/erase", "admin", "hardware", listOf(), listOf("200", "400", "403", "409", "503", "504")),
+    HydraRoute("POST", "/api/hardware/fram/selftest", "admin", "hardware", listOf(), listOf("200", "400", "403", "409", "503", "504")),
     HydraRoute("GET", "/api/hil-bridge/settings", "user", "hil-bridge", listOf(), listOf("200")),
     HydraRoute("POST", "/api/hil-bridge/settings", "admin", "hil-bridge", listOf(), listOf("400")),
     HydraRoute("GET", "/api/hydra-info", "public", "hydra-info", listOf(), listOf("200", "404")),

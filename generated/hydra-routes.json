@@ -659,6 +659,36 @@
       ]
     },
     {
+      "method": "POST",
+      "path": "/api/hardware/fram/erase",
+      "access": "admin",
+      "group": "hardware",
+      "query": [],
+      "statuses": [
+        "200",
+        "400",
+        "403",
+        "409",
+        "503",
+        "504"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/hardware/fram/selftest",
+      "access": "admin",
+      "group": "hardware",
+      "query": [],
+      "statuses": [
+        "200",
+        "400",
+        "403",
+        "409",
+        "503",
+        "504"
+      ]
+    },
+    {
       "method": "GET",
       "path": "/api/hil-bridge/settings",
       "access": "user",

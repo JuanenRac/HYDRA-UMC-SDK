@@ -70,6 +70,72 @@
           "shape": "Error"
         }
       }
+    },
+    {
+      "method": "post",
+      "path": "/api/hardware/fram/erase",
+      "summary": "POST /api/hardware/fram/erase",
+      "description": "Requires a signed-in account with the admin role. Off by default (safety.framErase): it then answers 403 and nothing leaves the server. The body is { \"confirm\": \"ERASE\" }.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Passthrough"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "403": {
+          "description": "Signed in but not allowed. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "409": {
+          "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "504": {
+          "description": "Upstream service did not answer in time. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/hardware/fram/selftest",
+      "summary": "POST /api/hardware/fram/selftest",
+      "description": "Requires a signed-in account with the admin role. Off by default (safety.framErase): it then answers 403 and nothing leaves the server.",
+      "access": "admin",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Passthrough"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "403": {
+          "description": "Signed in but not allowed. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "409": {
+          "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "504": {
+          "description": "Upstream service did not answer in time. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
     }
   ]
 }
