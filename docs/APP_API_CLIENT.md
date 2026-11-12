@@ -20,9 +20,10 @@ What stays in each app on purpose: the adapters over `package:http`, `flutter_se
 
 ## Decisions behind the shared types
 
-- **Transport, not plugin.** The package never imports `package:http`. An app wraps its client (with its TLS pinning) in an `HttpTransport`; tests use a scripted one. The same seam is used for preferences (`PrefsStore`) and secrets (`SecureTokenBackend`).
+- **Transport, not plugin.** The API client never imports `package:http`. An app wraps its client (with its TLS pinning) in an `HttpTransport`; tests use a scripted one. The same seam is used for preferences (`PrefsStore`) and secrets (`SecureTokenBackend`).
 - **Numbering and renewal are common behaviour.** Every app numbers the motion commands and renews an expired session once; an app that has no owner for the session leaves `tokenRenewer` null and nothing changes.
 - **Times are milliseconds.** `ConnectionClient` and `ConnectionEvent` keep UTC milliseconds (cheap to compare, no time zone); `firstSeen`, `lastSeen` and `at` give the `DateTime`, and `ConnectionHistory.agoDates` is the date form of `ago`.
 - **Server options keep both call styles.** `ServerSecurity.parse/patch/lowerings` (static) and `ServerSecurityOptions.parse/patch/lowerings` (static and instance) do the same thing; the source of a default value is `OptionSource.defaultValue`.
 - **The error type has no text.** `HydraErrorKind` holds the kinds of both apps; an app gives the kinds it never builds a neutral text.
-- **Not shared yet:** the robot command contract of the Flutter apps (the DSI one is a subset of the iOS one until the panel offers the same functions), the view models, and `tls_settings` (it needs `dart:io`).
+- **Not shared yet:** the robot command contract of the Flutter apps (the DSI one is a subset of the iOS one until the panel offers the same functions), the view models, and the discovery of servers.
+- **TLS settings need `dart:io`.** `tls_settings` (the settings, the fingerprint and PEM rules, the pinned `HttpClient`, the reading of a server certificate) is the one module that imports `dart:io` and `package:http`, so it is not available to a web build. The choices are stored through `TlsPrefsCore` over a `PrefsStore`, with the same keys the apps already write, so an app swaps its own copy for the package without losing a saved setting. The apps move to it with the next tag of the SDK.
