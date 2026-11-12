@@ -95,6 +95,7 @@ const CONTRACT_FILES: &[(&str, &str)] = &[
     ("ToolArms", "tool-arms.schema.json"),
     ("Kinematics", "kinematics.schema.json"),
     ("JointPoses", "joint-poses.schema.json"),
+    ("CanIds", "can-ids.schema.json"),
     ("VlaApproval", "vla-approval.schema.json"),
     ("EvidenceBundle", "evidence-bundle.schema.json"),
 ];
@@ -239,6 +240,10 @@ const SCHEMA_FILES: &[(&str, &str)] = &[
     (
         "joint-poses.schema.json",
         include_str!("../schemas/joint-poses.schema.json"),
+    ),
+    (
+        "can-ids.schema.json",
+        include_str!("../schemas/can-ids.schema.json"),
     ),
     (
         "vla-approval.schema.json",

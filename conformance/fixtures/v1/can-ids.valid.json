@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "note": "The identifiers of the stack bus of HYDRA-UMC (STACK A). A message of a controller board has the identifier slot_base + slot * slot_window + offset; the emergency stop is one identifier for the whole stack, below every slot. Each identifier has one emitter. The firmware, its host tools and HYDRA-UMC-TELEMETRY-COLLECTOR read this document; nothing here has run on a board.",
+  "estop_id": 1,
+  "slot_base": 1536,
+  "slot_window": 64,
+  "slots": 8,
+  "messages": [
+    {
+      "name": "BOOT_PAGE_ACK",
+      "offset": 3,
+      "emitter": "bootloader"
+    },
+    {
+      "name": "BOOT_STATUS",
+      "offset": 5,
+      "emitter": "bootloader"
+    },
+    {
+      "name": "RELAY_REQUEST",
+      "offset": 16,
+      "emitter": "kinematic-brain"
+    },
+    {
+      "name": "HEALTH_FRAME",
+      "offset": 17,
+      "emitter": "controller-board"
+    }
+  ]
+}

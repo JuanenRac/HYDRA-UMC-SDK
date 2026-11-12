@@ -312,5 +312,6 @@ export type ContractName =
   | "ToolArms"
   | "Kinematics"
   | "JointPoses"
+  | "CanIds"
   | "VlaApproval"
   | "EvidenceBundle";

@@ -79,6 +79,7 @@ var contractFixtureFile = map[string]string{
 	"ToolArms":              "tool-arms",
 	"Kinematics":            "kinematics",
 	"JointPoses":            "joint-poses",
+	"CanIds":                "can-ids",
 	"VlaApproval":           "vla-approval",
 	"EvidenceBundle":        "evidence-bundle",
 }
@@ -121,8 +122,8 @@ func TestUnknownContractIsRejected(t *testing.T) {
 
 func TestKnownContractsListsAllTwentySix(t *testing.T) {
 	names := KnownContracts()
-	if len(names) != 36 {
-		t.Fatalf("expected 36 known contracts, got %d: %v", len(names), names)
+	if len(names) != 37 {
+		t.Fatalf("expected 37 known contracts, got %d: %v", len(names), names)
 	}
 }
 

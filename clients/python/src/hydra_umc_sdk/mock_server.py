@@ -340,6 +340,14 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "armedCount": 1,
         "staleCount": 0
     },
+    "CanIds": {
+        "schema_version": "1.0",
+        "estop_id": 1,
+        "slot_base": 1536,
+        "slot_window": 64,
+        "slots": 8,
+        "messages": [{"name": "HEALTH_FRAME", "offset": 17, "emitter": "controller-board"}]
+    },
     "JointPoses": {
         "schema_version": "1.0",
         "frame": "base",

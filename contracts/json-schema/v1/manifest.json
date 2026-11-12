@@ -2,6 +2,10 @@
   "schema_version": "1.0",
   "contracts": [
     {
+      "file": "can-ids.schema.json",
+      "sha256": "ff078941778f1153d133e9b23a42643cac42baca5f546ea9a031660d9e1ae128"
+    },
+    {
       "file": "canary-deploy-result.schema.json",
       "sha256": "2fbd3c1e1591b8a812e4887fc3f26eec8414fee54cea28a9b1b7aa37c02884b7"
     },

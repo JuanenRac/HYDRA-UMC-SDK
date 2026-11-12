@@ -57,6 +57,7 @@ const CONTRACT_FIXTURE_STEM: Record<ContractName, string> = {
   ToolArms: "tool-arms",
   Kinematics: "kinematics",
   JointPoses: "joint-poses",
+  CanIds: "can-ids",
   VlaApproval: "vla-approval",
   EvidenceBundle: "evidence-bundle",
 };
@@ -65,8 +66,9 @@ function readFixture(name: string): unknown {
   return JSON.parse(fs.readFileSync(path.join(FIXTURES, name), "utf-8"));
 }
 
-test("knownContracts lists all 36 real contracts", () => {
+test("knownContracts lists all 37 real contracts", () => {
   assert.deepEqual(knownContracts(), [
+    "CanIds",
     "CanaryDeployResult",
     "Capability",
     "ChangeProposal",

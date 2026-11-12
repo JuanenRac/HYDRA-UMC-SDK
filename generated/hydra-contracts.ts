@@ -1,5 +1,23 @@
 // Generated from the HYDRA-UMC JSON Schemas by tools/generate_types.py. Do not edit.
 
+export interface CanIds {
+  schema_version: "1.0";
+  note?: string;
+  estop_id: number;
+  slot_base: number;
+  slot_window: number;
+  slots: number;
+  messages: CanIdsMessages[];
+  [extra: string]: unknown;
+}
+
+export interface CanIdsMessages {
+  name: string;
+  offset: number;
+  emitter: "kinematic-brain" | "controller-board" | "bootloader" | "host";
+  [extra: string]: unknown;
+}
+
 export interface CanaryDeployResult {
   schema_version?: "1.0";
   deployId: string;

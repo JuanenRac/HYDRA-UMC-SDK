@@ -60,6 +60,7 @@ CONTRACT_FILES = {
     "ToolArms": "tool-arms",
     "Kinematics": "kinematics",
     "JointPoses": "joint-poses",
+    "CanIds": "can-ids",
     "VlaApproval": "vla-approval",
     "EvidenceBundle": "evidence-bundle",
 }

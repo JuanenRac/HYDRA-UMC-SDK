@@ -1,6 +1,52 @@
 // Generated from the HYDRA-UMC JSON Schemas by tools/generate_types.py. Do not edit.
 // ignore_for_file: non_constant_identifier_names, constant_identifier_names
 
+class CanIds {
+  final String schema_version;
+  final String? note;
+  final int estop_id;
+  final int slot_base;
+  final int slot_window;
+  final int slots;
+  final List<CanIdsMessages> messages;
+  const CanIds({required this.schema_version, this.note, required this.estop_id, required this.slot_base, required this.slot_window, required this.slots, required this.messages});
+  factory CanIds.fromJson(Map<String, dynamic> json) => CanIds(
+        schema_version: json["schema_version"] as String,
+        note: json["note"] == null ? null : json["note"] as String,
+        estop_id: (json["estop_id"] as num).toInt(),
+        slot_base: (json["slot_base"] as num).toInt(),
+        slot_window: (json["slot_window"] as num).toInt(),
+        slots: (json["slots"] as num).toInt(),
+        messages: (json["messages"] as List).map((e0) => CanIdsMessages.fromJson(Map<String, dynamic>.from(e0 as Map))).toList(),
+      );
+  Map<String, dynamic> toJson() => {
+        "schema_version": schema_version,
+        if (note != null) "note": note,
+        "estop_id": estop_id,
+        "slot_base": slot_base,
+        "slot_window": slot_window,
+        "slots": slots,
+        "messages": messages.map((e0) => e0.toJson()).toList(),
+      };
+}
+
+class CanIdsMessages {
+  final String name;
+  final int offset;
+  final String emitter;
+  const CanIdsMessages({required this.name, required this.offset, required this.emitter});
+  factory CanIdsMessages.fromJson(Map<String, dynamic> json) => CanIdsMessages(
+        name: json["name"] as String,
+        offset: (json["offset"] as num).toInt(),
+        emitter: json["emitter"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "name": name,
+        "offset": offset,
+        "emitter": emitter,
+      };
+}
+
 class CanaryDeployResult {
   final String? schema_version;
   final String deployId;

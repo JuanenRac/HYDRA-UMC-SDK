@@ -66,6 +66,7 @@ const CONTRACT_FIXTURE_STEM: &[(&str, &str)] = &[
     ("ToolArms", "tool-arms"),
     ("Kinematics", "kinematics"),
     ("JointPoses", "joint-poses"),
+    ("CanIds", "can-ids"),
     ("VlaApproval", "vla-approval"),
     ("EvidenceBundle", "evidence-bundle"),
 ];
@@ -115,8 +116,8 @@ fn known_contracts_lists_all_twenty_six() {
     let names = known_contracts();
     assert_eq!(
         names.len(),
-        36,
-        "expected 36 known contracts, got {names:?}"
+        37,
+        "expected 37 known contracts, got {names:?}"
     );
 }
 

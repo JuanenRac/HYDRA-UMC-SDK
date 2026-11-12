@@ -53,6 +53,7 @@ according to its use case.
 | `ToolState` | URTC adapter or gateway (one reading of a connected tool head) | Server, Smart Rack, Studio, telemetry collector |
 | `Kinematics` | The SDK (`contracts/kinematics.json`: the range of every joint, the home pose and, where it is known, the chain of the arm as a URDF writes it) | The solvers and panels of STUDIO and SUITE and the planner of the SERVER, in place of the copy each one keeps |
 | `JointPoses` | HYDRA-UMC-PHYSICS-REPLICA (the answer of forward kinematics, `POST /fk` and `fk --envelope`: the position and the unit quaternion of every joint, listed from the root to the tip, in the frame `base`) | TWIN, PATH-PLANNER-3D, SAFETY-ZONES and the panels of STUDIO and SUITE |
+| `CanIds` | The SDK (`contracts/can_ids.json`: the emergency stop identifier, the slot windows of the stack bus and the messages of a slot with the one node that sends each) | The firmware and its host tools of HYDRA-UMC, HYDRA-UMC-TELEMETRY-COLLECTOR |
 | `ToolArms` | HYDRA-UMC-SAFETY-ZONES (the answer of `GET /tool-arms`: the last report of each pair of robot and tool, with its age) | The panels of STUDIO, SUITE and DSI |
 | `ProjectManifest` | Every repository (`hydra-umc.project.json` or `urtc.project.json`) | Updater, dashboard |
 
@@ -182,6 +183,14 @@ The routes of the connections (`GET /api/connections/clients` and `GET /api/conn
 ## Kinematic data of the robot models
 
 `contracts/kinematics.json` is the one document of the joint ranges (degrees), the home pose (degrees) and, where it is known, the chain of the arm of each robot model; the closed schema `kinematics.schema.json` describes it. A chain is written as a URDF writes its joints (the offset in meters from the parent, the rotation in radians, the axis) together with the numbers it was built from (the Denavit-Hartenberg values of the maker). The three classic Universal Robots arms carry a chain today; the other models carry their ranges and home pose and the chain is added as it is checked against the solver of each. A test checks that the ranges are ordered, that every home pose is inside its range, that a chain follows its own numbers, and that the copies of the ranges that the apps keep are the same when their repositories are next to this one. An app moves to this document by taking it from the SDK it is pinned to; until it does, its copy is checked against this one.
+
+## CAN identifiers of the stack bus
+
+`contracts/can_ids.json` is the one document of the identifiers of the HYDRA-UMC stack bus: the emergency stop identifier, the base and width of the slot windows, the number of slots and the messages of a slot (an offset inside the window and the one node that sends it). The identifier of a message is `slot_base + slot * slot_window + offset`. The closed schema `can-ids.schema.json` describes it and the Python validator checks the rest. A firmware table or a reader of the bus (the telemetry collector) is to be written against this document.
+
+## gRPC contracts
+
+`contracts/proto/` holds the Protocol Buffers sources of the services that speak gRPC: `hydra_telemetry.proto` (the telemetry ingest). A service keeps the code generated from the file it uses.
 
 ## Catalogue of the URTC tools
 

@@ -1,6 +1,22 @@
 // Generated from the HYDRA-UMC JSON Schemas by tools/generate_types.py. Do not edit.
 package hydra.umc.contracts
 
+data class CanIds(
+    val schema_version: String,
+    val note: String? = null,
+    val estop_id: Long,
+    val slot_base: Long,
+    val slot_window: Long,
+    val slots: Long,
+    val messages: List<CanIdsMessages>
+)
+
+data class CanIdsMessages(
+    val name: String,
+    val offset: Long,
+    val emitter: String
+)
+
 data class CanaryDeployResult(
     val schema_version: String? = null,
     val deployId: String,
