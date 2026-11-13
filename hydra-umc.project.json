@@ -15,12 +15,12 @@
   ],
   "deployment_target": "user-pc",
   "maturity": "established",
-  "evidence": "none",
+  "evidence": "simulator",
   "hardware_bound": false,
   "family": "Platform Foundation & Contracts",
   "parent": "HYDRA-UMC-OS",
   "build": "Functional JSON Schema v1 contracts, a real first OpenAPI v1 slice for HYDRA-UMC-SERVER's own HTTP surface, plus real, tested Python, Go, TypeScript and Rust reference clients and conformance fixtures.",
-  "notes": "The common contract and conformance boundary for services, UIs, CM5 adapters and URTC. Provides the v1 JSON Schemas, a Python reference validator, Go, TypeScript and Rust clients that enforce the published schemas, conformance fixtures, a schema/validator compatibility matrix (tools/verify_contract_matrix.py), a differential test of the Python validator against the schemas, and an OpenAPI v1 slice of HYDRA-UMC-SERVER's discovery, sign-in, settings and command routes (a subset of the server's own docs/openapi.json). Bridge helpers: BridgeJob/GateDecision, job intake with an idempotency store, MQTT connection settings, an Operation lifecycle with evidence-based success, Capability checks and a durable promotion journal. Protobuf is not published yet.",
+  "notes": "The common contract and conformance boundary for services, UIs, CM5 adapters and URTC. Provides the v1 JSON Schemas, a Python reference validator, Go, TypeScript and Rust clients that enforce the published schemas, conformance fixtures, a schema/validator compatibility matrix (tools/verify_contract_matrix.py), a differential test of the Python validator against the schemas, and an OpenAPI v1 slice of HYDRA-UMC-SERVER's discovery, sign-in, settings and command routes (a subset of the server's own docs/openapi.json). Bridge helpers: BridgeJob/GateDecision, job intake with an idempotency store, MQTT connection settings, an Operation lifecycle with evidence-based success, Capability checks and a durable promotion journal. Protobuf is not published yet. Evidence is simulator: the integration workflow runs the container bench of the swarm cell against the contract on pull requests that touch it; no run on real hardware is recorded.",
   "native_version": {
     "file": "clients/python/pyproject.toml",
     "pattern": "^version\\s*=\\s*\"(\\d+)\\.(\\d+)\\.(\\d+)\""
