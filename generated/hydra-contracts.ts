@@ -489,6 +489,38 @@ export interface OperationResult {
   [extra: string]: unknown;
 }
 
+export interface PoseEstimate {
+  schema_version: "1.0";
+  frame_id: string;
+  session_id?: string;
+  capture_ts_utc: string;
+  estimates: PoseEstimateEstimates[];
+  [extra: string]: unknown;
+}
+
+export interface PoseEstimateEstimates {
+  detection_index: number;
+  position: PoseEstimateEstimatesPosition;
+  orientation: PoseEstimateEstimatesOrientation;
+  confidence: number;
+  [extra: string]: unknown;
+}
+
+export interface PoseEstimateEstimatesPosition {
+  x: number;
+  y: number;
+  z: number;
+  [extra: string]: unknown;
+}
+
+export interface PoseEstimateEstimatesOrientation {
+  w: number;
+  x: number;
+  y: number;
+  z: number;
+  [extra: string]: unknown;
+}
+
 export interface Pose {
   schema_version: "1.0";
   frame: "base" | "tool";
@@ -583,6 +615,20 @@ export interface RobotLivenessRobots {
   last_update_utc?: string;
   age_s?: number;
   source?: "state" | "heartbeat";
+  [extra: string]: unknown;
+}
+
+export interface RobotRoster {
+  schema_version: "1.0";
+  robots: RobotRosterRobots[];
+  [extra: string]: unknown;
+}
+
+export interface RobotRosterRobots {
+  controller_id: string;
+  robot_id: number;
+  online: boolean;
+  playback: "idle" | "playing" | "paused" | "finished";
   [extra: string]: unknown;
 }
 

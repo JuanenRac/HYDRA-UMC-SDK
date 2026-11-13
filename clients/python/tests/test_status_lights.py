@@ -200,8 +200,16 @@ class HydraOrigin(unittest.TestCase):
             repo = hydra_repo(Path(tmp), [G, G, G, G, G], "not_applicable", {"evidence": "none"})
             self.assertTrue(any("hardware_bound" in p for p in status_lights.run_in_ci(repo)))
         with tempfile.TemporaryDirectory() as tmp:
-            repo = hydra_repo(Path(tmp), [G, G, G, G, G], "not_applicable", {"evidence": "none", "hardware_bound": False})
+            repo = hydra_repo(Path(tmp), [G, G, status_lights.WHITE, G, G], "not_applicable", {"evidence": "none", "hardware_bound": False})
             self.assertEqual(status_lights.run_in_ci(repo), [])
+
+    def test_not_applicable_is_never_green_on_the_hardware_row(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = hydra_repo(Path(tmp), [G, G, G, G, G], "not_applicable", {"evidence": "none", "hardware_bound": False})
+            self.assertTrue(any("never green" in p for p in status_lights.run_in_ci(repo)))
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = hydra_repo(Path(tmp), [G, G, status_lights.WHITE, G, G], "not_run", {"evidence": "none"})
+            self.assertTrue(any("hardware_bound" in p for p in status_lights.run_in_ci(repo)))
 
     def test_hardware_bound_false_with_a_hardware_statement_fails(self):
         with tempfile.TemporaryDirectory() as tmp:

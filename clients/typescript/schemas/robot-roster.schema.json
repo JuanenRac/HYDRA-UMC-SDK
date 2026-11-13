@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/robot-roster.schema.json",
+  "title": "RobotRoster",
+  "description": "The robots that a server has registered, in the one shape that every reader of the roster hands to the others (the adapters, the gateways and the tools): the controller that holds each robot, its id, whether the server has it online and what it is doing. It is read from the settings of the server; a reader that finds no robots answers an empty list, never an invented one. The schema is closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "robots"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "robots": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "controller_id",
+          "robot_id",
+          "online",
+          "playback"
+        ],
+        "properties": {
+          "controller_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "robot_id": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "online": {
+            "type": "boolean"
+          },
+          "playback": {
+            "enum": [
+              "idle",
+              "playing",
+              "paused",
+              "finished"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

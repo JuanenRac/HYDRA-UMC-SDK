@@ -76,6 +76,7 @@ const CONTRACT_FILES: &[(&str, &str)] = &[
     ("ProductionEvent", "production-event.schema.json"),
     ("EcosystemHealth", "ecosystem-health.schema.json"),
     ("RobotLiveness", "robot-liveness.schema.json"),
+    ("RobotRoster", "robot-roster.schema.json"),
     (
         "CommandLifecycleEvent",
         "command-lifecycle-event.schema.json",
@@ -84,6 +85,7 @@ const CONTRACT_FILES: &[(&str, &str)] = &[
     ("VelocityCommand", "velocity-command.schema.json"),
     ("FrameMeta", "frame-meta.schema.json"),
     ("DetectionFrame", "detection-frame.schema.json"),
+    ("PoseEstimate", "pose-estimate.schema.json"),
     ("MaintenanceIncident", "maintenance-incident.schema.json"),
     ("ToolDescriptor", "tool-descriptor.schema.json"),
     ("ToolState", "tool-state.schema.json"),
@@ -178,6 +180,10 @@ const SCHEMA_FILES: &[(&str, &str)] = &[
         include_str!("../schemas/robot-liveness.schema.json"),
     ),
     (
+        "robot-roster.schema.json",
+        include_str!("../schemas/robot-roster.schema.json"),
+    ),
+    (
         "command-lifecycle-event.schema.json",
         include_str!("../schemas/command-lifecycle-event.schema.json"),
     ),
@@ -196,6 +202,10 @@ const SCHEMA_FILES: &[(&str, &str)] = &[
     (
         "detection-frame.schema.json",
         include_str!("../schemas/detection-frame.schema.json"),
+    ),
+    (
+        "pose-estimate.schema.json",
+        include_str!("../schemas/pose-estimate.schema.json"),
     ),
     (
         "maintenance-incident.schema.json",

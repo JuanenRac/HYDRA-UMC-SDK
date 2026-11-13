@@ -50,11 +50,13 @@ const CONTRACT_FIXTURE_STEM: &[(&str, &str)] = &[
     ("ProductionEvent", "production-event"),
     ("EcosystemHealth", "ecosystem-health"),
     ("RobotLiveness", "robot-liveness"),
+    ("RobotRoster", "robot-roster"),
     ("CommandLifecycleEvent", "command-lifecycle-event"),
     ("VisualTargetRequest", "visual-target-request"),
     ("VelocityCommand", "velocity-command"),
     ("FrameMeta", "frame-meta"),
     ("DetectionFrame", "detection-frame"),
+    ("PoseEstimate", "pose-estimate"),
     ("MaintenanceIncident", "maintenance-incident"),
     ("ToolDescriptor", "tool-descriptor"),
     ("ToolState", "tool-state"),
@@ -116,8 +118,8 @@ fn known_contracts_lists_all_twenty_six() {
     let names = known_contracts();
     assert_eq!(
         names.len(),
-        37,
-        "expected 37 known contracts, got {names:?}"
+        39,
+        "expected 39 known contracts, got {names:?}"
     );
 }
 

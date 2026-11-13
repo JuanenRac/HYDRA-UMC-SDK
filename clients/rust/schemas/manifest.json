@@ -82,6 +82,10 @@
       "sha256": "fb96c05012431895937076e8eb69548560c15d8cce351feae789c915c3cd6dd3"
     },
     {
+      "file": "pose-estimate.schema.json",
+      "sha256": "8df8066587b0a03fca1d3a66d0fca71aa8408aa193393d3dec285a3b23340ead"
+    },
+    {
       "file": "pose.schema.json",
       "sha256": "673abc376c8daacc25b9de39f5f47936ba68175aa2244281ba1e9b38a067af65"
     },
@@ -96,6 +100,10 @@
     {
       "file": "robot-liveness.schema.json",
       "sha256": "91e4a886ab1a4678f85503f5e2516d2e78e82148e7107394b0cad13b3094faa9"
+    },
+    {
+      "file": "robot-roster.schema.json",
+      "sha256": "1c80d0e348e83ed6c2565acfd146d0b80bb724b04ae31482128a8b4aae464389"
     },
     {
       "file": "robot-state.schema.json",
@@ -151,3 +159,4 @@
     }
   ]
 }
+

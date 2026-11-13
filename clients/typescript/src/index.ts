@@ -8,3 +8,5 @@ export * from "./types";
 export { validate, isValid, knownContracts, ContractValidationError } from "./validation";
 export { loadContractManifest, verifyContractManifest } from "./manifest";
 export * from "./serverApi";
+export { rosterFromSettings } from "./roster";
+export type { RobotRoster, RosterPlayback, RosterRobot } from "./roster";
