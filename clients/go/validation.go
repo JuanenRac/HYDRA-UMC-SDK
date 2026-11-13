@@ -65,6 +65,7 @@ var contractFiles = map[string]string{
 	"VelocityCommand":       "velocity-command.schema.json",
 	"FrameMeta":             "frame-meta.schema.json",
 	"DetectionFrame":        "detection-frame.schema.json",
+	"PoseEstimate":          "pose-estimate.schema.json",
 	"MaintenanceIncident":   "maintenance-incident.schema.json",
 	"ToolDescriptor":        "tool-descriptor.schema.json",
 	"ToolState":             "tool-state.schema.json",

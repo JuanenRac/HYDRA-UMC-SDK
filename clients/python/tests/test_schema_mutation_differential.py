@@ -50,6 +50,7 @@ CONTRACTS = {
     "VelocityCommand": "velocity-command",
     "FrameMeta": "frame-meta",
     "DetectionFrame": "detection-frame",
+    "PoseEstimate": "pose-estimate",
     "MaintenanceIncident": "maintenance-incident",
     "ToolDescriptor": "tool-descriptor",
     "ToolState": "tool-state",

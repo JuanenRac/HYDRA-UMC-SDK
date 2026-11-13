@@ -52,7 +52,7 @@ from .production_event import production_event_fields, validate_production_event
 from .command_lifecycle import COMMAND_STATES, command_state_from_operation, is_terminal_state, validate_command_lifecycle_event, validate_state_transition
 from .mcu_errors import MCU_ERROR_CODES, RECOVERY_ACTIONS, McuErrorCode, default_mcu_error_action, describe_mcu_error, is_known_mcu_error
 from .servoing import command_is_current, validate_velocity_command, validate_visual_target_request
-from .vision_pipeline import BOX_UNITS, PIXEL_FORMATS, box_to_pixels, validate_detection_frame, validate_frame_meta
+from .vision_pipeline import BOX_UNITS, PIXEL_FORMATS, box_to_pixels, check_estimates_match_detections, validate_detection_frame, validate_frame_meta, validate_pose_estimate
 from .signed_commands import CommandSigningError, CommandVerdict, CommandVerifier, SignedCommandSettings, sign_command, verify_command
 from .signed_commands import load_key as load_command_key, settings_from_environment as signed_command_settings_from_environment
 from .bridge_health import BridgeHealth, health_enabled_from_environment, health_report, health_topic, read_health
@@ -117,6 +117,8 @@ __all__ = [
     "WARNING_CODES",
     "validate_ecosystem_health",
     "PLAYBACK_STATES",
+    "check_estimates_match_detections",
+    "validate_pose_estimate",
     "roster_from_settings",
     "validate_robot_roster",
     "validate_robot_liveness",

@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "frame_id": "f-000123",
+  "session_id": "s-1",
+  "capture_ts_utc": "2026-01-02T10:00:00Z",
+  "estimates": [
+    {
+      "detection_index": 0,
+      "position": {
+        "x": 0.12,
+        "y": -0.05,
+        "z": 0.8
+      },
+      "orientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "confidence": 0.93
+    },
+    {
+      "detection_index": 2,
+      "position": {
+        "x": -0.3,
+        "y": 0.1,
+        "z": 1.2
+      },
+      "orientation": {
+        "w": 0.5,
+        "x": 0.5,
+        "y": 0.5,
+        "z": 0.5
+      },
+      "confidence": 0.71
+    }
+  ]
+}

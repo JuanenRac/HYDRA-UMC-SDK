@@ -46,6 +46,7 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "VelocityCommand": ("schema_version", "vx", "vy", "vz", "wroll", "wpitch", "wyaw", "hold", "issued_at_ms", "valid_for_ms", "seq"),
     "FrameMeta": ("schema_version", "frame_id", "capture_ts_utc", "width", "height", "pixel_format"),
     "DetectionFrame": ("schema_version", "frame_id", "capture_ts_utc", "box_unit", "detections"),
+    "PoseEstimate": ("schema_version", "frame_id", "capture_ts_utc", "estimates"),
     "MaintenanceIncident": ("incidentId", "sourceNode", "detectedAt", "severity", "component", "symptom", "evidenceRefs", "redactionLevel", "requestedBy", "correlationId"),
     "ToolDescriptor": ("schema_version", "tool_id", "name", "title", "kind"),
     "ToolState": ("schema_version", "tool_id", "state", "source", "timestamp_utc"),
@@ -294,6 +295,11 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
         from .vision_pipeline import validate_detection_frame  # imported here: vision_pipeline.py needs this module's error type
 
         validate_detection_frame(payload)
+        return
+    if contract == "PoseEstimate":
+        from .vision_pipeline import validate_pose_estimate  # imported here: vision_pipeline.py needs this module's error type
+
+        validate_pose_estimate(payload)
         return
     if contract == "ToolDescriptor":
         from .tool import validate_tool_descriptor  # imported here: tool.py needs this module's error type
