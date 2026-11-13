@@ -556,6 +556,18 @@
     },
     {
       "method": "GET",
+      "path": "/api/dev-server/status",
+      "access": "user",
+      "group": "feeds",
+      "query": [
+        "verify"
+      ],
+      "statuses": [
+        "200"
+      ]
+    },
+    {
+      "method": "GET",
       "path": "/api/developer-node/status",
       "access": "user",
       "group": "feeds",
@@ -728,6 +740,18 @@
       "statuses": [
         "200",
         "404"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/ingest/dev-server/status",
+      "access": "public",
+      "group": "feeds",
+      "query": [],
+      "statuses": [
+        "201",
+        "400",
+        "503"
       ]
     },
     {

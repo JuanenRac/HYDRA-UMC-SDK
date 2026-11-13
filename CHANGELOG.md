@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- **The status feed of the developer server has its new name in the contract:** `POST /api/ingest/dev-server/status` and `GET /api/dev-server/status` (schema `dev-server-status/1`) are in the OpenAPI document, the route tables for TypeScript, Kotlin and Dart, the app fixtures and the stand-in server. The old `/api/ingest/developer-node/status` and `/api/developer-node/status` stay as deprecated aliases for one version (marked `deprecated` in the inventory, the stand-in server still accepts the old path and the old schema `developer-node-status/1`), so nothing installed breaks.
+
 ## [0.6.2] - The emergency stop frame and the tool head identifiers in the CAN contract, the pose, telemetry and TLS contracts and shared app packages
 
 - **README: the platform statement:** a note says that where the README speaks of the CM5 it means the pilot bench that runs today, and that the target platform of HYDRA-UMC, an NVIDIA Jetson Orin NX 16 GB, is a design that has not been built or tested.

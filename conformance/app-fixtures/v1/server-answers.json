@@ -1580,6 +1580,24 @@
         }
       }
     },
+    "POST /api/ingest/dev-server/status": {
+      "400": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      },
+      "503": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      }
+    },
     "POST /api/ingest/developer-node/status": {
       "400": {
         "minimal": {

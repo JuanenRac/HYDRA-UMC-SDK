@@ -229,6 +229,8 @@ def inventory_operation(route: dict[str, Any], group: str) -> dict[str, Any]:
         "x-access": route["access"],
         "responses": responses,
     }
+    if route.get("deprecated"):
+        operation["deprecated"] = True
     if "parameters" in route:
         operation["parameters"] = route["parameters"]
     if "request_body" in route:

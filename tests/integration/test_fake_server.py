@@ -139,10 +139,16 @@ def test_the_feeds_of_the_sibling_services(server):
     assert len(state.scenario_outcomes) == 1
     # developer node: the token of a node and not a user account
     state.node_tokens["node-token"] = "dev-1"
-    doc = {"schema": "developer-node-status/1"}
-    assert call(base, "POST", "/api/ingest/developer-node/status", doc, token)[0] == 401
-    status, answer = call(base, "POST", "/api/ingest/developer-node/status", doc, "node-token")
+    doc = {"schema": "dev-server-status/1"}
+    assert call(base, "POST", "/api/ingest/dev-server/status", doc, token)[0] == 401
+    status, answer = call(base, "POST", "/api/ingest/dev-server/status", doc, "node-token")
     assert status == 201 and answer["node_id"] == "dev-1"
+    assert call(base, "POST", "/api/ingest/dev-server/status", {"schema": "other/1"}, "node-token")[0] == 400
+    # the old name still answers during the transition, with the old or the new schema
+    old = {"schema": "developer-node-status/1"}
+    assert call(base, "POST", "/api/ingest/developer-node/status", old, token)[0] == 401
+    assert call(base, "POST", "/api/ingest/developer-node/status", old, "node-token")[0] == 201
+    assert call(base, "POST", "/api/ingest/developer-node/status", doc, "node-token")[0] == 201
     # proposal verification
     body = {"proposal": {"key_id": "k1", "signature": "fake-valid", "robot_id": "1"}, "expected_robot_id": "1"}
     assert call(base, "POST", "/api/trajectory/proposals/verify", body, token)[0] == 503
