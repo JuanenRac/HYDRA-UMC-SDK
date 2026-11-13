@@ -2423,6 +2423,260 @@
             ]
           }
         }
+      },
+      "FleetUpdateRow": {
+        "type": "object",
+        "required": [
+          "name",
+          "kind",
+          "repo",
+          "installed",
+          "latest",
+          "action",
+          "reason",
+          "state",
+          "step",
+          "detail",
+          "error",
+          "order",
+          "log"
+        ],
+        "description": "One program of the device in the update of everything installed: its versions, what the plan does with it and where its steps are.",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "repo",
+              "svc",
+              "frontend"
+            ]
+          },
+          "repo": {
+            "type": "string"
+          },
+          "installed": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "latest": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "update",
+              "current",
+              "skip",
+              "review"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "waiting",
+              "running",
+              "done",
+              "failed",
+              "rolled_back",
+              "interrupted",
+              "skipped",
+              "blocked"
+            ]
+          },
+          "step": {
+            "type": "string",
+            "enum": [
+              "",
+              "disk",
+              "fetching",
+              "backup",
+              "building",
+              "installing",
+              "verifying",
+              "done"
+            ]
+          },
+          "substep": {
+            "type": "string"
+          },
+          "substeps": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "order": {
+            "type": "integer"
+          },
+          "elapsedS": {
+            "type": "integer"
+          },
+          "freeMb": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "needMb": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "unitRestored": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "log": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "at",
+                "text"
+              ],
+              "properties": {
+                "at": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "FleetUpdateReport": {
+        "type": "object",
+        "required": [
+          "schema",
+          "id",
+          "mode",
+          "state",
+          "startedAt",
+          "updatedAt",
+          "error",
+          "stoppedAt",
+          "requireSignedTags",
+          "disk",
+          "services"
+        ],
+        "description": "The progress file of tools/fleet_update.py (hydra-fleet-update/1). A run whose heartbeat stopped is reported as interrupted.",
+        "properties": {
+          "schema": {
+            "type": "string",
+            "enum": [
+              "hydra-fleet-update/1"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "plan",
+              "run"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "planned",
+              "running",
+              "done",
+              "failed",
+              "blocked",
+              "interrupted"
+            ]
+          },
+          "startedAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "stoppedAt": {
+            "type": "string"
+          },
+          "requireSignedTags": {
+            "type": "boolean"
+          },
+          "disk": {
+            "type": "object",
+            "required": [
+              "rootFreeMb",
+              "workspaceFreeMb"
+            ],
+            "properties": {
+              "rootFreeMb": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "workspaceFreeMb": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            }
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FleetUpdateRow"
+            }
+          }
+        }
+      },
+      "FleetUpdateStatus": {
+        "type": "object",
+        "required": [
+          "applyEnabled",
+          "busy",
+          "report"
+        ],
+        "description": "Whether applying is switched on, whether a look or a run is going on, and the progress file (null before the first look).",
+        "properties": {
+          "applyEnabled": {
+            "type": "boolean"
+          },
+          "busy": {
+            "type": "boolean"
+          },
+          "report": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FleetUpdateReport"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
       }
     }
   },
@@ -2731,6 +2985,287 @@
             }
           }
         ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/admin/fleet-update": {
+      "get": {
+        "tags": [
+          "fleet-update"
+        ],
+        "summary": "GET /api/admin/fleet-update",
+        "description": "Requires a signed-in account with the admin role. Off by default (updateCheck.enabled): it then answers 404.",
+        "x-access": "admin",
+        "responses": {
+          "200": {
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FleetUpdateStatus"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/admin/fleet-update/apply": {
+      "post": {
+        "tags": [
+          "fleet-update"
+        ],
+        "summary": "POST /api/admin/fleet-update/apply",
+        "description": "Requires a signed-in account with the admin role. Off by default (maintenance.enabled): it then answers 404. Needs confirm: true.",
+        "x-access": "admin",
+        "responses": {
+          "200": {
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FleetUpdateStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Upstream service rejected the request. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "confirm"
+                ],
+                "properties": {
+                  "services": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "maxItems": 60
+                  },
+                  "confirm": {
+                    "type": "boolean",
+                    "enum": [
+                      true
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/admin/fleet-update/plan": {
+      "post": {
+        "tags": [
+          "fleet-update"
+        ],
+        "summary": "POST /api/admin/fleet-update/plan",
+        "description": "Requires a signed-in account with the admin role. Off by default (updateCheck.enabled): it then answers 404. Changes nothing.",
+        "x-access": "admin",
+        "responses": {
+          "200": {
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FleetUpdateStatus"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Upstream service rejected the request. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/admin/fleet-update/resume": {
+      "post": {
+        "tags": [
+          "fleet-update"
+        ],
+        "summary": "POST /api/admin/fleet-update/resume",
+        "description": "Requires a signed-in account with the admin role. Off by default (maintenance.enabled): it then answers 404. Needs confirm: true.",
+        "x-access": "admin",
+        "responses": {
+          "200": {
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FleetUpdateStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Upstream service rejected the request. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "service",
+                  "confirm"
+                ],
+                "properties": {
+                  "service": {
+                    "type": "string"
+                  },
+                  "confirm": {
+                    "type": "boolean",
+                    "enum": [
+                      true
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
         "security": [
           {
             "bearerAuth": []
