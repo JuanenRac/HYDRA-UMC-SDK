@@ -93,7 +93,7 @@
 <text x="58" y="560" font-family="'Segoe UI','Noto Sans','Noto Sans CJK SC','Microsoft YaHei','Yu Gothic','Helvetica Neue',Helvetica,Arial,sans-serif" font-size="12" font-weight="400" fill="#C9D1D9" text-anchor="start">tested part</text>
 <rect x="160.4" y="548" width="14" height="14" rx="3" fill="none" stroke="#0088FF" stroke-width="2"/>
 <text x="182.4" y="560" font-family="'Segoe UI','Noto Sans','Noto Sans CJK SC','Microsoft YaHei','Yu Gothic','Helvetica Neue',Helvetica,Arial,sans-serif" font-size="12" font-weight="400" fill="#C9D1D9" text-anchor="start">contract, signed or server part</text>
-<rect x="399.9999999999999" y="548" width="14" height="14" rx="3" fill="none" stroke="#FFB020" stroke-width="2" stroke-dasharray="3 2"/>
+<rect x="400.0" y="548" width="14" height="14" rx="3" fill="none" stroke="#FFB020" stroke-width="2" stroke-dasharray="3 2"/>
 <text x="422" y="560" font-family="'Segoe UI','Noto Sans','Noto Sans CJK SC','Microsoft YaHei','Yu Gothic','Helvetica Neue',Helvetica,Arial,sans-serif" font-size="12" font-weight="400" fill="#C9D1D9" text-anchor="start">chosen by the installation, never tried for real</text>
 <text x="36" y="604" font-family="'Segoe UI','Noto Sans','Noto Sans CJK SC','Microsoft YaHei','Yu Gothic','Helvetica Neue',Helvetica,Arial,sans-serif" font-size="12" font-weight="400" fill="#6E7681" text-anchor="start">Tried on a computer; no robot, board or broker besides the test ones was used.</text>
 </svg>
