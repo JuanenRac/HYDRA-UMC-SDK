@@ -2,7 +2,10 @@
 
 ## [Unreleased]
 
+- **Declare the routes of the update of every installed program in the contract:** `GET /api/admin/fleet-update` and `POST /api/admin/fleet-update/plan`, `/apply` and `/resume` (administrator; the look is off until the server turns on its look at the newest versions and applying until it turns on maintenance), with the shapes of the answer (`FleetUpdateStatus`, `FleetUpdateReport`, `FleetUpdateRow`: the progress file of the update, each program with its versions, its action, its step and its state, a run that stopped writing reported as interrupted). The generated document, the route tables and the fixtures follow.
+
 - **The evidence bundle travels in a typed signed envelope (`hydra_umc_sdk.incident_transport`):** `build_incident_message()` and `verify_incident_message()` define the `incident-transport/1` message (version, kind, destination node, time, nonce, escalation id, the sealed bundle and an HMAC-SHA256 over the canonical JSON), so that the technician that writes it and the development node that reads it share one definition. The reader checks the signature first, then the destination, the clock, the shape and the checksum of the bundle, and remembers the nonce last, so a refused message never uses one up; a replay is refused and no secret ever appears in an error.
+
 
 - **One shared reading of the state word of a GRBL report (`hydra_umc_sdk.grbl_status`):** `grbl_machine_state()` drops the numeric substate (`Hold:0`, `Door:1`, `Alarm:1`), ignores the case and maps the words of GRBL v1.1 to the machine state of the bridge contract; anything unknown or not text is OFFLINE and only `Idle` maps to the state in which work may start. A bridge can add words of its own. The CNC and the laser bridge keep their own copies until they adopt it.
 
