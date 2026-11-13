@@ -2,7 +2,10 @@
 
 ## [Unreleased]
 
+- **Declare the routes of the update of every installed program in the contract:** `GET /api/admin/fleet-update` and `POST /api/admin/fleet-update/plan`, `/apply` and `/resume` (administrator; the look is off until the server turns on its look at the newest versions and applying until it turns on maintenance), with the shapes of the answer (`FleetUpdateStatus`, `FleetUpdateReport`, `FleetUpdateRow`: the progress file of the update, each program with its versions, its action, its step and its state, a run that stopped writing reported as interrupted). The generated document, the route tables and the fixtures follow.
+
 - **The version-tool sync leaves one `if __name__ == "__main__"` block in a repository bump script (`tools/sync_version_tools.py`):** the hand-over to the shared bump utility now goes first inside the script own guard instead of a second guard before it, an inline body moves to its own line, and a script that an older run patched is folded into one guard by the same tool (`--check` lists it). The bump script of this repository is folded too.
+
 
 - **One shared reading of the state word of a GRBL report (`hydra_umc_sdk.grbl_status`):** `grbl_machine_state()` drops the numeric substate (`Hold:0`, `Door:1`, `Alarm:1`), ignores the case and maps the words of GRBL v1.1 to the machine state of the bridge contract; anything unknown or not text is OFFLINE and only `Idle` maps to the state in which work may start. A bridge can add words of its own. The CNC and the laser bridge keep their own copies until they adopt it.
 

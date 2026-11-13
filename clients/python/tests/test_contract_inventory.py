@@ -75,7 +75,7 @@ class TheUnionIsTheFullDocument(unittest.TestCase):
         self.assertEqual(used - declared, set(), "an answer names a shape the SDK does not declare")
         # the shapes no response names directly are reached through another shape (the lists of connections, of device tokens and of updates) or are used by the clients of the typed slice; they are
         # listed, so a new one that nothing uses has to be a decision
-        self.assertLessEqual(declared - used, {"ConnectionClient", "ConnectionEvent", "DeviceTokenView", "SelfUpdateItem", "UpdateItem", "VoiceReply", "WatchStatus"})
+        self.assertLessEqual(declared - used, {"ConnectionClient", "ConnectionEvent", "DeviceTokenView", "FleetUpdateReport", "FleetUpdateRow", "SelfUpdateItem", "UpdateItem", "VoiceReply", "WatchStatus"})
 
     def test_a_new_route_is_not_taken_for_a_route_of_another_group(self):
         mutated = copy.deepcopy(SOURCES)
