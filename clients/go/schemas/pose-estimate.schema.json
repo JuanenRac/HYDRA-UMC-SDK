@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/pose-estimate.schema.json",
+  "title": "PoseEstimate",
+  "description": "The third stage of the vision pipeline: the pose in meters, in the frame of the camera, of some of the detections of a DetectionFrame. It names the frame by frame_id and capture_ts_utc, like the detections do, and each estimate points at its detection by detection_index (the position of the detection in that frame). A detection without an estimate is a detection whose pose could not be found, never one with an invented pose. The schema is closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "frame_id",
+    "capture_ts_utc",
+    "estimates"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "frame_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The frame the detections belong to."
+    },
+    "session_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$"
+    },
+    "capture_ts_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the camera captured the frame."
+    },
+    "estimates": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "detection_index",
+          "position",
+          "orientation",
+          "confidence"
+        ],
+        "properties": {
+          "detection_index": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 999,
+            "description": "The position of the detection in the detections of the frame. Not repeated within one message."
+          },
+          "position": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "y",
+              "z"
+            ],
+            "description": "Meters, x to the right, y downwards and z away from the camera.",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "z": {
+                "type": "number"
+              }
+            }
+          },
+          "orientation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "w",
+              "x",
+              "y",
+              "z"
+            ],
+            "description": "A unit quaternion: w*w + x*x + y*y + z*z = 1 within 1e-6 (checked by the clients, a schema cannot express it).",
+            "properties": {
+              "w": {
+                "type": "number"
+              },
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "z": {
+                "type": "number"
+              }
+            }
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      }
+    }
+  }
+}

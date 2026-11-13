@@ -444,6 +444,34 @@ data class OperationResult(
     val outcome_reason: String? = null
 )
 
+data class PoseEstimate(
+    val schema_version: String,
+    val frame_id: String,
+    val session_id: String? = null,
+    val capture_ts_utc: String,
+    val estimates: List<PoseEstimateEstimates>
+)
+
+data class PoseEstimateEstimates(
+    val detection_index: Long,
+    val position: PoseEstimateEstimatesPosition,
+    val orientation: PoseEstimateEstimatesOrientation,
+    val confidence: Double
+)
+
+data class PoseEstimateEstimatesPosition(
+    val x: Double,
+    val y: Double,
+    val z: Double
+)
+
+data class PoseEstimateEstimatesOrientation(
+    val w: Double,
+    val x: Double,
+    val y: Double,
+    val z: Double
+)
+
 data class Pose(
     val schema_version: String,
     val frame: String,

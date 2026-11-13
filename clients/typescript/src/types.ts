@@ -302,6 +302,7 @@ export type ContractName =
   | "VelocityCommand"
   | "FrameMeta"
   | "DetectionFrame"
+  | "PoseEstimate"
   | "MaintenanceIncident"
   | "ToolDescriptor"
   | "ToolState"
