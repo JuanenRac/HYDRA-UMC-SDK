@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.6.2] - The emergency stop frame and the tool head identifiers in the CAN contract, the pose, telemetry and TLS contracts and shared app packages
 
 - **README: the platform statement:** a note says that where the README speaks of the CM5 it means the pilot bench that runs today, and that the target platform of HYDRA-UMC, an NVIDIA Jetson Orin NX 16 GB, is a design that has not been built or tested.
 - **The tool head bus is 1 Mbit/s in the CAN contract (decision of the owner):** `tool_head.bit_rate_bps` is 1000000, like STACK A, and the optional `legacy_bit_rate_bps` (500000) keeps the number of the earlier URTC protocol, documented, for heads that were not updated yet. The URTC spec and the head firmware move to 1 Mbit/s on the URTC side; until the spec says so, the test that compares the contract with the spec accepts its rate as the legacy value.
