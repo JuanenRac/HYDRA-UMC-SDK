@@ -296,6 +296,7 @@ export type ContractName =
   | "ProductionEvent"
   | "EcosystemHealth"
   | "RobotLiveness"
+  | "RobotRoster"
   | "CommandLifecycleEvent"
   | "VisualTargetRequest"
   | "VelocityCommand"

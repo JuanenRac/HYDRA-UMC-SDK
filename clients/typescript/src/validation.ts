@@ -62,6 +62,7 @@ const CONTRACT_FILES: Record<ContractName, string> = {
   ProductionEvent: "production-event.schema.json",
   EcosystemHealth: "ecosystem-health.schema.json",
   RobotLiveness: "robot-liveness.schema.json",
+  RobotRoster: "robot-roster.schema.json",
   CommandLifecycleEvent: "command-lifecycle-event.schema.json",
   VisualTargetRequest: "visual-target-request.schema.json",
   VelocityCommand: "velocity-command.schema.json",

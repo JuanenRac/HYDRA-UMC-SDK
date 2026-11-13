@@ -531,6 +531,18 @@ data class RobotLivenessRobots(
     val source: String? = null
 )
 
+data class RobotRoster(
+    val schema_version: String,
+    val robots: List<RobotRosterRobots>
+)
+
+data class RobotRosterRobots(
+    val controller_id: String,
+    val robot_id: Long,
+    val online: Boolean,
+    val playback: String
+)
+
 data class RobotState(
     val schema_version: String,
     val robot_id: String,
