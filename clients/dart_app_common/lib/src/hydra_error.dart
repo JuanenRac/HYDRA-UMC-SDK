@@ -52,6 +52,7 @@ enum HydraErrorKind {
   workLoadFailed,
   workInvalidFile,
   systemActionFailed,
+  serverReadOnly,
 }
 
 /// A kind and its parameters (`error`, `command`, `owner`, `reason`, `limit`, `detail`, ...).
