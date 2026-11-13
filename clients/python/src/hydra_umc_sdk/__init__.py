@@ -75,6 +75,7 @@ from .ecosystem import (
     validate_ecosystem_health,
     validate_robot_liveness,
 )
+from .robot_roster import PLAYBACK_STATES, roster_from_settings, validate_robot_roster
 from .connection import ACTIONS as CONNECTION_ACTIONS, CLIENT_KINDS, validate_connection_client, validate_connection_event
 from .robot_state import STATES as ROBOT_STATES, validate_robot_state
 from .twin_state import SOURCES as TWIN_STATE_SOURCES, validate_twin_state
@@ -115,6 +116,9 @@ __all__ = [
     "SERVICE_STATES",
     "WARNING_CODES",
     "validate_ecosystem_health",
+    "PLAYBACK_STATES",
+    "roster_from_settings",
+    "validate_robot_roster",
     "validate_robot_liveness",
     "validate_connection_client",
     "validate_production_event",

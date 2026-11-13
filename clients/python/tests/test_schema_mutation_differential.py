@@ -44,6 +44,7 @@ CONTRACTS = {
     "ProductionEvent": "production-event",
     "EcosystemHealth": "ecosystem-health",
     "RobotLiveness": "robot-liveness",
+    "RobotRoster": "robot-roster",
     "CommandLifecycleEvent": "command-lifecycle-event",
     "VisualTargetRequest": "visual-target-request",
     "VelocityCommand": "velocity-command",

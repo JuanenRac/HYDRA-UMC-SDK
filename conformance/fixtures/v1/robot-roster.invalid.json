@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "robots": [
+    {
+      "controller_id": "c1",
+      "robot_id": 1,
+      "online": "yes",
+      "playback": "playing"
+    },
+    {
+      "controller_id": "c1",
+      "robot_id": 2,
+      "online": false,
+      "playback": "running"
+    }
+  ]
+}

@@ -35,6 +35,7 @@ according to its use case.
 | `ConnectionClient` | Server (list of the clients it has seen) | Studio, Suite, apps |
 | `EcosystemHealth` | Server (`GET /api/ecosystem/health`, off until an administrator turns it on) | Studio, Suite, apps, dashboard |
 | `RobotLiveness` | Server (`GET /api/robots/liveness`) | Studio, Suite, apps, OPC UA server |
+| `RobotRoster` | Any reader of the settings of the server (adapters, gateways, tools) | Adapters, gateways, tools |
 | `ProductionEvent` | Orchestrator, bridges, robots (one finished cycle) | Production reports, Data Lake |
 | `CommandLifecycleEvent` | Server (the step a robot command reached: accepted, running, completed, failed, cancelled) | Studio, Suite, apps |
 | `VisualTargetRequest` | Callers of visual servoing | Visual servoing service |
