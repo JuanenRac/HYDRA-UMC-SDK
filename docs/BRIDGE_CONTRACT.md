@@ -62,7 +62,16 @@ Two rules every bridge needs are carried by the SDK so that they are written onc
   retry it. `IdempotencyStore` remembers the keys (SQLite when given a file, so a
   restart does not forget; 24 hours and 10 000 keys by default) and, if the bridge
   stores it with `remember()`, the answer that was given, so a repeat is answered
-  again instead of being run again.
+  again instead of being run again. Two senders may use the same key text:
+  `JobIntake(store, source="sender")` makes the pair the key (a store without a source
+  keeps the old meaning), and `release(key)` gives a key back when the bridge failed
+  before it did anything, so that the retry is not taken for a repeat (a key that
+  already has an answer cannot be released).
+- **A job in doubt is looked up, never run again.** When a key was claimed but no
+  answer was stored, the first attempt may not have finished. With the policy
+  `consult` (the default) the bridge asks the machine through `status_query(job)`,
+  stores what it says and answers with it; with `refuse`, or when the query gives
+  nothing, the job is refused. There is no policy that retries.
 
 ```python
 store = IdempotencyStore("/var/lib/hydra-umc/bridge-keys.sqlite")

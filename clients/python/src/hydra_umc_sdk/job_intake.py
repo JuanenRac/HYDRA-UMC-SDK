@@ -31,6 +31,8 @@ from .bridge_contract import BridgeError, BridgeJob, job_from_dict
 from .signed_commands import CommandVerifier
 
 DEFAULT_TTL_SECONDS = 24 * 3600
+IN_DOUBT_POLICIES = ("consult", "refuse")
+KEY_SEPARATOR = "\x1f"
 DEFAULT_MAX_ENTRIES = 10_000
 MAX_RESULT_CHARS = 2_000
 
@@ -63,23 +65,48 @@ class IdempotencyStore:
         with self._lock:
             self._db.close()
 
-    def claim(self, key: str) -> bool:
-        """True when `key` has not been handled (it is recorded now), False when it has."""
+    @staticmethod
+    def _stored_key(key: str, source: str | None) -> str:
+        """The key as it is stored: a key without a source is stored as it is (so files written before the source existed keep working); with a source the pair is the key."""
         if not isinstance(key, str) or not key.strip():
             raise BridgeError("an idempotency key must be a non-empty string")
+        if source is None:
+            return key
+        if not isinstance(source, str) or not source.strip() or KEY_SEPARATOR in source:
+            raise BridgeError("the source of an idempotency key must be a non-empty string without control separators")
+        return f"{source}{KEY_SEPARATOR}{key}"
+
+    def claim(self, key: str, source: str | None = None) -> bool:
+        """True when `key` (of `source`, when given) has not been handled (it is recorded now), False when it has.
+
+        Two senders may use the same key text; with `source` they no longer shadow each other. Without `source` the behaviour is the one it always had.
+        """
+        key = self._stored_key(key, source)
         now = self._clock()
         with self._lock:
             self._forget_old(now)
             cursor = self._db.execute("INSERT OR IGNORE INTO keys (k, at, result) VALUES (?, ?, NULL)", (key, now))
             return cursor.rowcount == 1
 
-    def remember(self, key: str, result: str) -> None:
+    def remember(self, key: str, result: str, source: str | None = None) -> None:
         """Stores the answer given for `key`, so that a repeat can be answered the same way. Only keys that were claimed keep one."""
+        key = self._stored_key(key, source)
         with self._lock:
             self._db.execute("UPDATE keys SET result = ? WHERE k = ?", (str(result)[:MAX_RESULT_CHARS], key))
 
-    def recall(self, key: str) -> str | None:
+    def release(self, key: str, source: str | None = None) -> bool:
+        """Gives a claimed key back when the bridge could not handle the job at all (it failed before doing anything), so that the sender retry is not taken for a repeat.
+
+        Only a key that has no stored answer can be released: once an answer exists the job was handled and a repeat must get that answer. Returns True when the key was released.
+        """
+        key = self._stored_key(key, source)
+        with self._lock:
+            cursor = self._db.execute("DELETE FROM keys WHERE k = ? AND result IS NULL", (key,))
+            return cursor.rowcount == 1
+
+    def recall(self, key: str, source: str | None = None) -> str | None:
         """The answer stored for `key`, or None (never seen, forgotten, or no answer stored)."""
+        key = self._stored_key(key, source)
         with self._lock:
             self._forget_old(self._clock())
             row = self._db.execute("SELECT result FROM keys WHERE k = ?", (key,)).fetchone()
@@ -123,13 +150,46 @@ class JobIntake:
     deduplicated (the bridge says so by passing none), but retained and malformed messages are still stopped.
     """
 
-    def __init__(self, store: IdempotencyStore | None = None, verifier: CommandVerifier | None = None) -> None:
+    def __init__(self, store: IdempotencyStore | None = None, verifier: CommandVerifier | None = None, *, source: str | None = None,
+                 in_doubt_policy: str = "consult", status_query: Callable[[BridgeJob], str | None] | None = None) -> None:
+        if in_doubt_policy not in IN_DOUBT_POLICIES:
+            raise ValueError(f"in_doubt_policy must be one of {IN_DOUBT_POLICIES}; a bridge never runs an in-doubt job again by itself")
         self._store = store
         self._verifier = verifier
+        self._source = source
+        self._in_doubt_policy = in_doubt_policy
+        self._status_query = status_query
+
+    @property
+    def in_doubt_policy(self) -> str:
+        return self._in_doubt_policy
 
     def recall(self, key: str) -> str | None:
         """The answer the bridge stored for `key` (see `IdempotencyStore.remember`), or None."""
-        return self._store.recall(key) if self._store is not None else None
+        return self._store.recall(key, self._source) if self._store is not None else None
+
+    def remember(self, key: str, result: str) -> None:
+        """Stores the answer for `key` under the source of this intake."""
+        if self._store is not None:
+            self._store.remember(key, result, self._source)
+
+    def release(self, key: str) -> bool:
+        """Gives `key` back after a failure that did nothing (see `IdempotencyStore.release`)."""
+        return self._store.release(key, self._source) if self._store is not None else False
+
+    def resolve_in_doubt(self, job: BridgeJob) -> str | None:
+        """What happened to a job whose first attempt left no answer: with the policy `consult` the bridge asks the machine through `status_query` and the answer is stored
+        and returned; the job is never run again. None when the policy is `refuse`, when no query was given, or when the query has no answer or fails."""
+        if self._in_doubt_policy != "consult" or self._status_query is None:
+            return None
+        try:
+            answer = self._status_query(job)
+        except Exception:  # noqa: BLE001 - a failing query must leave the job refused, not stop the bridge
+            return None
+        if not isinstance(answer, str) or not answer.strip():
+            return None
+        self.remember(job.idempotency_key, answer)
+        return answer
 
     def accept(self, payload: Mapping[str, object], *, retained: bool = False, topic: str | None = None) -> Intake:
         """`topic` is the topic the message arrived on; it is part of what a signed command signs, so it is required once the verifier asks for signatures."""
@@ -145,8 +205,8 @@ class JobIntake:
             job = job_from_dict(payload)
         except BridgeError as error:
             return Intake(False, f"malformed job: {error}")
-        if self._store is not None and not self._store.claim(job.idempotency_key):
-            in_doubt = self._store.recall(job.idempotency_key) is None
+        if self._store is not None and not self._store.claim(job.idempotency_key, self._source):
+            in_doubt = self._store.recall(job.idempotency_key, self._source) is None
             reason = "this idempotency key was already handled"
             if in_doubt:
                 reason += " but no answer was stored for it: the first attempt may not have finished"
@@ -200,5 +260,10 @@ def read_job_message(
         stored = intake.recall(taken.job.idempotency_key)
         if stored is not None:
             return JobMessage(repeat_answer=stored)
+        if taken.in_doubt:
+            consulted = intake.resolve_in_doubt(taken.job)
+            if consulted is not None:
+                return JobMessage(repeat_answer=consulted)
+            return JobMessage(refusal={"allowed": False, "reason": taken.reason + "; the job is not run again until the machine state is known"})
         return JobMessage(refusal={"allowed": False, "reason": taken.reason})
     return JobMessage(refusal={"allowed": False, "reason": f"malformed job payload: {taken.reason.removeprefix('malformed job: ')}"})
