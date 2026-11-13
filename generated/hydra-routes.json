@@ -81,6 +81,58 @@
     },
     {
       "method": "GET",
+      "path": "/api/admin/fleet-update",
+      "access": "admin",
+      "group": "fleet-update",
+      "query": [],
+      "statuses": [
+        "200",
+        "404"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/fleet-update/apply",
+      "access": "admin",
+      "group": "fleet-update",
+      "query": [],
+      "statuses": [
+        "200",
+        "400",
+        "404",
+        "409",
+        "502"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/fleet-update/plan",
+      "access": "admin",
+      "group": "fleet-update",
+      "query": [],
+      "statuses": [
+        "200",
+        "404",
+        "409",
+        "502"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/fleet-update/resume",
+      "access": "admin",
+      "group": "fleet-update",
+      "query": [],
+      "statuses": [
+        "200",
+        "400",
+        "404",
+        "409",
+        "502"
+      ]
+    },
+    {
+      "method": "GET",
       "path": "/api/admin/jwt-keys",
       "access": "admin",
       "group": "admin",

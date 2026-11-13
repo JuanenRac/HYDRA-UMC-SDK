@@ -2,7 +2,12 @@
 
 ## [Unreleased]
 
+- **Declare the routes of the update of every installed program in the contract:** `GET /api/admin/fleet-update` and `POST /api/admin/fleet-update/plan`, `/apply` and `/resume` (administrator; the look is off until the server turns on its look at the newest versions and applying until it turns on maintenance), with the shapes of the answer (`FleetUpdateStatus`, `FleetUpdateReport`, `FleetUpdateRow`: the progress file of the update, each program with its versions, its action, its step and its state, a run that stopped writing reported as interrupted). The generated document, the route tables and the fixtures follow.
+
+- **One shared reading of the state word of a GRBL report (`hydra_umc_sdk.grbl_status`):** `grbl_machine_state()` drops the numeric substate (`Hold:0`, `Door:1`, `Alarm:1`), ignores the case and maps the words of GRBL v1.1 to the machine state of the bridge contract; anything unknown or not text is OFFLINE and only `Idle` maps to the state in which work may start. A bridge can add words of its own. The CNC and the laser bridge keep their own copies until they adopt it.
+
 - **Shared rules for the correlation of command answers and for the metadata of a start command (`hydra_umc_sdk.command_correlation`):** a command may carry a `request_id` (validated text) that `answer_with_request_id()` copies into the answer, so that two clients on the same result topic can tell their answers apart, and a start command may name the file by `sha256` and the `profile_id` it was prepared for; `parse_start_metadata()` refuses a malformed value and `start_matches()` compares what the command names with what the machine reports (what it does not name is not checked). Commands without these fields behave as before.
+
 
 - **Declare the routes of the update of the programs from Studio in the contract:** `GET /api/admin/self-update`, `GET /api/admin/self-update/jobs/{id}`, `POST /api/admin/self-update/apply` and `POST /api/admin/self-update/rollback` (administrator; the look is off until the server turns on its look at the newest versions and applying until it turns on maintenance), with the three shapes of their answers (`SelfUpdateStatus`, `SelfUpdateItem`, `SelfUpdateJob`: the programs against the newest signed release, and a job with its steps checking, downloading, verifying, applying, restarting, done or failed and the reason when it failed). The generated document, the route tables and the fixtures follow.
 
