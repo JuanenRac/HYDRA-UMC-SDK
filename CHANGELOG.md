@@ -12,6 +12,9 @@
 
 - **The evidence bundle travels in a typed signed envelope (`hydra_umc_sdk.incident_transport`):** `build_incident_message()` and `verify_incident_message()` define the `incident-transport/1` message (version, kind, destination node, time, nonce, escalation id, the sealed bundle and an HMAC-SHA256 over the canonical JSON), so that the technician that writes it and the development node that reads it share one definition. The reader checks the signature first, then the destination, the clock, the shape and the checksum of the bundle, and remembers the nonce last, so a refused message never uses one up; a replay is refused and no secret ever appears in an error.
 
+- **The version-tool sync leaves one `if __name__ == "__main__"` block in a repository bump script (`tools/sync_version_tools.py`):** the hand-over to the shared bump utility now goes first inside the script own guard instead of a second guard before it, an inline body moves to its own line, and a script that an older run patched is folded into one guard by the same tool (`--check` lists it). The bump script of this repository is folded too.
+
+
 
 - **One shared reading of the state word of a GRBL report (`hydra_umc_sdk.grbl_status`):** `grbl_machine_state()` drops the numeric substate (`Hold:0`, `Door:1`, `Alarm:1`), ignores the case and maps the words of GRBL v1.1 to the machine state of the bridge contract; anything unknown or not text is OFFLINE and only `Idle` maps to the state in which work may start. A bridge can add words of its own. The CNC and the laser bridge keep their own copies until they adopt it.
 
