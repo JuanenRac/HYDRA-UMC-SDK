@@ -4615,12 +4615,12 @@
         ]
       }
     },
-    "/api/developer-node/status": {
+    "/api/dev-server/status": {
       "get": {
         "tags": [
           "feeds"
         ],
-        "summary": "GET /api/developer-node/status",
+        "summary": "GET /api/dev-server/status",
         "description": "Requires a signed-in account (bearer token).",
         "x-access": "user",
         "responses": {
@@ -4628,6 +4628,37 @@
             "description": "Success. The body is documented in docs/REMOTE_API.md."
           }
         },
+        "parameters": [
+          {
+            "name": "verify",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/developer-node/status": {
+      "get": {
+        "tags": [
+          "feeds"
+        ],
+        "summary": "GET /api/developer-node/status",
+        "description": "Requires a signed-in account (bearer token). Deprecated alias of /api/dev-server/status; it answers the same body and is kept for one version.",
+        "x-access": "user",
+        "responses": {
+          "200": {
+            "description": "Success. The body is documented in docs/REMOTE_API.md."
+          }
+        },
+        "deprecated": true,
         "parameters": [
           {
             "name": "verify",
@@ -5320,12 +5351,12 @@
         ]
       }
     },
-    "/api/ingest/developer-node/status": {
+    "/api/ingest/dev-server/status": {
       "post": {
         "tags": [
           "feeds"
         ],
-        "summary": "POST /api/ingest/developer-node/status",
+        "summary": "POST /api/ingest/dev-server/status",
         "description": "No authentication required by the route itself.",
         "x-access": "public",
         "responses": {
@@ -5353,6 +5384,42 @@
             }
           }
         }
+      }
+    },
+    "/api/ingest/developer-node/status": {
+      "post": {
+        "tags": [
+          "feeds"
+        ],
+        "summary": "POST /api/ingest/developer-node/status",
+        "description": "No authentication required by the route itself. Deprecated alias of /api/ingest/dev-server/status; it answers the same body and is kept for one version.",
+        "x-access": "public",
+        "responses": {
+          "201": {
+            "description": "Created. The body is documented in docs/REMOTE_API.md."
+          },
+          "400": {
+            "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": true
       }
     },
     "/api/ingest/scenario-outcome": {
