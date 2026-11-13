@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- **More tests for the pose, the operation result, the signed commands and the MCU error vocabulary:** 26 tests of refusals and boundaries (unit quaternions, rotation vectors with a fixed seed, every refusal of a pose payload including the deprecated Euler angles, the order of the success gate of an operation result, every verdict of a signed command, key file problems). The MCU error tests were bare functions that the unittest run of the CI never executed; they are now unittest cases and run.
 - **The Dart client tells a read-only server from a robot in safe mode:** `HydraApiException.isServerReadOnly` is true for the code `server-read-only`, `isRobotDisabled` no longer takes that 423 for a robot in safe mode, and `HydraErrorKind.serverReadOnly` is added (at the end of the list) so the apps can give it a sentence of their own. The shared vectors are unchanged. Test in `clients/dart_app_common/test/hydra_error_test.dart`.
 - **The status feed of the developer server has its new name in the contract:** `POST /api/ingest/dev-server/status` and `GET /api/dev-server/status` (schema `dev-server-status/1`) are in the OpenAPI document, the route tables for TypeScript, Kotlin and Dart, the app fixtures and the stand-in server. The old `/api/ingest/developer-node/status` and `/api/developer-node/status` stay as deprecated aliases for one version (marked `deprecated` in the inventory, the stand-in server still accepts the old path and the old schema `developer-node-status/1`), so nothing installed breaks.
 
