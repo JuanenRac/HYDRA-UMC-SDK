@@ -53,6 +53,8 @@ CANONICAL_FILES = {
     "tools/universal_readme_check.py": "universal_readme_check.py",
     "tools/pretty_run.py": "pretty_run.py",
     "tools/status_lights.py": "status_lights.py",
+    "tools/workflow_hygiene.py": "workflow_hygiene.py",
+    "tools/lessons_lint.py": "lessons_lint.py",
     # The baseline steps of every workflow, as one composite action (the workflows call it and keep what is their own).
     ".github/actions/hydra-baseline/action.yml": "hydra-baseline-action.yml",
     # The issue forms and the pull request template are the same text in every repository.
