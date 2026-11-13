@@ -2422,6 +2422,260 @@
           ]
         }
       }
+    },
+    "FleetUpdateRow": {
+      "type": "object",
+      "required": [
+        "name",
+        "kind",
+        "repo",
+        "installed",
+        "latest",
+        "action",
+        "reason",
+        "state",
+        "step",
+        "detail",
+        "error",
+        "order",
+        "log"
+      ],
+      "description": "One program of the device in the update of everything installed: its versions, what the plan does with it and where its steps are.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "repo",
+            "svc",
+            "frontend"
+          ]
+        },
+        "repo": {
+          "type": "string"
+        },
+        "installed": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "latest": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "update",
+            "current",
+            "skip",
+            "review"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "waiting",
+            "running",
+            "done",
+            "failed",
+            "rolled_back",
+            "interrupted",
+            "skipped",
+            "blocked"
+          ]
+        },
+        "step": {
+          "type": "string",
+          "enum": [
+            "",
+            "disk",
+            "fetching",
+            "backup",
+            "building",
+            "installing",
+            "verifying",
+            "done"
+          ]
+        },
+        "substep": {
+          "type": "string"
+        },
+        "substeps": {
+          "type": "integer"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "error": {
+          "type": "string"
+        },
+        "order": {
+          "type": "integer"
+        },
+        "elapsedS": {
+          "type": "integer"
+        },
+        "freeMb": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "needMb": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "unitRestored": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "log": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "at",
+              "text"
+            ],
+            "properties": {
+              "at": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "FleetUpdateReport": {
+      "type": "object",
+      "required": [
+        "schema",
+        "id",
+        "mode",
+        "state",
+        "startedAt",
+        "updatedAt",
+        "error",
+        "stoppedAt",
+        "requireSignedTags",
+        "disk",
+        "services"
+      ],
+      "description": "The progress file of tools/fleet_update.py (hydra-fleet-update/1). A run whose heartbeat stopped is reported as interrupted.",
+      "properties": {
+        "schema": {
+          "type": "string",
+          "enum": [
+            "hydra-fleet-update/1"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "plan",
+            "run"
+          ]
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "planned",
+            "running",
+            "done",
+            "failed",
+            "blocked",
+            "interrupted"
+          ]
+        },
+        "startedAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        },
+        "error": {
+          "type": "string"
+        },
+        "stoppedAt": {
+          "type": "string"
+        },
+        "requireSignedTags": {
+          "type": "boolean"
+        },
+        "disk": {
+          "type": "object",
+          "required": [
+            "rootFreeMb",
+            "workspaceFreeMb"
+          ],
+          "properties": {
+            "rootFreeMb": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "workspaceFreeMb": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          }
+        },
+        "services": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/FleetUpdateRow"
+          }
+        }
+      }
+    },
+    "FleetUpdateStatus": {
+      "type": "object",
+      "required": [
+        "applyEnabled",
+        "busy",
+        "report"
+      ],
+      "description": "Whether applying is switched on, whether a look or a run is going on, and the progress file (null before the first look).",
+      "properties": {
+        "applyEnabled": {
+          "type": "boolean"
+        },
+        "busy": {
+          "type": "boolean"
+        },
+        "report": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/FleetUpdateReport"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
     }
   }
 }
