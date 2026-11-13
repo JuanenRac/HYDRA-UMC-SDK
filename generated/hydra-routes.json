@@ -214,6 +214,58 @@
     },
     {
       "method": "GET",
+      "path": "/api/admin/self-update",
+      "access": "admin",
+      "group": "self-update",
+      "query": [
+        "refresh"
+      ],
+      "statuses": [
+        "200",
+        "404",
+        "503"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/self-update/apply",
+      "access": "admin",
+      "group": "self-update",
+      "query": [],
+      "statuses": [
+        "200",
+        "400",
+        "404",
+        "409"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/self-update/jobs/{id}",
+      "access": "admin",
+      "group": "self-update",
+      "query": [],
+      "statuses": [
+        "200",
+        "404",
+        "503"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/self-update/rollback",
+      "access": "admin",
+      "group": "self-update",
+      "query": [],
+      "statuses": [
+        "200",
+        "400",
+        "404",
+        "409"
+      ]
+    },
+    {
+      "method": "GET",
       "path": "/api/admin/server-config",
       "access": "admin",
       "group": "admin",

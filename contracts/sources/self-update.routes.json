@@ -1,0 +1,179 @@
+{
+  "source_version": "1",
+  "group": "self-update",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "get",
+      "path": "/api/admin/self-update",
+      "summary": "GET /api/admin/self-update",
+      "description": "Requires a signed-in account with the admin role. Off by default (updateCheck.enabled): it then answers 404 and the server asks GitHub for nothing.",
+      "access": "admin",
+      "parameters": [
+        {
+          "name": "refresh",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "SelfUpdateStatus"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/admin/self-update/apply",
+      "summary": "POST /api/admin/self-update/apply",
+      "description": "Requires a signed-in account with the admin role. Off by default (maintenance.enabled): it then answers 404. Needs confirm: true.",
+      "access": "admin",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "component",
+                "confirm"
+              ],
+              "properties": {
+                "component": {
+                  "type": "string",
+                  "enum": [
+                    "server",
+                    "studio",
+                    "os-agent"
+                  ]
+                },
+                "confirm": {
+                  "type": "boolean",
+                  "enum": [
+                    true
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "SelfUpdateJob"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "409": {
+          "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "get",
+      "path": "/api/admin/self-update/jobs/{id}",
+      "summary": "GET /api/admin/self-update/jobs/{id}",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "SelfUpdateJob"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/admin/self-update/rollback",
+      "summary": "POST /api/admin/self-update/rollback",
+      "description": "Requires a signed-in account with the admin role. Off by default (maintenance.enabled): it then answers 404. Needs confirm: true.",
+      "access": "admin",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "component",
+                "confirm"
+              ],
+              "properties": {
+                "component": {
+                  "type": "string",
+                  "enum": [
+                    "server",
+                    "studio",
+                    "os-agent"
+                  ]
+                },
+                "confirm": {
+                  "type": "boolean",
+                  "enum": [
+                    true
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "SelfUpdateJob"
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "409": {
+          "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}
