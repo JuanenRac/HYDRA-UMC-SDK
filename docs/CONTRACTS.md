@@ -35,12 +35,14 @@ according to its use case.
 | `ConnectionClient` | Server (list of the clients it has seen) | Studio, Suite, apps |
 | `EcosystemHealth` | Server (`GET /api/ecosystem/health`, off until an administrator turns it on) | Studio, Suite, apps, dashboard |
 | `RobotLiveness` | Server (`GET /api/robots/liveness`) | Studio, Suite, apps, OPC UA server |
+| `RobotRoster` | Any reader of the settings of the server (adapters, gateways, tools) | Adapters, gateways, tools |
 | `ProductionEvent` | Orchestrator, bridges, robots (one finished cycle) | Production reports, Data Lake |
 | `CommandLifecycleEvent` | Server (the step a robot command reached: accepted, running, completed, failed, cancelled) | Studio, Suite, apps |
 | `VisualTargetRequest` | Callers of visual servoing | Visual servoing service |
 | `VelocityCommand` | Visual servoing service | Robot controllers, Server |
 | `FrameMeta` | Vision node, vision streamer | Detection services |
 | `DetectionFrame` | Detection services (vision node, Hailo detection) | Visual servoing, Studio, Suite |
+| `PoseEstimate` | Pose estimation services (the pose of the detections of a frame) | Visual servoing, Studio, Suite |
 | `MaintenanceIncident` | Maintenance agent of a node | Development server, local technician, dashboard |
 | `NodeSnapshot` | Maintenance agent of a node (what its edge side saw in one pass, with the incidents and, when switched on, the readings of the machine) | Development server, local technician, dashboard |
 | `ChangeProposal` | Maintenance agent of a node (a change a person reviews: diff, rationale, decision and signature) | Development server, local technician |

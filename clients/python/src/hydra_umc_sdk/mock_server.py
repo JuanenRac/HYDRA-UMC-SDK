@@ -155,6 +155,19 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "source_id": "cam-top",
         "sequence": 1
     },
+    "PoseEstimate": {
+        "schema_version": "1.0",
+        "frame_id": "frame-0001",
+        "capture_ts_utc": "2026-01-01T10:00:00.250Z",
+        "estimates": [
+            {
+                "detection_index": 0,
+                "position": {"x": 0.1, "y": 0.0, "z": 0.8},
+                "orientation": {"w": 1, "x": 0, "y": 0, "z": 0},
+                "confidence": 0.9
+            }
+        ]
+    },
     "DetectionFrame": {
         "schema_version": "1.0",
         "frame_id": "frame-0001",
@@ -428,6 +441,13 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "robots": [
             {"controller_id": "c1", "robot_id": 1, "state": "live", "last_update_utc": "2024-01-01T00:00:00Z", "age_s": 4, "source": "state"},
             {"controller_id": "c1", "robot_id": 2, "state": "unknown"},
+        ],
+    },
+    "RobotRoster": {
+        "schema_version": "1.0",
+        "robots": [
+            {"controller_id": "c1", "robot_id": 1, "online": True, "playback": "playing"},
+            {"controller_id": "c1", "robot_id": 2, "online": False, "playback": "idle"},
         ],
     },
     "ConnectionEvent": {

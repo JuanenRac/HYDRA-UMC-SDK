@@ -1284,6 +1284,86 @@ class OperationResult {
       };
 }
 
+class PoseEstimate {
+  final String schema_version;
+  final String frame_id;
+  final String? session_id;
+  final String capture_ts_utc;
+  final List<PoseEstimateEstimates> estimates;
+  const PoseEstimate({required this.schema_version, required this.frame_id, this.session_id, required this.capture_ts_utc, required this.estimates});
+  factory PoseEstimate.fromJson(Map<String, dynamic> json) => PoseEstimate(
+        schema_version: json["schema_version"] as String,
+        frame_id: json["frame_id"] as String,
+        session_id: json["session_id"] == null ? null : json["session_id"] as String,
+        capture_ts_utc: json["capture_ts_utc"] as String,
+        estimates: (json["estimates"] as List).map((e0) => PoseEstimateEstimates.fromJson(Map<String, dynamic>.from(e0 as Map))).toList(),
+      );
+  Map<String, dynamic> toJson() => {
+        "schema_version": schema_version,
+        "frame_id": frame_id,
+        if (session_id != null) "session_id": session_id,
+        "capture_ts_utc": capture_ts_utc,
+        "estimates": estimates.map((e0) => e0.toJson()).toList(),
+      };
+}
+
+class PoseEstimateEstimates {
+  final int detection_index;
+  final PoseEstimateEstimatesPosition position;
+  final PoseEstimateEstimatesOrientation orientation;
+  final double confidence;
+  const PoseEstimateEstimates({required this.detection_index, required this.position, required this.orientation, required this.confidence});
+  factory PoseEstimateEstimates.fromJson(Map<String, dynamic> json) => PoseEstimateEstimates(
+        detection_index: (json["detection_index"] as num).toInt(),
+        position: PoseEstimateEstimatesPosition.fromJson(Map<String, dynamic>.from(json["position"] as Map)),
+        orientation: PoseEstimateEstimatesOrientation.fromJson(Map<String, dynamic>.from(json["orientation"] as Map)),
+        confidence: (json["confidence"] as num).toDouble(),
+      );
+  Map<String, dynamic> toJson() => {
+        "detection_index": detection_index,
+        "position": position.toJson(),
+        "orientation": orientation.toJson(),
+        "confidence": confidence,
+      };
+}
+
+class PoseEstimateEstimatesPosition {
+  final double x;
+  final double y;
+  final double z;
+  const PoseEstimateEstimatesPosition({required this.x, required this.y, required this.z});
+  factory PoseEstimateEstimatesPosition.fromJson(Map<String, dynamic> json) => PoseEstimateEstimatesPosition(
+        x: (json["x"] as num).toDouble(),
+        y: (json["y"] as num).toDouble(),
+        z: (json["z"] as num).toDouble(),
+      );
+  Map<String, dynamic> toJson() => {
+        "x": x,
+        "y": y,
+        "z": z,
+      };
+}
+
+class PoseEstimateEstimatesOrientation {
+  final double w;
+  final double x;
+  final double y;
+  final double z;
+  const PoseEstimateEstimatesOrientation({required this.w, required this.x, required this.y, required this.z});
+  factory PoseEstimateEstimatesOrientation.fromJson(Map<String, dynamic> json) => PoseEstimateEstimatesOrientation(
+        w: (json["w"] as num).toDouble(),
+        x: (json["x"] as num).toDouble(),
+        y: (json["y"] as num).toDouble(),
+        z: (json["z"] as num).toDouble(),
+      );
+  Map<String, dynamic> toJson() => {
+        "w": w,
+        "x": x,
+        "y": y,
+        "z": z,
+      };
+}
+
 class Pose {
   final String schema_version;
   final String frame;
@@ -1532,6 +1612,40 @@ class RobotLivenessRobots {
         if (last_update_utc != null) "last_update_utc": last_update_utc,
         if (age_s != null) "age_s": age_s,
         if (source != null) "source": source,
+      };
+}
+
+class RobotRoster {
+  final String schema_version;
+  final List<RobotRosterRobots> robots;
+  const RobotRoster({required this.schema_version, required this.robots});
+  factory RobotRoster.fromJson(Map<String, dynamic> json) => RobotRoster(
+        schema_version: json["schema_version"] as String,
+        robots: (json["robots"] as List).map((e0) => RobotRosterRobots.fromJson(Map<String, dynamic>.from(e0 as Map))).toList(),
+      );
+  Map<String, dynamic> toJson() => {
+        "schema_version": schema_version,
+        "robots": robots.map((e0) => e0.toJson()).toList(),
+      };
+}
+
+class RobotRosterRobots {
+  final String controller_id;
+  final int robot_id;
+  final bool online;
+  final String playback;
+  const RobotRosterRobots({required this.controller_id, required this.robot_id, required this.online, required this.playback});
+  factory RobotRosterRobots.fromJson(Map<String, dynamic> json) => RobotRosterRobots(
+        controller_id: json["controller_id"] as String,
+        robot_id: (json["robot_id"] as num).toInt(),
+        online: json["online"] as bool,
+        playback: json["playback"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "controller_id": controller_id,
+        "robot_id": robot_id,
+        "online": online,
+        "playback": playback,
       };
 }
 

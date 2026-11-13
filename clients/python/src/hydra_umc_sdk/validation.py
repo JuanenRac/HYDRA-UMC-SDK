@@ -40,11 +40,13 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "ProductionEvent": ("schema_version", "source_id", "at_utc", "good", "cycle_time_s"),
     "EcosystemHealth": ("schema_version", "generated_at_utc", "available", "summary", "services", "certificate", "warnings"),
     "RobotLiveness": ("schema_version", "stale_after_s", "robots"),
+    "RobotRoster": ("schema_version", "robots"),
     "CommandLifecycleEvent": ("schema_version", "operation_id", "robot_id", "command", "state", "at_utc", "sequence"),
     "VisualTargetRequest": ("schema_version", "frame_id", "current", "target", "confidence", "safety_state"),
     "VelocityCommand": ("schema_version", "vx", "vy", "vz", "wroll", "wpitch", "wyaw", "hold", "issued_at_ms", "valid_for_ms", "seq"),
     "FrameMeta": ("schema_version", "frame_id", "capture_ts_utc", "width", "height", "pixel_format"),
     "DetectionFrame": ("schema_version", "frame_id", "capture_ts_utc", "box_unit", "detections"),
+    "PoseEstimate": ("schema_version", "frame_id", "capture_ts_utc", "estimates"),
     "MaintenanceIncident": ("incidentId", "sourceNode", "detectedAt", "severity", "component", "symptom", "evidenceRefs", "redactionLevel", "requestedBy", "correlationId"),
     "ToolDescriptor": ("schema_version", "tool_id", "name", "title", "kind"),
     "ToolState": ("schema_version", "tool_id", "state", "source", "timestamp_utc"),
@@ -254,6 +256,11 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
 
         validate_robot_liveness(payload)
         return
+    if contract == "RobotRoster":
+        from .robot_roster import validate_robot_roster  # imported here: robot_roster.py needs this module's error type
+
+        validate_robot_roster(payload)
+        return
     if contract == "ConnectionEvent":
         from .connection import validate_connection_event  # imported here: connection.py needs this module's error type
 
@@ -288,6 +295,11 @@ def validate(contract: str, payload: dict[str, Any]) -> None:
         from .vision_pipeline import validate_detection_frame  # imported here: vision_pipeline.py needs this module's error type
 
         validate_detection_frame(payload)
+        return
+    if contract == "PoseEstimate":
+        from .vision_pipeline import validate_pose_estimate  # imported here: vision_pipeline.py needs this module's error type
+
+        validate_pose_estimate(payload)
         return
     if contract == "ToolDescriptor":
         from .tool import validate_tool_descriptor  # imported here: tool.py needs this module's error type

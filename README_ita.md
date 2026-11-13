@@ -50,13 +50,13 @@ GPL-3.0-or-later - see LICENSE
 
 Ogni riga è una parte di questo repository e il semaforo dice a che punto è oggi. È scritta in base a ciò che il repository può mostrare (test, compilazioni, esecuzioni), non a ciò che è previsto.
 
-🟢 Fatto e verificato · 🟡 Funziona, con limiti noti · 🟠 Fatto a metà o non ancora verificato · 🔴 Non fatto o non funzionante
+🟢 Fatto e verificato · 🟡 Funziona, con limiti noti · 🟠 Fatto a metà o non ancora verificato · 🔴 Non fatto o non funzionante · ⚪ Non applicabile
 
 | Area | Stato | Cosa significa qui |
 |---|---|---|
 | Software | 🟢 | Completo per il suo scopo e stabile; la verifica di onestà qui sopra elenca i limiti noti |
 | Test | 🟢 | 986 test automatici, eseguiti a ogni modifica |
-| Hardware reale | 🟢 | Non applicabile: nulla qui gira su hardware |
+| Hardware reale | ⚪ | Non applicabile: nulla qui gira su hardware |
 | Distribuzione | 🟠 | Pubblicato come release; l'installazione su una macchina pulita è documentata ma non registrata |
 | Contratti e client | 🟢 | Ogni contratto chiuso ha un esempio valido e uno non valido ed è convalidato in Python, Go, Rust e TypeScript rispetto agli stessi schemi |
 | Documentazione | 🟢 | README in otto lingue, verificato rispetto al manifesto a ogni modifica |

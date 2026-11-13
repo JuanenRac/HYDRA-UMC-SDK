@@ -108,3 +108,58 @@ def box_to_pixels(box: dict[str, float], box_unit: str, width: int, height: int)
     if box_unit != "normalized":
         raise ContractValidationError(f"box_unit must be one of {', '.join(BOX_UNITS)}")
     return {"x_min": box["x_min"] * width, "y_min": box["y_min"] * height, "x_max": box["x_max"] * width, "y_max": box["y_max"] * height}
+
+
+POSE_ESTIMATE_REQUIRED: tuple[str, ...] = ("schema_version", "frame_id", "capture_ts_utc", "estimates")
+POSE_ESTIMATE_OPTIONAL: tuple[str, ...] = ("session_id",)
+_ESTIMATE_FIELDS: tuple[str, ...] = ("detection_index", "position", "orientation", "confidence")
+QUATERNION_TOLERANCE = 1e-6
+
+
+def validate_pose_estimate(payload: dict[str, Any]) -> None:
+    """The checks of the PoseEstimate contract: the shape, finite numbers, a unit quaternion and no detection estimated twice."""
+    require_object(payload)
+    check_fields(payload, POSE_ESTIMATE_REQUIRED, POSE_ESTIMATE_OPTIONAL)
+    identifier(payload, "frame_id")
+    if "session_id" in payload:
+        identifier(payload, "session_id")
+    _require_date_time(payload, "capture_ts_utc")
+    estimates = payload["estimates"]
+    if not isinstance(estimates, list) or len(estimates) > MAX_DETECTIONS:
+        raise ContractValidationError(f"estimates must be an array of at most {MAX_DETECTIONS} estimates")
+    seen: set[int] = set()
+    for index, item in enumerate(estimates):
+        label = f"estimates[{index}]"
+        if not isinstance(item, dict):
+            raise ContractValidationError(f"{label} must be an object")
+        check_fields(item, _ESTIMATE_FIELDS, (), label=label)
+        whole(item, "detection_index", 0, MAX_DETECTIONS - 1)
+        if item["detection_index"] in seen:
+            raise ContractValidationError(f"{label}.detection_index repeats the one of an earlier estimate")
+        seen.add(item["detection_index"])
+        position, orientation = item["position"], item["orientation"]
+        if not isinstance(position, dict) or not isinstance(orientation, dict):
+            raise ContractValidationError(f"{label}.position and {label}.orientation must be objects")
+        check_fields(position, ("x", "y", "z"), (), label=f"{label}.position")
+        check_fields(orientation, ("w", "x", "y", "z"), (), label=f"{label}.orientation")
+        for name in ("x", "y", "z"):
+            real(position, name)
+        for name in ("w", "x", "y", "z"):
+            real(orientation, name, -1, 1)
+        norm = sum(orientation[name] ** 2 for name in ("w", "x", "y", "z"))
+        if abs(norm - 1.0) > QUATERNION_TOLERANCE:
+            raise ContractValidationError(f"{label}.orientation must be a unit quaternion")
+        real(item, "confidence", 0, 1)
+
+
+def check_estimates_match_detections(estimate: dict[str, Any], detections: dict[str, Any]) -> None:
+    """What the two schemas cannot say together: the estimates belong to the same frame as the detections (same `frame_id` and `capture_ts_utc`) and each one
+    points at a detection that exists. Both payloads are validated first."""
+    validate_pose_estimate(estimate)
+    validate_detection_frame(detections)
+    if estimate["frame_id"] != detections["frame_id"] or estimate["capture_ts_utc"] != detections["capture_ts_utc"]:
+        raise ContractValidationError("the estimates and the detections are not of the same frame")
+    count = len(detections["detections"])
+    for item in estimate["estimates"]:
+        if item["detection_index"] >= count:
+            raise ContractValidationError(f"detection_index {item['detection_index']} points past the {count} detections of the frame")
