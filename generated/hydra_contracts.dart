@@ -1535,6 +1535,40 @@ class RobotLivenessRobots {
       };
 }
 
+class RobotRoster {
+  final String schema_version;
+  final List<RobotRosterRobots> robots;
+  const RobotRoster({required this.schema_version, required this.robots});
+  factory RobotRoster.fromJson(Map<String, dynamic> json) => RobotRoster(
+        schema_version: json["schema_version"] as String,
+        robots: (json["robots"] as List).map((e0) => RobotRosterRobots.fromJson(Map<String, dynamic>.from(e0 as Map))).toList(),
+      );
+  Map<String, dynamic> toJson() => {
+        "schema_version": schema_version,
+        "robots": robots.map((e0) => e0.toJson()).toList(),
+      };
+}
+
+class RobotRosterRobots {
+  final String controller_id;
+  final int robot_id;
+  final bool online;
+  final String playback;
+  const RobotRosterRobots({required this.controller_id, required this.robot_id, required this.online, required this.playback});
+  factory RobotRosterRobots.fromJson(Map<String, dynamic> json) => RobotRosterRobots(
+        controller_id: json["controller_id"] as String,
+        robot_id: (json["robot_id"] as num).toInt(),
+        online: json["online"] as bool,
+        playback: json["playback"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "controller_id": controller_id,
+        "robot_id": robot_id,
+        "online": online,
+        "playback": playback,
+      };
+}
+
 class RobotState {
   final String schema_version;
   final String robot_id;

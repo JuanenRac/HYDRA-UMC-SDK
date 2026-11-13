@@ -76,6 +76,7 @@ const CONTRACT_FILES: &[(&str, &str)] = &[
     ("ProductionEvent", "production-event.schema.json"),
     ("EcosystemHealth", "ecosystem-health.schema.json"),
     ("RobotLiveness", "robot-liveness.schema.json"),
+    ("RobotRoster", "robot-roster.schema.json"),
     (
         "CommandLifecycleEvent",
         "command-lifecycle-event.schema.json",
@@ -176,6 +177,10 @@ const SCHEMA_FILES: &[(&str, &str)] = &[
     (
         "robot-liveness.schema.json",
         include_str!("../schemas/robot-liveness.schema.json"),
+    ),
+    (
+        "robot-roster.schema.json",
+        include_str!("../schemas/robot-roster.schema.json"),
     ),
     (
         "command-lifecycle-event.schema.json",

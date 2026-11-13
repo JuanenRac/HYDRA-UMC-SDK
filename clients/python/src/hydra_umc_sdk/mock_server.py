@@ -430,6 +430,13 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
             {"controller_id": "c1", "robot_id": 2, "state": "unknown"},
         ],
     },
+    "RobotRoster": {
+        "schema_version": "1.0",
+        "robots": [
+            {"controller_id": "c1", "robot_id": 1, "online": True, "playback": "playing"},
+            {"controller_id": "c1", "robot_id": 2, "online": False, "playback": "idle"},
+        ],
+    },
     "ConnectionEvent": {
         "schema_version": "1.0",
         "id": 1,

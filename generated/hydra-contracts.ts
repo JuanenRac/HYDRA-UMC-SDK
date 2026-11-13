@@ -586,6 +586,20 @@ export interface RobotLivenessRobots {
   [extra: string]: unknown;
 }
 
+export interface RobotRoster {
+  schema_version: "1.0";
+  robots: RobotRosterRobots[];
+  [extra: string]: unknown;
+}
+
+export interface RobotRosterRobots {
+  controller_id: string;
+  robot_id: number;
+  online: boolean;
+  playback: "idle" | "playing" | "paused" | "finished";
+  [extra: string]: unknown;
+}
+
 export interface RobotState {
   schema_version: "1.0";
   robot_id: string;

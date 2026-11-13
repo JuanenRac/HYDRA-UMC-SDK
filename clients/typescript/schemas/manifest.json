@@ -98,6 +98,10 @@
       "sha256": "91e4a886ab1a4678f85503f5e2516d2e78e82148e7107394b0cad13b3094faa9"
     },
     {
+      "file": "robot-roster.schema.json",
+      "sha256": "1c80d0e348e83ed6c2565acfd146d0b80bb724b04ae31482128a8b4aae464389"
+    },
+    {
       "file": "robot-state.schema.json",
       "sha256": "808e73a5d309f23a7b4df3451db7cd17f14bed69e6b53b76a9e33b2a636c9792"
     },
@@ -151,3 +155,4 @@
     }
   ]
 }
+
