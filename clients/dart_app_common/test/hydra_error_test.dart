@@ -22,4 +22,16 @@ void main() {
       expect(HydraErrorKind.values.asNameMap().containsKey(name), isTrue, reason: name);
     }
   });
+
+  test('a read-only server is told apart from a robot in safe mode', () {
+    final readOnly = HydraApiException('x', statusCode: 423, code: 'server-read-only');
+    expect(readOnly.isServerReadOnly, isTrue);
+    expect(readOnly.isRobotDisabled, isFalse);
+    final disabled = HydraApiException('x', statusCode: 423, code: 'robot-disabled');
+    expect(disabled.isRobotDisabled, isTrue);
+    expect(disabled.isServerReadOnly, isFalse);
+    expect(HydraApiException('x', statusCode: 423).isRobotDisabled, isTrue);
+    expect(HydraApiException('x', statusCode: 403, code: 'server-read-only').isRobotDisabled, isFalse);
+    expect(const HydraError(HydraErrorKind.serverReadOnly).params, isEmpty);
+  });
 }

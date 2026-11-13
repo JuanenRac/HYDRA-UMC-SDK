@@ -46,7 +46,9 @@ class HydraApiException implements Exception {
   bool get isJogNotArmed => statusCode == 403 && code == 'jog-not-armed';
   bool get isHomeRejected =>
       (statusCode == 400 && code == 'home-pose-mismatch') || (statusCode == 422 && code == 'home-out-of-limits');
-  bool get isRobotDisabled => statusCode == 423 || code == 'robot-disabled';
+  /// 423 `server-read-only`: the whole server is in read-only mode and changes nothing except STOP and the safe-mode disable.
+  bool get isServerReadOnly => code == 'server-read-only';
+  bool get isRobotDisabled => (statusCode == 423 && code != 'server-read-only') || code == 'robot-disabled';
   bool get isEnableNotAllowed => statusCode == 403 && code == 'enable-not-allowed';
   bool get isAdminRequired => statusCode == 403 && code == 'admin-required';
   bool get isRejectedCommand => statusCode == 400;
