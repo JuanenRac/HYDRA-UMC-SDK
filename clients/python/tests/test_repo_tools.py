@@ -103,6 +103,16 @@ class MoreReferenceTests(unittest.TestCase):
         self.assertEqual(replaced, ["v0.3.2"])
         self.assertIn("      ref: v0.3.4\n      path: repos/HYDRA-UMC-SDK\n", new)
 
+    def test_tarball_of_a_commit_becomes_the_tarball_of_the_tag(self):
+        sha = "08dc4b350abaaaa3d3b88ea0b439e9cc0bd8dde8"
+        text = f"curl -fsSL https://github.com/JuanenRac/HYDRA-UMC-SDK/archive/{sha}.tar.gz | tar -xz\n"
+        new, replaced = PIN.repin(text, "v0.6.4")
+        self.assertIn("archive/refs/tags/v0.6.4.tar.gz | tar -xz", new)
+        self.assertEqual(replaced, [sha])
+        again, none = PIN.repin(new, "v0.6.4")
+        self.assertEqual(again, new)
+        self.assertEqual(none, [])
+
     def test_release_tarball_url(self):
         new, replaced = PIN.repin(TARBALL.format(ref="v0.3.2"), "v0.3.4")
         self.assertEqual(replaced, ["v0.3.2"])
@@ -198,6 +208,8 @@ class SyncCanonicalTests(WorkspaceFixture):
         (self.canonical / "universal_readme_check.py").write_text("y = 2\n", encoding="utf-8")
         (self.canonical / "pretty_run.py").write_text("z = 3\n", encoding="utf-8")
         (self.canonical / "status_lights.py").write_text("w = 4\n", encoding="utf-8")
+        (self.canonical / "workflow_hygiene.py").write_text("v = 5\n", encoding="utf-8")
+        (self.canonical / "lessons_lint.py").write_text("u = 6\n", encoding="utf-8")
 
     def test_matching_copies_pass_whatever_their_line_endings(self):
         files = {
@@ -207,6 +219,8 @@ class SyncCanonicalTests(WorkspaceFixture):
             "tools/universal_readme_check.py": "y = 2\n",
             "tools/pretty_run.py": "z = 3\n",
             "tools/status_lights.py": "w = 4\n",
+            "tools/workflow_hygiene.py": "v = 5\n",
+            "tools/lessons_lint.py": "u = 6\n",
         }
         self.repo("HYDRA-UMC-A", files)
         self.assertEqual(SYNC.check_canonical(self.workspace, self.canonical), [])
@@ -221,12 +235,14 @@ class SyncCanonicalTests(WorkspaceFixture):
             "HYDRA-UMC-A/tools/universal_readme_check.py (missing)",
             "HYDRA-UMC-A/tools/pretty_run.py (missing)",
             "HYDRA-UMC-A/tools/status_lights.py (missing)",
+            "HYDRA-UMC-A/tools/workflow_hygiene.py (missing)",
+            "HYDRA-UMC-A/tools/lessons_lint.py (missing)",
         ])
 
     def test_write_fixes_them_keeps_crlf_and_is_idempotent(self):
         repo = self.repo("HYDRA-UMC-A", {"bump_manifest_version.py": "print('old')\r\nx\r\n"})
         changed = SYNC.write_canonical(self.workspace, self.canonical)
-        self.assertEqual(len(changed), 6)
+        self.assertEqual(len(changed), 8)
         self.assertEqual((repo / "bump_manifest_version.py").read_bytes(), b"print('bump')\r\n")
         self.assertEqual((repo / ".github/workflows/dashboard-dispatch.yml").read_bytes(), b"name: notify\n")
         self.assertEqual(SYNC.write_canonical(self.workspace, self.canonical), [])
@@ -240,6 +256,8 @@ class SyncCanonicalTests(WorkspaceFixture):
             "tools/universal_readme_check.py": "y = 2\n",
             "tools/pretty_run.py": "z = 3\n",
             "tools/status_lights.py": "w = 4\n",
+            "tools/workflow_hygiene.py": "v = 5\n",
+            "tools/lessons_lint.py": "u = 6\n",
         })
         self.assertEqual(SYNC.check_canonical(self.workspace, self.canonical), [])
         SYNC.write_canonical(self.workspace, self.canonical)
@@ -266,6 +284,8 @@ class SyncCanonicalTests(WorkspaceFixture):
             "tools/universal_readme_check.py": "y = 2\n",
             "tools/pretty_run.py": "z = 3\n",
             "tools/status_lights.py": "w = 4\n",
+            "tools/workflow_hygiene.py": "v = 5\n",
+            "tools/lessons_lint.py": "u = 6\n",
             ".github/ISSUE_TEMPLATE/config.yml": "# GPL-3.0\nblank: false\n",
         }
         repo = self.repo("HYDRA-UMC-A", files)

@@ -10,6 +10,7 @@
 library;
 
 export 'src/access.dart';
+export 'src/can_ota_progress.dart';
 export 'src/command_sequence.dart';
 export 'src/connection_history.dart';
 export 'src/discovery.dart';
@@ -23,6 +24,7 @@ export 'src/http_transport.dart';
 export 'src/hydra_websocket.dart';
 export 'src/pairing_link.dart';
 export 'src/prefs.dart';
+export 'src/release_digest.dart';
 export 'src/play_confirmation.dart';
 export 'src/server_info.dart';
 export 'src/session_store.dart';

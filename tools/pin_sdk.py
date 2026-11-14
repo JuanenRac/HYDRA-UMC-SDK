@@ -44,8 +44,9 @@ _DEPENDENCY = re.compile(r"(HYDRA-UMC-SDK\.git@)([^#\s\"']+)")
 _OWNER = r"(?:JuanenRac|\$\{\{[^}\r\n]*\}\})"
 _WORKFLOW_INLINE = re.compile(r"(repository:\s*" + _OWNER + r"/HYDRA-UMC-SDK\b[^\n}]*?\bref:\s*)([^\s,}]+)")
 _WORKFLOW_BLOCK = re.compile(r"(repository:\s*" + _OWNER + r"/HYDRA-UMC-SDK[ \t]*\r?\n(?:[ \t][^\r\n]*\r?\n)*?[ \t]+ref:\s*)([^\s#]+)")
-# `.../HYDRA-UMC-SDK/archive/refs/tags/<tag>.tar.gz` (a dependency installed from the release tarball)
-_TARBALL = re.compile(r"(HYDRA-UMC-SDK/archive/refs/tags/)(v\d+\.\d+\.\d+(?:\.\d+)?)(\.(?:tar\.gz|zip))")
+# `.../HYDRA-UMC-SDK/archive/refs/tags/<tag>.tar.gz` (a dependency installed from the release tarball), or `.../archive/<commit>.tar.gz` (a repo that
+# was pinned to a commit of the SDK until the next tag): both come out as the tarball of the tag
+_TARBALL = re.compile(r"(HYDRA-UMC-SDK/archive/)(?:refs/tags/)?(v\d+\.\d+\.\d+(?:\.\d+)?|[0-9a-f]{40})(\.(?:tar\.gz|zip))")
 # a Flutter `git:` dependency in pubspec.yaml: the `url:` line, then the `ref:` of the same block
 # (the `ref:` has to sit at the indentation of the `url:` line, so it can never be the one of the next dependency)
 _PUBSPEC = re.compile(
@@ -106,8 +107,14 @@ def repin(text: str, tag: str, commit: str | None = None) -> tuple[str, list[str
             replaced.append(match.group("ref"))
         return match.group("ind") + match.group("head") + tag
 
-    for pattern in (_DEPENDENCY, _WORKFLOW_INLINE, _WORKFLOW_BLOCK, _TARBALL):
+    def swap_tarball(match: re.Match[str]) -> str:
+        if match.group(2) != tag:
+            replaced.append(match.group(2))
+        return match.group(1) + "refs/tags/" + tag + match.group(3)
+
+    for pattern in (_DEPENDENCY, _WORKFLOW_INLINE, _WORKFLOW_BLOCK):
         text = pattern.sub(swap, text)
+    text = _TARBALL.sub(swap_tarball, text)
     text = _PUBSPEC.sub(swap_pubspec, text)
     text = _LOCK.sub(swap_lock, text)
     return text, replaced

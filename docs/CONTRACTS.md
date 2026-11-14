@@ -42,6 +42,7 @@ according to its use case.
 | `VelocityCommand` | Visual servoing service | Robot controllers, Server |
 | `FrameMeta` | Vision node, vision streamer | Detection services |
 | `DetectionFrame` | Detection services (vision node, Hailo detection) | Visual servoing, Studio, Suite |
+| `JetsonStatus` | Jetson (the status it answers to the display interface of the H757: verdict of the safety zones, load, temperature, picture flag, uptime) | H757 display interface, Studio, Suite |
 | `PoseEstimate` | Pose estimation services (the pose of the detections of a frame) | Visual servoing, Studio, Suite |
 | `MaintenanceIncident` | Maintenance agent of a node | Development server, local technician, dashboard |
 | `NodeSnapshot` | Maintenance agent of a node (what its edge side saw in one pass, with the incidents and, when switched on, the readings of the machine) | Development server, local technician, dashboard |
@@ -193,6 +194,10 @@ The routes of the connections (`GET /api/connections/clients` and `GET /api/conn
 ## gRPC contracts
 
 `contracts/proto/` holds the Protocol Buffers sources of the services that speak gRPC: `hydra_telemetry.proto` (the telemetry ingest). A service keeps the code generated from the file it uses.
+
+## Common texts of the apps
+
+`contracts/i18n/common.json` holds the words every app shows the same way (confirm, cancel, save, close, try again, yes, no, loading, online, offline, the three roles and 40 more: delete, pause, next, previous, done, status, name, password, language, theme, type, key, time, robot, robots, temperature, connect, disconnect, role, account, memory, telemetry, approve, controllers, services, users, export, download, load, clear, search, value, enable, disable, saved, the three levels basic, advanced and technical, sign in, finish, endstops, speed and vision center) in the eight languages, European Portuguese for `pt`. Each app keeps its own format and its own catalog for everything else; what is common is written here once. `python tools/i18n_common.py render studio|android|arb --lang <code>` writes the words in the format of STUDIO (a JSON object for its `common` block), of Android (`common_<id>` lines of a `strings.xml`, escaped) or of an ARB file (`common<Id>` keys), and `check-studio --repo <path>` checks that the eight catalogs of a STUDIO checkout carry them under `common` exactly as written here (it may carry more); `render lng --lang <code>` writes the `COMMON_<ID>=text` lines of a SUITE language file and `check-suite --repo <path>` checks the eight `language/*.lng` files the same way. A new common word is added here, in the eight languages, and then to each app with its renderer.
 
 ## Catalogue of the URTC tools
 

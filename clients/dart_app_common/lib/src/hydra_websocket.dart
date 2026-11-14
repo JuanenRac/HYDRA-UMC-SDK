@@ -106,6 +106,10 @@ class HydraWebSocket {
   /// a connection that asked for remoteApiVersion=2): the same list as GET /api/claims, so the app need not poll it.
   final void Function(Map<String, dynamic> message)? onClaims;
 
+  /// The `canota_progress` message (live progress of a flash cycle of a board, sent only to administrators): the whole message,
+  /// as it came; [CanOtaProgress.fromMessage] reads it. Without it the message is ignored.
+  final void Function(Map<String, dynamic> message)? onCanOtaProgress;
+
   WebSocketChannel? _channel;
   StreamSubscription? _sub;
   bool _closingByUser = false;
@@ -128,6 +132,7 @@ class HydraWebSocket {
     required this.onError,
     this.onDelta,
     this.onClaims,
+    this.onCanOtaProgress,
     this.httpClientFactory,
   });
 
@@ -257,6 +262,10 @@ class HydraWebSocket {
     final type = msg['type'];
     if (type == 'claims') {
       onClaims?.call(msg);
+      return;
+    }
+    if (type == 'canota_progress') {
+      onCanOtaProgress?.call(msg);
       return;
     }
     if (type == 'delta' && msg['schema'] == 2 && msg.containsKey('robotId')) {

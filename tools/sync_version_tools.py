@@ -53,13 +53,20 @@ DELEGATION = '''def _delegate_to_shared_utility():
     return module.main()
 
 
-if __name__ == "__main__":
+'''
+GUARD_LINE = re.compile(r"(?m)^if __name__ == [\"']__main__[\"']:[ \t]*(?P<inline>\S.*)?$")
+HANDOVER = """    _shared_exit = _delegate_to_shared_utility()
+    if _shared_exit is not None:
+        raise SystemExit(_shared_exit)
+"""
+# what older runs of this tool injected: a second guard of its own before the script's guard
+OLD_GUARD_BLOCK = """if __name__ == "__main__":
     _shared_exit = _delegate_to_shared_utility()
     if _shared_exit is not None:
         raise SystemExit(_shared_exit)
 
 
-'''
+"""
 
 CI_REPLACEMENTS = [
     ('SEMVER = re.compile(r"^\\d+\\.\\d+\\.\\d+$")', 'SEMVER = re.compile(r"^\\d+\\.\\d+\\.\\d+(?:\\.\\d+)?$")'),
@@ -155,11 +162,34 @@ def patch_bump_version(path: Path) -> bool:
     text, newline = _read(path)
     if delegates_already(text):
         return False
-    guard = re.search(r"(?m)^if __name__ == [\"']__main__[\"']:", text)
+    guard = GUARD_LINE.search(text)
     if guard is None:
         return False
-    new = text[: guard.start()] + DELEGATION + text[guard.start() :]
+    # one guard only: the hand-over comes first inside the script's own guard, and an inline body moves to its own line
+    inline = guard.group("inline")
+    head = 'if __name__ == "__main__":\n' + HANDOVER + (f"    {inline}\n" if inline else "")
+    new = text[: guard.start()] + DELEGATION + head + text[guard.end() + 1 :]
     _write(path, new, newline)
+    return True
+
+
+def has_double_guard(text: str) -> bool:
+    """A script that an older run of this tool patched: its hand-over sits in a guard of its own, followed by the script's guard."""
+    return OLD_GUARD_BLOCK in text and len(GUARD_LINE.findall(text)) > 1
+
+
+def unify_double_guard(path: Path) -> bool:
+    """Folds the second guard into the first so that the script has one `if __name__ == "__main__"` block. Idempotent."""
+    text, newline = _read(path)
+    if not has_double_guard(text):
+        return False
+    before, _, after = text.partition(OLD_GUARD_BLOCK)
+    second = GUARD_LINE.search(after)
+    if second is None:
+        return False
+    inline = second.group("inline")
+    head = 'if __name__ == "__main__":\n' + HANDOVER + (f"    {inline}\n" if inline else "")
+    _write(path, before + head + after[second.end() + 1 :], newline)
     return True
 
 
@@ -198,6 +228,11 @@ def main() -> int:
             if not bump.is_file():
                 continue
             text, _ = _read(bump)
+            if has_double_guard(text):
+                changed.append(f"{repo.name}/{bump.relative_to(repo)}")
+                if not check:
+                    unify_double_guard(bump)
+                continue
             if delegates_already(text):
                 continue
             if re.search(r"(?m)^if __name__ == [\"']__main__[\"']:", text) is None:

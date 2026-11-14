@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-986%20passing-2ea44f.svg" alt="Tests">
-  <img src="https://img.shields.io/badge/Version-0.6.2-0f6cbd.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Tests-1168%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Version-0.6.3-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **诚实检查——今天真正可运行的部分：** 三十一个 JSON Schema v1 契约（各带一个有效和一个无效夹具）、Python 验证器、HYDRA-UMC-SERVER 的第一部分 OpenAPI v1、执行相同架构的 Go、TypeScript 和 Rust 客户端、桥接辅助代码和兼容性矩阵都是真实的，并已在计算机上测试（986 个 Python 测试，外加其他三个客户端的测试集）。Protobuf 尚未发布，作业门是共用的软件功能而不是经过认证的安全功能，这里的内容从未在真实硬件上运行。
+> **诚实检查——今天真正可运行的部分：** 三十一个 JSON Schema v1 契约（各带一个有效和一个无效夹具）、Python 验证器、HYDRA-UMC-SERVER 的第一部分 OpenAPI v1、执行相同架构的 Go、TypeScript 和 Rust 客户端、桥接辅助代码和兼容性矩阵都是真实的，并已在计算机上测试（1168 个 Python 测试，外加其他三个客户端的测试集）。Protobuf 尚未发布，作业门是共用的软件功能而不是经过认证的安全功能，这里的内容从未在真实硬件上运行。
 
 ---
 
@@ -38,9 +38,9 @@ GPL-3.0-or-later - see LICENSE
 
 | | |
 |---|---|
-| 版本 | `0.6.2` |
+| 版本 | `0.6.3` |
 | 成熟度 | 成熟 |
-| 测试 | 986 (`python -m unittest discover -s clients/python/tests`) |
+| 测试 | 1168 (`python -m unittest discover -s clients/python/tests`) |
 | 技术栈 | Python / TypeScript / Go / Rust / JSON Schema |
 | 真实硬件 | 不适用：这里的内容不在硬件上运行 |
 
@@ -50,13 +50,13 @@ GPL-3.0-or-later - see LICENSE
 
 每一行是本仓库的一个部分，灯号表示它今天做到了哪一步。内容依据仓库能够展示的证据（测试、构建、运行），而不是计划。
 
-🟢 已完成并验证 · 🟡 可用，有已知限制 · 🟠 部分完成或尚未验证 · 🔴 未完成或不可用
+🟢 已完成并验证 · 🟡 可用，有已知限制 · 🟠 部分完成或尚未验证 · 🔴 未完成或不可用 · ⚪ 不适用
 
 | 领域 | 状态 | 在这里的含义 |
 |---|---|---|
 | 软件 | 🟢 | 就其用途而言已完整且稳定；上面的诚实性检查列出了已知限制 |
-| 测试 | 🟢 | 986 项自动测试，每次变更都会运行 |
-| 真实硬件 | 🟢 | 不适用：这里的内容不在硬件上运行 |
+| 测试 | 🟢 | 1168 项自动测试，每次变更都会运行 |
+| 真实硬件 | ⚪ | 不适用：这里的内容不在硬件上运行 |
 | 部署 | 🟠 | 已作为发布版本公开；在干净机器上安装有文档，但没有记录 |
 | 契约与客户端 | 🟢 | 每个封闭契约都有一个有效和一个无效的示例，并在 Python、Go、Rust 和 TypeScript 中按同一模式验证 |
 | 文档 | 🟢 | 八种语言的 README，每次变更都会与清单核对 |
@@ -99,6 +99,10 @@ OpenAPI v1 切片(`contracts/openapi/v1/server.openapi.json` - 参见
 - **消息契约：** `MqttPublish` 带有 `qos`（0、1 或 2），`ProductionEvent` 描述一个完成的周期（`source_id`、`at_utc`、`good`、`cycle_time_s`），生产报告会把它换算为 OEE。
 - **试点之后服务器新增的路由及其类型化契约：** `contracts/openapi/v1/server.full.openapi.json` 列出 `GET /api/ecosystem/health`、`GET /api/robots/liveness`、`POST /api/robot/{id}/heartbeat`、`POST /api/stop-all/release`、连接路由和公开的 `GET /health`，类型化部分描述前四个。两个新的封闭契约 `EcosystemHealth`（每个服务的状态、原因代码和版本偏差，以及服务器证书的状态）和 `RobotLiveness`（每个机器人为 live、stale 或 unknown）由 Python 客户端校验，并连同哈希、夹具和差分测试一起内置于 Go、Rust 和 TypeScript 客户端。见 [`docs/CONTRACTS.md`](docs/CONTRACTS.md)。
 - **可以加固的桥接传输，所有限制默认关闭：** `MessageDispatcher(..., max_queue=N, max_payload_bytes=N)` 限制排在正在运行的命令之后等待的命令（丢弃并计数最旧的一个），并拒绝过大的负载；停止通道从不受限，停止动词不受上限约束。`stats()` 返回 `dropped`、`oversized` 和 `queued` 计数。`connect_with_retry` 和 `open_bridge_client` 为首次连接提供带抖动的指数等待，`reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` 设置 MQTT 客户端的重连延迟。参见 [`docs/PYTHON_CLIENT.md`](docs/PYTHON_CLIENT.md)。
+
+### 应用共用文字
+
+`contracts/i18n/common.json` 以八种语言收录所有应用以相同方式显示的词语（确认、取消、保存、关闭、重试、是、否、加载中、在线、离线以及三种角色）。各应用保留自己的格式；`tools/i18n_common.py` 将其写成 STUDIO（JSON）、Android（`strings.xml`）和 ARB 的格式，并检查 STUDIO 检出是否包含这些词语。参见 [docs/CONTRACTS.md](docs/CONTRACTS.md)。
 
 ## 🔒 安全与防护
 
@@ -147,7 +151,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 测试
 
-运行 `python -m unittest discover -s clients/python/tests` 会执行 986 个自动测试。 其他客户端有各自的测试集：Go 29 个（`go test ./...`）、TypeScript 133 个（`npm test`）、Rust 31 个（`cargo test`），安装了工具链时由 `tools/extra_build_steps.py` 运行。都不需要硬件。
+运行 `python -m unittest discover -s clients/python/tests` 会执行 1168 个自动测试。 其他客户端有各自的测试集：Go 29 个（`go test ./...`）、TypeScript 133 个（`npm test`）、Rust 31 个（`cargo test`），安装了工具链时由 `tools/extra_build_steps.py` 运行。都不需要硬件。
 
 CI 运行 `HYDRA_UMC_CI=1 python tools/ci_validate.py`，检查清单、文档、八个 README 和图片。
 

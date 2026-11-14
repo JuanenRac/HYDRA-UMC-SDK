@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-986%20passing-2ea44f.svg" alt="Tests">
-  <img src="https://img.shields.io/badge/Version-0.6.2-0f6cbd.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Tests-1168%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Version-0.6.3-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **Verifica di onestà - cosa funziona davvero oggi:** i trentuno contratti JSON Schema v1 con una fixture valida e una non valida ciascuno, il validatore Python, la prima porzione OpenAPI v1 di HYDRA-UMC-SERVER, i client Go, TypeScript e Rust che applicano gli stessi schemi, gli helper per bridge e la matrice di compatibilità sono reali e provati su un computer (986 test Python, più le suite degli altri tre client). Protobuf non è ancora pubblicato, il gate dei job è una funzione software condivisa e non una funzione di sicurezza certificata, e nulla di tutto ciò è stato eseguito su hardware reale.
+> **Verifica di onestà - cosa funziona davvero oggi:** i trentuno contratti JSON Schema v1 con una fixture valida e una non valida ciascuno, il validatore Python, la prima porzione OpenAPI v1 di HYDRA-UMC-SERVER, i client Go, TypeScript e Rust che applicano gli stessi schemi, gli helper per bridge e la matrice di compatibilità sono reali e provati su un computer (1168 test Python, più le suite degli altri tre client). Protobuf non è ancora pubblicato, il gate dei job è una funzione software condivisa e non una funzione di sicurezza certificata, e nulla di tutto ciò è stato eseguito su hardware reale.
 
 ---
 
@@ -38,9 +38,9 @@ GPL-3.0-or-later - see LICENSE
 
 | | |
 |---|---|
-| Versione | `0.6.2` |
+| Versione | `0.6.3` |
 | Maturità | Consolidato |
-| Test | 986 (`python -m unittest discover -s clients/python/tests`) |
+| Test | 1168 (`python -m unittest discover -s clients/python/tests`) |
 | Tecnologia | Python / TypeScript / Go / Rust / JSON Schema |
 | Su hardware reale | Non applicabile: nulla qui gira su hardware |
 
@@ -50,13 +50,13 @@ GPL-3.0-or-later - see LICENSE
 
 Ogni riga è una parte di questo repository e il semaforo dice a che punto è oggi. È scritta in base a ciò che il repository può mostrare (test, compilazioni, esecuzioni), non a ciò che è previsto.
 
-🟢 Fatto e verificato · 🟡 Funziona, con limiti noti · 🟠 Fatto a metà o non ancora verificato · 🔴 Non fatto o non funzionante
+🟢 Fatto e verificato · 🟡 Funziona, con limiti noti · 🟠 Fatto a metà o non ancora verificato · 🔴 Non fatto o non funzionante · ⚪ Non applicabile
 
 | Area | Stato | Cosa significa qui |
 |---|---|---|
 | Software | 🟢 | Completo per il suo scopo e stabile; la verifica di onestà qui sopra elenca i limiti noti |
-| Test | 🟢 | 986 test automatici, eseguiti a ogni modifica |
-| Hardware reale | 🟢 | Non applicabile: nulla qui gira su hardware |
+| Test | 🟢 | 1168 test automatici, eseguiti a ogni modifica |
+| Hardware reale | ⚪ | Non applicabile: nulla qui gira su hardware |
 | Distribuzione | 🟠 | Pubblicato come release; l'installazione su una macchina pulita è documentata ma non registrata |
 | Contratti e client | 🟢 | Ogni contratto chiuso ha un esempio valido e uno non valido ed è convalidato in Python, Go, Rust e TypeScript rispetto agli stessi schemi |
 | Documentazione | 🟢 | README in otto lingue, verificato rispetto al manifesto a ogni modifica |
@@ -138,6 +138,10 @@ valida, verificate dalla matrice di compatibilità sopra.
 - **Le route che il server ha aggiunto dopo il pilota, con contratti tipizzati:** `contracts/openapi/v1/server.full.openapi.json` elenca `GET /api/ecosystem/health`, `GET /api/robots/liveness`, `POST /api/robot/{id}/heartbeat`, `POST /api/stop-all/release`, le route delle connessioni e il `GET /health` pubblico, e la parte tipizzata descrive le prime quattro. Due nuovi contratti chiusi, `EcosystemHealth` (stato, codice del motivo e scarto di versione di ogni servizio e stato del certificato del server) e `RobotLiveness` (vivo, scaduto o sconosciuto per ogni robot), sono validati dal client Python e inclusi nei client Go, Rust e TypeScript con i loro hash, fixture e test differenziali. Vedi [`docs/CONTRACTS.md`](docs/CONTRACTS.md).
 - **Un trasporto dei ponti irrobustibile, tutti i limiti disattivati per impostazione predefinita:** `MessageDispatcher(..., max_queue=N, max_payload_bytes=N)` limita i comandi in attesa dietro quello in corso (il più vecchio viene scartato e contato) e rifiuta un carico troppo grande; la corsia di arresto non è mai limitata e i verbi di arresto sono esenti dal tetto. `stats()` restituisce i contatori `dropped`, `oversized` e `queued`. `connect_with_retry` e `open_bridge_client` accettano un'attesa esponenziale con jitter per la prima connessione, e `reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` impostano il ritardo di riconnessione del client MQTT. Vedi [`docs/PYTHON_CLIENT.md`](docs/PYTHON_CLIENT.md).
 
+### Testi comuni delle app
+
+`contracts/i18n/common.json` raccoglie le parole che ogni app mostra allo stesso modo (conferma, annulla, salva, chiudi, riprova, sì, no, caricamento, online, offline e i tre ruoli) negli otto idiomi. Ogni app mantiene il proprio formato; `tools/i18n_common.py` le scrive per STUDIO (JSON), Android (`strings.xml`) e ARB, e verifica che uno STUDIO le contenga. Vedi [docs/CONTRACTS.md](docs/CONTRACTS.md).
+
 ## 🔒 Sicurezza e protezione
 
 | Minaccia | Difesa | Dove |
@@ -185,7 +189,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 Test
 
-986 test automatici si eseguono con `python -m unittest discover -s clients/python/tests`. Gli altri client hanno le proprie suite: 29 test in Go (`go test ./...`), 133 in TypeScript (`npm test`) e 31 in Rust (`cargo test`), eseguiti da `tools/extra_build_steps.py` se la toolchain è installata. Nessuno richiede hardware.
+1168 test automatici si eseguono con `python -m unittest discover -s clients/python/tests`. Gli altri client hanno le proprie suite: 29 test in Go (`go test ./...`), 133 in TypeScript (`npm test`) e 31 in Rust (`cargo test`), eseguiti da `tools/extra_build_steps.py` se la toolchain è installata. Nessuno richiede hardware.
 
 La CI esegue `HYDRA_UMC_CI=1 python tools/ci_validate.py`, che controlla il manifesto, i documenti, gli otto README e le immagini.
 

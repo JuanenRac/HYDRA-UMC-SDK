@@ -57,6 +57,7 @@ const CONTRACT_FIXTURE_STEM: &[(&str, &str)] = &[
     ("FrameMeta", "frame-meta"),
     ("DetectionFrame", "detection-frame"),
     ("PoseEstimate", "pose-estimate"),
+    ("JetsonStatus", "jetson-status"),
     ("MaintenanceIncident", "maintenance-incident"),
     ("ToolDescriptor", "tool-descriptor"),
     ("ToolState", "tool-state"),
@@ -118,8 +119,8 @@ fn known_contracts_lists_all_twenty_six() {
     let names = known_contracts();
     assert_eq!(
         names.len(),
-        39,
-        "expected 39 known contracts, got {names:?}"
+        40,
+        "expected 40 known contracts, got {names:?}"
     );
 }
 

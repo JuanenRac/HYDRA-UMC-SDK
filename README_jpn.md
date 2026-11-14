@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-986%20passing-2ea44f.svg" alt="Tests">
-  <img src="https://img.shields.io/badge/Version-0.6.2-0f6cbd.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Tests-1168%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Version-0.6.3-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **誠実性チェック - 今日実際に動くもの:** JSON Schema v1 の 31 件の契約（それぞれ有効・無効のフィクスチャ付き）、Python の検証器、HYDRA-UMC-SERVER の最初の OpenAPI v1 部分、同じスキーマを強制する Go・TypeScript・Rust のクライアント、ブリッジ用ヘルパー、互換性マトリクスは実在し、コンピューター上でテスト済みです（Python のテスト 986 件と、他の 3 つのクライアントのスイート）。Protobuf はまだ公開されておらず、ジョブゲートは共有のソフトウェア機能であって認証済みの安全機能ではなく、ここにあるものは実機では動かしていません。
+> **誠実性チェック - 今日実際に動くもの:** JSON Schema v1 の 31 件の契約（それぞれ有効・無効のフィクスチャ付き）、Python の検証器、HYDRA-UMC-SERVER の最初の OpenAPI v1 部分、同じスキーマを強制する Go・TypeScript・Rust のクライアント、ブリッジ用ヘルパー、互換性マトリクスは実在し、コンピューター上でテスト済みです（Python のテスト 1168 件と、他の 3 つのクライアントのスイート）。Protobuf はまだ公開されておらず、ジョブゲートは共有のソフトウェア機能であって認証済みの安全機能ではなく、ここにあるものは実機では動かしていません。
 
 ---
 
@@ -38,9 +38,9 @@ GPL-3.0-or-later - see LICENSE
 
 | | |
 |---|---|
-| バージョン | `0.6.2` |
+| バージョン | `0.6.3` |
 | 成熟度 | 確立 |
-| テスト | 986 (`python -m unittest discover -s clients/python/tests`) |
+| テスト | 1168 (`python -m unittest discover -s clients/python/tests`) |
 | 技術 | Python / TypeScript / Go / Rust / JSON Schema |
 | 実機での確認 | 対象外：ここにあるものはハードウェア上では動きません |
 
@@ -50,13 +50,13 @@ GPL-3.0-or-later - see LICENSE
 
 各行はこのリポジトリの一部分で、信号は今日どこまで進んでいるかを示します。計画ではなく、リポジトリが示せるもの（テスト、ビルド、実行）に基づいて書かれています。
 
-🟢 完了・検証済み · 🟡 動作する（既知の制限あり） · 🟠 一部のみ、または未検証 · 🔴 未実装または動作しない
+🟢 完了・検証済み · 🟡 動作する（既知の制限あり） · 🟠 一部のみ、または未検証 · 🔴 未実装または動作しない · ⚪ 対象外
 
 | 領域 | 状態 | ここでの意味 |
 |---|---|---|
 | ソフトウェア | 🟢 | 目的に対して完成していて安定しています。既知の制限は上の正直さの確認に書かれています |
-| テスト | 🟢 | 自動テスト 986 件。変更のたびに実行されます |
-| 実機 | 🟢 | 対象外：ここにあるものはハードウェア上では動きません |
+| テスト | 🟢 | 自動テスト 1168 件。変更のたびに実行されます |
+| 実機 | ⚪ | 対象外：ここにあるものはハードウェア上では動きません |
 | デプロイ | 🟠 | リリースとして公開されています。新しい環境へのインストールは文書化されていますが記録はありません |
 | 契約とクライアント | 🟢 | 閉じた契約にはそれぞれ有効な例と無効な例があり、Python、Go、Rust、TypeScript で同じスキーマに対して検証されます |
 | ドキュメント | 🟢 | 8 言語の README。変更のたびにマニフェストと照合されます |
@@ -101,6 +101,10 @@ Protobuf の公開はその後の互換性マイルストーンです。Go、Typ
 - **メッセージング契約：** `MqttPublish` は `qos`（0、1、2）を運び、`ProductionEvent` は終わった 1 サイクル（`source_id`、`at_utc`、`good`、`cycle_time_s`）を表し、生産レポートが OEE に変換します。
 - **パイロットの後にサーバーが追加したルートと型付き契約：** `contracts/openapi/v1/server.full.openapi.json` は `GET /api/ecosystem/health`、`GET /api/robots/liveness`、`POST /api/robot/{id}/heartbeat`、`POST /api/stop-all/release`、接続のルート、公開の `GET /health` を載せ、型付きの部分は最初の 4 つを記述します。新しい閉じた契約 2 つ、`EcosystemHealth`（各サービスの状態・理由コード・バージョンのずれとサーバー証明書の状態）と `RobotLiveness`（各ロボットの live・stale・unknown）は Python クライアントが検証し、Go・Rust・TypeScript のクライアントにハッシュ、フィクスチャ、差分テスト付きで取り込まれています。[`docs/CONTRACTS.md`](docs/CONTRACTS.md) を参照してください。
 - **強化できるブリッジ転送（制限はすべて既定でオフ）：** `MessageDispatcher(..., max_queue=N, max_payload_bytes=N)` は実行中のコマンドの後ろで待つコマンドを制限し（最も古いものを破棄して数えます）、大きすぎるペイロードを拒否します。停止レーンは制限されず、停止の動詞は上限の対象外です。`stats()` は `dropped`、`oversized`、`queued` のカウンターを返します。`connect_with_retry` と `open_bridge_client` は最初の接続にジッター付きの指数的な待ちを取り、`reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` で MQTT クライアントの再接続遅延を設定します。[`docs/PYTHON_CLIENT.md`](docs/PYTHON_CLIENT.md) を参照してください。
+
+### アプリ共通の文言
+
+`contracts/i18n/common.json` は、すべてのアプリが同じように表示する言葉（確認、キャンセル、保存、閉じる、再試行、はい、いいえ、読み込み中、オンライン、オフライン、3 つのロール）を 8 言語でまとめています。各アプリは独自の形式を保ち、`tools/i18n_common.py` が STUDIO（JSON）、Android（`strings.xml`）、ARB 用に書き出し、STUDIO のチェックアウトがそれらを含んでいるか確認します。[docs/CONTRACTS.md](docs/CONTRACTS.md) を参照してください。
 
 ## 🔒 セキュリティと安全
 
@@ -149,7 +153,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 テスト
 
-`python -m unittest discover -s clients/python/tests` で自動テスト 986 件を実行します。 他のクライアントには独自のスイートがあります。Go は 29 件（`go test ./...`）、TypeScript は 133 件（`npm test`）、Rust は 31 件（`cargo test`）で、ツールチェーンがあれば `tools/extra_build_steps.py` が実行します。ハードウェアは不要です。
+`python -m unittest discover -s clients/python/tests` で自動テスト 1168 件を実行します。 他のクライアントには独自のスイートがあります。Go は 29 件（`go test ./...`）、TypeScript は 133 件（`npm test`）、Rust は 31 件（`cargo test`）で、ツールチェーンがあれば `tools/extra_build_steps.py` が実行します。ハードウェアは不要です。
 
 CI は `HYDRA_UMC_CI=1 python tools/ci_validate.py` を実行し、マニフェスト、文書、8 つの README、図を検査します。
 

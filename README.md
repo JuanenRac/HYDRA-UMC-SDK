@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-986%20passing-2ea44f.svg" alt="Tests">
-  <img src="https://img.shields.io/badge/Version-0.6.2-0f6cbd.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Tests-1168%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Version-0.6.3-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **Honesty check - what actually runs today:** the thirty-one JSON Schema v1 contracts with a valid and an invalid fixture each, the Python validator, the first OpenAPI v1 slice of HYDRA-UMC-SERVER, the Go, TypeScript and Rust clients that enforce the same schemas, the bridge helpers and the compatibility matrix are real and tested on a computer (986 Python tests, plus the suites of the other three clients). Protobuf is not published yet, the job gate is a shared software function and not a certified safety function, and nothing here has run on real hardware.
+> **Honesty check - what actually runs today:** the thirty-one JSON Schema v1 contracts with a valid and an invalid fixture each, the Python validator, the first OpenAPI v1 slice of HYDRA-UMC-SERVER, the Go, TypeScript and Rust clients that enforce the same schemas, the bridge helpers and the compatibility matrix are real and tested on a computer (1168 Python tests, plus the suites of the other three clients). Protobuf is not published yet, the job gate is a shared software function and not a certified safety function, and nothing here has run on real hardware.
 
 ---
 
@@ -38,9 +38,9 @@ GPL-3.0-or-later - see LICENSE
 
 | | |
 |---|---|
-| Version | `0.6.2` |
+| Version | `0.6.3` |
 | Maturity | Established |
-| Tests | 986 (`python -m unittest discover -s clients/python/tests`) |
+| Tests | 1168 (`python -m unittest discover -s clients/python/tests`) |
 | Stack | Python / TypeScript / Go / Rust / JSON Schema |
 | On real hardware | Not applicable: nothing here runs on hardware |
 
@@ -50,13 +50,13 @@ GPL-3.0-or-later - see LICENSE
 
 Each line is one part of this repository and the light says how far it is today. It is written from what the repository can show (tests, builds, runs), not from what is planned.
 
-🟢 Done and verified · 🟡 Works, with known limits · 🟠 Partly done or not verified yet · 🔴 Not done or not working
+🟢 Done and verified · 🟡 Works, with known limits · 🟠 Partly done or not verified yet · 🔴 Not done or not working · ⚪ Not applicable
 
 | Area | State | What it means here |
 |---|---|---|
 | Software | 🟢 | Complete for its purpose and stable; the honesty check above lists the known limits |
-| Tests | 🟢 | 986 automated tests, run on every change |
-| Real hardware | 🟢 | Not applicable: nothing here runs on hardware |
+| Tests | 🟢 | 1168 automated tests, run on every change |
+| Real hardware | ⚪ | Not applicable: nothing here runs on hardware |
 | Deployment | 🟠 | Published as a release; installing it on a clean machine is documented but not recorded |
 | Contracts and clients | 🟢 | Every closed contract has a valid and an invalid fixture and is validated in Python, Go, Rust and TypeScript against the same schemas |
 | Documentation | 🟢 | README in eight languages, checked against the manifest on every change |
@@ -134,6 +134,10 @@ matrix above.
 - **The routes the server added after the pilot, with typed contracts:** `contracts/openapi/v1/server.full.openapi.json` lists `GET /api/ecosystem/health`, `GET /api/robots/liveness`, `POST /api/robot/{id}/heartbeat`, `POST /api/stop-all/release`, the connection routes and the public `GET /health`, and the typed slice describes the first four. Two new closed contracts, `EcosystemHealth` (the state, reason code and version drift of each service and the state of the server certificate) and `RobotLiveness` (live, stale or unknown for each robot), are validated by the Python client and vendored in the Go, Rust and TypeScript clients with their hashes, fixtures and differential tests. See [`docs/CONTRACTS.md`](docs/CONTRACTS.md).
 - **A bridge transport that can be hardened, every limit off by default:** `MessageDispatcher(..., max_queue=N, max_payload_bytes=N)` bounds the commands waiting behind the running one (the oldest waiting command is dropped and counted) and refuses an oversized payload; the stop lane is never bounded and stop verbs are exempt from the cap. `stats()` returns the `dropped`, `oversized` and `queued` counters. `connect_with_retry` and `open_bridge_client` take an exponential wait with jitter for the first connect, and `reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` set the reconnect delay of the MQTT client. See [`docs/PYTHON_CLIENT.md`](docs/PYTHON_CLIENT.md).
 
+### Common texts of the apps
+
+`contracts/i18n/common.json` holds the words every app shows the same way (confirm, cancel, save, close, try again, yes, no, loading, online, offline and the three roles) in the eight languages. Each app keeps its own format; `tools/i18n_common.py` writes them for STUDIO (JSON), Android (`strings.xml`) and ARB, and checks that a STUDIO checkout carries them. See [docs/CONTRACTS.md](docs/CONTRACTS.md).
+
 ## 🔒 Security & Safety
 
 | Threat | Defence | Where |
@@ -181,7 +185,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 Testing
 
-986 automated tests run with `python -m unittest discover -s clients/python/tests`. The other clients have their own suites: 29 tests in Go (`go test ./...`), 133 in TypeScript (`npm test`) and 31 in Rust (`cargo test`), run by `tools/extra_build_steps.py` when the toolchain is installed. None needs hardware.
+1168 automated tests run with `python -m unittest discover -s clients/python/tests`. The other clients have their own suites: 29 tests in Go (`go test ./...`), 133 in TypeScript (`npm test`) and 31 in Rust (`cargo test`), run by `tools/extra_build_steps.py` when the toolchain is installed. None needs hardware.
 
 The CI runs `HYDRA_UMC_CI=1 python tools/ci_validate.py`, which checks the manifest, the documents, the eight READMEs and the pictures.
 

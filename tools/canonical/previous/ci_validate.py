@@ -24,6 +24,20 @@ from _doc_policy import (
 )
 from _readme_parity import check_readme_section_parity
 
+
+def _seconds_from_environment(name: str, default: float) -> float:
+    """A positive, finite number of seconds from the environment variable `name`; anything else means `default`."""
+    try:
+        value = float(os.environ.get(name, ""))
+    except ValueError:
+        return default
+    return value if 0 < value < float("inf") else default
+
+
+# Every child process of this tool has a time limit, so a stuck git or build step ends with a message instead of holding a runner for hours.
+GIT_TIMEOUT_S = _seconds_from_environment("HYDRA_UMC_GIT_TIMEOUT_S", 120.0)
+COMMAND_TIMEOUT_S = _seconds_from_environment("HYDRA_UMC_COMMAND_TIMEOUT_S", 3600.0)
+
 ROOT = Path(__file__).resolve().parent.parent
 MANIFEST_PATH = ROOT / "hydra-umc.project.json"
 REQUIRED_DOCUMENTS = (
@@ -286,14 +300,61 @@ def check_glance(root: Path, environment: dict[str, str] | None = None) -> list[
         return ["the glance data file of the documentation repository cannot be read"]
     if root.name not in listed:
         return []
-    result = subprocess.run(
-        [sys.executable, "-I", str(script), "--check", "--repo", root.name, "--workspace", str(root.parent)],
-        cwd=docs, text=True, encoding="utf-8", errors="replace", capture_output=True, check=False,
-    )
+    try:
+        result = subprocess.run(
+            [sys.executable, "-I", str(script), "--check", "--repo", root.name, "--workspace", str(root.parent)],
+            cwd=docs, text=True, encoding="utf-8", errors="replace", capture_output=True, check=False, timeout=COMMAND_TIMEOUT_S,
+        )
+    except subprocess.TimeoutExpired:
+        return [f"make_glance.py --check timed out after {COMMAND_TIMEOUT_S:g} s"]
     if result.returncode == 0:
         return []
     lines = [line for line in (result.stdout + result.stderr).splitlines() if line.strip()]
     return ["make_glance.py --check: " + "; ".join(lines[:3])[:400]]
+
+
+def check_ecosystem_release(root: Path, environment: dict[str, str] | None = None) -> list[str]:
+    """Check this repository against `ecosystem-release.json` (the versions of the family that go together).
+
+    The file is written by the SDK tool `tools/ecosystem_release.py` and published in the documentation repository
+    (`data/ecosystem-release.json`): it is looked for in HYDRA_UMC_DOCS_DIR or next to this repository, and the check is
+    skipped when it is absent or does not list this repository (a plain CI checkout has no sibling). The listed version
+    must not be ahead of the manifest and the listed commit must be in this repository's history.
+    """
+    environment = os.environ if environment is None else environment
+    docs = Path(environment["HYDRA_UMC_DOCS_DIR"]) if environment.get("HYDRA_UMC_DOCS_DIR") else root.parent / "HYDRA-UMC-DOCS"
+    data = docs / "data" / "ecosystem-release.json"
+    if not data.is_file():
+        return []
+    try:
+        listed = json.loads(data.read_text(encoding="utf-8")).get("repositories", [])
+        entry = next((item for item in listed if isinstance(item, dict) and item.get("name") == root.name), None)
+    except (OSError, json.JSONDecodeError, AttributeError):
+        return ["ecosystem-release.json of the documentation repository cannot be read"]
+    if entry is None:
+        return []
+    problems: list[str] = []
+    try:
+        manifest_version = json.loads((root / "hydra-umc.project.json").read_text(encoding="utf-8"))["version"]
+        wanted = tuple(int(part) for part in str(entry["version"]).split("."))
+        have = tuple(int(part) for part in manifest_version.split("."))
+        width = max(len(wanted), len(have))
+        if wanted + (0,) * (width - len(wanted)) > have + (0,) * (width - len(have)):
+            problems.append(f"ecosystem-release.json lists version {entry['version']}, ahead of the manifest ({manifest_version})")
+    except (OSError, KeyError, ValueError, json.JSONDecodeError):
+        problems.append("ecosystem-release.json has an entry for this repository that cannot be compared with the manifest")
+    try:
+        commit = str(entry.get("commit", ""))
+        shallow = subprocess.run(["git", "rev-parse", "--is-shallow-repository"], cwd=root, text=True, capture_output=True, check=False, timeout=GIT_TIMEOUT_S)
+        if not re.fullmatch(r"[0-9a-f]{40}", commit):
+            problems.append("ecosystem-release.json lists a commit that is not 40 hexadecimal characters")
+        elif shallow.returncode == 0 and shallow.stdout.strip() == "false":
+            known = subprocess.run(["git", "cat-file", "-e", commit + "^{commit}"], cwd=root, capture_output=True, check=False, timeout=GIT_TIMEOUT_S)
+            if known.returncode != 0:
+                problems.append(f"ecosystem-release.json lists commit {commit[:12]}, which is not in the history of this repository")
+    except (OSError, subprocess.TimeoutExpired):
+        pass
+    return problems
 
 
 def run_extra_checks() -> None:
@@ -380,6 +441,9 @@ def main() -> int:
     if Path(str(native["file"])).name == "pubspec.yaml":
         # a Flutter version name has three components (the build number follows the plus sign)
         same = native_version == ".".join(manifest["version"].split(".")[:3])
+    elif Path(str(native["file"])).name == "package.json":
+        # npm only accepts three components; a file written before that rule may still hold all four
+        same = native_version in (manifest["version"], ".".join(manifest["version"].split(".")[:3]))
     else:
         same = native_version == manifest["version"]
     if not same:
@@ -425,6 +489,8 @@ def main() -> int:
         fail(_lights_problem)
     for glance_problem in check_glance(ROOT):
         fail(glance_problem)
+    for release_problem in check_ecosystem_release(ROOT):
+        fail(release_problem)
     run_extra_checks()
 
     print(f"CI_VALIDATION=PASS project={manifest['name']} version={manifest['version']}")

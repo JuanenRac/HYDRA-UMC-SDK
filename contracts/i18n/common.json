@@ -1,0 +1,744 @@
+{
+  "schema_version": "1.0",
+  "about": "The words every app of the ecosystem shows the same way (buttons, answers, states, roles) in the eight languages, European Portuguese for pt. The apps keep their own format (STUDIO a JSON catalog, Android strings.xml, iOS and DSI ARB); tools/i18n_common.py writes each one from this file and checks that STUDIO carries it.",
+  "languages": [
+    "en",
+    "es",
+    "de",
+    "fr",
+    "it",
+    "ja",
+    "zh",
+    "pt"
+  ],
+  "strings": [
+    {
+      "id": "confirm",
+      "text": {
+        "en": "Confirm",
+        "es": "Confirmar",
+        "de": "Bestätigen",
+        "fr": "Confirmer",
+        "it": "Conferma",
+        "ja": "確認",
+        "zh": "确认",
+        "pt": "Confirmar"
+      }
+    },
+    {
+      "id": "cancel",
+      "text": {
+        "en": "Cancel",
+        "es": "Cancelar",
+        "de": "Abbrechen",
+        "fr": "Annuler",
+        "it": "Annulla",
+        "ja": "キャンセル",
+        "zh": "取消",
+        "pt": "Cancelar"
+      }
+    },
+    {
+      "id": "save",
+      "text": {
+        "en": "Save",
+        "es": "Guardar",
+        "de": "Speichern",
+        "fr": "Enregistrer",
+        "it": "Salva",
+        "ja": "保存",
+        "zh": "保存",
+        "pt": "Guardar"
+      }
+    },
+    {
+      "id": "close",
+      "text": {
+        "en": "Close",
+        "es": "Cerrar",
+        "de": "Schließen",
+        "fr": "Fermer",
+        "it": "Chiudi",
+        "ja": "閉じる",
+        "zh": "关闭",
+        "pt": "Fechar"
+      }
+    },
+    {
+      "id": "retry",
+      "text": {
+        "en": "Try again",
+        "es": "Reintentar",
+        "de": "Erneut versuchen",
+        "fr": "Réessayer",
+        "it": "Riprova",
+        "ja": "再試行",
+        "zh": "重试",
+        "pt": "Tentar novamente"
+      }
+    },
+    {
+      "id": "yes",
+      "text": {
+        "en": "Yes",
+        "es": "Sí",
+        "de": "Ja",
+        "fr": "Oui",
+        "it": "Sì",
+        "ja": "はい",
+        "zh": "是",
+        "pt": "Sim"
+      }
+    },
+    {
+      "id": "no",
+      "text": {
+        "en": "No",
+        "es": "No",
+        "de": "Nein",
+        "fr": "Non",
+        "it": "No",
+        "ja": "いいえ",
+        "zh": "否",
+        "pt": "Não"
+      }
+    },
+    {
+      "id": "loading",
+      "text": {
+        "en": "Loading…",
+        "es": "Cargando…",
+        "de": "Wird geladen…",
+        "fr": "Chargement…",
+        "it": "Caricamento…",
+        "ja": "読み込み中…",
+        "zh": "加载中…",
+        "pt": "A carregar…"
+      }
+    },
+    {
+      "id": "online",
+      "text": {
+        "en": "Online",
+        "es": "En línea",
+        "de": "Online",
+        "fr": "En ligne",
+        "it": "Online",
+        "ja": "オンライン",
+        "zh": "在线",
+        "pt": "Ligado"
+      }
+    },
+    {
+      "id": "offline",
+      "text": {
+        "en": "Offline",
+        "es": "Sin conexión",
+        "de": "Offline",
+        "fr": "Hors ligne",
+        "it": "Offline",
+        "ja": "オフライン",
+        "zh": "离线",
+        "pt": "Desligado"
+      }
+    },
+    {
+      "id": "administrator",
+      "text": {
+        "en": "Administrator",
+        "es": "Administrador",
+        "de": "Administrator",
+        "fr": "Administrateur",
+        "it": "Amministratore",
+        "ja": "管理者",
+        "zh": "管理员",
+        "pt": "Administrador"
+      }
+    },
+    {
+      "id": "operator",
+      "text": {
+        "en": "Operator",
+        "es": "Operador",
+        "de": "Bediener",
+        "fr": "Opérateur",
+        "it": "Operatore",
+        "ja": "オペレーター",
+        "zh": "操作员",
+        "pt": "Operador"
+      }
+    },
+    {
+      "id": "viewer",
+      "text": {
+        "en": "Viewer",
+        "es": "Observador",
+        "de": "Betrachter",
+        "fr": "Observateur",
+        "it": "Osservatore",
+        "ja": "閲覧者",
+        "zh": "查看者",
+        "pt": "Observador"
+      }
+    },
+    {
+      "id": "delete",
+      "text": {
+        "en": "Delete",
+        "es": "Borrar",
+        "de": "Löschen",
+        "fr": "Supprimer",
+        "it": "Elimina",
+        "ja": "削除",
+        "zh": "删除",
+        "pt": "Apagar"
+      }
+    },
+    {
+      "id": "pause",
+      "text": {
+        "en": "Pause",
+        "es": "Pausar",
+        "de": "Pause",
+        "fr": "Pause",
+        "it": "Pausa",
+        "ja": "一時停止",
+        "zh": "暂停",
+        "pt": "Pausar"
+      }
+    },
+    {
+      "id": "next",
+      "text": {
+        "en": "Next",
+        "es": "Siguiente",
+        "de": "Weiter",
+        "fr": "Suivant",
+        "it": "Avanti",
+        "ja": "次へ",
+        "zh": "下一步",
+        "pt": "Seguinte"
+      }
+    },
+    {
+      "id": "previous",
+      "text": {
+        "en": "Previous",
+        "es": "Anterior",
+        "de": "Zurück",
+        "fr": "Précédent",
+        "it": "Precedente",
+        "ja": "前へ",
+        "zh": "上一步",
+        "pt": "Anterior"
+      }
+    },
+    {
+      "id": "done",
+      "text": {
+        "en": "Done",
+        "es": "Hecho",
+        "de": "Fertig",
+        "fr": "Terminé",
+        "it": "Fatto",
+        "ja": "完了",
+        "zh": "完成",
+        "pt": "Concluído"
+      }
+    },
+    {
+      "id": "status",
+      "text": {
+        "en": "Status",
+        "es": "Estado",
+        "de": "Status",
+        "fr": "Statut",
+        "it": "Stato",
+        "ja": "状態",
+        "zh": "状态",
+        "pt": "Estado"
+      }
+    },
+    {
+      "id": "name",
+      "text": {
+        "en": "Name",
+        "es": "Nombre",
+        "de": "Name",
+        "fr": "Nom",
+        "it": "Nome",
+        "ja": "名前",
+        "zh": "名称",
+        "pt": "Nome"
+      }
+    },
+    {
+      "id": "password",
+      "text": {
+        "en": "Password",
+        "es": "Contraseña",
+        "de": "Passwort",
+        "fr": "Mot de passe",
+        "it": "Password",
+        "ja": "パスワード",
+        "zh": "密码",
+        "pt": "Palavra-passe"
+      }
+    },
+    {
+      "id": "language",
+      "text": {
+        "en": "Language",
+        "es": "Idioma",
+        "de": "Sprache",
+        "fr": "Langue",
+        "it": "Lingua",
+        "ja": "言語",
+        "zh": "语言",
+        "pt": "Idioma"
+      }
+    },
+    {
+      "id": "theme",
+      "text": {
+        "en": "Theme",
+        "es": "Tema",
+        "de": "Thema",
+        "fr": "Thème",
+        "it": "Tema",
+        "ja": "テーマ",
+        "zh": "主题",
+        "pt": "Tema"
+      }
+    },
+    {
+      "id": "type",
+      "text": {
+        "en": "Type",
+        "es": "Tipo",
+        "de": "Typ",
+        "fr": "Type",
+        "it": "Tipo",
+        "ja": "種類",
+        "zh": "类型",
+        "pt": "Tipo"
+      }
+    },
+    {
+      "id": "key",
+      "text": {
+        "en": "Key",
+        "es": "Clave",
+        "de": "Schlüssel",
+        "fr": "Clé",
+        "it": "Chiave",
+        "ja": "キー",
+        "zh": "密钥",
+        "pt": "Chave"
+      }
+    },
+    {
+      "id": "time",
+      "text": {
+        "en": "Time",
+        "es": "Hora",
+        "de": "Zeit",
+        "fr": "Heure",
+        "it": "Ora",
+        "ja": "時刻",
+        "zh": "时间",
+        "pt": "Hora"
+      }
+    },
+    {
+      "id": "robot",
+      "text": {
+        "en": "Robot",
+        "es": "Robot",
+        "de": "Roboter",
+        "fr": "Robot",
+        "it": "Robot",
+        "ja": "ロボット",
+        "zh": "机器人",
+        "pt": "Robô"
+      }
+    },
+    {
+      "id": "robots",
+      "text": {
+        "en": "Robots",
+        "es": "Robots",
+        "de": "Roboter",
+        "fr": "Robots",
+        "it": "Robot",
+        "ja": "ロボット",
+        "zh": "机器人",
+        "pt": "Robôs"
+      }
+    },
+    {
+      "id": "temperature",
+      "text": {
+        "en": "Temperature",
+        "es": "Temperatura",
+        "de": "Temperatur",
+        "fr": "Température",
+        "it": "Temperatura",
+        "ja": "温度",
+        "zh": "温度",
+        "pt": "Temperatura"
+      }
+    },
+    {
+      "id": "connect",
+      "text": {
+        "en": "Connect",
+        "es": "Conectar",
+        "de": "Verbinden",
+        "fr": "Connecter",
+        "it": "Connetti",
+        "ja": "接続",
+        "zh": "连接",
+        "pt": "Ligar"
+      }
+    },
+    {
+      "id": "disconnect",
+      "text": {
+        "en": "Disconnect",
+        "es": "Desconectar",
+        "de": "Trennen",
+        "fr": "Déconnecter",
+        "it": "Disconnetti",
+        "ja": "切断",
+        "zh": "断开连接",
+        "pt": "Desligar"
+      }
+    },
+    {
+      "id": "role",
+      "text": {
+        "en": "Role",
+        "es": "Rol",
+        "de": "Rolle",
+        "fr": "Rôle",
+        "it": "Ruolo",
+        "ja": "役割",
+        "zh": "角色",
+        "pt": "Função"
+      }
+    },
+    {
+      "id": "account",
+      "text": {
+        "en": "Account",
+        "es": "Cuenta",
+        "de": "Konto",
+        "fr": "Compte",
+        "it": "Account",
+        "ja": "アカウント",
+        "zh": "账户",
+        "pt": "Conta"
+      }
+    },
+    {
+      "id": "memory",
+      "text": {
+        "en": "Memory",
+        "es": "Memoria",
+        "de": "Speicher",
+        "fr": "Mémoire",
+        "it": "Memoria",
+        "ja": "メモリ",
+        "zh": "内存",
+        "pt": "Memória"
+      }
+    },
+    {
+      "id": "telemetry",
+      "text": {
+        "en": "Telemetry",
+        "es": "Telemetría",
+        "de": "Telemetrie",
+        "fr": "Télémétrie",
+        "it": "Telemetria",
+        "ja": "テレメトリ",
+        "zh": "遥测",
+        "pt": "Telemetria"
+      }
+    },
+    {
+      "id": "approve",
+      "text": {
+        "en": "Approve",
+        "es": "Aprobar",
+        "de": "Genehmigen",
+        "fr": "Approuver",
+        "it": "Approva",
+        "ja": "承認",
+        "zh": "批准",
+        "pt": "Aprovar"
+      }
+    },
+    {
+      "id": "controllers",
+      "text": {
+        "en": "Controllers",
+        "es": "Controladores",
+        "de": "Controller",
+        "fr": "Contrôleurs",
+        "it": "Controller",
+        "ja": "コントローラー",
+        "zh": "控制器",
+        "pt": "Controladores"
+      }
+    },
+    {
+      "id": "services",
+      "text": {
+        "en": "Services",
+        "es": "Servicios",
+        "de": "Dienste",
+        "fr": "Services",
+        "it": "Servizi",
+        "ja": "サービス",
+        "zh": "服务",
+        "pt": "Serviços"
+      }
+    },
+    {
+      "id": "users",
+      "text": {
+        "en": "Users",
+        "es": "Usuarios",
+        "de": "Benutzer",
+        "fr": "Utilisateurs",
+        "it": "Utenti",
+        "ja": "ユーザー",
+        "zh": "用户",
+        "pt": "Utilizadores"
+      }
+    },
+    {
+      "id": "export",
+      "text": {
+        "en": "Export",
+        "es": "Exportar",
+        "de": "Exportieren",
+        "fr": "Exporter",
+        "it": "Esporta",
+        "ja": "エクスポート",
+        "zh": "导出",
+        "pt": "Exportar"
+      }
+    },
+    {
+      "id": "download",
+      "text": {
+        "en": "Download",
+        "es": "Descargar",
+        "de": "Herunterladen",
+        "fr": "Télécharger",
+        "it": "Scarica",
+        "ja": "ダウンロード",
+        "zh": "下载",
+        "pt": "Descarregar"
+      }
+    },
+    {
+      "id": "load",
+      "text": {
+        "en": "Load",
+        "es": "Cargar",
+        "de": "Laden",
+        "fr": "Charger",
+        "it": "Carica",
+        "ja": "読み込み",
+        "zh": "加载",
+        "pt": "Carregar"
+      }
+    },
+    {
+      "id": "clear",
+      "text": {
+        "en": "Clear",
+        "es": "Limpiar",
+        "de": "Leeren",
+        "fr": "Effacer",
+        "it": "Pulisci",
+        "ja": "クリア",
+        "zh": "清除",
+        "pt": "Limpar"
+      }
+    },
+    {
+      "id": "search",
+      "text": {
+        "en": "Search",
+        "es": "Buscar",
+        "de": "Suchen",
+        "fr": "Rechercher",
+        "it": "Cerca",
+        "ja": "検索",
+        "zh": "搜索",
+        "pt": "Pesquisar"
+      }
+    },
+    {
+      "id": "value",
+      "text": {
+        "en": "Value",
+        "es": "Valor",
+        "de": "Wert",
+        "fr": "Valeur",
+        "it": "Valore",
+        "ja": "値",
+        "zh": "数值",
+        "pt": "Valor"
+      }
+    },
+    {
+      "id": "enable",
+      "text": {
+        "en": "Enable",
+        "es": "Habilitar",
+        "de": "Aktivieren",
+        "fr": "Activer",
+        "it": "Abilita",
+        "ja": "有効にする",
+        "zh": "启用",
+        "pt": "Ativar"
+      }
+    },
+    {
+      "id": "disable",
+      "text": {
+        "en": "Disable",
+        "es": "Deshabilitar",
+        "de": "Deaktivieren",
+        "fr": "Désactiver",
+        "it": "Disabilita",
+        "ja": "無効にする",
+        "zh": "禁用",
+        "pt": "Desativar"
+      }
+    },
+    {
+      "id": "saved",
+      "text": {
+        "en": "Saved.",
+        "es": "Guardado.",
+        "de": "Gespeichert.",
+        "fr": "Enregistré.",
+        "it": "Salvato.",
+        "ja": "保存しました。",
+        "zh": "已保存。",
+        "pt": "Guardado."
+      }
+    },
+    {
+      "id": "level_basic",
+      "text": {
+        "en": "Basic",
+        "es": "Básico",
+        "de": "Grundlagen",
+        "fr": "Basique",
+        "it": "Base",
+        "ja": "基本",
+        "zh": "基础",
+        "pt": "Básico"
+      }
+    },
+    {
+      "id": "level_advanced",
+      "text": {
+        "en": "Advanced",
+        "es": "Avanzado",
+        "de": "Fortgeschritten",
+        "fr": "Avancé",
+        "it": "Avanzato",
+        "ja": "上級",
+        "zh": "进阶",
+        "pt": "Avançado"
+      }
+    },
+    {
+      "id": "level_technical",
+      "text": {
+        "en": "Technical",
+        "es": "Técnico",
+        "de": "Technisch",
+        "fr": "Technique",
+        "it": "Tecnico",
+        "ja": "技術",
+        "zh": "技术",
+        "pt": "Técnico"
+      }
+    },
+    {
+      "id": "sign_in",
+      "text": {
+        "en": "Sign In",
+        "es": "Iniciar Sesión",
+        "de": "Anmelden",
+        "fr": "Se Connecter",
+        "it": "Accedi",
+        "ja": "サインイン",
+        "zh": "登录",
+        "pt": "Iniciar sessão"
+      }
+    },
+    {
+      "id": "finish",
+      "text": {
+        "en": "Finish",
+        "es": "Terminar",
+        "de": "Fertig",
+        "fr": "Terminer",
+        "it": "Fine",
+        "ja": "完了",
+        "zh": "完成",
+        "pt": "Concluir"
+      }
+    },
+    {
+      "id": "endstops",
+      "text": {
+        "en": "Endstops",
+        "es": "Finales de carrera",
+        "de": "Endschalter",
+        "fr": "Fins de course",
+        "it": "Finecorsa",
+        "ja": "エンドストップ",
+        "zh": "限位开关",
+        "pt": "Fins de curso"
+      }
+    },
+    {
+      "id": "speed",
+      "text": {
+        "en": "Speed",
+        "es": "Velocidad",
+        "de": "Geschwindigkeit",
+        "fr": "Vitesse",
+        "it": "Velocità",
+        "ja": "速度",
+        "zh": "速度",
+        "pt": "Velocidade"
+      }
+    },
+    {
+      "id": "vision_center",
+      "text": {
+        "en": "Vision center",
+        "es": "Centro de visión",
+        "de": "Vision-Zentrum",
+        "fr": "Centre de vision",
+        "it": "Centro di visione",
+        "ja": "ビジョンセンター",
+        "zh": "视觉中心",
+        "pt": "Centro de visão"
+      }
+    }
+  ]
+}
