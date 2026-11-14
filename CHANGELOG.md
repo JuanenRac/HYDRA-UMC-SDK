@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **One rule for the digest of a downloaded release asset in the Dart apps (`release_digest.dart` of the shared app package):** `parseAssetDigest()` reads the `sha256:<hex>` digest that GitHub publishes for an asset (anything else is "not published"), `digestMatches()` accepts a missing digest and requires equality when there is one, and `downloadMatchesDigest()` checks the bytes of a download, the same rule the Android app applies; the iOS app, the display app and Studio adopt it with the next pin.
+
 ## [0.6.3] - The job intake by source with a consult policy for jobs in doubt, one reading of the GRBL status, command correlation and start checks, the signed incident envelope, the robot roster and pose estimate contracts and the fleet update routes
 
 - **The third stage of the vision pipeline has a contract (`PoseEstimate`, `hydra_umc_sdk.vision_pipeline`):** after `FrameMeta` (the frame) and `DetectionFrame` (what a model found in it) the closed schema `pose-estimate.schema.json` carries the pose in meters, in the frame of the camera, of some of the detections: the frame is named by `frame_id` and `capture_ts_utc` like the detections do, each estimate points at its detection by `detection_index`, the orientation is a unit quaternion and the confidence is 0 to 1. A detection without an estimate is a pose that was not found, never an invented one. `validate_pose_estimate()` checks the shape, finite numbers, the unit quaternion and that no detection is estimated twice, and `check_estimates_match_detections()` checks the two messages together (same frame, every index exists). The validators of the Python, TypeScript, Go and Rust clients and the generated Kotlin, Dart and TypeScript types know it.
