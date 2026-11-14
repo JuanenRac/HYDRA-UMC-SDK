@@ -700,6 +700,45 @@
         "zh": "完成",
         "pt": "Concluir"
       }
+    },
+    {
+      "id": "endstops",
+      "text": {
+        "en": "Endstops",
+        "es": "Finales de carrera",
+        "de": "Endschalter",
+        "fr": "Fins de course",
+        "it": "Finecorsa",
+        "ja": "エンドストップ",
+        "zh": "限位开关",
+        "pt": "Fins de curso"
+      }
+    },
+    {
+      "id": "speed",
+      "text": {
+        "en": "Speed",
+        "es": "Velocidad",
+        "de": "Geschwindigkeit",
+        "fr": "Vitesse",
+        "it": "Velocità",
+        "ja": "速度",
+        "zh": "速度",
+        "pt": "Velocidade"
+      }
+    },
+    {
+      "id": "vision_center",
+      "text": {
+        "en": "Vision center",
+        "es": "Centro de visión",
+        "de": "Vision-Zentrum",
+        "fr": "Centre de vision",
+        "it": "Centro di visione",
+        "ja": "ビジョンセンター",
+        "zh": "视觉中心",
+        "pt": "Centro de visão"
+      }
     }
   ]
 }
