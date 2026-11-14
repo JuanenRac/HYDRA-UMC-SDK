@@ -145,5 +145,65 @@ class CheckStudioTests(unittest.TestCase):
             self.assertIn("is missing", problem, problem)
 
 
+class SuiteLanguageFileTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.data = TOOL.load()
+
+    def _repo(self, tmp: str, change=None) -> Path:
+        repo = Path(tmp)
+        (repo / "language").mkdir(parents=True)
+        for lang in LANGS:
+            lines = ["BTN_SAVE=Own save", "TITLE=A title with = inside"] + TOOL.render_lng(self.data, lang).splitlines()
+            if change:
+                lines = change(lang, lines)
+            (repo / "language" / f"{TOOL.SUITE_FILES[lang]}.lng").write_text("\r\n".join(lines) + "\r\n", encoding="utf-8", newline="")
+        return repo
+
+    def test_the_lines_are_one_key_per_common_text_in_capitals(self) -> None:
+        lines = TOOL.render_lng(self.data, "pt").splitlines()
+        self.assertEqual(len(lines), len(self.data["strings"]))
+        self.assertEqual(lines[0], "COMMON_CONFIRM=Confirmar")
+        self.assertTrue(all(re.fullmatch(r"COMMON_[A-Z_]+=.+", line) for line in lines))
+        self.assertEqual(TOOL.main(["render", "lng", "--lang", "xx"]), 2)
+
+    def test_a_language_file_that_carries_every_text_passes_and_may_carry_more(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = self._repo(tmp)
+            self.assertEqual(TOOL.check_suite(self.data, repo), [])
+            self.assertEqual(TOOL.main(["check-suite", "--repo", str(repo)]), 0)
+
+    def test_a_missing_or_different_text_is_listed(self) -> None:
+        def change(lang: str, lines: list[str]) -> list[str]:
+            if lang == "pt":
+                return [line for line in lines if not line.startswith("COMMON_SAVE=")]
+            if lang == "it":
+                return [line.replace("COMMON_CLOSE=Chiudi", "COMMON_CLOSE=Chiudere") for line in lines]
+            return lines
+
+        with tempfile.TemporaryDirectory() as tmp:
+            problems = TOOL.check_suite(self.data, self._repo(tmp, change))
+            self.assertEqual(len(problems), 2)
+            self.assertTrue(any(p.startswith("pt: COMMON_SAVE is missing") for p in problems))
+            self.assertTrue(any(p.startswith("it: COMMON_CLOSE is 'Chiudere'") for p in problems))
+            self.assertEqual(TOOL.main(["check-suite", "--repo", tmp]), 1)
+
+    def test_a_missing_file_is_listed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = self._repo(tmp)
+            (repo / "language" / "chinese.lng").unlink()
+            problems = TOOL.check_suite(self.data, repo)
+            self.assertEqual(len(problems), 1)
+            self.assertIn("zh", problems[0])
+
+    def test_the_suite_next_to_this_checkout_carries_the_texts_when_it_is_there(self) -> None:
+        repo = ROOT.parent / "HYDRA-UMC-SUITE"
+        if not (repo / "language" / "english.lng").is_file():
+            self.skipTest("no HYDRA-UMC-SUITE checkout next to this one")
+        problems = TOOL.check_suite(self.data, repo)
+        if problems and not any("COMMON_" in problem and "is missing" not in problem for problem in problems):
+            self.skipTest("the SUITE next to this checkout has not taken the common texts yet")
+        self.assertEqual(problems, [])
+
+
 if __name__ == "__main__":
     unittest.main()
