@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.6.4]
+
+### Changed
+
+- Automated build version increment from 0.6.3.
+
 ## [Unreleased]
 
 - **The common texts can be written for the language files of the SUITE (`tools/i18n_common.py render lng`, `check-suite`):** the SUITE keeps one `KEY=text` line per sentence in `language/<name>.lng`; the common texts are the keys `COMMON_<ID>` (the id in capitals). `render lng --lang pt` writes the lines and `check-suite --repo <SUITE>` checks that the eight files carry every text of the contract exactly (a file may carry more). Tests of the lines, the check, a missing or a different text and a missing file.
