@@ -100,6 +100,10 @@ OpenAPI v1 切片(`contracts/openapi/v1/server.openapi.json` - 参见
 - **试点之后服务器新增的路由及其类型化契约：** `contracts/openapi/v1/server.full.openapi.json` 列出 `GET /api/ecosystem/health`、`GET /api/robots/liveness`、`POST /api/robot/{id}/heartbeat`、`POST /api/stop-all/release`、连接路由和公开的 `GET /health`，类型化部分描述前四个。两个新的封闭契约 `EcosystemHealth`（每个服务的状态、原因代码和版本偏差，以及服务器证书的状态）和 `RobotLiveness`（每个机器人为 live、stale 或 unknown）由 Python 客户端校验，并连同哈希、夹具和差分测试一起内置于 Go、Rust 和 TypeScript 客户端。见 [`docs/CONTRACTS.md`](docs/CONTRACTS.md)。
 - **可以加固的桥接传输，所有限制默认关闭：** `MessageDispatcher(..., max_queue=N, max_payload_bytes=N)` 限制排在正在运行的命令之后等待的命令（丢弃并计数最旧的一个），并拒绝过大的负载；停止通道从不受限，停止动词不受上限约束。`stats()` 返回 `dropped`、`oversized` 和 `queued` 计数。`connect_with_retry` 和 `open_bridge_client` 为首次连接提供带抖动的指数等待，`reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` 设置 MQTT 客户端的重连延迟。参见 [`docs/PYTHON_CLIENT.md`](docs/PYTHON_CLIENT.md)。
 
+### 应用共用文字
+
+`contracts/i18n/common.json` 以八种语言收录所有应用以相同方式显示的词语（确认、取消、保存、关闭、重试、是、否、加载中、在线、离线以及三种角色）。各应用保留自己的格式；`tools/i18n_common.py` 将其写成 STUDIO（JSON）、Android（`strings.xml`）和 ARB 的格式，并检查 STUDIO 检出是否包含这些词语。参见 [docs/CONTRACTS.md](docs/CONTRACTS.md)。
+
 ## 🔒 安全与防护
 
 | 威胁 | 防御 | 位置 |

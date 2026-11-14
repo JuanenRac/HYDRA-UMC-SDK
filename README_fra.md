@@ -137,6 +137,10 @@ une invalide, vérifiées par la matrice de compatibilité ci-dessus.
 - **Les routes que le serveur a ajoutées après le pilote, avec des contrats typés :** `contracts/openapi/v1/server.full.openapi.json` liste `GET /api/ecosystem/health`, `GET /api/robots/liveness`, `POST /api/robot/{id}/heartbeat`, `POST /api/stop-all/release`, les routes de connexions et le `GET /health` public, et la tranche typée décrit les quatre premières. Deux nouveaux contrats fermés, `EcosystemHealth` (état, code de motif et écart de version de chaque service et état du certificat du serveur) et `RobotLiveness` (vivant, périmé ou inconnu pour chaque robot), sont validés par le client Python et embarqués dans les clients Go, Rust et TypeScript avec leurs empreintes, fixtures et tests différentiels. Voir [`docs/CONTRACTS.md`](docs/CONTRACTS.md).
 - **Un transport de ponts durcissable, toutes les limites désactivées par défaut :** `MessageDispatcher(..., max_queue=N, max_payload_bytes=N)` borne les commandes qui attendent derrière celle en cours (la plus ancienne est abandonnée et comptée) et refuse une charge trop grande ; la voie d'arrêt n'est jamais bornée et les verbes d'arrêt échappent au plafond. `stats()` renvoie les compteurs `dropped`, `oversized` et `queued`. `connect_with_retry` et `open_bridge_client` acceptent une attente exponentielle avec gigue pour la première connexion, et `reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` règlent le délai de reconnexion du client MQTT. Voir [`docs/PYTHON_CLIENT.md`](docs/PYTHON_CLIENT.md).
 
+### Textes communs des applications
+
+`contracts/i18n/common.json` réunit les mots que toute application affiche de la même façon (confirmer, annuler, enregistrer, fermer, réessayer, oui, non, chargement, en ligne, hors ligne et les trois rôles) dans les huit langues. Chaque application garde son propre format ; `tools/i18n_common.py` les écrit pour STUDIO (JSON), Android (`strings.xml`) et ARB, et vérifie qu'un STUDIO les porte. Voir [docs/CONTRACTS.md](docs/CONTRACTS.md).
+
 ## 🔒 Sécurité et protection
 
 | Menace | Défense | Où |

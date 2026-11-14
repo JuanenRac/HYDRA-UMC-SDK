@@ -139,6 +139,10 @@ durch die obige Kompatibilitätsmatrix.
 - **Die Routen, die der Server nach dem Pilot hinzugefügt hat, mit typisierten Verträgen:** `contracts/openapi/v1/server.full.openapi.json` führt `GET /api/ecosystem/health`, `GET /api/robots/liveness`, `POST /api/robot/{id}/heartbeat`, `POST /api/stop-all/release`, die Verbindungsrouten und das öffentliche `GET /health` auf, und der typisierte Ausschnitt beschreibt die ersten vier. Zwei neue geschlossene Verträge, `EcosystemHealth` (Zustand, Begründungscode und Versionsabweichung jedes Dienstes sowie Zustand des Serverzertifikats) und `RobotLiveness` (lebendig, veraltet oder unbekannt je Roboter), werden vom Python-Client geprüft und mit Hashes, Fixtures und Differenztests in die Go-, Rust- und TypeScript-Clients eingebunden. Siehe [`docs/CONTRACTS.md`](docs/CONTRACTS.md).
 - **Ein Brückentransport, der sich härten lässt, alle Grenzen standardmäßig aus:** `MessageDispatcher(..., max_queue=N, max_payload_bytes=N)` begrenzt die hinter dem laufenden wartenden Befehle (der älteste wartende wird verworfen und gezählt) und weist eine zu große Nutzlast ab; die Stopp-Spur wird nie begrenzt, und Stopp-Verben sind von der Obergrenze ausgenommen. `stats()` liefert die Zähler `dropped`, `oversized` und `queued`. `connect_with_retry` und `open_bridge_client` nehmen für die erste Verbindung ein exponentielles Warten mit Jitter an, und `reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` setzen die Wiederverbindungsverzögerung des MQTT-Clients. Siehe [`docs/PYTHON_CLIENT.md`](docs/PYTHON_CLIENT.md).
 
+### Gemeinsame Texte der Apps
+
+`contracts/i18n/common.json` enthält die Wörter, die jede App gleich zeigt (bestätigen, abbrechen, speichern, schließen, erneut versuchen, ja, nein, wird geladen, online, offline und die drei Rollen) in den acht Sprachen. Jede App behält ihr eigenes Format; `tools/i18n_common.py` schreibt sie für STUDIO (JSON), Android (`strings.xml`) und ARB und prüft, dass ein STUDIO-Checkout sie trägt. Siehe [docs/CONTRACTS.md](docs/CONTRACTS.md).
+
 ## 🔒 Sicherheit und Schutz
 
 | Bedrohung | Abwehr | Wo |
