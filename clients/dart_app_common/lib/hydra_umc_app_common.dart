@@ -3,8 +3,8 @@
 // Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
 // GPL-3.0-or-later - see LICENSE
 //
-// Code the two Flutter apps (IOS-CONTROL and DSI) used to keep as identical
-// copies. Pure Dart: no Flutter, no platform plugins.
+// Code the two Flutter apps (IOS-CONTROL and DSI) share instead of keeping
+// identical copies. Pure Dart: no Flutter, no platform plugins.
 // =============================================================================
 
 library;

@@ -12,8 +12,8 @@ import (
 )
 
 // A server validates from many goroutines at once. The compiled-schema cache
-// used to be an unguarded map, which crashes the process ("concurrent map
-// writes") or is reported by `go test -race`.
+// is guarded: an unguarded map would crash the process ("concurrent map
+// writes") or be reported by `go test -race`.
 func TestValidateIsSafeFromManyGoroutines(t *testing.T) {
 	payload := map[string]interface{}{
 		"schema_version": "1.0",

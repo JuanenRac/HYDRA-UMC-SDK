@@ -67,8 +67,8 @@ def apply_connection_settings(client: object, settings: MqttConnectionSettings, 
     paired with a password from the environment).
     """
     if password is not None and username is None:
-        # A password alone used to be dropped without a word and the one from the
-        # environment used instead, which pairs it with the wrong user.
+        # A password alone must not be dropped without a word in favour of the one from the
+        # environment, which would pair it with the wrong user.
         raise ValueError("a password was given without a user name - MQTT credentials need both")
     user = username if username is not None else settings.username
     secret = password if username is not None else settings.password
