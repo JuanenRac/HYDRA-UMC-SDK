@@ -10,6 +10,7 @@
 library;
 
 export 'src/access.dart';
+export 'src/can_ota_progress.dart';
 export 'src/command_sequence.dart';
 export 'src/connection_history.dart';
 export 'src/discovery.dart';
