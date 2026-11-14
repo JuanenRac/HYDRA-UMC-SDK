@@ -138,6 +138,10 @@ valida, verificate dalla matrice di compatibilità sopra.
 - **Le route che il server ha aggiunto dopo il pilota, con contratti tipizzati:** `contracts/openapi/v1/server.full.openapi.json` elenca `GET /api/ecosystem/health`, `GET /api/robots/liveness`, `POST /api/robot/{id}/heartbeat`, `POST /api/stop-all/release`, le route delle connessioni e il `GET /health` pubblico, e la parte tipizzata descrive le prime quattro. Due nuovi contratti chiusi, `EcosystemHealth` (stato, codice del motivo e scarto di versione di ogni servizio e stato del certificato del server) e `RobotLiveness` (vivo, scaduto o sconosciuto per ogni robot), sono validati dal client Python e inclusi nei client Go, Rust e TypeScript con i loro hash, fixture e test differenziali. Vedi [`docs/CONTRACTS.md`](docs/CONTRACTS.md).
 - **Un trasporto dei ponti irrobustibile, tutti i limiti disattivati per impostazione predefinita:** `MessageDispatcher(..., max_queue=N, max_payload_bytes=N)` limita i comandi in attesa dietro quello in corso (il più vecchio viene scartato e contato) e rifiuta un carico troppo grande; la corsia di arresto non è mai limitata e i verbi di arresto sono esenti dal tetto. `stats()` restituisce i contatori `dropped`, `oversized` e `queued`. `connect_with_retry` e `open_bridge_client` accettano un'attesa esponenziale con jitter per la prima connessione, e `reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` impostano il ritardo di riconnessione del client MQTT. Vedi [`docs/PYTHON_CLIENT.md`](docs/PYTHON_CLIENT.md).
 
+### Testi comuni delle app
+
+`contracts/i18n/common.json` raccoglie le parole che ogni app mostra allo stesso modo (conferma, annulla, salva, chiudi, riprova, sì, no, caricamento, online, offline e i tre ruoli) negli otto idiomi. Ogni app mantiene il proprio formato; `tools/i18n_common.py` le scrive per STUDIO (JSON), Android (`strings.xml`) e ARB, e verifica che uno STUDIO le contenga. Vedi [docs/CONTRACTS.md](docs/CONTRACTS.md).
+
 ## 🔒 Sicurezza e protezione
 
 | Minaccia | Difesa | Dove |

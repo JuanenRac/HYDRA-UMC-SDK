@@ -135,6 +135,10 @@ compatibilidad de arriba.
 - **Las rutas que el servidor añadió tras el piloto, con contratos tipados:** `contracts/openapi/v1/server.full.openapi.json` lista `GET /api/ecosystem/health`, `GET /api/robots/liveness`, `POST /api/robot/{id}/heartbeat`, `POST /api/stop-all/release`, las rutas de conexiones y el `GET /health` público, y el corte tipado describe las cuatro primeras. Dos contratos cerrados nuevos, `EcosystemHealth` (estado, código de motivo y desfase de versión de cada servicio y estado del certificado del servidor) y `RobotLiveness` (vivo, caducado o desconocido para cada robot), los valida el cliente de Python y están incluidos en los clientes de Go, Rust y TypeScript con sus hashes, fixtures y pruebas diferenciales. Ver [`docs/CONTRACTS.md`](docs/CONTRACTS.md).
 - **Un transporte de puentes que se puede endurecer, con todos los límites desactivados por defecto:** `MessageDispatcher(..., max_queue=N, max_payload_bytes=N)` acota las órdenes que esperan tras la que se ejecuta (se descarta y cuenta la más antigua) y rechaza una carga demasiado grande; el carril de parada nunca se acota y los verbos de parada están exentos del tope. `stats()` devuelve los contadores `dropped`, `oversized` y `queued`. `connect_with_retry` y `open_bridge_client` admiten una espera exponencial con jitter en la primera conexión, y `reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` fijan el retardo de reconexión del cliente MQTT. Véase [`docs/PYTHON_CLIENT.md`](docs/PYTHON_CLIENT.md).
 
+### Textos comunes de las aplicaciones
+
+`contracts/i18n/common.json` reúne las palabras que toda aplicación muestra igual (confirmar, cancelar, guardar, cerrar, reintentar, sí, no, cargando, en línea, sin conexión y los tres roles) en los ocho idiomas. Cada aplicación conserva su propio formato; `tools/i18n_common.py` las escribe para STUDIO (JSON), Android (`strings.xml`) y ARB, y comprueba que un STUDIO las lleva. Véase [docs/CONTRACTS.md](docs/CONTRACTS.md).
+
 ## 🔒 Seguridad y protección
 
 | Amenaza | Defensa | Dónde |

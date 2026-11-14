@@ -134,6 +134,10 @@ matrix above.
 - **The routes the server added after the pilot, with typed contracts:** `contracts/openapi/v1/server.full.openapi.json` lists `GET /api/ecosystem/health`, `GET /api/robots/liveness`, `POST /api/robot/{id}/heartbeat`, `POST /api/stop-all/release`, the connection routes and the public `GET /health`, and the typed slice describes the first four. Two new closed contracts, `EcosystemHealth` (the state, reason code and version drift of each service and the state of the server certificate) and `RobotLiveness` (live, stale or unknown for each robot), are validated by the Python client and vendored in the Go, Rust and TypeScript clients with their hashes, fixtures and differential tests. See [`docs/CONTRACTS.md`](docs/CONTRACTS.md).
 - **A bridge transport that can be hardened, every limit off by default:** `MessageDispatcher(..., max_queue=N, max_payload_bytes=N)` bounds the commands waiting behind the running one (the oldest waiting command is dropped and counted) and refuses an oversized payload; the stop lane is never bounded and stop verbs are exempt from the cap. `stats()` returns the `dropped`, `oversized` and `queued` counters. `connect_with_retry` and `open_bridge_client` take an exponential wait with jitter for the first connect, and `reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` set the reconnect delay of the MQTT client. See [`docs/PYTHON_CLIENT.md`](docs/PYTHON_CLIENT.md).
 
+### Common texts of the apps
+
+`contracts/i18n/common.json` holds the words every app shows the same way (confirm, cancel, save, close, try again, yes, no, loading, online, offline and the three roles) in the eight languages. Each app keeps its own format; `tools/i18n_common.py` writes them for STUDIO (JSON), Android (`strings.xml`) and ARB, and checks that a STUDIO checkout carries them. See [docs/CONTRACTS.md](docs/CONTRACTS.md).
+
 ## 🔒 Security & Safety
 
 | Threat | Defence | Where |

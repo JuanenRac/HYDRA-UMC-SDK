@@ -94,6 +94,10 @@ Desde então foram publicados mais contratos para além dos quatro do primeiro m
 - **As rotas que o servidor acrescentou depois do piloto, com contratos tipados:** `contracts/openapi/v1/server.full.openapi.json` lista `GET /api/ecosystem/health`, `GET /api/robots/liveness`, `POST /api/robot/{id}/heartbeat`, `POST /api/stop-all/release`, as rotas das ligações e o `GET /health` público, e a fatia tipada descreve as quatro primeiras. Dois novos contratos fechados, `EcosystemHealth` (estado, código do motivo e desvio de versão de cada serviço e estado do certificado do servidor) e `RobotLiveness` (vivo, desatualizado ou desconhecido para cada robô), são validados pelo cliente Python e incluídos nos clientes Go, Rust e TypeScript com os seus hashes, fixtures e testes diferenciais. Ver [`docs/CONTRACTS.md`](docs/CONTRACTS.md).
 - **Um transporte de pontes que se pode reforçar, com todos os limites desativados por omissão:** `MessageDispatcher(..., max_queue=N, max_payload_bytes=N)` limita as ordens que esperam atrás da que está a correr (a mais antiga é descartada e contada) e recusa uma carga demasiado grande; a faixa de paragem nunca é limitada e os verbos de paragem ficam isentos do teto. `stats()` devolve os contadores `dropped`, `oversized` e `queued`. `connect_with_retry` e `open_bridge_client` aceitam uma espera exponencial com jitter na primeira ligação, e `reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` definem o atraso de religação do cliente MQTT. Ver [`docs/PYTHON_CLIENT.md`](docs/PYTHON_CLIENT.md).
 
+### Textos comuns das aplicações
+
+`contracts/i18n/common.json` reúne as palavras que todas as aplicações mostram da mesma maneira (confirmar, cancelar, guardar, fechar, tentar novamente, sim, não, a carregar, ligado, desligado e os três perfis) nas oito línguas. Cada aplicação mantém o seu formato; `tools/i18n_common.py` escreve-as para o STUDIO (JSON), o Android (`strings.xml`) e o ARB, e verifica que um STUDIO as traz. Ver [docs/CONTRACTS.md](docs/CONTRACTS.md).
+
 ## 🔒 Segurança e proteção
 
 | Ameaça | Defesa | Onde |

@@ -102,6 +102,10 @@ Protobuf の公開はその後の互換性マイルストーンです。Go、Typ
 - **パイロットの後にサーバーが追加したルートと型付き契約：** `contracts/openapi/v1/server.full.openapi.json` は `GET /api/ecosystem/health`、`GET /api/robots/liveness`、`POST /api/robot/{id}/heartbeat`、`POST /api/stop-all/release`、接続のルート、公開の `GET /health` を載せ、型付きの部分は最初の 4 つを記述します。新しい閉じた契約 2 つ、`EcosystemHealth`（各サービスの状態・理由コード・バージョンのずれとサーバー証明書の状態）と `RobotLiveness`（各ロボットの live・stale・unknown）は Python クライアントが検証し、Go・Rust・TypeScript のクライアントにハッシュ、フィクスチャ、差分テスト付きで取り込まれています。[`docs/CONTRACTS.md`](docs/CONTRACTS.md) を参照してください。
 - **強化できるブリッジ転送（制限はすべて既定でオフ）：** `MessageDispatcher(..., max_queue=N, max_payload_bytes=N)` は実行中のコマンドの後ろで待つコマンドを制限し（最も古いものを破棄して数えます）、大きすぎるペイロードを拒否します。停止レーンは制限されず、停止の動詞は上限の対象外です。`stats()` は `dropped`、`oversized`、`queued` のカウンターを返します。`connect_with_retry` と `open_bridge_client` は最初の接続にジッター付きの指数的な待ちを取り、`reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` で MQTT クライアントの再接続遅延を設定します。[`docs/PYTHON_CLIENT.md`](docs/PYTHON_CLIENT.md) を参照してください。
 
+### アプリ共通の文言
+
+`contracts/i18n/common.json` は、すべてのアプリが同じように表示する言葉（確認、キャンセル、保存、閉じる、再試行、はい、いいえ、読み込み中、オンライン、オフライン、3 つのロール）を 8 言語でまとめています。各アプリは独自の形式を保ち、`tools/i18n_common.py` が STUDIO（JSON）、Android（`strings.xml`）、ARB 用に書き出し、STUDIO のチェックアウトがそれらを含んでいるか確認します。[docs/CONTRACTS.md](docs/CONTRACTS.md) を参照してください。
+
 ## 🔒 セキュリティと安全
 
 | 脅威 | 防御 | 場所 |
