@@ -3320,14 +3320,6 @@
           "staleCount": 0
         }
       },
-      "400": {
-        "minimal": {
-          "error": "sample"
-        },
-        "full": {
-          "error": "sample"
-        }
-      },
       "404": {
         "minimal": {
           "error": "sample"

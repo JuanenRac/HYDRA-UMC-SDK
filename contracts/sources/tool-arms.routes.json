@@ -14,10 +14,6 @@
           "description": "Success. The body is documented in docs/REMOTE_API.md.",
           "shape": "ToolArmsReport"
         },
-        "400": {
-          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
-          "shape": "Error"
-        },
         "404": {
           "description": "Not found. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
