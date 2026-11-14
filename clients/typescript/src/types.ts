@@ -303,6 +303,7 @@ export type ContractName =
   | "FrameMeta"
   | "DetectionFrame"
   | "PoseEstimate"
+  | "JetsonStatus"
   | "MaintenanceIncident"
   | "ToolDescriptor"
   | "ToolState"

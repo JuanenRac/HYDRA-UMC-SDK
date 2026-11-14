@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/jetson-status.schema.json",
+  "title": "JetsonStatus",
+  "description": "What the Jetson says about itself to the display interface of the H757 on every status poll: the verdict of the safety zones service, the load and temperature of the machine, whether a camera picture is waiting and how long it has been up. The heartbeat is the arrival of this status; the master degrades the interface when it stops coming. The schema is closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "zone_level",
+    "cpu_pct",
+    "temperature_c",
+    "camera_picture",
+    "uptime_s"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "zone_level": {
+      "enum": [
+        "ready",
+        "warning",
+        "danger",
+        "inhibited",
+        "fault",
+        "unknown"
+      ],
+      "description": "The verdict of the safety zones service; on the wire it is the position in this list, from 0 (ready) to 5 (unknown). Anything the panel cannot place is unknown."
+    },
+    "cpu_pct": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Load of the CPU of the Jetson."
+    },
+    "temperature_c": {
+      "type": "number",
+      "minimum": -100,
+      "maximum": 200,
+      "description": "Temperature of the Jetson in degrees Celsius, in steps of one tenth."
+    },
+    "camera_picture": {
+      "type": "boolean",
+      "description": "True when a still picture of the first camera is available to ask for."
+    },
+    "uptime_s": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295,
+      "description": "Seconds since the Jetson started."
+    }
+  }
+}

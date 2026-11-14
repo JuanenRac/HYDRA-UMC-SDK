@@ -155,6 +155,14 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "source_id": "cam-top",
         "sequence": 1
     },
+    "JetsonStatus": {
+        "schema_version": "1.0",
+        "zone_level": "ready",
+        "cpu_pct": 23,
+        "temperature_c": 52.0,
+        "camera_picture": True,
+        "uptime_s": 3600
+    },
     "PoseEstimate": {
         "schema_version": "1.0",
         "frame_id": "frame-0001",

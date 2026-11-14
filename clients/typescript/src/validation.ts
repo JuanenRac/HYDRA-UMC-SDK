@@ -69,6 +69,7 @@ const CONTRACT_FILES: Record<ContractName, string> = {
   FrameMeta: "frame-meta.schema.json",
   DetectionFrame: "detection-frame.schema.json",
   PoseEstimate: "pose-estimate.schema.json",
+  JetsonStatus: "jetson-status.schema.json",
   MaintenanceIncident: "maintenance-incident.schema.json",
   ToolDescriptor: "tool-descriptor.schema.json",
   ToolState: "tool-state.schema.json",

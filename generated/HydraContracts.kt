@@ -277,6 +277,15 @@ data class HealthReport(
     val checks: Map<String, Any?>
 )
 
+data class JetsonStatus(
+    val schema_version: String,
+    val zone_level: String,
+    val cpu_pct: Long,
+    val temperature_c: Double,
+    val camera_picture: Boolean,
+    val uptime_s: Long
+)
+
 data class JointPoses(
     val schema_version: String,
     val frame: String,

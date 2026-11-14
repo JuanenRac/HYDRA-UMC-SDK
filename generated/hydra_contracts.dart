@@ -803,6 +803,32 @@ class HealthReport {
       };
 }
 
+class JetsonStatus {
+  final String schema_version;
+  final String zone_level;
+  final int cpu_pct;
+  final double temperature_c;
+  final bool camera_picture;
+  final int uptime_s;
+  const JetsonStatus({required this.schema_version, required this.zone_level, required this.cpu_pct, required this.temperature_c, required this.camera_picture, required this.uptime_s});
+  factory JetsonStatus.fromJson(Map<String, dynamic> json) => JetsonStatus(
+        schema_version: json["schema_version"] as String,
+        zone_level: json["zone_level"] as String,
+        cpu_pct: (json["cpu_pct"] as num).toInt(),
+        temperature_c: (json["temperature_c"] as num).toDouble(),
+        camera_picture: json["camera_picture"] as bool,
+        uptime_s: (json["uptime_s"] as num).toInt(),
+      );
+  Map<String, dynamic> toJson() => {
+        "schema_version": schema_version,
+        "zone_level": zone_level,
+        "cpu_pct": cpu_pct,
+        "temperature_c": temperature_c,
+        "camera_picture": camera_picture,
+        "uptime_s": uptime_s,
+      };
+}
+
 class JointPoses {
   final String schema_version;
   final String frame;
