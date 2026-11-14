@@ -68,7 +68,7 @@ class BridgeContractTests(unittest.TestCase):
 
     # the finding's own exact reproduction - constructing BridgeJob
     # DIRECTLY (not through job_from_dict, which already validated this)
-    # with an unrecognised phase used to succeed, and
+    # with an unrecognised phase must not succeed: otherwise
     # evaluate_job(job, CellState.READY) could then return allowed=True
     # for a phase it never actually recognised - `job.phase is
     # JobPhase.ABORT` is simply False for a garbage value, falling
@@ -84,8 +84,8 @@ class BridgeContractTests(unittest.TestCase):
     # same
     # class of gap as above, on `parameters` instead of
     # `phase`/`machine_state`. `job_from_dict()` already guarded this
-    # before ever constructing a BridgeJob, but the direct public
-    # constructor didn't - passing a list here used to raise a bare
+    # before ever constructing a BridgeJob, and the direct public
+    # constructor must too - otherwise passing a list here raises a bare
     # AttributeError ('list' object has no attribute 'items') out of
     # __post_init__ instead of the intended BridgeError every other
     # invalid-shape input on this same constructor raises.

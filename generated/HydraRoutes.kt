@@ -84,6 +84,7 @@ val HYDRA_ROUTES: List<HydraRoute> = listOf(
     HydraRoute("GET", "/api/models", "public", "models", listOf(), listOf("200")),
     HydraRoute("POST", "/api/models/submit", "admin", "models", listOf(), listOf("200", "400", "403", "409", "500")),
     HydraRoute("GET", "/api/models/{category}/{slug}/download", "public", "models", listOf(), listOf("200", "403", "404", "500")),
+    HydraRoute("POST", "/api/operator/confirmations", "user", "operator", listOf(), listOf("200", "400", "403", "404", "503")),
     HydraRoute("GET", "/api/operator/presence", "user", "operator", listOf(), listOf("200", "403", "404")),
     HydraRoute("POST", "/api/operator/presence", "user", "operator", listOf(), listOf("200", "400", "403", "404")),
     HydraRoute("GET", "/api/ops-agent/proposals", "admin", "ops-agent", listOf(), listOf("200")),

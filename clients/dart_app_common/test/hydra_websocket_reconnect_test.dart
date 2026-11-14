@@ -181,10 +181,10 @@ void main() {
     test(
       'a real 1008 close (server-rejected token) surfaces wsAuthRejected and never reconnects',
       () async {
-        // Real bug fixed 2026-09-08: onDone used to always reconnect,
-        // unconditionally - a token the server will never accept again
-        // (server.ts's own real close code for this) just spun forever in
-        // "connecting" -> "disconnected" with no visible error at all.
+        // onDone must not always reconnect unconditionally - a token the
+        // server will never accept again (server.ts's own real close code
+        // for this) would spin forever in "connecting" -> "disconnected"
+        // with no visible error at all.
         final statuses = <WsStatus>[];
         final errors = <WsError>[];
         final ws = HydraWebSocket(

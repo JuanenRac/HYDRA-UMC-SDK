@@ -985,6 +985,20 @@
       ]
     },
     {
+      "method": "POST",
+      "path": "/api/operator/confirmations",
+      "access": "user",
+      "group": "operator",
+      "query": [],
+      "statuses": [
+        "200",
+        "400",
+        "403",
+        "404",
+        "503"
+      ]
+    },
+    {
       "method": "GET",
       "path": "/api/operator/presence",
       "access": "user",
