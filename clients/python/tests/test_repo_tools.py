@@ -103,6 +103,16 @@ class MoreReferenceTests(unittest.TestCase):
         self.assertEqual(replaced, ["v0.3.2"])
         self.assertIn("      ref: v0.3.4\n      path: repos/HYDRA-UMC-SDK\n", new)
 
+    def test_tarball_of_a_commit_becomes_the_tarball_of_the_tag(self):
+        sha = "08dc4b350abaaaa3d3b88ea0b439e9cc0bd8dde8"
+        text = f"curl -fsSL https://github.com/JuanenRac/HYDRA-UMC-SDK/archive/{sha}.tar.gz | tar -xz\n"
+        new, replaced = PIN.repin(text, "v0.6.4")
+        self.assertIn("archive/refs/tags/v0.6.4.tar.gz | tar -xz", new)
+        self.assertEqual(replaced, [sha])
+        again, none = PIN.repin(new, "v0.6.4")
+        self.assertEqual(again, new)
+        self.assertEqual(none, [])
+
     def test_release_tarball_url(self):
         new, replaced = PIN.repin(TARBALL.format(ref="v0.3.2"), "v0.3.4")
         self.assertEqual(replaced, ["v0.3.2"])
