@@ -91,6 +91,7 @@ const List<HydraRoute> hydraRoutes = <HydraRoute>[
   HydraRoute('GET', '/api/models', 'public', 'models', <String>[], <String>['200']),
   HydraRoute('POST', '/api/models/submit', 'admin', 'models', <String>[], <String>['200', '400', '403', '409', '500']),
   HydraRoute('GET', '/api/models/{category}/{slug}/download', 'public', 'models', <String>[], <String>['200', '403', '404', '500']),
+  HydraRoute('POST', '/api/operator/confirmations', 'user', 'operator', <String>[], <String>['200', '400', '403', '404', '503']),
   HydraRoute('GET', '/api/operator/presence', 'user', 'operator', <String>[], <String>['200', '403', '404']),
   HydraRoute('POST', '/api/operator/presence', 'user', 'operator', <String>[], <String>['200', '400', '403', '404']),
   HydraRoute('GET', '/api/ops-agent/proposals', 'admin', 'ops-agent', <String>[], <String>['200']),
