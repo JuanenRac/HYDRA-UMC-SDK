@@ -69,6 +69,7 @@ const List<HydraRoute> hydraRoutes = <HydraRoute>[
   HydraRoute('GET', '/api/developer-node/status', 'user', 'feeds', <String>['verify'], <String>['200']),
   HydraRoute('POST', '/api/device/login', 'public', 'device', <String>[], <String>['200', '401', '403', '404']),
   HydraRoute('GET', '/api/ecosystem/health', 'user', 'ecosystem', <String>[], <String>['200', '403', '404', '503']),
+  HydraRoute('GET', '/api/ecosystem/node-health', 'user', 'ecosystem', <String>['slot'], <String>['200', '400', '403', '404', '503']),
   HydraRoute('POST', '/api/ecosystem/service/{unit}/{action}', 'admin', 'ecosystem', <String>[], <String>['200', '400', '403', '404', '503']),
   HydraRoute('GET', '/api/ecosystem/status', 'public', 'ecosystem', <String>[], <String>['200']),
   HydraRoute('GET', '/api/faults', 'user', 'feeds', <String>['active', 'limit', 'verify'], <String>['200']),
