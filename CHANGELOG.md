@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The common texts can be written for the language files of the SUITE (`tools/i18n_common.py render lng`, `check-suite`):** the SUITE keeps one `KEY=text` line per sentence in `language/<name>.lng`; the common texts are the keys `COMMON_<ID>` (the id in capitals). `render lng --lang pt` writes the lines and `check-suite --repo <SUITE>` checks that the eight files carry every text of the contract exactly (a file may carry more). Tests of the lines, the check, a missing or a different text and a missing file.
+
 - **`GET /api/ecosystem/node-health?slot=N` is in the contract (group ecosystem):** the last health frame that the kinematic brain heard from the controller board in a slot, read from the SPI bridge of the CM5 (`NodeHealth` shape: `online`, `slot`, `heard`, `ageMs`, `sequence`, `flags` and `flagNames`, the counters, `uptimeS`, `source: brain-health`). Read only, for an operator or an administrator; `404` while the option of the server is off, `400` for a slot that is not 0 to 7, `503` when the bridge is silent. The generated OpenAPI document and the route tables (TypeScript, Kotlin, Dart, JSON) carry it.
 
 - **Three more common words, for texts that were written twice and differed only in form (`contracts/i18n/common.json`):** endstops, speed and vision center, 56 words in all. The contract holds the plain text, without capitals for a heading and without the colon of a label; an app puts the capitals with its style and the colon with the rule of its language (full-width for Japanese and Chinese). `tools/i18n_common.py check-studio` now checks 56 texts.
