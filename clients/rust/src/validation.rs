@@ -86,6 +86,7 @@ const CONTRACT_FILES: &[(&str, &str)] = &[
     ("FrameMeta", "frame-meta.schema.json"),
     ("DetectionFrame", "detection-frame.schema.json"),
     ("PoseEstimate", "pose-estimate.schema.json"),
+    ("JetsonStatus", "jetson-status.schema.json"),
     ("MaintenanceIncident", "maintenance-incident.schema.json"),
     ("ToolDescriptor", "tool-descriptor.schema.json"),
     ("ToolState", "tool-state.schema.json"),
@@ -206,6 +207,10 @@ const SCHEMA_FILES: &[(&str, &str)] = &[
     (
         "pose-estimate.schema.json",
         include_str!("../schemas/pose-estimate.schema.json"),
+    ),
+    (
+        "jetson-status.schema.json",
+        include_str!("../schemas/jetson-status.schema.json"),
     ),
     (
         "maintenance-incident.schema.json",

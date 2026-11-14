@@ -62,6 +62,10 @@
       "sha256": "8c2278b6d803314f9273ad61de564597d706b3795578045a47c44fcfe4748a5c"
     },
     {
+      "file": "jetson-status.schema.json",
+      "sha256": "0935cd697b92d23db8ef12b03c94b9d0b626df8f28be407dfa379f1694891aca"
+    },
+    {
       "file": "joint-poses.schema.json",
       "sha256": "cd921a36d004c46660de6ce44a15ec9f734d6caa6574c266afc8fb29fcd3b947"
     },

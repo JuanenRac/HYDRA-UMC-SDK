@@ -302,6 +302,16 @@ export interface HealthReport {
   [extra: string]: unknown;
 }
 
+export interface JetsonStatus {
+  schema_version: "1.0";
+  zone_level: "ready" | "warning" | "danger" | "inhibited" | "fault" | "unknown";
+  cpu_pct: number;
+  temperature_c: number;
+  camera_picture: boolean;
+  uptime_s: number;
+  [extra: string]: unknown;
+}
+
 export interface JointPoses {
   schema_version: "1.0";
   frame: "base";

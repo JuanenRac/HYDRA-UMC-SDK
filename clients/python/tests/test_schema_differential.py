@@ -51,6 +51,7 @@ CONTRACT_FILES = {
     "FrameMeta": "frame-meta",
     "DetectionFrame": "detection-frame",
     "PoseEstimate": "pose-estimate",
+    "JetsonStatus": "jetson-status",
     "MaintenanceIncident": "maintenance-incident",
     "ToolDescriptor": "tool-descriptor",
     "ToolState": "tool-state",
