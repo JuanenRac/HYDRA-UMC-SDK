@@ -23,6 +23,7 @@ export 'src/http_transport.dart';
 export 'src/hydra_websocket.dart';
 export 'src/pairing_link.dart';
 export 'src/prefs.dart';
+export 'src/release_digest.dart';
 export 'src/play_confirmation.dart';
 export 'src/server_info.dart';
 export 'src/session_store.dart';
