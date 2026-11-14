@@ -70,6 +70,7 @@ export const HYDRA_ROUTES: readonly HydraRoute[] = [
   { method: "GET", path: "/api/developer-node/status", access: "user", group: "feeds", query: ["verify"], statuses: ["200"] },
   { method: "POST", path: "/api/device/login", access: "public", group: "device", query: [], statuses: ["200", "401", "403", "404"] },
   { method: "GET", path: "/api/ecosystem/health", access: "user", group: "ecosystem", query: [], statuses: ["200", "403", "404", "503"] },
+  { method: "GET", path: "/api/ecosystem/node-health", access: "user", group: "ecosystem", query: ["slot"], statuses: ["200", "400", "403", "404", "503"] },
   { method: "POST", path: "/api/ecosystem/service/{unit}/{action}", access: "admin", group: "ecosystem", query: [], statuses: ["200", "400", "403", "404", "503"] },
   { method: "GET", path: "/api/ecosystem/status", access: "public", group: "ecosystem", query: [], statuses: ["200"] },
   { method: "GET", path: "/api/faults", access: "user", group: "feeds", query: ["active", "limit", "verify"], statuses: ["200"] },

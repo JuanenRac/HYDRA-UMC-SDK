@@ -709,6 +709,22 @@
       ]
     },
     {
+      "method": "GET",
+      "path": "/api/ecosystem/node-health",
+      "access": "user",
+      "group": "ecosystem",
+      "query": [
+        "slot"
+      ],
+      "statuses": [
+        "200",
+        "400",
+        "403",
+        "404",
+        "503"
+      ]
+    },
+    {
       "method": "POST",
       "path": "/api/ecosystem/service/{unit}/{action}",
       "access": "admin",
