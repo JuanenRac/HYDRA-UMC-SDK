@@ -1,0 +1,185 @@
+{
+  "schema_version": "1.0",
+  "about": "The words every app of the ecosystem shows the same way (buttons, answers, states, roles) in the eight languages, European Portuguese for pt. The apps keep their own format (STUDIO a JSON catalog, Android strings.xml, iOS and DSI ARB); tools/i18n_common.py writes each one from this file and checks that STUDIO carries it.",
+  "languages": [
+    "en",
+    "es",
+    "de",
+    "fr",
+    "it",
+    "ja",
+    "zh",
+    "pt"
+  ],
+  "strings": [
+    {
+      "id": "confirm",
+      "text": {
+        "en": "Confirm",
+        "es": "Confirmar",
+        "de": "Bestätigen",
+        "fr": "Confirmer",
+        "it": "Conferma",
+        "ja": "確認",
+        "zh": "确认",
+        "pt": "Confirmar"
+      }
+    },
+    {
+      "id": "cancel",
+      "text": {
+        "en": "Cancel",
+        "es": "Cancelar",
+        "de": "Abbrechen",
+        "fr": "Annuler",
+        "it": "Annulla",
+        "ja": "キャンセル",
+        "zh": "取消",
+        "pt": "Cancelar"
+      }
+    },
+    {
+      "id": "save",
+      "text": {
+        "en": "Save",
+        "es": "Guardar",
+        "de": "Speichern",
+        "fr": "Enregistrer",
+        "it": "Salva",
+        "ja": "保存",
+        "zh": "保存",
+        "pt": "Guardar"
+      }
+    },
+    {
+      "id": "close",
+      "text": {
+        "en": "Close",
+        "es": "Cerrar",
+        "de": "Schließen",
+        "fr": "Fermer",
+        "it": "Chiudi",
+        "ja": "閉じる",
+        "zh": "关闭",
+        "pt": "Fechar"
+      }
+    },
+    {
+      "id": "retry",
+      "text": {
+        "en": "Try again",
+        "es": "Reintentar",
+        "de": "Erneut versuchen",
+        "fr": "Réessayer",
+        "it": "Riprova",
+        "ja": "再試行",
+        "zh": "重试",
+        "pt": "Tentar novamente"
+      }
+    },
+    {
+      "id": "yes",
+      "text": {
+        "en": "Yes",
+        "es": "Sí",
+        "de": "Ja",
+        "fr": "Oui",
+        "it": "Sì",
+        "ja": "はい",
+        "zh": "是",
+        "pt": "Sim"
+      }
+    },
+    {
+      "id": "no",
+      "text": {
+        "en": "No",
+        "es": "No",
+        "de": "Nein",
+        "fr": "Non",
+        "it": "No",
+        "ja": "いいえ",
+        "zh": "否",
+        "pt": "Não"
+      }
+    },
+    {
+      "id": "loading",
+      "text": {
+        "en": "Loading…",
+        "es": "Cargando…",
+        "de": "Wird geladen…",
+        "fr": "Chargement…",
+        "it": "Caricamento…",
+        "ja": "読み込み中…",
+        "zh": "加载中…",
+        "pt": "A carregar…"
+      }
+    },
+    {
+      "id": "online",
+      "text": {
+        "en": "Online",
+        "es": "En línea",
+        "de": "Online",
+        "fr": "En ligne",
+        "it": "Online",
+        "ja": "オンライン",
+        "zh": "在线",
+        "pt": "Ligado"
+      }
+    },
+    {
+      "id": "offline",
+      "text": {
+        "en": "Offline",
+        "es": "Sin conexión",
+        "de": "Offline",
+        "fr": "Hors ligne",
+        "it": "Offline",
+        "ja": "オフライン",
+        "zh": "离线",
+        "pt": "Desligado"
+      }
+    },
+    {
+      "id": "administrator",
+      "text": {
+        "en": "Administrator",
+        "es": "Administrador",
+        "de": "Administrator",
+        "fr": "Administrateur",
+        "it": "Amministratore",
+        "ja": "管理者",
+        "zh": "管理员",
+        "pt": "Administrador"
+      }
+    },
+    {
+      "id": "operator",
+      "text": {
+        "en": "Operator",
+        "es": "Operador",
+        "de": "Bediener",
+        "fr": "Opérateur",
+        "it": "Operatore",
+        "ja": "オペレーター",
+        "zh": "操作员",
+        "pt": "Operador"
+      }
+    },
+    {
+      "id": "viewer",
+      "text": {
+        "en": "Viewer",
+        "es": "Observador",
+        "de": "Betrachter",
+        "fr": "Observateur",
+        "it": "Osservatore",
+        "ja": "閲覧者",
+        "zh": "查看者",
+        "pt": "Observador"
+      }
+    }
+  ]
+}
