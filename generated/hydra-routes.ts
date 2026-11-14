@@ -92,6 +92,7 @@ export const HYDRA_ROUTES: readonly HydraRoute[] = [
   { method: "GET", path: "/api/models", access: "public", group: "models", query: [], statuses: ["200"] },
   { method: "POST", path: "/api/models/submit", access: "admin", group: "models", query: [], statuses: ["200", "400", "403", "409", "500"] },
   { method: "GET", path: "/api/models/{category}/{slug}/download", access: "public", group: "models", query: [], statuses: ["200", "403", "404", "500"] },
+  { method: "POST", path: "/api/operator/confirmations", access: "user", group: "operator", query: [], statuses: ["200", "400", "403", "404", "503"] },
   { method: "GET", path: "/api/operator/presence", access: "user", group: "operator", query: [], statuses: ["200", "403", "404"] },
   { method: "POST", path: "/api/operator/presence", access: "user", group: "operator", query: [], statuses: ["200", "400", "403", "404"] },
   { method: "GET", path: "/api/ops-agent/proposals", access: "admin", group: "ops-agent", query: [], statuses: ["200"] },
