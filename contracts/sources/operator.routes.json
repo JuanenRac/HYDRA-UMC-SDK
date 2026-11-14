@@ -4,6 +4,101 @@
   "kind": "inventory",
   "routes": [
     {
+      "method": "post",
+      "path": "/api/operator/confirmations",
+      "summary": "POST /api/operator/confirmations",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "action",
+                "job_id",
+                "confirm"
+              ],
+              "properties": {
+                "action": {
+                  "type": "string"
+                },
+                "job_id": {
+                  "type": "string"
+                },
+                "confirm": {
+                  "type": "boolean",
+                  "enum": [
+                    true
+                  ]
+                },
+                "ttl_seconds": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "schema": {
+            "type": "object",
+            "required": [
+              "token",
+              "action",
+              "job_id",
+              "expires_at",
+              "ttl_seconds",
+              "single_use"
+            ],
+            "properties": {
+              "token": {
+                "type": "string",
+                "description": "A JWT (HS256) valid once, for this action and this job only. Never stored or logged by the server."
+              },
+              "action": {
+                "type": "string"
+              },
+              "job_id": {
+                "type": "string"
+              },
+              "expires_at": {
+                "type": "integer",
+                "description": "Unix seconds."
+              },
+              "ttl_seconds": {
+                "type": "integer"
+              },
+              "single_use": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "403": {
+          "description": "Signed in but not allowed. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "Not found. No body."
+        },
+        "503": {
+          "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
       "method": "get",
       "path": "/api/operator/presence",
       "summary": "GET /api/operator/presence",

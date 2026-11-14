@@ -2462,6 +2462,50 @@
         }
       }
     },
+    "POST /api/operator/confirmations": {
+      "200": {
+        "minimal": {
+          "token": "sample",
+          "action": "sample",
+          "job_id": "sample",
+          "expires_at": 0,
+          "ttl_seconds": 0,
+          "single_use": true
+        },
+        "full": {
+          "token": "sample",
+          "action": "sample",
+          "job_id": "sample",
+          "expires_at": 0,
+          "ttl_seconds": 0,
+          "single_use": true
+        }
+      },
+      "400": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      },
+      "403": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      },
+      "503": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      }
+    },
     "GET /api/operator/presence": {
       "200": {
         "minimal": {
