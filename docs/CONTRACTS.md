@@ -194,6 +194,10 @@ The routes of the connections (`GET /api/connections/clients` and `GET /api/conn
 
 `contracts/proto/` holds the Protocol Buffers sources of the services that speak gRPC: `hydra_telemetry.proto` (the telemetry ingest). A service keeps the code generated from the file it uses.
 
+## Common texts of the apps
+
+`contracts/i18n/common.json` holds the words every app shows the same way (confirm, cancel, save, close, try again, yes, no, loading, online, offline and the three roles) in the eight languages, European Portuguese for `pt`. Each app keeps its own format and its own catalog for everything else; what is common is written here once. `python tools/i18n_common.py render studio|android|arb --lang <code>` writes the words in the format of STUDIO (a JSON object for its `common` block), of Android (`common_<id>` lines of a `strings.xml`, escaped) or of an ARB file (`common<Id>` keys), and `check-studio --repo <path>` checks that the eight catalogs of a STUDIO checkout carry them under `common` exactly as written here (it may carry more). A new common word is added here, in the eight languages, and then to each app with its renderer.
+
 ## Catalogue of the URTC tools
 
 `contracts/urtc_tools.json` is the common list of the tool modes of the URTC family (identifier, constant name, title and whether an expansion board is needed), with the identifier that means "no tool". A service or app resolves a tool by number, name or title from this one list instead of keeping its own. A test checks that the ids are consecutive, that names and titles are unique and that the copy equals the one of the documentation repository when both are checked out side by side.
