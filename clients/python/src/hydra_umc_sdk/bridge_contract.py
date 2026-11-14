@@ -72,7 +72,7 @@ class BridgeJob:
         # `MachineState` in the dataclass annotation, but Python never
         # enforces that at runtime - constructing `BridgeJob` directly
         # (not through `job_from_dict`, which does validate this) with
-        # an unrecognised string for either field used to construct
+        # an unrecognised string for either field would construct
         # successfully, and `evaluate_job` could then return
         # `allowed=True` for a phase it never actually recognised (its
         # own `job.phase is JobPhase.ABORT` check is simply `False` for
@@ -90,8 +90,8 @@ class BridgeJob:
         # never enforces that at runtime. `job_from_dict()` already
         # guards this before ever constructing a `BridgeJob` (see its own
         # `isinstance(parameters, Mapping)` check), but the direct
-        # public-constructor path had no equivalent: passing a list
-        # (e.g. `parameters=[]`) used to blow up on the `.items()` call
+        # public-constructor path needs the same guard: passing a list
+        # (e.g. `parameters=[]`) would blow up on the `.items()` call
         # below with a bare `AttributeError`, not the intended
         # `BridgeError` every other invalid-shape input here raises.
         # Every construction path must fail the same clean way.
