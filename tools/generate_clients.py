@@ -239,9 +239,25 @@ def request_extras(op: dict[str, Any], with_headers: bool) -> list[tuple[str, st
     return extras
 
 
-def extra_value(value: str | list[str], spelling: Any, listing: Any) -> str:
-    """One request field value: a text through `spelling`, a list of header names through `listing`."""
-    return listing([spelling(v) for v in value]) if isinstance(value, list) else spelling(value)
+def extras_text(op: dict[str, Any], with_headers: bool, assign: str, spelling: Any, listing: Any) -> str:
+    """The extra request fields as `, field<assign>value` pieces: a text through `spelling`, a list of header names through `listing`."""
+    pieces = []
+    for field, value in request_extras(op, with_headers):
+        text = listing([spelling(v) for v in value]) if isinstance(value, list) else spelling(value)
+        pieces.append(f", {field}{assign}{text}")
+    return "".join(pieces)
+
+
+def ts_list(items: list[str]) -> str:
+    return "[" + ", ".join(items) + "]"
+
+
+def kt_list(items: list[str]) -> str:
+    return "listOf(" + ", ".join(items) + ")"
+
+
+def dart_list(items: list[str]) -> str:
+    return "const <String>[" + ", ".join(items) + "]"
 
 
 def as_typescript(document: dict[str, Any]) -> str:
@@ -306,10 +322,7 @@ def as_typescript(document: dict[str, Any]) -> str:
         body_expr = "args?.body" if op["body"] is not None else "undefined"
         send = (f"this.transport({{ method: {quote(op['method'])}, path: {path_expr}, query: {query_expr}, "
                 f"headers: {headers_expr}, body: {body_expr}, access: {quote(op['access'])}")
-        def ts_extras(with_headers: bool) -> str:
-            return "".join(f", {f}: " + extra_value(v, quote, lambda items: "[" + ", ".join(items) + "]") for f, v in request_extras(op, with_headers))
-
-        plain = ts_extras(False)
+        plain = extras_text(op, False, ": ", quote, ts_list)
         lines += [
             f"  /** {note.replace('*/', '* /')} (access: {op['access']}) */",
             f"  {op['name']}({signature}): Promise<{op['result']}> {{",
@@ -318,7 +331,7 @@ def as_typescript(document: dict[str, Any]) -> str:
             "",
         ]
         if op["reply_headers"]:
-            extras = ts_extras(True)
+            extras = extras_text(op, True, ": ", quote, ts_list)
             lines += [
                 f"  /** {note.replace('*/', '* /')} (access: {op['access']}); the reply also holds the response headers {', '.join(op['reply_headers'])}. */",
                 f"  {op['name']}WithHeaders({signature}): Promise<HydraReply<{op['result']}>> {{",
@@ -530,10 +543,7 @@ def as_kotlin(document: dict[str, Any]) -> str:
         path_expr = f"fillPath({quote(op['path'])}, mapOf({path_values}))" if path_values else quote(op["path"])
         query_expr = f"queryOf(mapOf({query_values}))" if query_values else "emptyMap()"
         head = f"transport.send(HydraRequest({quote(op['method'])}, {path_expr}, {query_expr}, {body_name}, {quote(op['access'])}{', headers = queryOf(mapOf(' + header_values + '))' if header_values else ''}"
-        def kt_extras(with_headers: bool) -> str:
-            return "".join(f", {f} = " + extra_value(v, quote, lambda items: "listOf(" + ", ".join(items) + ")") for f, v in request_extras(op, with_headers))
-
-        call = head + kt_extras(False) + "))"
+        call = head + extras_text(op, False, " = ", quote, kt_list) + "))"
         lines += [f"    /** {doc_note(op)} */", f"    suspend fun {op['name']}({signature}): {result} {{"]
         if result == "Unit":
             lines += [f"        {call}", "        return Unit"]
@@ -541,7 +551,7 @@ def as_kotlin(document: dict[str, Any]) -> str:
             lines.append(f"        return {call} as {result}")
         lines += ["    }", ""]
         if op["reply_headers"]:
-            wrapped = head + kt_extras(True) + "))"
+            wrapped = head + extras_text(op, True, " = ", quote, kt_list) + "))"
             lines += [f"    /** {doc_note(op)}; the reply also holds the response headers {', '.join(op['reply_headers'])}. */",
                       f"    suspend fun {op['name']}WithHeaders({signature}): HydraReply<{result}> {{",
                       f"        val reply = {wrapped} as HydraReply<Any?>",
@@ -623,10 +633,7 @@ def as_dart(document: dict[str, Any]) -> str:
         path_expr = f"fillPath({dart_string(op['path'])}, {{{path_values}}})" if path_values else dart_string(op["path"])
         query_expr = f"queryOf({{{query_values}}})" if query_values else "const <String, String>{}"
         head = f"_transport(HydraRequest({dart_string(op['method'])}, {path_expr}, {query_expr}, {body_name}, {dart_string(op['access'])}{', headers: queryOf({' + header_values + '})' if header_values else ''}"
-        def dart_extras(with_headers: bool) -> str:
-            return "".join(f", {f}: " + extra_value(v, dart_string, lambda items: "const <String>[" + ", ".join(items) + "]") for f, v in request_extras(op, with_headers))
-
-        call = head + dart_extras(False) + "))"
+        call = head + extras_text(op, False, ": ", dart_string, dart_list) + "))"
         lines += [f"  /// {doc_note(op)}", f"  Future<{result}> {op['name']}({signature}) async {{"]
         if result == "void":
             lines.append(f"    await {call};")
@@ -634,7 +641,7 @@ def as_dart(document: dict[str, Any]) -> str:
             lines.append(f"    return (await {call}) as {result};")
         lines += ["  }", ""]
         if op["reply_headers"]:
-            wrapped = head + dart_extras(True) + "))"
+            wrapped = head + extras_text(op, True, ": ", dart_string, dart_list) + "))"
             lines += [f"  /// {doc_note(op)}; the reply also holds the response headers {', '.join(op['reply_headers'])}.",
                       f"  Future<HydraReply<{result}>> {op['name']}WithHeaders({signature}) async {{",
                       f"    final reply = (await {wrapped}) as HydraReply<dynamic>;",
