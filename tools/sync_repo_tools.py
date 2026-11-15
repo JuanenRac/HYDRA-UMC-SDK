@@ -105,7 +105,7 @@ PER_REPOSITORY_FILES = {
     "tools/canonical/server_identity.py": {
         f"HYDRA-UMC-{name}": f"src/hydra_umc_{name.lower().replace('-', '_')}/server_identity.py"
         for name in (
-            "ANOMALY-DETECTOR", "COGNITIVE-NODE", "DATALAKE", "DETECTION-HEF", "DEV-SERVER", "DOCS-QA", "PRODUCTION-REPORTS", "SAFETY-ZONES",
+            "ANOMALY-DETECTOR", "COGNITIVE-NODE", "DATALAKE", "DETECTION-HEF", "DEV-SERVER", "DOCS-QA", "PRODUCTION-REPORTS", "SAFETY-ZONES", "BRIDGE-ROS2",
             "SEMANTIC-PLANNER", "VISION-NODE", "VISUAL-SERVOING-API", "VLA-ENGINE",
         )
     },
