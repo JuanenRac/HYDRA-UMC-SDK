@@ -14,6 +14,8 @@
 
 ## [Unreleased]
 
+- **The baseline action of this repository is the canonical one again:** `.github/actions/hydra-baseline/action.yml` had fallen behind `tools/canonical/hydra-baseline-action.yml` (the `slow` input and the steps that use it), so `tools/sync_repo_tools.py --check` reported drift in the SDK itself; the copy now equals the canonical file byte for byte.
+
 - **The test of the app copies of the kinematics compares the whole model:** `test_the_models_equal_the_copies_of_the_apps_when_they_are_next_to_this_one` compared only the ranges and the home pose, so the copies of STUDIO, SERVER and SUITE (which carry the chain of the Universal Robots models too) failed it whenever they sat next to this checkout. The copy must now equal the model of `contracts/kinematics.json`, chain included.
 
 - **`GET /api/tool-arms` no longer lists the status `400` in the contract (group tool-arms):** the route takes no filter and no body, and the handler of the server never answers it (a state it cannot read is `404`, `502` or `503`). The generated OpenAPI document, the route tables (TypeScript, Kotlin, Dart, JSON) and the app fixtures are regenerated.
