@@ -61,6 +61,8 @@ val HYDRA_ROUTES: List<HydraRoute> = listOf(
     HydraRoute("GET", "/api/dev-server/status", "user", "feeds", listOf("verify"), listOf("200")),
     HydraRoute("GET", "/api/developer-node/status", "user", "feeds", listOf("verify"), listOf("200")),
     HydraRoute("POST", "/api/device/login", "public", "device", listOf(), listOf("200", "401", "403", "404")),
+    HydraRoute("GET", "/api/droid-estop/settings", "user", "droid-estop", listOf(), listOf("200")),
+    HydraRoute("POST", "/api/droid-estop/settings", "admin", "droid-estop", listOf(), listOf("400")),
     HydraRoute("GET", "/api/ecosystem/health", "user", "ecosystem", listOf(), listOf("200", "403", "404", "503")),
     HydraRoute("GET", "/api/ecosystem/node-health", "user", "ecosystem", listOf("slot"), listOf("200", "400", "403", "404", "503")),
     HydraRoute("POST", "/api/ecosystem/service/{unit}/{action}", "admin", "ecosystem", listOf(), listOf("200", "400", "403", "404", "503")),

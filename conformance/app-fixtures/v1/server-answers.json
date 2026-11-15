@@ -1848,6 +1848,16 @@
         }
       }
     },
+    "POST /api/droid-estop/settings": {
+      "400": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      }
+    },
     "GET /api/ecosystem/health": {
       "200": {
         "minimal": {

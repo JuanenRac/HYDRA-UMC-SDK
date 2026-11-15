@@ -1,0 +1,32 @@
+{
+  "source_version": "1",
+  "group": "droid-estop",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "get",
+      "path": "/api/droid-estop/settings",
+      "summary": "GET /api/droid-estop/settings",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md."
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/droid-estop/settings",
+      "summary": "POST /api/droid-estop/settings",
+      "description": "Requires a signed-in account with the admin role.",
+      "access": "admin",
+      "responses": {
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}
