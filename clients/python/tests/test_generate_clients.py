@@ -91,8 +91,8 @@ DART = (ROOT / "generated" / gc.DART_NAME).read_text(encoding="utf-8")
 class NativeClientTests(unittest.TestCase):
     def test_the_committed_kotlin_and_dart_files_are_the_generator_output(self):
         produced = gc.outputs()
-        for name in (gc.KT_NAME, gc.DART_NAME):
-            committed = (ROOT / "generated" / name).read_bytes().replace(b"\r\n", b"\n")
+        for name in (gc.KT_NAME, gc.DART_NAME, gc.KT_ROUND_TRIP_NAME, gc.DART_ROUND_TRIP_NAME):
+            committed = gc.target(name).read_bytes().replace(b"\r\n", b"\n")
             self.assertEqual(committed, produced[name].encode("utf-8"), name)
 
     def test_every_route_has_a_method_with_the_same_name_in_all_three_languages(self):
@@ -104,10 +104,14 @@ class NativeClientTests(unittest.TestCase):
         self.assertEqual(listed_kt, [o["name"] for o in OPS])
         self.assertEqual(listed_dart, listed_kt)
 
-    def test_every_named_schema_is_an_alias(self):
-        for name in FULL["components"]["schemas"]:
-            self.assertIn(f"typealias Hydra{name} = ", KT)
-            self.assertIn(f"typedef Hydra{name} = ", DART)
+    def test_every_named_schema_is_a_class_or_an_alias(self):
+        for name, schema in FULL["components"]["schemas"].items():
+            if gc.is_class(schema):
+                self.assertIn(f"data class Hydra{name}(", KT)
+                self.assertIn(f"class Hydra{name} {{", DART)
+            else:
+                self.assertIn(f"typealias Hydra{name} = ", KT)
+                self.assertIn(f"typedef Hydra{name} = ", DART)
 
     def test_the_scalar_and_collection_mapping(self):
         kotlin, dart = gc.Flavor("kotlin"), gc.Flavor("dart")
@@ -142,15 +146,16 @@ class NativeClientTests(unittest.TestCase):
 
     def test_no_parameter_of_any_route_is_a_reserved_word(self):
         for flavor in (gc.Flavor("kotlin"), gc.Flavor("dart")):
+            builder = gc.Builder(FULL, flavor)
             for op in OPS:
-                params, _ = gc.native_arguments(op, flavor, frozenset())
+                params, _ = gc.native_arguments(op, builder)
                 names = [p[0] for p in params]
                 self.assertEqual(len(names), len(set(names)), op["name"])
                 self.assertFalse(set(names) & flavor.words, op["name"])
 
     def test_the_optional_arguments_come_last_and_may_be_omitted(self):
         for op in OPS:
-            params, _ = gc.native_arguments(op, gc.Flavor("kotlin"), frozenset())
+            params, _ = gc.native_arguments(op, gc.Builder(FULL, gc.Flavor("kotlin")))
             flags = [p[4] for p in params]
             self.assertEqual(flags, sorted(flags, reverse=True), op["name"])
         self.assertIn("suspend fun getAdminLogs(lines: String? = null)", KT)
@@ -175,6 +180,13 @@ class NativeClientTests(unittest.TestCase):
         self.assertIn("dart analyze", workflow)
         self.assertTrue((ROOT / "conformance" / "generated-clients" / "Smoke.kt").is_file())
         self.assertTrue((ROOT / "conformance" / "generated-clients" / "smoke.dart").is_file())
+        self.assertIn("HydraServerClientRoundTrip.kt", workflow)
+        self.assertIn("hydra_server_client_round_trip.dart", workflow)
+        self.assertIn("synthetic/openapi.json", workflow)
+        self.assertIn("SyntheticSmokeKt", workflow)
+        self.assertIn("dart run synthetic_smoke.dart", workflow)
+        self.assertTrue((ROOT / "conformance" / "generated-clients" / "synthetic" / "SyntheticSmoke.kt").is_file())
+        self.assertTrue((ROOT / "conformance" / "generated-clients" / "synthetic" / "synthetic_smoke.dart").is_file())
 
 
 class BinaryTextAndHeaderTests(unittest.TestCase):
@@ -232,3 +244,180 @@ class BinaryTextAndHeaderTests(unittest.TestCase):
         document = {"paths": {"/a/withHeaders": {"get": {}}}, "components": {"schemas": {}}}
         with self.assertRaises(SystemExit):
             gc.operations(document)
+
+
+SYNTHETIC = json.loads((ROOT / "conformance" / "generated-clients" / "synthetic" / "openapi.json").read_text(encoding="utf-8"))
+
+
+def build(flavor_name, document=SYNTHETIC):
+    builder = gc.Builder(document, gc.Flavor(flavor_name))
+    for name in sorted(builder.schemas):
+        builder.reference(name)
+    return builder
+
+
+class ClassModelTests(unittest.TestCase):
+    """The objects of the contract are classes with fields, fromJson and toJson in Kotlin and Dart."""
+
+    def test_a_schema_with_properties_is_a_class_and_a_map_stays_an_alias(self):
+        self.assertTrue(gc.is_class(SYNTHETIC["components"]["schemas"]["Open"]))
+        self.assertFalse(gc.is_class(SYNTHETIC["components"]["schemas"]["Bag"]))
+        self.assertFalse(gc.is_class({"type": "array", "items": {"type": "string"}}))
+        kotlin = gc.as_kotlin(SYNTHETIC, "hydra.umc.synthetic")
+        dart = gc.as_dart(SYNTHETIC)
+        self.assertIn("package hydra.umc.synthetic", kotlin)
+        self.assertIn("typealias HydraBag = Map<String, List<String>>", kotlin)
+        self.assertIn("typedef HydraBag = Map<String, List<String>>;", dart)
+        self.assertIn("data class HydraClosed(", kotlin)
+        self.assertIn("class HydraClosed {", dart)
+
+    def test_every_class_has_from_json_and_to_json_in_both_languages(self):
+        for name, schema in FULL["components"]["schemas"].items():
+            if not gc.is_class(schema):
+                continue
+            self.assertIn(f"fun fromJson(json: Map<String, Any?>): Hydra{name} = Hydra{name}(", KT)
+            self.assertIn(f"factory Hydra{name}.fromJson(Map<String, dynamic> json) => Hydra{name}(", DART)
+        self.assertEqual(KT.count("    fun toJson(): Map<String, Any?> {"), KT.count("fun fromJson(json: Map<String, Any?>)"))
+        self.assertEqual(DART.count("  Map<String, dynamic> toJson() {"), DART.count("factory Hydra"))
+
+    def test_the_fields_follow_the_contract(self):
+        kotlin = build("kotlin")
+        fields = {f["wire"]: f for f in kotlin.defs["HydraOpen"]["fields"]}
+        self.assertTrue(fields["name"]["required"])
+        self.assertEqual(fields["name"]["native"].type, "String")
+        self.assertEqual(fields["note"]["native"].type, "String?")
+        self.assertTrue(fields["note"]["required"])
+        self.assertEqual(fields["mode"]["native"].type, "String?")
+        self.assertEqual(fields["in"]["name"], "inValue")
+        self.assertEqual(fields["class"]["name"], "classValue")
+        self.assertEqual(fields["scores"]["native"].type, "Map<String, Long>?")
+        self.assertEqual(fields["tags"]["native"].type, "List<String>?")
+        dart = build("dart")
+        self.assertEqual({f["wire"]: f["native"].type for f in dart.defs["HydraOpen"]["fields"]}["scores"], "Map<String, int>?")
+
+    def test_field_names_are_camel_case_and_never_a_member_of_the_class(self):
+        for flavor_name in ("kotlin", "dart"):
+            builder = build(flavor_name, FULL)
+            members = gc.KOTLIN_MEMBERS if flavor_name == "kotlin" else gc.DART_MEMBERS
+            for name, definition in builder.defs.items():
+                names = [f["name"] for f in definition["fields"]]
+                self.assertEqual(len(names), len(set(names)), name)
+                self.assertFalse(set(names) & members, name)
+                self.assertFalse(set(names) & builder.flavor.words, name)
+                for ident in names:
+                    self.assertRegex(ident, r"^[a-z][A-Za-z0-9]*$", name)
+
+    def test_additional_properties_open_keeps_the_keys_and_closed_drops_them(self):
+        kotlin = build("kotlin")
+        self.assertIsNotNone(kotlin.defs["HydraOpen"]["open"])
+        self.assertEqual(kotlin.defs["HydraOpen"]["open"]["native"].type, "Map<String, Any?>")
+        self.assertEqual(kotlin.defs["HydraOpenTyped"]["open"]["native"].type, "Map<String, Double>")
+        self.assertIsNone(kotlin.defs["HydraClosed"]["open"])
+        self.assertIsNone(kotlin.defs["HydraTree"]["open"])
+        text = gc.as_kotlin(SYNTHETIC)
+        self.assertIn('private val knownKeys: Set<String> = setOf("name", "note", "class", "in", "mode", "tags", "scores", "nested")', text)
+        self.assertIn("jsonOut.putAll(additionalProperties)", text)
+        self.assertIn("static const Set<String> _knownKeys", gc.as_dart(SYNTHETIC))
+
+    def test_a_schema_that_refers_to_itself_is_an_ordinary_class(self):
+        kotlin = gc.as_kotlin(SYNTHETIC)
+        self.assertIn("val children: List<HydraTree>? = null", kotlin)
+        self.assertIn("val parent: HydraTree? = null", kotlin)
+        self.assertIn("HydraTree.fromJson(hydraMap(v1))", kotlin)
+        dart = gc.as_dart(SYNTHETIC)
+        self.assertIn("final List<HydraTree>? children;", dart)
+        self.assertIn("final HydraTree? parent;", dart)
+
+    def test_inline_objects_get_a_class_named_after_where_they_are(self):
+        builder = build("kotlin")
+        text = gc.as_kotlin(SYNTHETIC)
+        self.assertIn("HydraOpenNested", builder.defs)
+        self.assertIn("HydraOpenNestedPointsItem", builder.defs)
+        self.assertIn("val points: List<HydraOpenNestedPointsItem>? = null", text)
+        command = next(o for o in OPS if o["name"] == "postRobotByIdCommand")
+        self.assertIn("HydraPostRobotByIdCommandBody", KT)
+        self.assertIn("HydraPostRobotByIdCommandResult", KT)
+        self.assertEqual(command["body_schema"].get("type"), "object")
+        self.assertNotIn("HydraPostRobotByIdCommandBody2", KT)
+
+    def test_a_request_body_is_sent_as_the_plain_json_model_and_the_answer_is_read_into_its_class(self):
+        self.assertIn("body.toJson()", KT)
+        self.assertIn("body.toJson()", DART)
+        self.assertIn("return HydraLogLines.fromJson(hydraMap(raw))", KT)
+        self.assertIn("return HydraLogLines.fromJson(_hydraMap(raw));", DART)
+        self.assertIn("HydraReply<HydraSettings>(HydraSettings.fromJson(hydraMap(reply.body)), reply.headers)", KT)
+        self.assertIn("HydraReply<HydraSettings>(HydraSettings.fromJson(_hydraMap(reply.body)), reply.headers)", DART)
+        self.assertIn("body?.toJson()", gc.as_kotlin(SYNTHETIC))
+
+    def test_the_requests_keep_their_shape(self):
+        self.assertIn('transport.send(HydraRequest("GET", "/api/admin/logs", queryOf(mapOf("lines" to lines)), null, "admin"))', KT)
+        self.assertIn("_transport(HydraRequest('GET', '/api/admin/logs', queryOf({'lines': lines}), null, 'admin'))", DART)
+        self.assertIn('contentType = "application/octet-stream"', KT)
+        self.assertIn("contentType: 'application/octet-stream'", DART)
+        self.assertIn('replyHeaders = listOf("ETag")', KT)
+
+    def test_the_helpers_are_private_and_need_no_library(self):
+        self.assertIn("private fun hydraMap(value: Any?)", KT)
+        self.assertIn("private fun hydraList(value: Any?)", KT)
+        self.assertIn("Map<String, dynamic> _hydraMap(Object? value)", DART)
+        for text in (KT, DART):
+            self.assertNotRegex(text, r"(?m)^import (org\.json|kotlinx|com\.google)")
+            self.assertNotIn("dart:convert", text)
+
+    def test_the_typescript_client_keeps_real_interfaces_with_fields(self):
+        self.assertRegex(SOURCE, r"export interface ConnectionClient \{\n  schema_version:")
+        self.assertIn("export interface ConnectionClient {", SOURCE)
+        closed = re.search(r"export interface ConnectionClient \{.*?\n\}", SOURCE, flags=re.S).group(0)
+        self.assertNotIn("[other: string]", closed)
+
+    def test_an_example_is_built_from_the_schema(self):
+        schemas = SYNTHETIC["components"]["schemas"]
+        full = gc.example_of(schemas["Open"], schemas, True, ("Open",))
+        self.assertEqual(full["name"], "text")
+        self.assertEqual(full["extraKey"], "extra")
+        self.assertEqual(full["mode"], "fast")
+        self.assertEqual(full["nested"]["points"][0]["x"], 1.5)
+        minimal = gc.example_of(schemas["Open"], schemas, False, ("Open",))
+        self.assertEqual(set(minimal), {"name", "note"})
+        tree = gc.example_of(schemas["Tree"], schemas, True, ("Tree",))
+        self.assertEqual(tree["children"], [])
+        self.assertNotIn("parent", tree)
+
+    def test_the_round_trip_files_cover_every_class_of_the_contract(self):
+        classes = [n for n, s in FULL["components"]["schemas"].items() if gc.is_class(s)]
+        kotlin = (gc.target(gc.KT_ROUND_TRIP_NAME)).read_text(encoding="utf-8")
+        dart = (gc.target(gc.DART_ROUND_TRIP_NAME)).read_text(encoding="utf-8")
+        for name in classes:
+            self.assertIn(f"private fun roundTripHydra{name}()", kotlin)
+            self.assertIn(f"_roundTrip<Hydra{name}>(failures, 'Hydra{name} full'", dart)
+        self.assertIn(f"const val ROUND_TRIP_CLASSES: Int = {len(classes)}", kotlin)
+        self.assertGreater(len(classes), 40)
+
+    def test_the_generator_writes_a_second_document_into_a_folder(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as folder:
+            code = gc.main(["--spec", str(ROOT / "conformance" / "generated-clients" / "synthetic" / "openapi.json"), "--out", folder,
+                            "--kotlin-package", "hydra.umc.synthetic"])
+            self.assertEqual(code, 0)
+            names = sorted(p.name for p in Path(folder).iterdir())
+            self.assertEqual(names, sorted([gc.TS_NAME, gc.KT_NAME, gc.DART_NAME, gc.KT_ROUND_TRIP_NAME, gc.DART_ROUND_TRIP_NAME]))
+            self.assertIn("package hydra.umc.synthetic", (Path(folder) / gc.KT_NAME).read_text(encoding="utf-8"))
+        with self.assertRaises(SystemExit):
+            gc.main(["--spec", "x.json"])
+
+    def test_nullable_and_union_schemas(self):
+        builder = gc.Builder({"components": {"schemas": {}}}, gc.Flavor("kotlin"))
+        self.assertEqual(builder.native({"anyOf": [{"type": "string"}, {"type": "null"}]}, "X").type, "String?")
+        self.assertEqual(builder.native({"anyOf": [{"type": "string"}, {"type": "integer"}]}, "X").type, "Any?")
+        self.assertEqual(builder.native({"const": "system_status"}, "X").type, "String")
+        self.assertEqual(builder.native({"type": "string", "format": "binary"}, "X").type, "ByteArray")
+        self.assertEqual(builder.native({"type": ["object", "null"]}, "X").type, "Map<String, Any?>?")
+        self.assertEqual(builder.native({}, "X").type, "Any?")
+        dart = gc.Builder({"components": {"schemas": {}}}, gc.Flavor("dart"))
+        self.assertEqual(dart.native({"type": "array", "items": {"type": ["integer", "null"]}}, "X").type, "List<int?>")
+        self.assertEqual(dart.native({"type": "number"}, "X").decode("v", 0), "v as num")
+        self.assertEqual(builder.native({"type": "integer"}, "X").decode("v", 0), "(v as Number).toLong()")
+
+    def test_a_dollar_sign_in_a_kotlin_name_is_escaped(self):
+        self.assertEqual(gc.kt_string("a$b"), '"a\\$b"')
+        self.assertEqual(gc.dart_string("a$b"), "'a\\$b'")

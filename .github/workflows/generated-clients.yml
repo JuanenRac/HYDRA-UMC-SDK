@@ -43,11 +43,20 @@ jobs:
         run: |
           package="$RUNNER_TEMP/dart_client"
           mkdir -p "$package"
-          cp generated/hydra_server_client.dart conformance/generated-clients/smoke.dart "$package/"
+          cp generated/hydra_server_client.dart conformance/generated-clients/smoke.dart conformance/generated-clients/hydra_server_client_round_trip.dart "$package/"
           printf 'name: hydra_client_smoke\nenvironment:\n  sdk: ^3.13.0\n' > "$package/pubspec.yaml"
           cd "$package"
           dart analyze --fatal-infos --fatal-warnings
           dart run smoke.dart
+      - name: Analyze and run the classes made from the synthetic contract
+        run: |
+          package="$RUNNER_TEMP/dart_synthetic"
+          python3 tools/generate_clients.py --spec conformance/generated-clients/synthetic/openapi.json --out "$package" --kotlin-package hydra.umc.synthetic
+          cp conformance/generated-clients/synthetic/synthetic_smoke.dart "$package/"
+          printf 'name: hydra_client_synthetic\nenvironment:\n  sdk: ^3.13.0\n' > "$package/pubspec.yaml"
+          cd "$package"
+          dart analyze --fatal-infos --fatal-warnings
+          dart run synthetic_smoke.dart
 
   kotlin-client:
     name: Compile and run the Kotlin client
@@ -72,6 +81,13 @@ jobs:
           echo "$RUNNER_TEMP/kotlinc/bin" >> "$GITHUB_PATH"
       - name: Compile and run the generated client
         run: |
-          kotlinc generated/HydraServerClient.kt conformance/generated-clients/Smoke.kt \
-            -include-runtime -d "$RUNNER_TEMP/client.jar"
+          kotlinc generated/HydraServerClient.kt conformance/generated-clients/HydraServerClientRoundTrip.kt \
+            conformance/generated-clients/Smoke.kt -include-runtime -d "$RUNNER_TEMP/client.jar"
           java -cp "$RUNNER_TEMP/client.jar" hydra.umc.client.SmokeKt
+      - name: Compile and run the classes made from the synthetic contract
+        run: |
+          out="$RUNNER_TEMP/kotlin_synthetic"
+          python3 tools/generate_clients.py --spec conformance/generated-clients/synthetic/openapi.json --out "$out" --kotlin-package hydra.umc.synthetic
+          kotlinc "$out/HydraServerClient.kt" "$out/HydraServerClientRoundTrip.kt" \
+            conformance/generated-clients/synthetic/SyntheticSmoke.kt -include-runtime -d "$RUNNER_TEMP/synthetic.jar"
+          java -cp "$RUNNER_TEMP/synthetic.jar" hydra.umc.synthetic.SyntheticSmokeKt
