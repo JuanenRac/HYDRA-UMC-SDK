@@ -10,6 +10,9 @@
 
 - **The ROS 2 bridge carries the shared identity module of the server and the sync keeps it identical:** `HYDRA-UMC-BRIDGE-ROS2` is listed among the services that vendor `tools/canonical/server_identity.py`, so a change of the canonical file reaches its copy like the other Python services' and a drift fails the sync check.
 
+- **The listen-only door of the apps is in the shared Dart package (`listen_only_gate.dart`):** `ListenOnlyGate` (the switch, the rule of what may leave while the mode is on, the per-server list, the dimming and the 423 refusal, whose sentence names the device) moved to `clients/dart_app_common` with its tests, so the iOS app and the display app stop keeping a copy each; the display app also gets the per-server list the iOS app already had.
+- **The release feed has one set of trust decisions in the shared Dart package (`release_feed.dart`):** `evaluateReleaseFeed()` reads the JSON of the latest release and answers up to date, available (version, name, notes, asset address, signature address, digest) or failed with a reason; drafts and pre-releases are never offered, the tag must be a stable version of three or four parts newer than the installed one, and the named asset and its signature must be on HTTPS. The iOS and the display app use it for the notice of a newer version, the same rules as the Android app; an app with no installable file asks for none and gets the address of the release page.
+
 ### Changed
 
 - **The routes of the droid emergency-stop switch are declared in the server contract:** `GET` and `POST /api/droid-estop/settings` (new source `droid-estop`) are in `server.full.openapi.json`, the route tables of the clients and the app fixtures. The first answers any signed-in account and the second an administrator only; the server carries the caller's own token to the safety zones service, and the second asks for `confirm: true`.
