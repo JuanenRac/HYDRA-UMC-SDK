@@ -8,6 +8,8 @@
 
 ## [Unreleased]
 
+- **A typed TypeScript client of every server route is generated from the OpenAPI contract (`tools/generate_clients.py`):** `generated/hydra-server-client.ts` holds an interface for each named schema of `server.full.openapi.json` and `HydraServerClient`, one method per route (name made from the verb and the path, path parameters, query and body typed, result typed by the first 2xx JSON answer) over an injectable `HydraTransport`, with `fillPath` refusing a missing path value and escaping the rest. `--check` runs in the SDK build, in the contract lint and in CI, and a test fails when two routes make the same method name or a route has no method.
+
 - **The ROS 2 bridge carries the shared identity module of the server and the sync keeps it identical:** `HYDRA-UMC-BRIDGE-ROS2` is listed among the services that vendor `tools/canonical/server_identity.py`, so a change of the canonical file reaches its copy like the other Python services' and a drift fails the sync check.
 
 - **The listen-only door of the apps is in the shared Dart package (`listen_only_gate.dart`):** `ListenOnlyGate` (the switch, the rule of what may leave while the mode is on, the per-server list, the dimming and the 423 refusal, whose sentence names the device) moved to `clients/dart_app_common` with its tests, so the iOS app and the display app stop keeping a copy each; the display app also gets the per-server list the iOS app already had.
