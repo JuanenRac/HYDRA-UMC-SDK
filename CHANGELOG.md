@@ -8,6 +8,8 @@
 
 ## [Unreleased]
 
+- **The ROS 2 bridge carries the shared identity module of the server and the sync keeps it identical:** `HYDRA-UMC-BRIDGE-ROS2` is listed among the services that vendor `tools/canonical/server_identity.py`, so a change of the canonical file reaches its copy like the other Python services' and a drift fails the sync check.
+
 ### Changed
 
 - **The routes of the droid emergency-stop switch are declared in the server contract:** `GET` and `POST /api/droid-estop/settings` (new source `droid-estop`) are in `server.full.openapi.json`, the route tables of the clients and the app fixtures. The first answers any signed-in account and the second an administrator only; the server carries the caller's own token to the safety zones service, and the second asks for `confirm: true`.
