@@ -105,6 +105,7 @@ jobs:
           python tools/contract_source.py --check
           python tools/generate_types.py --check
           python tools/generate_routes.py --check
+          python tools/generate_clients.py --check
       - name: Set up Node.js
         if: ${{ hashFiles('package.json', 'clients/**/package.json') != '' }}
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
