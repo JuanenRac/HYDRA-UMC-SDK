@@ -130,8 +130,8 @@ class IngestAndWatchdogTests(unittest.TestCase):
 
     def test_the_generated_clients_carry_the_decision_body(self):
         self.assertIn("postOpsAgentProposalsDecide(args: { body:", TS)
-        self.assertIn("postOpsAgentProposalsDecide(body: Map<String, Any?>)", KT)
-        self.assertIn("postOpsAgentProposalsDecide({required Map<String, dynamic> body})", DART)
+        self.assertIn("postOpsAgentProposalsDecide(body: HydraPostOpsAgentProposalsDecideBody)", KT)
+        self.assertIn("postOpsAgentProposalsDecide({required HydraPostOpsAgentProposalsDecideBody body})", DART)
 
 
 if __name__ == "__main__":

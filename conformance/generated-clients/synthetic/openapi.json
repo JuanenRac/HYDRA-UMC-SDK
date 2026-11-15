@@ -1,0 +1,87 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "Synthetic contract for the generated client classes", "version": "1.0.0" },
+  "paths": {
+    "/api/trees": {
+      "post": {
+        "summary": "Send a tree and get the tree back",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Tree" } } } },
+        "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Tree" } } } } }
+      }
+    },
+    "/api/opens": {
+      "get": {
+        "summary": "List the open objects",
+        "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Open" } } } } } }
+      }
+    },
+    "/api/closed": {
+      "put": {
+        "summary": "Replace the closed object",
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Closed" } } } },
+        "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Closed" } } } } }
+      }
+    },
+    "/api/bag": {
+      "get": {
+        "summary": "Read the bag",
+        "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Bag" } } } } }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Tree": {
+        "type": "object",
+        "description": "A schema that refers to itself directly, through a list and through a nullable reference.",
+        "required": ["label"],
+        "properties": {
+          "label": { "type": "string" },
+          "depth": { "type": "integer" },
+          "children": { "type": "array", "items": { "$ref": "#/components/schemas/Tree" } },
+          "parent": { "anyOf": [{ "$ref": "#/components/schemas/Tree" }, { "type": "null" }] }
+        }
+      },
+      "Open": {
+        "type": "object",
+        "description": "An open object: the keys it does not list are kept.",
+        "required": ["name", "note"],
+        "properties": {
+          "name": { "type": "string" },
+          "note": { "type": ["string", "null"] },
+          "class": { "type": "string", "description": "A reserved word of the target languages." },
+          "in": { "type": "integer" },
+          "mode": { "type": "string", "enum": ["fast", "slow"] },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "scores": { "type": "object", "additionalProperties": { "type": "integer" } },
+          "nested": {
+            "type": "object",
+            "properties": {
+              "points": { "type": "array", "items": { "type": "object", "required": ["x"], "properties": { "x": { "type": "number" }, "y": { "type": "number" } } } }
+            }
+          }
+        },
+        "additionalProperties": true
+      },
+      "OpenTyped": {
+        "type": "object",
+        "description": "An object whose unlisted keys must be numbers.",
+        "required": ["id"],
+        "properties": { "id": { "type": "string" } },
+        "additionalProperties": { "type": "number" }
+      },
+      "Closed": {
+        "type": "object",
+        "description": "A closed object: a key it does not list is dropped.",
+        "required": ["id"],
+        "properties": { "id": { "type": "string" } },
+        "additionalProperties": false
+      },
+      "Bag": {
+        "type": "object",
+        "description": "A map and not a class, so it stays an alias.",
+        "additionalProperties": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

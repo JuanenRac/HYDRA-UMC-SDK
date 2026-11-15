@@ -14,8 +14,16 @@ to an injectable transport, so an app keeps its own fetch, its own token and its
 output is edited by hand. A route may also take a binary body (`application/octet-stream`), answer in text or in bytes, and
 declare response headers (the `ETag` of the settings): the request then carries `contentType` and `responseType`, and a method
 named `<route>WithHeaders` asks the transport for a `{ body, headers }` reply. The Kotlin and Dart clients have the same shape and no dependency: the transport is a
-`suspend` function interface in Kotlin and a `Future` function in Dart, and the named schemas are aliases of the plain
-JSON model (maps, lists and scalars) so any JSON library can feed them.
+`suspend` function interface in Kotlin and a `Future` function in Dart, and every object of the contract is a class
+with fields (a `data class` in Kotlin, a `const` class in Dart) with `fromJson` and `toJson` over the plain JSON model
+(maps, lists and scalars), so any JSON library can feed them and none is needed. The rules of the classes are written
+above the `Native` model below: required and optional fields, `additionalProperties` open or closed, schemas that refer
+to themselves, enums and the schemas that stay aliases. TypeScript keeps one `interface` with fields per named schema.
+
+Besides the three clients the generator writes two round trip files into conformance/generated-clients (an example of
+every class is read with `fromJson` and written with `toJson`, and must come back equal); a smoke program compiled in
+generated-clients.yml runs them. `--spec FILE --out DIR` makes the same five files from another OpenAPI document (the
+synthetic one of conformance/generated-clients/synthetic, which covers what the server contract does not use).
 
     python tools/generate_clients.py           write generated/
     python tools/generate_clients.py --check   fail when a generated file is out of date
@@ -454,26 +462,367 @@ def identifier(text: str, flavor: Flavor, taken: set[str]) -> str:
     return name
 
 
-Param = tuple[str, str, str, str, bool]
+def kt_string(text: str) -> str:
+    """A Kotlin string literal: JSON escapes plus the dollar sign, which Kotlin reads as a template."""
+    return quote(text).replace("$", "\\$")
 
 
-def native_arguments(op: dict[str, Any], flavor: Flavor, cyclic: frozenset[str]) -> tuple[list[Param], str]:
-    """The parameters of a method as (identifier, type, where, wire name, required), and the type of its result."""
-    taken: set[str] = {"transport"}
+def one_line(text: str) -> str:
+    return " ".join(str(text).split()).replace("*/", "* /")
+
+
+# --------------------------------------------------------------------------------------------------------------------
+# The model: a class with fields for every object of the contract, in Kotlin and in Dart.
+#
+#   - A named schema with properties, and every inline object with properties (a request body, an answer, a nested
+#     object), is a class: a `data class` in Kotlin, a `const` class in Dart. `fromJson` reads the plain JSON model
+#     (what the transport hands back) and `toJson` writes it again, so no JSON library is needed.
+#   - Field names are the wire names in lowerCamelCase (`schema_version` is `schemaVersion`); `toJson` writes the wire
+#     names again.
+#   - A required field must be present and of its type, or `fromJson` throws; an optional field is nullable and left
+#     out of `toJson` while it is null (an explicit JSON null of an optional field reads as absent).
+#   - `additionalProperties`: `false` or absent means a closed object (a key the contract does not list is dropped when
+#     the object is read); `true` or a schema means an open one, and the unlisted keys are kept in the field
+#     `additionalProperties` (typed by that schema) and written back by `toJson`, so nothing is lost on the way.
+#   - A schema that refers to itself, directly or through other schemas, is an ordinary recursive class (the field that
+#     closes the loop is optional or a list in a well-formed contract; the generator needs no special case).
+#   - An enum is its base type (String): the server owns the set of values and a client must not fail on a new one.
+#   - A named schema that is not an object with properties (a map, a list, a scalar) stays an alias of its plain type.
+# --------------------------------------------------------------------------------------------------------------------
+
+KOTLIN_MEMBERS = frozenset("toJson fromJson hashCode toString equals copy json jsonOut Companion knownKeys".split())
+DART_MEMBERS = frozenset("toJson fromJson hashCode toString runtimeType noSuchMethod json hydraOut".split())
+
+
+class Native:
+    """One type of the model: its spelling, how a JSON value becomes it and how it becomes a JSON value again.
+
+    `decode(expr, depth)` and `encode(expr, depth)` return an expression; `depth` names the variables of nested lambdas.
+    `plain` is true when encoding changes nothing, `call` is the member call that encodes a class (`.toJson()`),
+    `anything` marks the untyped value and `inner` the non-null type of a nullable one."""
+
+    def __init__(self, spelling: str, decode: Any, encode: Any, *, plain: bool = False, anything: bool = False,
+                 call: str | None = None, inner: "Native | None" = None) -> None:
+        self.type = spelling
+        self.decode = decode
+        self.encode = encode
+        self.plain = plain
+        self.anything = anything
+        self.call = call
+        self.inner = inner
+
+    @property
+    def nullable(self) -> bool:
+        return self.anything or self.inner is not None
+
+
+def is_class(schema: dict[str, Any]) -> bool:
+    """An object with at least one property is a class; any other schema stays an alias of a plain type."""
+    kind, _ = kind_of(schema)
+    return bool(schema.get("properties")) and kind in (None, "object")
+
+
+class Builder:
+    """Turns the schemas of one document into Natives for one language and collects the classes they need."""
+
+    def __init__(self, document: dict[str, Any], flavor: Flavor, package: str = KOTLIN_PACKAGE) -> None:
+        self.flavor = flavor
+        self.kotlin = flavor.kotlin
+        self.package = package
+        self.schemas: dict[str, Any] = document.get("components", {}).get("schemas", {})
+        self.reserved = {"Hydra" + name for name, body in self.schemas.items() if is_class(body)}
+        self.named: dict[str, Native] = {}
+        self.natives: dict[str, Native] = {}
+        self.signatures: dict[str, str] = {}
+        self.defs: dict[str, dict[str, Any]] = {}
+        self.stack: list[str] = []
+        self.map_fn = "hydraMap" if self.kotlin else "_hydraMap"
+        self.any_type = flavor.any
+
+    # -- the building blocks ------------------------------------------------------------------------------------------
+
+    def anything(self) -> Native:
+        return Native(self.any_type, lambda e, d: e, lambda e, d: e, plain=True, anything=True)
+
+    def scalar(self, kind: str) -> Native:
+        spelling = self.flavor.scalars[kind]
+        if self.kotlin:
+            casts = {"string": "{e} as String", "boolean": "{e} as Boolean", "integer": "({e} as Number).toLong()",
+                     "number": "({e} as Number).toDouble()"}
+        else:
+            casts = {"string": "{e} as String", "boolean": "{e} as bool", "integer": "({e} as num).toInt()", "number": "{e} as num"}
+        cast = casts[kind]
+        return Native(spelling, lambda e, d: cast.replace("{e}", e), lambda e, d: e, plain=True)
+
+    def binary(self) -> Native:
+        if self.kotlin:
+            return Native("ByteArray", lambda e, d: f"{e} as ByteArray", lambda e, d: e, plain=True)
+        return Native("List<int>", lambda e, d: f"List<int>.from({e} as List)", lambda e, d: e, plain=True)
+
+    def nullable(self, inner: Native) -> Native:
+        if inner.nullable:
+            return inner
+        if self.kotlin:
+            def decode(e: str, d: int) -> str:
+                return f"{e}?.let {{ v{d} -> {inner.decode(f'v{d}', d + 1)} }}"
+
+            def encode(e: str, d: int) -> str:
+                if inner.call:
+                    return f"{e}?{inner.call}"
+                if inner.plain:
+                    return e
+                return f"{e}?.let {{ v{d} -> {inner.encode(f'v{d}', d + 1)} }}"
+        else:
+            def decode(e: str, d: int) -> str:
+                return f"{e} == null ? null : {inner.decode(e, d)}"
+
+            def encode(e: str, d: int) -> str:
+                if inner.call:
+                    return f"{e}?{inner.call}"
+                if inner.plain:
+                    return e
+                return f"_hydraNullable({e}, (v{d}) => {inner.encode(f'v{d}', d + 1)})"
+        return Native(inner.type + "?", decode, encode, plain=inner.plain, inner=inner)
+
+    def array(self, item: Native) -> Native:
+        spelling = f"List<{item.type}>"
+        if self.kotlin:
+            def decode(e: str, d: int) -> str:
+                if item.anything:
+                    return f"hydraList({e})"
+                return f"hydraList({e}).map {{ v{d} -> {item.decode(f'v{d}', d + 1)} }}"
+
+            def encode(e: str, d: int) -> str:
+                return e if item.plain else f"{e}.map {{ v{d} -> {item.encode(f'v{d}', d + 1)} }}"
+        else:
+            def decode(e: str, d: int) -> str:
+                if item.anything:
+                    return f"List<dynamic>.from({e} as List)"
+                return f"({e} as List).map((v{d}) => {item.decode(f'v{d}', d + 1)}).toList()"
+
+            def encode(e: str, d: int) -> str:
+                return e if item.plain else f"{e}.map((v{d}) => {item.encode(f'v{d}', d + 1)}).toList()"
+        return Native(spelling, decode, encode, plain=item.plain)
+
+    def keyed(self, item: Native) -> Native:
+        """A map from text to `item`: a schema with additionalProperties and no properties, or the open part of a class."""
+        spelling = f"Map<String, {item.type}>"
+        if self.kotlin:
+            def decode(e: str, d: int) -> str:
+                if item.anything:
+                    return f"hydraMap({e})"
+                return f"hydraMap({e}).mapValues {{ (_, v{d}) -> {item.decode(f'v{d}', d + 1)} }}"
+
+            def encode(e: str, d: int) -> str:
+                return e if item.plain else f"{e}.mapValues {{ (_, v{d}) -> {item.encode(f'v{d}', d + 1)} }}"
+        else:
+            def decode(e: str, d: int) -> str:
+                if item.anything:
+                    return f"_hydraMap({e})"
+                return (f"<String, {item.type}>{{for (final entry{d} in _hydraMap({e}).entries) "
+                        f"entry{d}.key: {item.decode(f'entry{d}.value', d + 1)}}}")
+
+            def encode(e: str, d: int) -> str:
+                if item.plain:
+                    return e
+                return f"<String, dynamic>{{for (final entry{d} in {e}.entries) entry{d}.key: {item.encode(f'entry{d}.value', d + 1)}}}"
+        return Native(spelling, decode, encode, plain=item.plain)
+
+    # -- schemas ------------------------------------------------------------------------------------------------------
+
+    def native(self, schema: dict[str, Any] | None, ctx: str) -> Native:
+        if not schema:
+            return self.anything()
+        if "$ref" in schema:
+            return self.reference(schema["$ref"].rsplit("/", 1)[-1])
+        for word in ("anyOf", "oneOf"):
+            if word in schema:
+                members = [m for m in schema[word] if m != {"type": "null"}]
+                if len(members) != 1:
+                    return self.anything()
+                inner = self.native(members[0], ctx)
+                return self.nullable(inner) if len(members) != len(schema[word]) else inner
+        if "allOf" in schema and len(schema["allOf"]) == 1:
+            return self.native(schema["allOf"][0], ctx)
+        kind, nullable = kind_of(schema)
+        if kind is None and "const" in schema:
+            kind = {str: "string", bool: "boolean", int: "integer", float: "number"}.get(type(schema["const"]))
+        if "enum" in schema and kind is None:
+            values = [v for v in schema["enum"] if v is not None]
+            kind = "string" if values and all(isinstance(v, str) for v in values) else None
+            nullable = nullable or len(values) != len(schema["enum"])
+        if kind == "string" and schema.get("format") == "binary":
+            result = self.binary()
+        elif kind in self.flavor.scalars:
+            result = self.scalar(kind)
+        elif kind == "array":
+            result = self.array(self.native(schema.get("items"), ctx + "Item"))
+        elif kind == "object" or "properties" in schema or "additionalProperties" in schema:
+            extra = schema.get("additionalProperties")
+            if schema.get("properties"):
+                result = self.klass(ctx, schema)
+            elif isinstance(extra, dict) and extra:
+                result = self.keyed(self.native(extra, ctx + "Value"))
+            else:
+                result = self.keyed(self.anything())
+        else:
+            return self.anything()
+        return self.nullable(result) if nullable else result
+
+    def reference(self, short: str) -> Native:
+        if short in self.named:
+            return self.named[short]
+        body = self.schemas.get(short)
+        if body is None:
+            return self.anything()
+        if is_class(body):
+            result = self.klass(short, body, named=True)
+        else:
+            if short in self.stack:
+                return self.anything()
+            self.stack.append(short)
+            result = self.native({k: v for k, v in body.items() if k != "description"}, short)
+            self.stack.pop()
+        self.named[short] = result
+        return result
+
+    def klass(self, ctx: str, schema: dict[str, Any], named: bool = False) -> Native:
+        signature = json.dumps(schema, sort_keys=True)
+        name = "Hydra" + ctx
+        if not named:
+            base, count = name, 1
+            while name in self.reserved or (name in self.natives and self.signatures[name] != signature):
+                count += 1
+                name = f"{base}{count}"
+        if name in self.natives:
+            return self.natives[name]
+        helper = self.map_fn
+        native = Native(name, lambda e, d: f"{name}.fromJson({helper}({e}))", lambda e, d: f"{e}.toJson()", call=".toJson()")
+        self.natives[name] = native
+        self.signatures[name] = signature
+        required = set(schema.get("required") or [])
+        taken: set[str] = set(KOTLIN_MEMBERS if self.kotlin else DART_MEMBERS)
+        fields: list[dict[str, Any]] = []
+        for prop, sub in (schema.get("properties") or {}).items():
+            sub = sub if isinstance(sub, dict) else {}
+            kind = self.native(sub, ctx + camel(prop))
+            needed = prop in required
+            fields.append({"wire": prop, "name": identifier(prop, self.flavor, taken), "native": kind if needed else self.nullable(kind),
+                           "required": needed, "note": one_line(sub.get("description", ""))})
+        extra = schema.get("additionalProperties")
+        open_part = None
+        if extra is True or isinstance(extra, dict):
+            item = self.native(extra, ctx + "Extra") if isinstance(extra, dict) and extra else self.anything()
+            open_part = {"name": identifier("additional properties", self.flavor, taken), "native": self.keyed(item)}
+        self.defs[name] = {"schema": schema, "fields": fields, "open": open_part, "note": one_line(schema.get("description", ""))}
+        return native
+
+
+def kotlin_class(name: str, definition: dict[str, Any]) -> list[str]:
+    fields, open_part = definition["fields"], definition["open"]
+    note = definition["note"] or "An object of the server contract."
+    lines = [f"/** {note} */", f"data class {name}("]
+    for field in fields:
+        if field["note"]:
+            lines.append(f"    /** {field['note']} */")
+        default = "" if field["required"] else " = null"
+        lines.append(f"    val {field['name']}: {field['native'].type}{default},")
+    if open_part:
+        lines.append("    /** The keys the contract does not list, kept as they came. */")
+        lines.append(f"    val {open_part['name']}: {open_part['native'].type} = emptyMap(),")
+    lines += [") {", "    fun toJson(): Map<String, Any?> {", "        val jsonOut = LinkedHashMap<String, Any?>()"]
+    if open_part:
+        lines.append(f"        jsonOut.putAll({open_part['native'].encode(open_part['name'], 0)})")
+    for field in fields:
+        wire, ident, kind = kt_string(field["wire"]), field["name"], field["native"]
+        if field["required"]:
+            lines.append(f"        jsonOut[{wire}] = {kind.encode(ident, 0)}")
+        else:
+            lines.append(f"        if ({ident} != null) jsonOut[{wire}] = {(kind.inner or kind).encode(ident, 0)}")
+    lines += ["        return jsonOut", "    }", "", "    companion object {"]
+    if open_part:
+        keys = ", ".join(kt_string(f["wire"]) for f in fields)
+        lines.append(f"        private val knownKeys: Set<String> = setOf({keys})")
+        lines.append("")
+    lines += [f"        fun fromJson(json: Map<String, Any?>): {name} = {name}("]
+    for field in fields:
+        lines.append(f"            {field['name']} = {field['native'].decode('json[' + kt_string(field['wire']) + ']', 0)},")
+    if open_part:
+        lines.append(f"            {open_part['name']} = {open_part['native'].decode('json.filterKeys { it !in knownKeys }', 0)},")
+    lines += ["        )", "    }", "}", ""]
+    return lines
+
+
+def dart_class(name: str, definition: dict[str, Any]) -> list[str]:
+    fields, open_part = definition["fields"], definition["open"]
+    note = definition["note"] or "An object of the server contract."
+    lines = [f"/// {note}", f"class {name} {{", f"  const {name}({{"]
+    for field in fields:
+        lines.append(f"    {'required ' if field['required'] else ''}this.{field['name']},")
+    if open_part:
+        lines.append(f"    this.{open_part['name']} = const {open_part['native'].type[3:]}{{}},")
+    lines += ["  });", "", f"  factory {name}.fromJson(Map<String, dynamic> json) => {name}("]
+    for field in fields:
+        lines.append(f"        {field['name']}: {field['native'].decode('json[' + dart_string(field['wire']) + ']', 0)},")
+    if open_part:
+        keys = ", ".join(dart_string(f["wire"]) for f in fields)
+        listing = "{" + f"{keys}" + "}"
+        entries = ("<String, dynamic>{for (final entry in json.entries) if (!_knownKeys.contains(entry.key)) entry.key: entry.value}")
+        lines.append(f"        {open_part['name']}: {open_part['native'].decode(entries, 0)},")
+        lines += ["      );", "", f"  static const Set<String> _knownKeys = <String>{listing};"]
+    else:
+        lines.append("      );")
+    lines.append("")
+    for field in fields:
+        if field["note"]:
+            lines.append(f"  /// {field['note']}")
+        lines.append(f"  final {field['native'].type} {field['name']};")
+    if open_part:
+        lines += ["  /// The keys the contract does not list, kept as they came.", f"  final {open_part['native'].type} {open_part['name']};"]
+    lines += ["", "  Map<String, dynamic> toJson() {"]
+    if open_part:
+        lines.append(f"    final hydraOut = <String, dynamic>{{...{open_part['native'].encode(open_part['name'], 0)}}};")
+    else:
+        lines.append("    final hydraOut = <String, dynamic>{};")
+    for index, field in enumerate(fields):
+        wire, ident, kind = dart_string(field["wire"]), field["name"], field["native"]
+        if field["required"]:
+            lines.append(f"    hydraOut[{wire}] = {kind.encode(ident, 0)};")
+        else:
+            local = f"hydraField{index}"
+            lines += [f"    final {local} = {ident};", f"    if ({local} != null) hydraOut[{wire}] = {(kind.inner or kind).encode(local, 0)};"]
+    lines += ["    return hydraOut;", "  }", "}", ""]
+    return lines
+
+
+Param = tuple[str, str, str, str, bool, Native]
+
+
+def native_arguments(op: dict[str, Any], builder: Builder) -> tuple[list[Param], Native | None]:
+    """The parameters of a method as (identifier, type, where, wire name, required, model), and the model of its result."""
+    flavor = builder.flavor
+    taken: set[str] = {"transport", "raw", "reply"}
     found: list[Param] = []
     default = {"type": "string"}
+    context = camel(op["name"])
     for p in op["path_parameters"]:
-        found.append((identifier(p["name"], flavor, taken), native_type(p.get("schema", default), flavor, cyclic), "path", p["name"], True))
+        kind = builder.native(p.get("schema", default), context + camel(p["name"]))
+        found.append((identifier(p["name"], flavor, taken), kind.type, "path", p["name"], True, kind))
     for p in op["query"]:
-        found.append((identifier(p["name"], flavor, taken), native_type(p.get("schema", default), flavor, cyclic), "query", p["name"], bool(p.get("required"))))
+        kind = builder.native(p.get("schema", default), context + camel(p["name"]))
+        found.append((identifier(p["name"], flavor, taken), kind.type, "query", p["name"], bool(p.get("required")), kind))
     for p in op["headers"]:
-        found.append((identifier("header " + p["name"], flavor, taken), native_type(p.get("schema", default), flavor, cyclic), "header", p["name"], bool(p.get("required"))))
+        kind = builder.native(p.get("schema", default), context + camel(p["name"]))
+        found.append((identifier("header " + p["name"], flavor, taken), kind.type, "header", p["name"], bool(p.get("required")), kind))
     if op["body"] is not None:
-        found.append((identifier("body", flavor, taken), native_type(op["body_schema"], flavor, cyclic), "body", "body", op["body_required"]))
+        kind = builder.native(op["body_schema"], context + "Body")
+        needed = op["body_required"]
+        kind = kind if needed else builder.nullable(kind)
+        found.append((identifier("body", flavor, taken), kind.type, "body", "body", needed, kind))
     found.sort(key=lambda item: not item[4])
     if op["result_schema"] is None:
-        return found, "Unit" if flavor.kotlin else "void"
-    return found, native_type(op["result_schema"], flavor, cyclic)
+        return found, None
+    return found, builder.native(op["result_schema"], context + "Result")
 
 
 def doc_note(op: dict[str, Any]) -> str:
@@ -481,34 +830,67 @@ def doc_note(op: dict[str, Any]) -> str:
     return f"{note.replace('*/', '* /')} (access: {op['access']})"
 
 
-def schema_aliases(document: dict[str, Any], flavor: Flavor) -> list[str]:
-    schemas = document.get("components", {}).get("schemas", {})
-    cyclic = cyclic_schemas(schemas)
-    lines: list[str] = []
-    for name in sorted(schemas):
-        schema = schemas[name]
-        target = native_type({k: v for k, v in schema.items() if k != "description"}, flavor, cyclic)
-        required = schema.get("required") or []
-        fields = ", ".join(f"{p}{'' if p in required else '?'}" for p in (schema.get("properties") or {}))
-        if fields:
-            lines.append(f"/** Fields: {fields.replace('*/', '* /')} */" if flavor.kotlin else f"/// Fields: {fields}")
-        lines.append(f"typealias Hydra{name} = {target}" if flavor.kotlin else f"typedef Hydra{name} = {target};")
-        lines.append("")
-    return lines
-
-
 def dart_string(text: str) -> str:
     return "'" + text.replace("\\", "\\\\").replace("'", "\\'").replace("$", "\\$") + "'"
 
 
-def as_kotlin(document: dict[str, Any]) -> str:
+def type_section(document: dict[str, Any], builder: Builder) -> list[str]:
+    """The aliases of the named schemas that are not classes, then every class, in name order."""
+    lines: list[str] = []
+    for name in sorted(builder.schemas):
+        if not is_class(builder.schemas[name]):
+            target = builder.named[name].type
+            lines.append(f"typealias Hydra{name} = {target}" if builder.kotlin else f"typedef Hydra{name} = {target};")
+            lines.append("")
+    for name in sorted(builder.defs):
+        lines += kotlin_class(name, builder.defs[name]) if builder.kotlin else dart_class(name, builder.defs[name])
+    return lines
+
+
+def as_kotlin(document: dict[str, Any], package: str = KOTLIN_PACKAGE) -> str:
     flavor = Flavor("kotlin")
     ops = operations(document)
-    cyclic = cyclic_schemas(document.get("components", {}).get("schemas", {}))
-    lines = [f"// {HEADER}", "", '@file:Suppress("UNCHECKED_CAST", "unused")', "", f"package {KOTLIN_PACKAGE}", "",
-             "// The transport hands back the decoded JSON model: Map, List, String, Long, Double, Boolean or null.", ""]
-    lines += schema_aliases(document, flavor)
+    builder = Builder(document, flavor, package)
+    for name in sorted(builder.schemas):
+        builder.reference(name)
+    methods: list[str] = []
+    for op in ops:
+        params, result = native_arguments(op, builder)
+        text = "Unit" if result is None else result.type
+        signature = ", ".join(f"{n}: {t}" if req else f"{n}: {flavor.optional(t)} = null" for n, t, _, _, req, _ in params)
+        path_values = ", ".join(f"{quote(w)} to {n}" for n, _, where, w, _, _ in params if where == "path")
+        query_values = ", ".join(f"{quote(w)} to {n}" for n, _, where, w, _, _ in params if where == "query")
+        header_values = ", ".join(f"{quote(w)} to {n}" for n, _, where, w, _, _ in params if where == "header")
+        body = next((p for p in params if p[2] == "body"), None)
+        body_expr = body[5].encode(body[0], 0) if body else "null"
+        path_expr = f"fillPath({quote(op['path'])}, mapOf({path_values}))" if path_values else quote(op["path"])
+        query_expr = f"queryOf(mapOf({query_values}))" if query_values else "emptyMap()"
+        head = f"transport.send(HydraRequest({quote(op['method'])}, {path_expr}, {query_expr}, {body_expr}, {quote(op['access'])}{', headers = queryOf(mapOf(' + header_values + '))' if header_values else ''}"
+        call = head + extras_text(op, False, " = ", quote, kt_list) + "))"
+        methods += [f"    /** {doc_note(op)} */", f"    suspend fun {op['name']}({signature}): {text} {{"]
+        if result is None:
+            methods += [f"        {call}", "        return Unit"]
+        else:
+            methods += [f"        val raw = {call}", f"        return {result.decode('raw', 0)}"]
+        methods += ["    }", ""]
+        if op["reply_headers"]:
+            wrapped = head + extras_text(op, True, " = ", quote, kt_list) + "))"
+            decoded = "Unit" if result is None else result.decode("reply.body", 0)
+            methods += [f"    /** {doc_note(op)}; the reply also holds the response headers {', '.join(op['reply_headers'])}. */",
+                        f"    suspend fun {op['name']}WithHeaders({signature}): HydraReply<{text}> {{",
+                        f"        val reply = {wrapped} as HydraReply<Any?>",
+                        f"        return HydraReply<{text}>({decoded}, reply.headers)",
+                        "    }", ""]
+    lines = [f"// {HEADER}", "", '@file:Suppress("UNCHECKED_CAST", "unused")', "", f"package {package}", "",
+             "// The transport hands back the decoded JSON model: Map, List, String, Long, Double, Boolean or null. Every object of the",
+             "// contract is a data class with fromJson (reads that model) and toJson (writes it again); no JSON library is needed.", ""]
+    lines += type_section(document, builder)
     lines += [
+        "private fun hydraMap(value: Any?): Map<String, Any?> =",
+        "    (value as Map<*, *>).entries.associate { (key, item) -> (key as String) to item }",
+        "",
+        "private fun hydraList(value: Any?): List<Any?> = value as List<*>",
+        "",
         "/** contentType is the media type of a body that is not JSON; responseType is text or binary when the answer is not JSON; replyHeaders names the response headers to hand back in a HydraReply. */",
         "class HydraRequest(val method: String, val path: String, val query: Map<String, String>, val body: Any?, val access: String, val headers: Map<String, String> = emptyMap(),",
         "                   val contentType: String? = null, val responseType: String? = null, val replyHeaders: List<String> = emptyList())",
@@ -533,30 +915,7 @@ def as_kotlin(document: dict[str, Any]) -> str:
         "",
         "class HydraServerClient(private val transport: HydraTransport) {",
     ]
-    for op in ops:
-        params, result = native_arguments(op, flavor, cyclic)
-        signature = ", ".join(f"{n}: {t}" if req else f"{n}: {flavor.optional(t)} = null" for n, t, _, _, req in params)
-        path_values = ", ".join(f"{quote(w)} to {n}" for n, _, where, w, _ in params if where == "path")
-        query_values = ", ".join(f"{quote(w)} to {n}" for n, _, where, w, _ in params if where == "query")
-        header_values = ", ".join(f"{quote(w)} to {n}" for n, _, where, w, _ in params if where == "header")
-        body_name = next((n for n, _, where, _, _ in params if where == "body"), "null")
-        path_expr = f"fillPath({quote(op['path'])}, mapOf({path_values}))" if path_values else quote(op["path"])
-        query_expr = f"queryOf(mapOf({query_values}))" if query_values else "emptyMap()"
-        head = f"transport.send(HydraRequest({quote(op['method'])}, {path_expr}, {query_expr}, {body_name}, {quote(op['access'])}{', headers = queryOf(mapOf(' + header_values + '))' if header_values else ''}"
-        call = head + extras_text(op, False, " = ", quote, kt_list) + "))"
-        lines += [f"    /** {doc_note(op)} */", f"    suspend fun {op['name']}({signature}): {result} {{"]
-        if result == "Unit":
-            lines += [f"        {call}", "        return Unit"]
-        else:
-            lines.append(f"        return {call} as {result}")
-        lines += ["    }", ""]
-        if op["reply_headers"]:
-            wrapped = head + extras_text(op, True, " = ", quote, kt_list) + "))"
-            lines += [f"    /** {doc_note(op)}; the reply also holds the response headers {', '.join(op['reply_headers'])}. */",
-                      f"    suspend fun {op['name']}WithHeaders({signature}): HydraReply<{result}> {{",
-                      f"        val reply = {wrapped} as HydraReply<Any?>",
-                      f"        return HydraReply(reply.body as {result}, reply.headers)",
-                      "    }", ""]
+    lines += methods
     lines += ["}", "", "val HYDRA_CLIENT_OPERATIONS: List<String> = listOf("]
     lines += [f"    {quote(op['name'])}," for op in ops]
     lines += [")", ""]
@@ -566,11 +925,49 @@ def as_kotlin(document: dict[str, Any]) -> str:
 def as_dart(document: dict[str, Any]) -> str:
     flavor = Flavor("dart")
     ops = operations(document)
-    cyclic = cyclic_schemas(document.get("components", {}).get("schemas", {}))
+    builder = Builder(document, flavor)
+    for name in sorted(builder.schemas):
+        builder.reference(name)
+    methods: list[str] = []
+    for op in ops:
+        params, result = native_arguments(op, builder)
+        text = "void" if result is None else result.type
+        required = [p for p in params if p[4]]
+        optional = [p for p in params if not p[4]]
+        pieces = [f"required {t} {n}" for n, t, _, _, _, _ in required] + [f"{flavor.optional(t)} {n}" for n, t, _, _, _, _ in optional]
+        signature = "{" + ", ".join(pieces) + "}" if pieces else ""
+        path_values = ", ".join(f"{dart_string(w)}: {n}" for n, _, where, w, _, _ in params if where == "path")
+        query_values = ", ".join(f"{dart_string(w)}: {n}" for n, _, where, w, _, _ in params if where == "query")
+        header_values = ", ".join(f"{dart_string(w)}: {n}" for n, _, where, w, _, _ in params if where == "header")
+        body = next((p for p in params if p[2] == "body"), None)
+        body_expr = body[5].encode(body[0], 0) if body else "null"
+        path_expr = f"fillPath({dart_string(op['path'])}, {{{path_values}}})" if path_values else dart_string(op["path"])
+        query_expr = f"queryOf({{{query_values}}})" if query_values else "const <String, String>{}"
+        head = f"_transport(HydraRequest({dart_string(op['method'])}, {path_expr}, {query_expr}, {body_expr}, {dart_string(op['access'])}{', headers: queryOf({' + header_values + '})' if header_values else ''}"
+        call = head + extras_text(op, False, ": ", dart_string, dart_list) + "))"
+        methods += [f"  /// {doc_note(op)}", f"  Future<{text}> {op['name']}({signature}) async {{"]
+        if result is None:
+            methods.append(f"    await {call};")
+        else:
+            methods += [f"    final raw = await {call};", f"    return {result.decode('raw', 0)};"]
+        methods += ["  }", ""]
+        if op["reply_headers"]:
+            wrapped = head + extras_text(op, True, ": ", dart_string, dart_list) + "))"
+            decoded = "null" if result is None else result.decode("reply.body", 0)
+            methods += [f"  /// {doc_note(op)}; the reply also holds the response headers {', '.join(op['reply_headers'])}.",
+                        f"  Future<HydraReply<{text}>> {op['name']}WithHeaders({signature}) async {{",
+                        f"    final reply = (await {wrapped}) as HydraReply<dynamic>;",
+                        f"    return HydraReply<{text}>({decoded}, reply.headers);",
+                        "  }", ""]
     lines = [f"// {HEADER}", "// ignore_for_file: unused_element", "",
-             "// The transport hands back the decoded JSON model: Map, List, String, int, double, bool or null.", ""]
-    lines += schema_aliases(document, flavor)
+             "// The transport hands back the decoded JSON model: Map, List, String, int, double, bool or null. Every object of the",
+             "// contract is a class with fromJson (reads that model) and toJson (writes it again); no JSON library is needed.", ""]
+    lines += type_section(document, builder)
     lines += [
+        "Map<String, dynamic> _hydraMap(Object? value) => Map<String, dynamic>.from(value as Map);",
+        "",
+        "R? _hydraNullable<S, R>(S? value, R Function(S) encode) => value == null ? null : encode(value);",
+        "",
         "class HydraRequest {",
         "  const HydraRequest(this.method, this.path, this.query, this.body, this.access, {this.headers = const <String, String>{}, this.contentType, this.responseType, this.replyHeaders = const <String>[]});",
         "  final String method;",
@@ -620,61 +1017,207 @@ def as_dart(document: dict[str, Any]) -> str:
         "  final HydraTransport _transport;",
         "",
     ]
-    for op in ops:
-        params, result = native_arguments(op, flavor, cyclic)
-        required = [p for p in params if p[4]]
-        optional = [p for p in params if not p[4]]
-        pieces = [f"required {t} {n}" for n, t, _, _, _ in required] + [f"{flavor.optional(t)} {n}" for n, t, _, _, _ in optional]
-        signature = "{" + ", ".join(pieces) + "}" if pieces else ""
-        path_values = ", ".join(f"{dart_string(w)}: {n}" for n, _, where, w, _ in params if where == "path")
-        query_values = ", ".join(f"{dart_string(w)}: {n}" for n, _, where, w, _ in params if where == "query")
-        header_values = ", ".join(f"{dart_string(w)}: {n}" for n, _, where, w, _ in params if where == "header")
-        body_name = next((n for n, _, where, _, _ in params if where == "body"), "null")
-        path_expr = f"fillPath({dart_string(op['path'])}, {{{path_values}}})" if path_values else dart_string(op["path"])
-        query_expr = f"queryOf({{{query_values}}})" if query_values else "const <String, String>{}"
-        head = f"_transport(HydraRequest({dart_string(op['method'])}, {path_expr}, {query_expr}, {body_name}, {dart_string(op['access'])}{', headers: queryOf({' + header_values + '})' if header_values else ''}"
-        call = head + extras_text(op, False, ": ", dart_string, dart_list) + "))"
-        lines += [f"  /// {doc_note(op)}", f"  Future<{result}> {op['name']}({signature}) async {{"]
-        if result == "void":
-            lines.append(f"    await {call};")
-        else:
-            lines.append(f"    return (await {call}) as {result};")
-        lines += ["  }", ""]
-        if op["reply_headers"]:
-            wrapped = head + extras_text(op, True, ": ", dart_string, dart_list) + "))"
-            lines += [f"  /// {doc_note(op)}; the reply also holds the response headers {', '.join(op['reply_headers'])}.",
-                      f"  Future<HydraReply<{result}>> {op['name']}WithHeaders({signature}) async {{",
-                      f"    final reply = (await {wrapped}) as HydraReply<dynamic>;",
-                      f"    return HydraReply<{result}>(reply.body as {result}, reply.headers);",
-                      "  }", ""]
+    lines += methods
     lines += ["}", "", "const List<String> hydraClientOperations = ["]
     lines += [f"  {dart_string(op['name'])}," for op in ops]
     lines += ["];", ""]
     return "\n".join(lines)
 
 
-def outputs() -> dict[str, str]:
-    document = json.loads(FULL.read_text(encoding="utf-8"))
-    return {TS_NAME: as_typescript(document), KT_NAME: as_kotlin(document), DART_NAME: as_dart(document)}
+# --------------------------------------------------------------------------------------------------------------------
+# The round trip files: for every class of a named schema, an example built from the schema (all fields, then only the
+# required ones) is read with fromJson and written with toJson, and the result must equal the example.
+# --------------------------------------------------------------------------------------------------------------------
+
+def example_of(schema: dict[str, Any] | None, schemas: dict[str, Any], full: bool, stack: tuple[str, ...] = ()) -> Any:
+    """A JSON value that fits the schema; None only when it would need an object that is already being built."""
+    if not schema:
+        return "sample"
+    if "$ref" in schema:
+        name = schema["$ref"].rsplit("/", 1)[-1]
+        if name in stack or name not in schemas:
+            return None
+        return example_of(schemas[name], schemas, full, stack + (name,))
+    for word in ("anyOf", "oneOf"):
+        if word in schema:
+            members = [m for m in schema[word] if m != {"type": "null"}]
+            return example_of(members[0], schemas, full, stack) if len(members) == 1 else "sample"
+    if "allOf" in schema and len(schema["allOf"]) == 1:
+        return example_of(schema["allOf"][0], schemas, full, stack)
+    kind, _ = kind_of(schema)
+    if "const" in schema:
+        return schema["const"]
+    if "enum" in schema:
+        values = [v for v in schema["enum"] if v is not None]
+        value = values[0] if values else None
+        return float(value) if kind == "number" and isinstance(value, int) and not isinstance(value, bool) else value
+    if kind == "string":
+        return "text"
+    if kind == "integer":
+        return 7
+    if kind == "number":
+        return 1.5
+    if kind == "boolean":
+        return True
+    if kind == "array":
+        item = example_of(schema.get("items"), schemas, full, stack)
+        return [] if item is None else [item]
+    if kind == "object" or "properties" in schema or "additionalProperties" in schema:
+        required = set(schema.get("required") or [])
+        found: dict[str, Any] = {}
+        for prop, sub in (schema.get("properties") or {}).items():
+            if not full and prop not in required:
+                continue
+            value = example_of(sub if isinstance(sub, dict) else {}, schemas, full, stack)
+            if value is not None or prop in required:
+                found[prop] = value
+        extra = schema.get("additionalProperties")
+        if full and (extra is True or isinstance(extra, dict)):
+            found["extraKey"] = example_of(extra, schemas, full, stack) if isinstance(extra, dict) and extra else "extra"
+        elif not schema.get("properties") and not extra:
+            found["key"] = "value"
+        return found
+    return "sample"
+
+
+def kt_literal(value: Any) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, int):
+        return f"{value}L"
+    if isinstance(value, float):
+        return repr(value)
+    if isinstance(value, str):
+        return kt_string(value)
+    if isinstance(value, list):
+        return "listOf<Any?>(" + ", ".join(kt_literal(v) for v in value) + ")"
+    if isinstance(value, dict):
+        return "mapOf<String, Any?>(" + ", ".join(f"{kt_string(k)} to {kt_literal(v)}" for k, v in value.items()) + ")"
+    return "null"
+
+
+def dart_literal(value: Any) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float)):
+        return repr(value)
+    if isinstance(value, str):
+        return dart_string(value)
+    if isinstance(value, list):
+        return "<dynamic>[" + ", ".join(dart_literal(v) for v in value) + "]"
+    if isinstance(value, dict):
+        return "<String, dynamic>{" + ", ".join(f"{dart_string(k)}: {dart_literal(v)}" for k, v in value.items()) + "}"
+    return "null"
+
+
+def round_trip_cases(document: dict[str, Any]) -> list[tuple[str, dict[str, Any], dict[str, Any]]]:
+    schemas = document.get("components", {}).get("schemas", {})
+    cases = []
+    for name in sorted(schemas):
+        if is_class(schemas[name]):
+            cases.append((name, example_of(schemas[name], schemas, True, (name,)), example_of(schemas[name], schemas, False, (name,))))
+    return cases
+
+
+def round_trip_kotlin(document: dict[str, Any], package: str = KOTLIN_PACKAGE) -> str:
+    lines = [f"// {HEADER}", "", f"package {package}", "",
+             "// Reads an example of every class with fromJson and writes it with toJson: the result must equal the example.",
+             "private val failures = mutableListOf<String>()", "",
+             "private fun <T> roundTrip(label: String, example: Map<String, Any?>, read: (Map<String, Any?>) -> T, write: (T) -> Map<String, Any?>) {",
+             "    val again = try { write(read(example)) } catch (error: Exception) { failures.add(\"$label threw $error\"); return }",
+             "    if (again != example) failures.add(\"$label changed: $again instead of $example\")",
+             "}", ""]
+    cases = round_trip_cases(document)
+    for name, full, minimal in cases:
+        lines += [f"private fun roundTripHydra{name}() {{",
+                  f"    roundTrip(\"Hydra{name} full\", {kt_literal(full)}, {{ Hydra{name}.fromJson(it) }}, {{ it.toJson() }})",
+                  f"    roundTrip(\"Hydra{name} required only\", {kt_literal(minimal)}, {{ Hydra{name}.fromJson(it) }}, {{ it.toJson() }})",
+                  "}", ""]
+    lines += ["/** Runs every round trip and returns the failures (empty when all pass). */", "fun roundTripAll(): List<String> {", "    failures.clear()"]
+    lines += [f"    roundTripHydra{name}()" for name, _, _ in cases]
+    lines += ["    return failures.toList()", "}", f"const val ROUND_TRIP_CLASSES: Int = {len(cases)}", ""]
+    return "\n".join(lines)
+
+
+def round_trip_dart(document: dict[str, Any]) -> str:
+    lines = [f"// {HEADER}", "", "import 'hydra_server_client.dart';", "",
+             "// Reads an example of every class with fromJson and writes it with toJson: the result must equal the example.",
+             "bool _same(Object? a, Object? b) {",
+             "  if (a is Map && b is Map) {",
+             "    return a.length == b.length && a.keys.every((key) => b.containsKey(key) && _same(a[key], b[key]));",
+             "  }",
+             "  if (a is List && b is List) {",
+             "    return a.length == b.length && List<bool>.generate(a.length, (i) => _same(a[i], b[i])).every((same) => same);",
+             "  }",
+             "  return a == b;",
+             "}", "",
+             "void _roundTrip<T>(List<String> failures, String label, Map<String, dynamic> example, T Function(Map<String, dynamic>) read, Map<String, dynamic> Function(T) write) {",
+             "  try {",
+             "    final again = write(read(example));",
+             "    if (!_same(again, example)) failures.add('$label changed: $again instead of $example');",
+             "  } catch (error) {",
+             "    failures.add('$label threw $error');",
+             "  }",
+             "}", ""]
+    cases = round_trip_cases(document)
+    lines += [f"const int roundTripClasses = {len(cases)};", "", "/// Runs every round trip and returns the failures (empty when all pass).", "List<String> roundTripAll() {", "  final failures = <String>[];"]
+    for name, full, minimal in cases:
+        lines += [f"  _roundTrip<Hydra{name}>(failures, 'Hydra{name} full', {dart_literal(full)}, Hydra{name}.fromJson, (value) => value.toJson());",
+                  f"  _roundTrip<Hydra{name}>(failures, 'Hydra{name} required only', {dart_literal(minimal)}, Hydra{name}.fromJson, (value) => value.toJson());"]
+    lines += ["  return failures;", "}", ""]
+    return "\n".join(lines)
+
+
+KT_ROUND_TRIP_NAME = "HydraServerClientRoundTrip.kt"
+DART_ROUND_TRIP_NAME = "hydra_server_client_round_trip.dart"
+
+
+def outputs(document: dict[str, Any] | None = None, package: str = KOTLIN_PACKAGE) -> dict[str, str]:
+    """The three clients and the two round trip files, by file name."""
+    document = document if document is not None else json.loads(FULL.read_text(encoding="utf-8"))
+    return {TS_NAME: as_typescript(document), KT_NAME: as_kotlin(document, package), DART_NAME: as_dart(document),
+            KT_ROUND_TRIP_NAME: round_trip_kotlin(document, package), DART_ROUND_TRIP_NAME: round_trip_dart(document)}
+
+
+# The round trip files of the contract sit next to the hand-written smoke programs; the three clients sit in generated/.
+CONFORMANCE = ROOT / "conformance" / "generated-clients"
+ROUND_TRIP_NAMES = (KT_ROUND_TRIP_NAME, DART_ROUND_TRIP_NAME)
+
+
+def target(name: str) -> Path:
+    return (CONFORMANCE if name in ROUND_TRIP_NAMES else OUT) / name
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--check", action="store_true", help="fail when a generated file is out of date")
+    parser.add_argument("--spec", type=Path, help="generate from this OpenAPI document into --out instead of the server contract")
+    parser.add_argument("--out", type=Path, help="the folder for --spec (all five files are written there)")
+    parser.add_argument("--kotlin-package", default=KOTLIN_PACKAGE, help="the Kotlin package of the files made from --spec")
     args = parser.parse_args(argv)
+    if args.spec:
+        if args.check or not args.out:
+            raise SystemExit("GENERATED_CLIENTS=FAIL --spec needs --out and cannot be combined with --check")
+        args.out.mkdir(parents=True, exist_ok=True)
+        produced = outputs(json.loads(args.spec.read_text(encoding="utf-8")), args.kotlin_package)
+        for name, text in produced.items():
+            (args.out / name).write_text(text, encoding="utf-8", newline="\n")
+        print(f"wrote {len(produced)} files to {args.out}")
+        return 0
     produced = outputs()
     if args.check:
         stale = [name for name, text in produced.items()
-                 if not (OUT / name).is_file() or (OUT / name).read_bytes().replace(b"\r\n", b"\n") != text.encode("utf-8")]
+                 if not target(name).is_file() or target(name).read_bytes().replace(b"\r\n", b"\n") != text.encode("utf-8")]
         if stale:
             print("GENERATED_CLIENTS=FAIL out of date: " + ", ".join(stale) + " (run python tools/generate_clients.py)", file=sys.stderr)
             return 1
         print(f"GENERATED_CLIENTS=PASS {len(produced)} files match the contract")
         return 0
     OUT.mkdir(exist_ok=True)
+    CONFORMANCE.mkdir(parents=True, exist_ok=True)
     for name, text in produced.items():
-        (OUT / name).write_text(text, encoding="utf-8", newline="\n")
-    print(f"wrote {len(produced)} files to {OUT}")
+        target(name).write_text(text, encoding="utf-8", newline="\n")
+    print(f"wrote {len(produced)} files")
     return 0
 
 
