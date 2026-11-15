@@ -2941,6 +2941,34 @@
         }
       }
     },
+    "GET /api/ros2-bridge/settings": {
+      "200": {
+        "minimal": {
+          "requireSros2": false,
+          "active": false,
+          "restartNeeded": false,
+          "canChange": false,
+          "environmentReady": false
+        },
+        "full": {
+          "requireSros2": false,
+          "active": false,
+          "restartNeeded": false,
+          "canChange": false,
+          "environmentReady": false
+        }
+      }
+    },
+    "POST /api/ros2-bridge/settings": {
+      "400": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      }
+    },
     "GET /api/rul/config": {
       "200": {
         "minimal": {

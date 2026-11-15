@@ -1199,6 +1199,26 @@
     },
     {
       "method": "GET",
+      "path": "/api/ros2-bridge/settings",
+      "access": "user",
+      "group": "ros2-bridge",
+      "query": [],
+      "statuses": [
+        "200"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/ros2-bridge/settings",
+      "access": "admin",
+      "group": "ros2-bridge",
+      "query": [],
+      "statuses": [
+        "400"
+      ]
+    },
+    {
+      "method": "GET",
       "path": "/api/rul/config",
       "access": "user",
       "group": "rul",
