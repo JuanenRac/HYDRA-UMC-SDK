@@ -18,7 +18,7 @@ fun main() {
     val seen = mutableListOf<HydraRequest>()
     val client = HydraServerClient { request ->
         seen.add(request)
-        if (request.withHeaders) HydraReply<Any?>(mapOf("ok" to true), mapOf("ETag" to "w/1")) else mapOf("lines" to listOf<Any?>())
+        if (request.replyHeaders.isNotEmpty()) HydraReply<Any?>(mapOf("ok" to true), mapOf("ETag" to "w/1")) else mapOf("lines" to listOf<Any?>())
     }
     var failure: Throwable? = null
     val body: suspend () -> Unit = {
@@ -35,7 +35,7 @@ fun main() {
     expect(seen[1].method == "POST" && seen[1].path == "/api/robot/7/command" && seen[1].body != null, "path and body")
     expect(seen[2].query.isEmpty() && seen[2].path == "/api/robot/9", "no query")
     expect(seen[3].contentType == "application/octet-stream" && seen[3].body is ByteArray, "binary body")
-    expect(seen[4].withHeaders && seen[4].path == "/api/settings", "reply with headers")
+    expect(seen[4].replyHeaders == listOf("ETag") && seen[4].path == "/api/settings", "reply with headers")
     expect(fillPath("/a/{x}", mapOf("x" to "a b/c")) == "/a/a%20b%2Fc", "escape")
     val refused = runCatching { fillPath("/a/{x}", emptyMap()) }.isFailure
     expect(refused, "a missing path value must throw")

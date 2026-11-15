@@ -206,9 +206,9 @@ class BinaryTextAndHeaderTests(unittest.TestCase):
         self.assertEqual(gc.success_type({"responses": {"204": {"description": "none"}}}), "void")
         self.assertEqual(gc.native_type(gc.success_schema(binary), gc.Flavor("kotlin"), frozenset()), "ByteArray")
         self.assertEqual(gc.native_type(gc.success_schema(binary), gc.Flavor("dart"), frozenset()), "List<int>")
-        op = {"body": None, "body_media": None, "answer": "text"}
+        op = {"body": None, "body_media": None, "answer": "text", "reply_headers": ["ETag"]}
         self.assertEqual(gc.request_extras(op, False), [("responseType", "text")])
-        self.assertEqual(gc.request_extras({**op, "answer": "json"}, True), [("withHeaders", "true")])
+        self.assertEqual(gc.request_extras({**op, "answer": "json"}, True), [("replyHeaders", ["ETag"])])
 
     def test_a_route_that_declares_response_headers_has_a_with_headers_method_in_all_languages(self):
         declared = {(o["method"], o["path"]): o["reply_headers"] for o in OPS if o["reply_headers"]}
@@ -224,7 +224,9 @@ class BinaryTextAndHeaderTests(unittest.TestCase):
         self.assertIn("export interface HydraReply<T>", SOURCE)
         self.assertIn("class HydraReply<T>(val body: T, val headers: Map<String, String>)", KT)
         self.assertIn("class HydraReply<T> {", DART)
-        self.assertIn("withHeaders: true", SOURCE)
+        self.assertIn('replyHeaders: ["ETag"]', SOURCE)
+        self.assertIn('replyHeaders = listOf("ETag")', KT)
+        self.assertIn("replyHeaders: const <String>['ETag']", DART)
 
     def test_a_method_name_that_would_collide_with_the_reply_variant_stops_the_generator(self):
         document = {"paths": {"/a/withHeaders": {"get": {}}}, "components": {"schemas": {}}}

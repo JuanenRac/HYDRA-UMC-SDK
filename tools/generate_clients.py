@@ -227,16 +227,21 @@ def arguments(op: dict[str, Any]) -> tuple[str, bool]:
     return "args" + ("" if required else "?") + ": { " + "; ".join(fields) + " }", required
 
 
-def request_extras(op: dict[str, Any], with_headers: bool) -> list[tuple[str, str]]:
+def request_extras(op: dict[str, Any], with_headers: bool) -> list[tuple[str, str | list[str]]]:
     """The request fields that are not the default (a JSON body, a JSON or empty answer, no reply headers) as (field, value)."""
-    extras: list[tuple[str, str]] = []
+    extras: list[tuple[str, str | list[str]]] = []
     if op["body"] is not None and op["body_media"] != "application/json":
         extras.append(("contentType", op["body_media"]))
     if op["answer"] in ("text", "binary"):
         extras.append(("responseType", op["answer"]))
     if with_headers:
-        extras.append(("withHeaders", "true"))
+        extras.append(("replyHeaders", list(op["reply_headers"])))
     return extras
+
+
+def extra_value(value: str | list[str], spelling: Any, listing: Any) -> str:
+    """One request field value: a text through `spelling`, a list of header names through `listing`."""
+    return listing([spelling(v) for v in value]) if isinstance(value, list) else spelling(value)
 
 
 def as_typescript(document: dict[str, Any]) -> str:
@@ -256,8 +261,8 @@ def as_typescript(document: dict[str, Any]) -> str:
         "  readonly contentType?: string;",
         "  /** How the answer is read when it is not JSON: text (a string) or binary (a Uint8Array). */",
         "  readonly responseType?: \"text\" | \"binary\";",
-        "  /** True for the WithHeaders methods: the transport answers with a HydraReply that holds the response headers the contract declares. */",
-        "  readonly withHeaders?: boolean;",
+        "  /** The response headers the contract declares for the route, set for the WithHeaders methods: the transport answers with a HydraReply that holds them under these names. */",
+        "  readonly replyHeaders?: readonly string[];",
         "}",
         "",
         "/** The answer of a route that declares response headers: the decoded body and the headers under their declared names (ETag, X-Next-Cursor). */",
@@ -266,7 +271,7 @@ def as_typescript(document: dict[str, Any]) -> str:
         "  readonly headers: Readonly<Record<string, string>>;",
         "}",
         "",
-        "/** Carries one request to the server and returns the decoded answer (undefined when there is none); a request with withHeaders gets a HydraReply. */",
+        "/** Carries one request to the server and returns the decoded answer (undefined when there is none); a request with replyHeaders gets a HydraReply. */",
         "export type HydraTransport = (request: HydraRequest) => Promise<unknown>;",
         "",
         "export function fillPath(template: string, values: Readonly<Record<string, string | number>> | undefined): string {",
@@ -301,7 +306,10 @@ def as_typescript(document: dict[str, Any]) -> str:
         body_expr = "args?.body" if op["body"] is not None else "undefined"
         send = (f"this.transport({{ method: {quote(op['method'])}, path: {path_expr}, query: {query_expr}, "
                 f"headers: {headers_expr}, body: {body_expr}, access: {quote(op['access'])}")
-        plain = "".join(f", {f}: {quote(v)}" for f, v in request_extras(op, False))
+        def ts_extras(with_headers: bool) -> str:
+            return "".join(f", {f}: " + extra_value(v, quote, lambda items: "[" + ", ".join(items) + "]") for f, v in request_extras(op, with_headers))
+
+        plain = ts_extras(False)
         lines += [
             f"  /** {note.replace('*/', '* /')} (access: {op['access']}) */",
             f"  {op['name']}({signature}): Promise<{op['result']}> {{",
@@ -310,7 +318,7 @@ def as_typescript(document: dict[str, Any]) -> str:
             "",
         ]
         if op["reply_headers"]:
-            extras = "".join(f", {f}: {v if f == 'withHeaders' else quote(v)}" for f, v in request_extras(op, True))
+            extras = ts_extras(True)
             lines += [
                 f"  /** {note.replace('*/', '* /')} (access: {op['access']}); the reply also holds the response headers {', '.join(op['reply_headers'])}. */",
                 f"  {op['name']}WithHeaders({signature}): Promise<HydraReply<{op['result']}>> {{",
@@ -488,14 +496,14 @@ def as_kotlin(document: dict[str, Any]) -> str:
              "// The transport hands back the decoded JSON model: Map, List, String, Long, Double, Boolean or null.", ""]
     lines += schema_aliases(document, flavor)
     lines += [
-        "/** contentType is the media type of a body that is not JSON; responseType is text or binary when the answer is not JSON; withHeaders asks for a HydraReply. */",
+        "/** contentType is the media type of a body that is not JSON; responseType is text or binary when the answer is not JSON; replyHeaders names the response headers to hand back in a HydraReply. */",
         "class HydraRequest(val method: String, val path: String, val query: Map<String, String>, val body: Any?, val access: String, val headers: Map<String, String> = emptyMap(),",
-        "                   val contentType: String? = null, val responseType: String? = null, val withHeaders: Boolean = false)",
+        "                   val contentType: String? = null, val responseType: String? = null, val replyHeaders: List<String> = emptyList())",
         "",
         "/** The answer of a route that declares response headers: the decoded body and the headers under their declared names (ETag, X-Next-Cursor). */",
         "class HydraReply<T>(val body: T, val headers: Map<String, String>)",
         "",
-        "/** Carries one request to the server and returns the decoded answer (null when there is none); a request with withHeaders gets a HydraReply. */",
+        "/** Carries one request to the server and returns the decoded answer (null when there is none); a request with replyHeaders gets a HydraReply. */",
         "fun interface HydraTransport {",
         "    suspend fun send(request: HydraRequest): Any?",
         "}",
@@ -522,7 +530,10 @@ def as_kotlin(document: dict[str, Any]) -> str:
         path_expr = f"fillPath({quote(op['path'])}, mapOf({path_values}))" if path_values else quote(op["path"])
         query_expr = f"queryOf(mapOf({query_values}))" if query_values else "emptyMap()"
         head = f"transport.send(HydraRequest({quote(op['method'])}, {path_expr}, {query_expr}, {body_name}, {quote(op['access'])}{', headers = queryOf(mapOf(' + header_values + '))' if header_values else ''}"
-        call = head + "".join(f", {f} = {quote(v)}" for f, v in request_extras(op, False)) + "))"
+        def kt_extras(with_headers: bool) -> str:
+            return "".join(f", {f} = " + extra_value(v, quote, lambda items: "listOf(" + ", ".join(items) + ")") for f, v in request_extras(op, with_headers))
+
+        call = head + kt_extras(False) + "))"
         lines += [f"    /** {doc_note(op)} */", f"    suspend fun {op['name']}({signature}): {result} {{"]
         if result == "Unit":
             lines += [f"        {call}", "        return Unit"]
@@ -530,7 +541,7 @@ def as_kotlin(document: dict[str, Any]) -> str:
             lines.append(f"        return {call} as {result}")
         lines += ["    }", ""]
         if op["reply_headers"]:
-            wrapped = head + "".join(f", {f} = {v if f == 'withHeaders' else quote(v)}" for f, v in request_extras(op, True)) + "))"
+            wrapped = head + kt_extras(True) + "))"
             lines += [f"    /** {doc_note(op)}; the reply also holds the response headers {', '.join(op['reply_headers'])}. */",
                       f"    suspend fun {op['name']}WithHeaders({signature}): HydraReply<{result}> {{",
                       f"        val reply = {wrapped} as HydraReply<Any?>",
@@ -551,7 +562,7 @@ def as_dart(document: dict[str, Any]) -> str:
     lines += schema_aliases(document, flavor)
     lines += [
         "class HydraRequest {",
-        "  const HydraRequest(this.method, this.path, this.query, this.body, this.access, {this.headers = const <String, String>{}, this.contentType, this.responseType, this.withHeaders = false});",
+        "  const HydraRequest(this.method, this.path, this.query, this.body, this.access, {this.headers = const <String, String>{}, this.contentType, this.responseType, this.replyHeaders = const <String>[]});",
         "  final String method;",
         "  final String path;",
         "  final Map<String, String> query;",
@@ -562,8 +573,8 @@ def as_dart(document: dict[str, Any]) -> str:
         "  final String? contentType;",
         "  /// 'text' or 'binary' when the answer is not JSON.",
         "  final String? responseType;",
-        "  /// True for the WithHeaders methods: the transport answers with a HydraReply.",
-        "  final bool withHeaders;",
+        "  /// The response headers to hand back in a HydraReply (set for the WithHeaders methods).",
+        "  final List<String> replyHeaders;",
         "}",
         "",
         "/// The answer of a route that declares response headers: the decoded body and the headers under their declared names (ETag, X-Next-Cursor).",
@@ -573,7 +584,7 @@ def as_dart(document: dict[str, Any]) -> str:
         "  final Map<String, String> headers;",
         "}",
         "",
-        "/// Carries one request to the server and returns the decoded answer (null when there is none); a request with withHeaders gets a HydraReply.",
+        "/// Carries one request to the server and returns the decoded answer (null when there is none); a request with replyHeaders gets a HydraReply.",
         "typedef HydraTransport = Future<dynamic> Function(HydraRequest request);",
         "",
         "String fillPath(String template, Map<String, Object> values) {",
@@ -612,7 +623,10 @@ def as_dart(document: dict[str, Any]) -> str:
         path_expr = f"fillPath({dart_string(op['path'])}, {{{path_values}}})" if path_values else dart_string(op["path"])
         query_expr = f"queryOf({{{query_values}}})" if query_values else "const <String, String>{}"
         head = f"_transport(HydraRequest({dart_string(op['method'])}, {path_expr}, {query_expr}, {body_name}, {dart_string(op['access'])}{', headers: queryOf({' + header_values + '})' if header_values else ''}"
-        call = head + "".join(f", {f}: {dart_string(v)}" for f, v in request_extras(op, False)) + "))"
+        def dart_extras(with_headers: bool) -> str:
+            return "".join(f", {f}: " + extra_value(v, dart_string, lambda items: "const <String>[" + ", ".join(items) + "]") for f, v in request_extras(op, with_headers))
+
+        call = head + dart_extras(False) + "))"
         lines += [f"  /// {doc_note(op)}", f"  Future<{result}> {op['name']}({signature}) async {{"]
         if result == "void":
             lines.append(f"    await {call};")
@@ -620,7 +634,7 @@ def as_dart(document: dict[str, Any]) -> str:
             lines.append(f"    return (await {call}) as {result};")
         lines += ["  }", ""]
         if op["reply_headers"]:
-            wrapped = head + "".join(f", {f}: {v if f == 'withHeaders' else dart_string(v)}" for f, v in request_extras(op, True)) + "))"
+            wrapped = head + dart_extras(True) + "))"
             lines += [f"  /// {doc_note(op)}; the reply also holds the response headers {', '.join(op['reply_headers'])}.",
                       f"  Future<HydraReply<{result}>> {op['name']}WithHeaders({signature}) async {{",
                       f"    final reply = (await {wrapped}) as HydraReply<dynamic>;",

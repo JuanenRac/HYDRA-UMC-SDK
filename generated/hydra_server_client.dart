@@ -214,7 +214,7 @@ typedef HydraVoiceReply = Map<String, dynamic>;
 typedef HydraWatchStatus = Map<String, dynamic>;
 
 class HydraRequest {
-  const HydraRequest(this.method, this.path, this.query, this.body, this.access, {this.headers = const <String, String>{}, this.contentType, this.responseType, this.withHeaders = false});
+  const HydraRequest(this.method, this.path, this.query, this.body, this.access, {this.headers = const <String, String>{}, this.contentType, this.responseType, this.replyHeaders = const <String>[]});
   final String method;
   final String path;
   final Map<String, String> query;
@@ -225,8 +225,8 @@ class HydraRequest {
   final String? contentType;
   /// 'text' or 'binary' when the answer is not JSON.
   final String? responseType;
-  /// True for the WithHeaders methods: the transport answers with a HydraReply.
-  final bool withHeaders;
+  /// The response headers to hand back in a HydraReply (set for the WithHeaders methods).
+  final List<String> replyHeaders;
 }
 
 /// The answer of a route that declares response headers: the decoded body and the headers under their declared names (ETag, X-Next-Cursor).
@@ -236,7 +236,7 @@ class HydraReply<T> {
   final Map<String, String> headers;
 }
 
-/// Carries one request to the server and returns the decoded answer (null when there is none); a request with withHeaders gets a HydraReply.
+/// Carries one request to the server and returns the decoded answer (null when there is none); a request with replyHeaders gets a HydraReply.
 typedef HydraTransport = Future<dynamic> Function(HydraRequest request);
 
 String fillPath(String template, Map<String, Object> values) {
@@ -728,7 +728,7 @@ class HydraServerClient {
 
   /// GET /api/robot/{id} (access: user); the reply also holds the response headers ETag.
   Future<HydraReply<Map<String, dynamic>>> getRobotByIdWithHeaders({required int id}) async {
-    final reply = (await _transport(HydraRequest('GET', fillPath('/api/robot/{id}', {'id': id}), const <String, String>{}, null, 'user', withHeaders: true))) as HydraReply<dynamic>;
+    final reply = (await _transport(HydraRequest('GET', fillPath('/api/robot/{id}', {'id': id}), const <String, String>{}, null, 'user', replyHeaders: const <String>['ETag']))) as HydraReply<dynamic>;
     return HydraReply<Map<String, dynamic>>(reply.body as Map<String, dynamic>, reply.headers);
   }
 
@@ -739,7 +739,7 @@ class HydraServerClient {
 
   /// POST /api/robot/{id}/claim (access: user); the reply also holds the response headers ETag.
   Future<HydraReply<Map<String, dynamic>>> postRobotByIdClaimWithHeaders({required int id, String? headerIfMatch, String? headerXControllerId, Map<String, dynamic>? body}) async {
-    final reply = (await _transport(HydraRequest('POST', fillPath('/api/robot/{id}/claim', {'id': id}), const <String, String>{}, body, 'user', headers: queryOf({'If-Match': headerIfMatch, 'X-Controller-Id': headerXControllerId}), withHeaders: true))) as HydraReply<dynamic>;
+    final reply = (await _transport(HydraRequest('POST', fillPath('/api/robot/{id}/claim', {'id': id}), const <String, String>{}, body, 'user', headers: queryOf({'If-Match': headerIfMatch, 'X-Controller-Id': headerXControllerId}), replyHeaders: const <String>['ETag']))) as HydraReply<dynamic>;
     return HydraReply<Map<String, dynamic>>(reply.body as Map<String, dynamic>, reply.headers);
   }
 
@@ -765,7 +765,7 @@ class HydraServerClient {
 
   /// POST /api/robot/{id}/release (access: user); the reply also holds the response headers ETag.
   Future<HydraReply<Map<String, dynamic>>> postRobotByIdReleaseWithHeaders({required int id, String? headerIfMatch, String? headerXControllerId, Map<String, dynamic>? body}) async {
-    final reply = (await _transport(HydraRequest('POST', fillPath('/api/robot/{id}/release', {'id': id}), const <String, String>{}, body, 'user', headers: queryOf({'If-Match': headerIfMatch, 'X-Controller-Id': headerXControllerId}), withHeaders: true))) as HydraReply<dynamic>;
+    final reply = (await _transport(HydraRequest('POST', fillPath('/api/robot/{id}/release', {'id': id}), const <String, String>{}, body, 'user', headers: queryOf({'If-Match': headerIfMatch, 'X-Controller-Id': headerXControllerId}), replyHeaders: const <String>['ETag']))) as HydraReply<dynamic>;
     return HydraReply<Map<String, dynamic>>(reply.body as Map<String, dynamic>, reply.headers);
   }
 
@@ -811,7 +811,7 @@ class HydraServerClient {
 
   /// GET /api/settings (access: user); the reply also holds the response headers ETag.
   Future<HydraReply<HydraSettings>> getSettingsWithHeaders() async {
-    final reply = (await _transport(HydraRequest('GET', '/api/settings', const <String, String>{}, null, 'user', withHeaders: true))) as HydraReply<dynamic>;
+    final reply = (await _transport(HydraRequest('GET', '/api/settings', const <String, String>{}, null, 'user', replyHeaders: const <String>['ETag']))) as HydraReply<dynamic>;
     return HydraReply<HydraSettings>(reply.body as HydraSettings, reply.headers);
   }
 
@@ -822,7 +822,7 @@ class HydraServerClient {
 
   /// PUT /api/settings (access: admin); the reply also holds the response headers ETag.
   Future<HydraReply<Map<String, dynamic>>> putSettingsWithHeaders({required String headerIfMatch, required HydraSettings body}) async {
-    final reply = (await _transport(HydraRequest('PUT', '/api/settings', const <String, String>{}, body, 'admin', headers: queryOf({'If-Match': headerIfMatch}), withHeaders: true))) as HydraReply<dynamic>;
+    final reply = (await _transport(HydraRequest('PUT', '/api/settings', const <String, String>{}, body, 'admin', headers: queryOf({'If-Match': headerIfMatch}), replyHeaders: const <String>['ETag']))) as HydraReply<dynamic>;
     return HydraReply<Map<String, dynamic>>(reply.body as Map<String, dynamic>, reply.headers);
   }
 
@@ -833,7 +833,7 @@ class HydraServerClient {
 
   /// POST /api/settings (access: admin); the reply also holds the response headers ETag.
   Future<HydraReply<Map<String, dynamic>>> postSettingsWithHeaders({required HydraSettings body, String? headerIfMatch}) async {
-    final reply = (await _transport(HydraRequest('POST', '/api/settings', const <String, String>{}, body, 'admin', headers: queryOf({'If-Match': headerIfMatch}), withHeaders: true))) as HydraReply<dynamic>;
+    final reply = (await _transport(HydraRequest('POST', '/api/settings', const <String, String>{}, body, 'admin', headers: queryOf({'If-Match': headerIfMatch}), replyHeaders: const <String>['ETag']))) as HydraReply<dynamic>;
     return HydraReply<Map<String, dynamic>>(reply.body as Map<String, dynamic>, reply.headers);
   }
 
@@ -914,7 +914,7 @@ class HydraServerClient {
 
   /// GET /api/telemetry/query (access: user); the reply also holds the response headers X-Next-Cursor.
   Future<HydraReply<List<dynamic>>> getTelemetryQueryWithHeaders({String? sourceId, String? kind, String? field, String? start, String? end, String? before, String? limit, String? cursor}) async {
-    final reply = (await _transport(HydraRequest('GET', '/api/telemetry/query', queryOf({'sourceId': sourceId, 'kind': kind, 'field': field, 'start': start, 'end': end, 'before': before, 'limit': limit, 'cursor': cursor}), null, 'user', withHeaders: true))) as HydraReply<dynamic>;
+    final reply = (await _transport(HydraRequest('GET', '/api/telemetry/query', queryOf({'sourceId': sourceId, 'kind': kind, 'field': field, 'start': start, 'end': end, 'before': before, 'limit': limit, 'cursor': cursor}), null, 'user', replyHeaders: const <String>['X-Next-Cursor']))) as HydraReply<dynamic>;
     return HydraReply<List<dynamic>>(reply.body as List<dynamic>, reply.headers);
   }
 

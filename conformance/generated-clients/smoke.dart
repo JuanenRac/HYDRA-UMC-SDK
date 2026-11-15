@@ -8,7 +8,7 @@ Future<void> main() async {
   final seen = <HydraRequest>[];
   final client = HydraServerClient((request) async {
     seen.add(request);
-    if (request.withHeaders) {
+    if (request.replyHeaders.isNotEmpty) {
       return const HydraReply<dynamic>(<String, dynamic>{'ok': true}, <String, String>{'ETag': 'w/1'});
     }
     return <String, dynamic>{'lines': <dynamic>[]};
@@ -24,7 +24,7 @@ Future<void> main() async {
   _expect(seen[1].method == 'POST' && seen[1].path == '/api/robot/7/command' && seen[1].body != null, 'path and body');
   _expect(seen[2].query.isEmpty && seen[2].path == '/api/robot/9', 'no query');
   _expect(seen[3].contentType == 'application/octet-stream' && seen[3].body is List<int>, 'binary body');
-  _expect(seen[4].withHeaders && seen[4].path == '/api/settings' && settings.headers['ETag'] == 'w/1', 'reply with headers');
+  _expect(seen[4].replyHeaders.length == 1 && seen[4].replyHeaders[0] == 'ETag' && seen[4].path == '/api/settings' && settings.headers['ETag'] == 'w/1', 'reply with headers');
   _expect(fillPath('/a/{x}', {'x': 'a b/c'}) == '/a/a%20b%2Fc', 'escape');
 
   try {
