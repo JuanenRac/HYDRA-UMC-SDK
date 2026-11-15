@@ -19,7 +19,7 @@ The checks are the ones that already exist, called in one place so that a person
   schemas and the server and the clients against the sources;
 * `generate_types --check`: the TypeScript, Kotlin and Dart types.
 * `generate_routes --check`: the route tables for JSON, TypeScript, Kotlin and Dart.
-* `generate_clients --check`: the typed server client for TypeScript.
+* `generate_clients --check`: the typed server client for TypeScript, Kotlin and Dart.
 
 Exit status 1 when any check fails; read-only except for `--write-tables`.
 """
