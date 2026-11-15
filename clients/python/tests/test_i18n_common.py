@@ -55,6 +55,26 @@ class ContractTests(unittest.TestCase):
                 self.assertIsNone(re.search(r"TODO|FIXME|XXX|\?\?\?", text), entry["id"])
 
 
+    def test_a_text_has_no_form_that_belongs_to_the_screen(self) -> None:
+        # capitals, a colon, a leading lower case: the screen applies them (CSS, a label with a colon), the contract keeps one plain form
+        for entry in self.data["strings"]:
+            for lang, text in entry["text"].items():
+                self.assertFalse(text.rstrip().endswith((":", "\uff1a")), f"{entry['id']} in {lang} ends with a colon")
+                if len(text) > 3 and text.isascii():
+                    self.assertFalse(text.isupper(), f"{entry['id']} in {lang} is all capitals")
+                self.assertFalse(text[:1].islower(), f"{entry['id']} in {lang} starts in lower case")
+
+    def test_the_hundred_common_words_include_the_ones_the_apps_wrote_alike(self) -> None:
+        ids = {entry["id"] for entry in self.data["strings"]}
+        self.assertEqual(len(ids), 100)
+        for word in ("stop", "start", "off", "default", "continue", "connecting", "settings", "security", "sign_out", "username",
+                     "dashboard", "voice_assistant", "all_robots", "select_a_robot", "system_default"):
+            self.assertIn(word, ids)
+        es = TOOL.texts(self.data, "es")
+        self.assertEqual(es["stop"], "Detener")
+        self.assertEqual(TOOL.texts(self.data, "fr")["username"], "Nom d'utilisateur")
+
+
 class RendererTests(unittest.TestCase):
     def setUp(self) -> None:
         self.data = TOOL.load()
@@ -203,6 +223,94 @@ class SuiteLanguageFileTests(unittest.TestCase):
         if problems and not any("COMMON_" in problem and "is missing" not in problem for problem in problems):
             self.skipTest("the SUITE next to this checkout has not taken the common texts yet")
         self.assertEqual(problems, [])
+
+
+class CheckAppFormatTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.data = TOOL.load()
+
+    def _android(self, tmp: str, change=None) -> Path:
+        repo = Path(tmp)
+        for lang in LANGS:
+            folder = repo / "app" / "src" / "main" / "res" / ("values" if lang == "en" else f"values-{lang}")
+            folder.mkdir(parents=True)
+            lines = ['    <string name="app_name">Own</string>'] + TOOL.render_android(self.data, lang).splitlines()
+            if change:
+                lines = change(lang, lines)
+            (folder / "strings.xml").write_text('<?xml version="1.0" encoding="utf-8"?>\n<resources>\n' + "\n".join(lines) + "\n</resources>\n", encoding="utf-8")
+        return repo
+
+    def _arb(self, tmp: str, change=None) -> Path:
+        repo = Path(tmp)
+        (repo / "lib" / "l10n").mkdir(parents=True)
+        for lang in LANGS:
+            entries = {"@@locale": lang, "ownKey": "Own", **json.loads(TOOL.render_arb(self.data, lang))}
+            if change:
+                change(lang, entries)
+            (repo / "lib" / "l10n" / f"app_{lang}.arb").write_text(json.dumps(entries, ensure_ascii=False), encoding="utf-8")
+        return repo
+
+    def test_an_android_app_that_carries_every_text_passes_and_may_carry_more(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = self._android(tmp)
+            self.assertEqual(TOOL.check_android(self.data, repo), [])
+            self.assertEqual(TOOL.main(["check-android", "--repo", str(repo)]), 0)
+
+    def test_an_android_text_that_is_missing_or_different_is_listed(self) -> None:
+        def change(lang: str, lines: list[str]) -> list[str]:
+            if lang == "pt":
+                return [line for line in lines if 'name="common_save"' not in line]
+            if lang == "fr":
+                return [line.replace("Nom d\\'utilisateur", "Identifiant") for line in lines]
+            return lines
+
+        with tempfile.TemporaryDirectory() as tmp:
+            problems = TOOL.check_android(self.data, self._android(tmp, change))
+            self.assertEqual(len(problems), 2)
+            self.assertTrue(any(p.startswith("pt: common_save is missing") for p in problems))
+            self.assertTrue(any(p.startswith("fr: common_username is 'Identifiant'") for p in problems))
+            self.assertEqual(TOOL.main(["check-android", "--repo", tmp]), 1)
+
+    def test_an_android_file_that_is_missing_or_broken_is_listed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = self._android(tmp)
+            (repo / "app" / "src" / "main" / "res" / "values-zh" / "strings.xml").unlink()
+            (repo / "app" / "src" / "main" / "res" / "values-ja" / "strings.xml").write_text("<resources>", encoding="utf-8")
+            problems = TOOL.check_android(self.data, repo)
+            self.assertEqual(len(problems), 2)
+            self.assertTrue(any(p.startswith("zh:") and "does not exist" in p for p in problems))
+            self.assertTrue(any(p.startswith("ja:") and "not valid XML" in p for p in problems))
+
+    def test_an_arb_app_that_carries_every_text_passes_and_may_carry_more(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = self._arb(tmp)
+            self.assertEqual(TOOL.check_arb(self.data, repo), [])
+            self.assertEqual(TOOL.main(["check-arb", "--repo", str(repo)]), 0)
+
+    def test_an_arb_text_that_is_missing_or_different_is_listed(self) -> None:
+        def change(lang: str, entries: dict) -> None:
+            if lang == "de":
+                del entries["commonSave"]
+            if lang == "it":
+                entries["commonStop"] = "Stop"
+
+        with tempfile.TemporaryDirectory() as tmp:
+            problems = TOOL.check_arb(self.data, self._arb(tmp, change))
+            self.assertEqual(len(problems), 2)
+            self.assertTrue(any(p.startswith("de: commonSave is missing") for p in problems))
+            self.assertTrue(any(p.startswith("it: commonStop is 'Stop'") for p in problems))
+            self.assertEqual(TOOL.main(["check-arb", "--repo", tmp]), 1)
+
+    def test_an_arb_file_that_is_missing_or_broken_is_listed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = self._arb(tmp)
+            (repo / "lib" / "l10n" / "pt.arb").write_text("x", encoding="utf-8")
+            (repo / "lib" / "l10n" / "app_pt.arb").write_text("{", encoding="utf-8")
+            (repo / "lib" / "l10n" / "app_es.arb").unlink()
+            problems = TOOL.check_arb(self.data, repo)
+            self.assertEqual(len(problems), 2)
+            self.assertTrue(any(p.startswith("es:") and "does not exist" in p for p in problems))
+            self.assertTrue(any(p.startswith("pt:") and "not valid JSON" in p for p in problems))
 
 
 if __name__ == "__main__":
