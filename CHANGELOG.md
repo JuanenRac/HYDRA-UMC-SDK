@@ -2,11 +2,17 @@
 
 ## [Unreleased]
 
+## [0.7.1]
+
 - **The shared Dart transport carries the response headers, a binary body and a text answer (`clients/dart_app_common`):** `HttpResponseData` has `headers` (read by name whatever the case, `header()`, and `headersNamed()` for the names a route declares, which is what a `HydraReply` holds) and `bodyBytes` (the bytes of a binary answer), `HttpRequestData` has `bodyBytes` (an upload that is not text) and `binaryResponse` (the transport must not decode the answer as text), `HttpResponseData.copyWith()` keeps all of it, and `HydraApiCore.call()` takes `bodyBytes` and `binaryResponse` and no longer drops the headers when it fills in the path. Every new field is optional, so a transport and an answer written before them keep working. The renewal of an expired session repeats the request with its binary body and flag. New `test/http_transport_test.dart`.
 
 - **The contract types the answers of the claims, the safety limits, the audit record and the voice interface, and the generated clients can ask for the audit as text:** `GET /api/claims` answers `ClaimList`, `GET /api/safety-limits` answers `SafetyLimitsView` (the limits in force, the defaults, the ceilings and, with `robotId`, the limits of that robot), `GET /api/audit` answers `AuditReport` as JSON and as lines of JSON (`application/x-ndjson`, `format=jsonl`), `POST /api/voice/turn` answers `VoiceReply` and `POST /api/voice/confirm` answers the new `VoiceConfirmResult` (they relay the status of the voice interface, so the source marks them `relays_status`). Until now these returned nothing in the typed clients. `ServerConfig` is open (`additionalProperties`): the security groups the server adds next to `port` and `pendingPort` are kept by the Kotlin and Dart classes instead of being dropped. The new shapes are `ClaimView`, `ClaimList`, `SafetyLimitsConfig`, `SafetyLimitsView`, `AuditEntry`, `AuditVerification`, `AuditReport` and `VoiceConfirmResult`.
 
 - **A route that answers JSON and also offers the same answer as text gets a second generated method named `<route>AsText` in the TypeScript, Kotlin and Dart clients:** the source declares the other media type of a response with `other_media` (`tools/contract_source.py`), and `tools/generate_clients.py` writes the method with the same arguments and `responseType` text (today `getAuditAsText`); a route whose method name already ends in `AsText` stops the generator. Tests in `clients/python/tests/test_generate_clients.py` and the Dart smoke program cover it.
+
+### Changed
+
+- Automated build version increment from 0.7.0.
 
 ## [0.7.0]
 
