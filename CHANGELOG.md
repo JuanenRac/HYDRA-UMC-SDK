@@ -14,6 +14,7 @@
 
 ## [Unreleased]
 
+- **A test records that `read_request_id` accepts a final line feed:** the pattern ends with `$`, so `"r1\n"` is a valid request id of the contract, while BRIDGE-CNC reads the id with a full match and refuses it. The behaviour is unchanged; the test says that a bridge may be stricter than this module.
 - **The test of the app copies of the kinematics compares the whole model:** `test_the_models_equal_the_copies_of_the_apps_when_they_are_next_to_this_one` compared only the ranges and the home pose, so the copies of STUDIO, SERVER and SUITE (which carry the chain of the Universal Robots models too) failed it whenever they sat next to this checkout. The copy must now equal the model of `contracts/kinematics.json`, chain included.
 
 - **`GET /api/tool-arms` no longer lists the status `400` in the contract (group tool-arms):** the route takes no filter and no body, and the handler of the server never answers it (a state it cannot read is `404`, `502` or `503`). The generated OpenAPI document, the route tables (TypeScript, Kotlin, Dart, JSON) and the app fixtures are regenerated.

@@ -28,6 +28,12 @@ class RequestIdTests(unittest.TestCase):
             with self.assertRaises(BridgeError, msg=repr(value)):
                 read_request_id({"request_id": value})
 
+    def test_a_trailing_line_feed_is_still_accepted_and_the_bridges_may_be_stricter(self):
+        # `$` matches before a final line feed, so the id "r1\n" is accepted here. This is the rule of the contract today; BRIDGE-CNC reads the id
+        # with a full match and refuses it. Both agree on every id without a line feed, and a bridge that is stricter than this module is allowed.
+        self.assertEqual(read_request_id({"request_id": "r1\n"}), "r1\n")
+        self.assertEqual(read_request_id({"request_id": "r1"}), "r1")
+
     def test_the_answer_carries_it_and_the_original_is_untouched(self):
         answer = {"allowed": True}
         out = answer_with_request_id(answer, "r1")
