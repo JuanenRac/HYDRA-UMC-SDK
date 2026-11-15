@@ -109,6 +109,9 @@ class ReleaseFeedFailed extends ReleaseFeedResult {
 
 /// Why a feed answer cannot be used.
 enum ReleaseFeedProblem {
+  /// The feed could not be reached or answered with an error status (set by the app that asked, not by the rules).
+  unreachable,
+
   /// The text is not a JSON object.
   notJson,
 

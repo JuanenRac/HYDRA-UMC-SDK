@@ -86,6 +86,11 @@ void main() {
 
     ReleaseFeedProblem problem(ReleaseFeedResult r) => (r as ReleaseFeedFailed).reason;
 
+    test('the reasons the app can name are all different', () {
+      expect(ReleaseFeedProblem.values.toSet().length, 6);
+      expect(const ReleaseFeedFailed(ReleaseFeedProblem.unreachable).reason, ReleaseFeedProblem.unreachable);
+    });
+
     test('a bad payload, tag or installed version fails with its reason', () {
       expect(problem(evaluateReleaseFeed('nope', '1.0.0', _asset)), ReleaseFeedProblem.notJson);
       expect(problem(evaluateReleaseFeed('[1]', '1.0.0', _asset)), ReleaseFeedProblem.notJson);
