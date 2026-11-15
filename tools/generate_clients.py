@@ -760,7 +760,7 @@ def dart_class(name: str, definition: dict[str, Any]) -> list[str]:
     for field in fields:
         lines.append(f"    {'required ' if field['required'] else ''}this.{field['name']},")
     if open_part:
-        lines.append(f"    this.{open_part['name']} = const {open_part['native'].type}{{}},")
+        lines.append(f"    this.{open_part['name']} = const {open_part['native'].type[3:]}{{}},")
     lines += ["  });", "", f"  factory {name}.fromJson(Map<String, dynamic> json) => {name}("]
     for field in fields:
         lines.append(f"        {field['name']}: {field['native'].decode('json[' + dart_string(field['wire']) + ']', 0)},")

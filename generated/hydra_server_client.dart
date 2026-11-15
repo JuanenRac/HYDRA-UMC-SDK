@@ -4774,7 +4774,7 @@ class HydraPutAdminServerConfigResult {
     required this.success,
     required this.appliesOnRestart,
     required this.warnings,
-    this.additionalProperties = const Map<String, dynamic>{},
+    this.additionalProperties = const <String, dynamic>{},
   });
 
   factory HydraPutAdminServerConfigResult.fromJson(Map<String, dynamic> json) => HydraPutAdminServerConfigResult(
