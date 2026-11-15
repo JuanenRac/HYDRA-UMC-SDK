@@ -62,6 +62,7 @@ class AvailableRelease {
     required this.version,
     required this.name,
     required this.notes,
+    required this.pageUrl,
     required this.assetName,
     required this.assetUrl,
     required this.signatureUrl,
@@ -71,8 +72,14 @@ class AvailableRelease {
   final FeedVersion version;
   final String name;
   final String notes;
-  final String assetName;
-  final String assetUrl;
+
+  /// The address of the release page (`html_url`) when it is HTTPS, otherwise `null`: where an app that cannot
+  /// install by itself sends the person.
+  final String? pageUrl;
+
+  /// The asset the app asked for, or `null` when it asked for none (a notice only).
+  final String? assetName;
+  final String? assetUrl;
 
   /// The address of `<asset>.sig` when the release carries one, otherwise `null`.
   final String? signatureUrl;
@@ -121,8 +128,9 @@ enum ReleaseFeedProblem {
 String _str(Object? value) => value is String ? value : '';
 
 /// Applies the trust decisions to the JSON of `releases/latest`. [installed] is the version of the running app
-/// and [assetName] the exact name of the file the app can install.
-ReleaseFeedResult evaluateReleaseFeed(String payload, String installed, String assetName) {
+/// and [assetName] the exact name of the file the app can install. An app that publishes no installable file
+/// (it only tells the person that a newer version exists) passes `null`: the asset checks are then skipped.
+ReleaseFeedResult evaluateReleaseFeed(String payload, String installed, String? assetName) {
   final Object? decoded;
   try {
     decoded = jsonDecode(payload);
@@ -137,29 +145,38 @@ ReleaseFeedResult evaluateReleaseFeed(String payload, String installed, String a
   if (local == null) return const ReleaseFeedFailed(ReleaseFeedProblem.badInstalled);
   if (remote.compareTo(local) <= 0) return const ReleaseUpToDate();
 
-  final assets = decoded['assets'] is List ? decoded['assets'] as List : const [];
-  Map? asset;
-  Map? signature;
-  for (final item in assets) {
-    if (item is! Map) continue;
-    if (_str(item['name']) == assetName) asset ??= item;
-    if (_str(item['name']) == '$assetName.sig') signature ??= item;
+  String? assetUrl;
+  String? sigUrl;
+  String? digest;
+  if (assetName != null) {
+    final assets = decoded['assets'] is List ? decoded['assets'] as List : const [];
+    Map? asset;
+    Map? signature;
+    for (final item in assets) {
+      if (item is! Map) continue;
+      if (_str(item['name']) == assetName) asset ??= item;
+      if (_str(item['name']) == '$assetName.sig') signature ??= item;
+    }
+    if (asset == null) return const ReleaseFeedFailed(ReleaseFeedProblem.noAsset);
+    assetUrl = _str(asset['browser_download_url']);
+    if (!assetUrl.startsWith('https://')) return const ReleaseFeedFailed(ReleaseFeedProblem.notHttps);
+    final sig = signature == null ? '' : _str(signature['browser_download_url']);
+    if (sig.isNotEmpty && !sig.startsWith('https://')) {
+      return const ReleaseFeedFailed(ReleaseFeedProblem.notHttps);
+    }
+    sigUrl = sig.isEmpty ? null : sig;
+    digest = parseAssetDigest(_str(asset['digest']));
   }
-  if (asset == null) return const ReleaseFeedFailed(ReleaseFeedProblem.noAsset);
-  final url = _str(asset['browser_download_url']);
-  if (!url.startsWith('https://')) return const ReleaseFeedFailed(ReleaseFeedProblem.notHttps);
-  final sigUrl = signature == null ? '' : _str(signature['browser_download_url']);
-  if (sigUrl.isNotEmpty && !sigUrl.startsWith('https://')) {
-    return const ReleaseFeedFailed(ReleaseFeedProblem.notHttps);
-  }
+  final page = _str(decoded['html_url']);
   final name = decoded['name'];
   return ReleaseAvailable(AvailableRelease(
     version: remote,
     name: name is String && name.isNotEmpty ? name : 'v$remote',
     notes: _str(decoded['body']).trim(),
+    pageUrl: page.startsWith('https://') ? page : null,
     assetName: assetName,
-    assetUrl: url,
-    signatureUrl: sigUrl.isEmpty ? null : sigUrl,
-    digest: parseAssetDigest(_str(asset['digest'])),
+    assetUrl: assetUrl,
+    signatureUrl: sigUrl,
+    digest: digest,
   ));
 }

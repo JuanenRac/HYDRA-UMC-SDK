@@ -26,6 +26,7 @@ String _feed({
       'tag_name': tag,
       'name': name,
       'body': '  Notes here.  ',
+      'html_url': 'https://example.test/releases/tag/$tag',
       'draft': draft,
       'prerelease': prerelease,
       'assets': assets ??
@@ -67,6 +68,7 @@ void main() {
       expect(r.version.toString(), '1.2.0');
       expect(r.name, 'Release 1.2.0');
       expect(r.notes, 'Notes here.');
+      expect(r.pageUrl, 'https://example.test/releases/tag/v1.2.0');
       expect(r.assetUrl, 'https://example.test/$_asset');
       expect(r.signatureUrl, 'https://example.test/$_asset.sig');
       expect(r.digest, _hex);
@@ -116,6 +118,23 @@ void main() {
     test('a release without a name is called by its version', () {
       final result = evaluateReleaseFeed(_feed(name: null), '1.0.0', _asset) as ReleaseAvailable;
       expect(result.release.name, 'v1.2.0');
+    });
+
+    test('an app that asks for no asset gets a notice with the page of the release', () {
+      final result = evaluateReleaseFeed(_feed(assets: []), '1.0.0', null) as ReleaseAvailable;
+      expect(result.release.assetName, isNull);
+      expect(result.release.assetUrl, isNull);
+      expect(result.release.signatureUrl, isNull);
+      expect(result.release.digest, isNull);
+      expect(result.release.pageUrl, 'https://example.test/releases/tag/v1.2.0');
+      expect(evaluateReleaseFeed(_feed(assets: []), '1.2.0', null), isA<ReleaseUpToDate>());
+      expect(evaluateReleaseFeed(_feed(draft: true), '1.0.0', null), isA<ReleaseUpToDate>());
+    });
+
+    test('a page that is not HTTPS is not offered', () {
+      final text = _feed(assets: []).replaceFirst('https://example.test/releases', 'http://example.test/releases');
+      final result = evaluateReleaseFeed(text, '1.0.0', null) as ReleaseAvailable;
+      expect(result.release.pageUrl, isNull);
     });
 
     test('odd shapes in the assets list are skipped', () {
