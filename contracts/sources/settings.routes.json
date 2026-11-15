@@ -11,8 +11,16 @@
       "access": "user",
       "responses": {
         "200": {
-          "description": "Success. The body is documented in docs/REMOTE_API.md.",
-          "shape": "Settings"
+          "description": "The settings tree (secrets redacted unless the account is an administrator). The ETag header is its revision.",
+          "shape": "Settings",
+          "headers": {
+            "ETag": {
+              "description": "The revision of the document, to send back as If-Match.",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
         },
         "500": {
           "description": "Server error. The body is documented in docs/REMOTE_API.md.",
@@ -28,8 +36,36 @@
       "access": "admin",
       "responses": {
         "200": {
-          "description": "Success. The body is documented in docs/REMOTE_API.md.",
-          "shape": "Success"
+          "description": "Saved. The ETag header and revision are the new version.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean"
+              },
+              "revision": {
+                "type": "string"
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            },
+            "required": [
+              "success",
+              "revision"
+            ]
+          },
+          "headers": {
+            "ETag": {
+              "description": "The revision of the document, to send back as If-Match.",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
         },
         "409": {
           "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
@@ -38,6 +74,27 @@
         "500": {
           "description": "Server error. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
+        }
+      },
+      "parameters": [
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": false,
+          "description": "The ETag read from GET /api/settings; the save is refused (409) when the settings are no longer that version.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Settings"
+            }
+          }
         }
       }
     },
@@ -49,8 +106,36 @@
       "access": "admin",
       "responses": {
         "200": {
-          "description": "Success. The body is documented in docs/REMOTE_API.md.",
-          "shape": "Success"
+          "description": "Saved. The ETag header and revision are the new version.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean"
+              },
+              "revision": {
+                "type": "string"
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            },
+            "required": [
+              "success",
+              "revision"
+            ]
+          },
+          "headers": {
+            "ETag": {
+              "description": "The revision of the document, to send back as If-Match.",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
         },
         "409": {
           "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
@@ -67,6 +152,27 @@
         "500": {
           "description": "Server error. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
+        }
+      },
+      "parameters": [
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "description": "The ETag read from GET /api/settings (a bare * is not accepted).",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Settings"
+            }
+          }
         }
       }
     }

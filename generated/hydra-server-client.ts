@@ -557,6 +557,7 @@ export interface HydraRequest {
   readonly method: string;
   readonly path: string;
   readonly query: Readonly<Record<string, string>>;
+  readonly headers: Readonly<Record<string, string>>;
   readonly body: unknown;
   readonly access: string;
 }
@@ -585,712 +586,712 @@ export class HydraServerClient {
 
   /** GET /.well-known/jwks.json (access: public) */
   getWellKnownJwksJson(): Promise<JwksDocument> {
-    return this.transport({ method: "GET", path: "/.well-known/jwks.json", query: {}, body: undefined, access: "public" }) as Promise<JwksDocument>;
+    return this.transport({ method: "GET", path: "/.well-known/jwks.json", query: {}, headers: {}, body: undefined, access: "public" }) as Promise<JwksDocument>;
   }
 
   /** GET /api/adapters (access: user) */
   getAdapters(): Promise<Passthrough> {
-    return this.transport({ method: "GET", path: "/api/adapters", query: {}, body: undefined, access: "user" }) as Promise<Passthrough>;
+    return this.transport({ method: "GET", path: "/api/adapters", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<Passthrough>;
   }
 
   /** GET /api/adapters/{adapterId} (access: user) */
   getAdaptersByAdapterId(args: { path: { adapterId: string } }): Promise<void> {
-    return this.transport({ method: "GET", path: fillPath("/api/adapters/{adapterId}", args?.path), query: {}, body: undefined, access: "user" }) as Promise<void>;
+    return this.transport({ method: "GET", path: fillPath("/api/adapters/{adapterId}", args?.path), query: {}, headers: {}, body: undefined, access: "user" }) as Promise<void>;
   }
 
   /** GET /api/admin/clients (access: admin) */
   getAdminClients(): Promise<Clients> {
-    return this.transport({ method: "GET", path: "/api/admin/clients", query: {}, body: undefined, access: "admin" }) as Promise<Clients>;
+    return this.transport({ method: "GET", path: "/api/admin/clients", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<Clients>;
   }
 
   /** GET /api/admin/device-tokens (access: admin) */
   getAdminDeviceTokens(): Promise<DeviceTokenList> {
-    return this.transport({ method: "GET", path: "/api/admin/device-tokens", query: {}, body: undefined, access: "admin" }) as Promise<DeviceTokenList>;
+    return this.transport({ method: "GET", path: "/api/admin/device-tokens", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<DeviceTokenList>;
   }
 
   /** POST /api/admin/device-tokens (access: admin) */
   postAdminDeviceTokens(args: { body: { name: string; username: string; ttlDays?: number; confirm: boolean } }): Promise<DeviceTokenIssued> {
-    return this.transport({ method: "POST", path: "/api/admin/device-tokens", query: {}, body: args?.body, access: "admin" }) as Promise<DeviceTokenIssued>;
+    return this.transport({ method: "POST", path: "/api/admin/device-tokens", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<DeviceTokenIssued>;
   }
 
   /** DELETE /api/admin/device-tokens/{id} (access: admin) */
   deleteAdminDeviceTokensById(args: { path: { id: string } }): Promise<DeviceTokenRevoked> {
-    return this.transport({ method: "DELETE", path: fillPath("/api/admin/device-tokens/{id}", args?.path), query: {}, body: undefined, access: "admin" }) as Promise<DeviceTokenRevoked>;
+    return this.transport({ method: "DELETE", path: fillPath("/api/admin/device-tokens/{id}", args?.path), query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<DeviceTokenRevoked>;
   }
 
   /** GET /api/admin/fleet-update (access: admin) */
   getAdminFleetUpdate(): Promise<FleetUpdateStatus> {
-    return this.transport({ method: "GET", path: "/api/admin/fleet-update", query: {}, body: undefined, access: "admin" }) as Promise<FleetUpdateStatus>;
+    return this.transport({ method: "GET", path: "/api/admin/fleet-update", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<FleetUpdateStatus>;
   }
 
   /** POST /api/admin/fleet-update/apply (access: admin) */
   postAdminFleetUpdateApply(args: { body: { services?: string[]; confirm: true } }): Promise<FleetUpdateStatus> {
-    return this.transport({ method: "POST", path: "/api/admin/fleet-update/apply", query: {}, body: args?.body, access: "admin" }) as Promise<FleetUpdateStatus>;
+    return this.transport({ method: "POST", path: "/api/admin/fleet-update/apply", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<FleetUpdateStatus>;
   }
 
   /** POST /api/admin/fleet-update/plan (access: admin) */
   postAdminFleetUpdatePlan(): Promise<FleetUpdateStatus> {
-    return this.transport({ method: "POST", path: "/api/admin/fleet-update/plan", query: {}, body: undefined, access: "admin" }) as Promise<FleetUpdateStatus>;
+    return this.transport({ method: "POST", path: "/api/admin/fleet-update/plan", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<FleetUpdateStatus>;
   }
 
   /** POST /api/admin/fleet-update/resume (access: admin) */
   postAdminFleetUpdateResume(args: { body: { service: string; confirm: true } }): Promise<FleetUpdateStatus> {
-    return this.transport({ method: "POST", path: "/api/admin/fleet-update/resume", query: {}, body: args?.body, access: "admin" }) as Promise<FleetUpdateStatus>;
+    return this.transport({ method: "POST", path: "/api/admin/fleet-update/resume", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<FleetUpdateStatus>;
   }
 
   /** GET /api/admin/jwt-keys (access: admin) */
   getAdminJwtKeys(): Promise<JwtKeys> {
-    return this.transport({ method: "GET", path: "/api/admin/jwt-keys", query: {}, body: undefined, access: "admin" }) as Promise<JwtKeys>;
+    return this.transport({ method: "GET", path: "/api/admin/jwt-keys", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<JwtKeys>;
   }
 
   /** POST /api/admin/jwt-keys/rotate (access: admin) */
   postAdminJwtKeysRotate(): Promise<JwtKeyRotated> {
-    return this.transport({ method: "POST", path: "/api/admin/jwt-keys/rotate", query: {}, body: undefined, access: "admin" }) as Promise<JwtKeyRotated>;
+    return this.transport({ method: "POST", path: "/api/admin/jwt-keys/rotate", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<JwtKeyRotated>;
   }
 
   /** GET /api/admin/logs (access: admin) */
   getAdminLogs(args?: { query?: { lines?: string } }): Promise<LogLines> {
-    return this.transport({ method: "GET", path: "/api/admin/logs", query: queryOf(args?.query), body: undefined, access: "admin" }) as Promise<LogLines>;
+    return this.transport({ method: "GET", path: "/api/admin/logs", query: queryOf(args?.query), headers: {}, body: undefined, access: "admin" }) as Promise<LogLines>;
   }
 
   /** POST /api/admin/maintenance/install (access: admin) */
   postAdminMaintenanceInstall(args: { body: { package: string; allowDowngrade?: boolean; confirm: boolean } }): Promise<MaintenanceOutcome> {
-    return this.transport({ method: "POST", path: "/api/admin/maintenance/install", query: {}, body: args?.body, access: "admin" }) as Promise<MaintenanceOutcome>;
+    return this.transport({ method: "POST", path: "/api/admin/maintenance/install", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<MaintenanceOutcome>;
   }
 
   /** POST /api/admin/maintenance/prune (access: admin) */
   postAdminMaintenancePrune(args: { body: { component: string; keep?: number; confirm: boolean } }): Promise<MaintenanceOutcome> {
-    return this.transport({ method: "POST", path: "/api/admin/maintenance/prune", query: {}, body: args?.body, access: "admin" }) as Promise<MaintenanceOutcome>;
+    return this.transport({ method: "POST", path: "/api/admin/maintenance/prune", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<MaintenanceOutcome>;
   }
 
   /** POST /api/admin/maintenance/rollback (access: admin) */
   postAdminMaintenanceRollback(args: { body: { component: string; confirm: boolean } }): Promise<MaintenanceOutcome> {
-    return this.transport({ method: "POST", path: "/api/admin/maintenance/rollback", query: {}, body: args?.body, access: "admin" }) as Promise<MaintenanceOutcome>;
+    return this.transport({ method: "POST", path: "/api/admin/maintenance/rollback", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<MaintenanceOutcome>;
   }
 
   /** GET /api/admin/maintenance/status (access: admin) */
   getAdminMaintenanceStatus(args?: { query?: { component?: string } }): Promise<MaintenanceOutcome> {
-    return this.transport({ method: "GET", path: "/api/admin/maintenance/status", query: queryOf(args?.query), body: undefined, access: "admin" }) as Promise<MaintenanceOutcome>;
+    return this.transport({ method: "GET", path: "/api/admin/maintenance/status", query: queryOf(args?.query), headers: {}, body: undefined, access: "admin" }) as Promise<MaintenanceOutcome>;
   }
 
   /** GET /api/admin/push (access: admin) */
   getAdminPush(): Promise<PushStatus> {
-    return this.transport({ method: "GET", path: "/api/admin/push", query: {}, body: undefined, access: "admin" }) as Promise<PushStatus>;
+    return this.transport({ method: "GET", path: "/api/admin/push", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<PushStatus>;
   }
 
   /** POST /api/admin/restart (access: admin) */
   postAdminRestart(): Promise<Success> {
-    return this.transport({ method: "POST", path: "/api/admin/restart", query: {}, body: undefined, access: "admin" }) as Promise<Success>;
+    return this.transport({ method: "POST", path: "/api/admin/restart", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<Success>;
   }
 
   /** GET /api/admin/robot-ids (access: admin) */
   getAdminRobotIds(): Promise<{ ok: boolean; ambiguousCount: number; ambiguous: { robotId: number; controllers: string[] }[] }> {
-    return this.transport({ method: "GET", path: "/api/admin/robot-ids", query: {}, body: undefined, access: "admin" }) as Promise<{ ok: boolean; ambiguousCount: number; ambiguous: { robotId: number; controllers: string[] }[] }>;
+    return this.transport({ method: "GET", path: "/api/admin/robot-ids", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<{ ok: boolean; ambiguousCount: number; ambiguous: { robotId: number; controllers: string[] }[] }>;
   }
 
   /** PUT /api/admin/safety-limits (access: admin) */
-  putAdminSafetyLimits(): Promise<void> {
-    return this.transport({ method: "PUT", path: "/api/admin/safety-limits", query: {}, body: undefined, access: "admin" }) as Promise<void>;
+  putAdminSafetyLimits(args: { body: { jog?: { armRequired?: boolean; armTtlMs?: number; default?: { maxAmount?: number; maxAbsolute?: number }; models?: Record<string, unknown> }; temperature?: { default?: { bedMaxC?: number }; models?: Record<string, unknown> }; claims?: { requireControllerId?: boolean }; audit?: { enabled?: boolean; motionIntervalSeconds?: number } } }): Promise<{ limits: { jog?: { armRequired?: boolean; armTtlMs?: number; default?: { maxAmount?: number; maxAbsolute?: number }; models?: Record<string, unknown> }; temperature?: { default?: { bedMaxC?: number }; models?: Record<string, unknown> }; claims?: { requireControllerId?: boolean }; audit?: { enabled?: boolean; motionIntervalSeconds?: number } }; defaults?: Record<string, unknown>; hardLimits?: Record<string, unknown>; success: boolean }> {
+    return this.transport({ method: "PUT", path: "/api/admin/safety-limits", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<{ limits: { jog?: { armRequired?: boolean; armTtlMs?: number; default?: { maxAmount?: number; maxAbsolute?: number }; models?: Record<string, unknown> }; temperature?: { default?: { bedMaxC?: number }; models?: Record<string, unknown> }; claims?: { requireControllerId?: boolean }; audit?: { enabled?: boolean; motionIntervalSeconds?: number } }; defaults?: Record<string, unknown>; hardLimits?: Record<string, unknown>; success: boolean }>;
   }
 
   /** GET /api/admin/self-update (access: admin) */
   getAdminSelfUpdate(args?: { query?: { refresh?: string } }): Promise<SelfUpdateStatus> {
-    return this.transport({ method: "GET", path: "/api/admin/self-update", query: queryOf(args?.query), body: undefined, access: "admin" }) as Promise<SelfUpdateStatus>;
+    return this.transport({ method: "GET", path: "/api/admin/self-update", query: queryOf(args?.query), headers: {}, body: undefined, access: "admin" }) as Promise<SelfUpdateStatus>;
   }
 
   /** POST /api/admin/self-update/apply (access: admin) */
   postAdminSelfUpdateApply(args: { body: { component: "server" | "studio" | "os-agent"; confirm: true } }): Promise<SelfUpdateJob> {
-    return this.transport({ method: "POST", path: "/api/admin/self-update/apply", query: {}, body: args?.body, access: "admin" }) as Promise<SelfUpdateJob>;
+    return this.transport({ method: "POST", path: "/api/admin/self-update/apply", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<SelfUpdateJob>;
   }
 
   /** GET /api/admin/self-update/jobs/{id} (access: admin) */
   getAdminSelfUpdateJobsById(args: { path: { id: string } }): Promise<SelfUpdateJob> {
-    return this.transport({ method: "GET", path: fillPath("/api/admin/self-update/jobs/{id}", args?.path), query: {}, body: undefined, access: "admin" }) as Promise<SelfUpdateJob>;
+    return this.transport({ method: "GET", path: fillPath("/api/admin/self-update/jobs/{id}", args?.path), query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<SelfUpdateJob>;
   }
 
   /** POST /api/admin/self-update/rollback (access: admin) */
   postAdminSelfUpdateRollback(args: { body: { component: "server" | "studio" | "os-agent"; confirm: true } }): Promise<SelfUpdateJob> {
-    return this.transport({ method: "POST", path: "/api/admin/self-update/rollback", query: {}, body: args?.body, access: "admin" }) as Promise<SelfUpdateJob>;
+    return this.transport({ method: "POST", path: "/api/admin/self-update/rollback", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<SelfUpdateJob>;
   }
 
   /** GET /api/admin/server-config (access: admin) */
   getAdminServerConfig(): Promise<ServerConfig> {
-    return this.transport({ method: "GET", path: "/api/admin/server-config", query: {}, body: undefined, access: "admin" }) as Promise<ServerConfig>;
+    return this.transport({ method: "GET", path: "/api/admin/server-config", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<ServerConfig>;
   }
 
   /** PUT /api/admin/server-config (access: admin) */
-  putAdminServerConfig(args: { body: { port: number } }): Promise<ServerConfigSaved> {
-    return this.transport({ method: "PUT", path: "/api/admin/server-config", query: {}, body: args?.body, access: "admin" }) as Promise<ServerConfigSaved>;
+  putAdminServerConfig(args?: { body?: { port?: number; aiAccess?: Record<string, unknown>; infoAuth?: Record<string, unknown>; tls?: Record<string, unknown>; ble?: Record<string, unknown>; mqtt?: Record<string, unknown>; voice?: Record<string, unknown>; mavlink?: Record<string, unknown>; robots?: Record<string, unknown>; connections?: Record<string, unknown>; health?: Record<string, unknown>; ecosystemHealth?: Record<string, unknown>; nodeHealth?: Record<string, unknown>; twinRelay?: Record<string, unknown>; infoTickets?: Record<string, unknown>; deviceTokens?: Record<string, unknown>; updateCheck?: Record<string, unknown>; discovery?: Record<string, unknown>; maintenance?: Record<string, unknown>; atc?: Record<string, unknown>; detectionHef?: Record<string, unknown>; auth?: Record<string, unknown>; presence?: Record<string, unknown>; push?: Record<string, unknown>; trustedNetworks?: Record<string, unknown>; rul?: Record<string, unknown>; safety?: Record<string, unknown>; camera?: Record<string, unknown>; install?: Record<string, unknown>; websocket?: Record<string, unknown>; logging?: Record<string, unknown>; rateLimits?: Record<string, unknown>; bridges?: Record<string, unknown>; jobDispatcher?: Record<string, unknown> } }): Promise<{ success: boolean; appliesOnRestart: boolean; warnings: string[]; [other: string]: unknown }> {
+    return this.transport({ method: "PUT", path: "/api/admin/server-config", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<{ success: boolean; appliesOnRestart: boolean; warnings: string[]; [other: string]: unknown }>;
   }
 
   /** GET /api/admin/service-identity (access: admin) */
   getAdminServiceIdentity(): Promise<ServiceIdentityStatus> {
-    return this.transport({ method: "GET", path: "/api/admin/service-identity", query: {}, body: undefined, access: "admin" }) as Promise<ServiceIdentityStatus>;
+    return this.transport({ method: "GET", path: "/api/admin/service-identity", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<ServiceIdentityStatus>;
   }
 
   /** GET /api/admin/updates (access: admin) */
   getAdminUpdates(args?: { query?: { refresh?: string } }): Promise<UpdateReport> {
-    return this.transport({ method: "GET", path: "/api/admin/updates", query: queryOf(args?.query), body: undefined, access: "admin" }) as Promise<UpdateReport>;
+    return this.transport({ method: "GET", path: "/api/admin/updates", query: queryOf(args?.query), headers: {}, body: undefined, access: "admin" }) as Promise<UpdateReport>;
   }
 
   /** GET /api/anomaly/verdicts (access: user) */
   getAnomalyVerdicts(args?: { query?: { verdict?: string; verify?: string } }): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/anomaly/verdicts", query: queryOf(args?.query), body: undefined, access: "user" }) as Promise<void>;
+    return this.transport({ method: "GET", path: "/api/anomaly/verdicts", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<void>;
   }
 
   /** GET /api/audit (access: admin) */
   getAudit(args?: { query?: { afterSeq?: string; format?: string; limit?: string; robotId?: string; type?: string; verify?: string } }): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/audit", query: queryOf(args?.query), body: undefined, access: "admin" }) as Promise<void>;
+    return this.transport({ method: "GET", path: "/api/audit", query: queryOf(args?.query), headers: {}, body: undefined, access: "admin" }) as Promise<void>;
   }
 
   /** GET /api/bridges (access: user) */
   getBridges(): Promise<BridgeList> {
-    return this.transport({ method: "GET", path: "/api/bridges", query: {}, body: undefined, access: "user" }) as Promise<BridgeList>;
+    return this.transport({ method: "GET", path: "/api/bridges", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<BridgeList>;
   }
 
   /** POST /api/bridges/{name}/cmd/{verb} (access: user) */
   postBridgesByNameCmdByVerb(args: { path: { name: string; verb: string }; body?: Record<string, unknown> }): Promise<BridgeCommandAccepted> {
-    return this.transport({ method: "POST", path: fillPath("/api/bridges/{name}/cmd/{verb}", args?.path), query: {}, body: args?.body, access: "user" }) as Promise<BridgeCommandAccepted>;
+    return this.transport({ method: "POST", path: fillPath("/api/bridges/{name}/cmd/{verb}", args?.path), query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<BridgeCommandAccepted>;
   }
 
   /** GET /api/bridges/{name}/state (access: user) */
   getBridgesByNameState(args: { path: { name: string } }): Promise<BridgeState> {
-    return this.transport({ method: "GET", path: fillPath("/api/bridges/{name}/state", args?.path), query: {}, body: undefined, access: "user" }) as Promise<BridgeState>;
+    return this.transport({ method: "GET", path: fillPath("/api/bridges/{name}/state", args?.path), query: {}, headers: {}, body: undefined, access: "user" }) as Promise<BridgeState>;
   }
 
   /** POST /api/camera/discover-rtsp-path (access: admin) */
   postCameraDiscoverRtspPath(args: { body: { host: string; port?: number; username?: string; password?: string } }): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/camera/discover-rtsp-path", query: {}, body: args?.body, access: "admin" }) as Promise<void>;
+    return this.transport({ method: "POST", path: "/api/camera/discover-rtsp-path", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<void>;
   }
 
   /** GET /api/camera/discover-usb-devices (access: user) */
   getCameraDiscoverUsbDevices(): Promise<UsbDevices> {
-    return this.transport({ method: "GET", path: "/api/camera/discover-usb-devices", query: {}, body: undefined, access: "user" }) as Promise<UsbDevices>;
+    return this.transport({ method: "GET", path: "/api/camera/discover-usb-devices", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<UsbDevices>;
   }
 
   /** GET /api/camera/media (access: user) */
   getCameraMedia(): Promise<CameraMediaList> {
-    return this.transport({ method: "GET", path: "/api/camera/media", query: {}, body: undefined, access: "user" }) as Promise<CameraMediaList>;
+    return this.transport({ method: "GET", path: "/api/camera/media", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<CameraMediaList>;
   }
 
   /** GET /api/camera/media/{cameraId}/{kind}/{filename} (access: public) */
   getCameraMediaByCameraIdByKindByFilename(args: { path: { cameraId: number; kind: string; filename: string } }): Promise<void> {
-    return this.transport({ method: "GET", path: fillPath("/api/camera/media/{cameraId}/{kind}/{filename}", args?.path), query: {}, body: undefined, access: "public" }) as Promise<void>;
+    return this.transport({ method: "GET", path: fillPath("/api/camera/media/{cameraId}/{kind}/{filename}", args?.path), query: {}, headers: {}, body: undefined, access: "public" }) as Promise<void>;
   }
 
   /** DELETE /api/camera/media/{cameraId}/{kind}/{filename} (access: user) */
   deleteCameraMediaByCameraIdByKindByFilename(args: { path: { cameraId: number; kind: string; filename: string } }): Promise<CameraCapture> {
-    return this.transport({ method: "DELETE", path: fillPath("/api/camera/media/{cameraId}/{kind}/{filename}", args?.path), query: {}, body: undefined, access: "user" }) as Promise<CameraCapture>;
+    return this.transport({ method: "DELETE", path: fillPath("/api/camera/media/{cameraId}/{kind}/{filename}", args?.path), query: {}, headers: {}, body: undefined, access: "user" }) as Promise<CameraCapture>;
   }
 
   /** POST /api/camera/ticket (access: user) */
   postCameraTicket(): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/camera/ticket", query: {}, body: undefined, access: "user" }) as Promise<void>;
+    return this.transport({ method: "POST", path: "/api/camera/ticket", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<void>;
   }
 
   /** POST /api/camera/{id}/ptz (access: admin) */
   postCameraByIdPtz(args: { path: { id: number }; body: { host: string; port?: number; username?: string; password?: string; channel?: number; pan?: number; tilt?: number; zoom?: number } }): Promise<PtzResult> {
-    return this.transport({ method: "POST", path: fillPath("/api/camera/{id}/ptz", args?.path), query: {}, body: args?.body, access: "admin" }) as Promise<PtzResult>;
+    return this.transport({ method: "POST", path: fillPath("/api/camera/{id}/ptz", args?.path), query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<PtzResult>;
   }
 
   /** POST /api/camera/{id}/recording/start (access: user) */
   postCameraByIdRecordingStart(args: { path: { id: number } }): Promise<CameraCapture> {
-    return this.transport({ method: "POST", path: fillPath("/api/camera/{id}/recording/start", args?.path), query: {}, body: undefined, access: "user" }) as Promise<CameraCapture>;
+    return this.transport({ method: "POST", path: fillPath("/api/camera/{id}/recording/start", args?.path), query: {}, headers: {}, body: undefined, access: "user" }) as Promise<CameraCapture>;
   }
 
   /** POST /api/camera/{id}/recording/stop (access: user) */
   postCameraByIdRecordingStop(args: { path: { id: number } }): Promise<CameraCapture> {
-    return this.transport({ method: "POST", path: fillPath("/api/camera/{id}/recording/stop", args?.path), query: {}, body: undefined, access: "user" }) as Promise<CameraCapture>;
+    return this.transport({ method: "POST", path: fillPath("/api/camera/{id}/recording/stop", args?.path), query: {}, headers: {}, body: undefined, access: "user" }) as Promise<CameraCapture>;
   }
 
   /** POST /api/camera/{id}/snapshot (access: user) */
   postCameraByIdSnapshot(args: { path: { id: number } }): Promise<CameraCapture> {
-    return this.transport({ method: "POST", path: fillPath("/api/camera/{id}/snapshot", args?.path), query: {}, body: undefined, access: "user" }) as Promise<CameraCapture>;
+    return this.transport({ method: "POST", path: fillPath("/api/camera/{id}/snapshot", args?.path), query: {}, headers: {}, body: undefined, access: "user" }) as Promise<CameraCapture>;
   }
 
   /** GET /api/camera/{id}/stream (access: public) */
   getCameraByIdStream(args: { path: { id: number } }): Promise<void> {
-    return this.transport({ method: "GET", path: fillPath("/api/camera/{id}/stream", args?.path), query: {}, body: undefined, access: "public" }) as Promise<void>;
+    return this.transport({ method: "GET", path: fillPath("/api/camera/{id}/stream", args?.path), query: {}, headers: {}, body: undefined, access: "public" }) as Promise<void>;
   }
 
   /** GET /api/cameras/status (access: user) */
   getCamerasStatus(): Promise<CameraProcessStatus> {
-    return this.transport({ method: "GET", path: "/api/cameras/status", query: {}, body: undefined, access: "user" }) as Promise<CameraProcessStatus>;
+    return this.transport({ method: "GET", path: "/api/cameras/status", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<CameraProcessStatus>;
   }
 
   /** GET /api/claims (access: user) */
   getClaims(): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/claims", query: {}, body: undefined, access: "user" }) as Promise<void>;
+    return this.transport({ method: "GET", path: "/api/claims", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<void>;
   }
 
   /** List the clients the server has seen (access: user) */
   getConnectionsClients(args?: { query?: { kind?: "studio" | "suite" | "android" | "ios" | "dsi" | "watch" | "voice" | "other"; user?: string; active?: "1" | "true" } }): Promise<ConnectionClientList> {
-    return this.transport({ method: "GET", path: "/api/connections/clients", query: queryOf(args?.query), body: undefined, access: "user" }) as Promise<ConnectionClientList>;
+    return this.transport({ method: "GET", path: "/api/connections/clients", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<ConnectionClientList>;
   }
 
   /** List the history of the sign-ins of the clients (access: user) */
   getConnectionsEvents(args?: { query?: { kind?: "studio" | "suite" | "android" | "ios" | "dsi" | "watch" | "voice" | "other"; action?: "first_seen" | "login" | "login_failed" | "second_factor_failed" | "logout" | "session_ended" | "session_expired"; user?: string; before?: string; limit?: string } }): Promise<ConnectionEventList> {
-    return this.transport({ method: "GET", path: "/api/connections/events", query: queryOf(args?.query), body: undefined, access: "user" }) as Promise<ConnectionEventList>;
+    return this.transport({ method: "GET", path: "/api/connections/events", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<ConnectionEventList>;
   }
 
   /** GET /api/connector-hub/gate/audit (access: user) */
   getConnectorHubGateAudit(): Promise<Passthrough> {
-    return this.transport({ method: "GET", path: "/api/connector-hub/gate/audit", query: {}, body: undefined, access: "user" }) as Promise<Passthrough>;
+    return this.transport({ method: "GET", path: "/api/connector-hub/gate/audit", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<Passthrough>;
   }
 
   /** POST /api/connector-hub/gate/evaluate (access: user) */
   postConnectorHubGateEvaluate(): Promise<Passthrough> {
-    return this.transport({ method: "POST", path: "/api/connector-hub/gate/evaluate", query: {}, body: undefined, access: "user" }) as Promise<Passthrough>;
+    return this.transport({ method: "POST", path: "/api/connector-hub/gate/evaluate", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<Passthrough>;
   }
 
   /** GET /api/connector-hub/gate/settings (access: user) */
-  getConnectorHubGateSettings(): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/connector-hub/gate/settings", query: {}, body: undefined, access: "user" }) as Promise<void>;
+  getConnectorHubGateSettings(): Promise<{ allowLoopbackNoIdentity: boolean; loopbackSwitchAllowed?: boolean; verifiesTokens?: boolean; persisted?: boolean }> {
+    return this.transport({ method: "GET", path: "/api/connector-hub/gate/settings", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<{ allowLoopbackNoIdentity: boolean; loopbackSwitchAllowed?: boolean; verifiesTokens?: boolean; persisted?: boolean }>;
   }
 
   /** POST /api/connector-hub/gate/settings (access: admin) */
-  postConnectorHubGateSettings(): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/connector-hub/gate/settings", query: {}, body: undefined, access: "admin" }) as Promise<void>;
+  postConnectorHubGateSettings(args: { body: { allowLoopbackNoIdentity: boolean; confirm?: boolean } }): Promise<{ allowLoopbackNoIdentity: boolean; loopbackSwitchAllowed?: boolean; verifiesTokens?: boolean; persisted?: boolean; changed?: boolean }> {
+    return this.transport({ method: "POST", path: "/api/connector-hub/gate/settings", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<{ allowLoopbackNoIdentity: boolean; loopbackSwitchAllowed?: boolean; verifiesTokens?: boolean; persisted?: boolean; changed?: boolean }>;
   }
 
   /** GET /api/dev-server/status (access: user) */
   getDevServerStatus(args?: { query?: { verify?: string } }): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/dev-server/status", query: queryOf(args?.query), body: undefined, access: "user" }) as Promise<void>;
+    return this.transport({ method: "GET", path: "/api/dev-server/status", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<void>;
   }
 
   /** GET /api/developer-node/status (access: user) */
   getDeveloperNodeStatus(args?: { query?: { verify?: string } }): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/developer-node/status", query: queryOf(args?.query), body: undefined, access: "user" }) as Promise<void>;
+    return this.transport({ method: "GET", path: "/api/developer-node/status", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<void>;
   }
 
   /** POST /api/device/login (access: public) */
   postDeviceLogin(args: { body: { token: string } }): Promise<LoginResult> {
-    return this.transport({ method: "POST", path: "/api/device/login", query: {}, body: args?.body, access: "public" }) as Promise<LoginResult>;
+    return this.transport({ method: "POST", path: "/api/device/login", query: {}, headers: {}, body: args?.body, access: "public" }) as Promise<LoginResult>;
   }
 
   /** GET /api/droid-estop/settings (access: user) */
-  getDroidEstopSettings(): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/droid-estop/settings", query: {}, body: undefined, access: "user" }) as Promise<void>;
+  getDroidEstopSettings(): Promise<{ enabled: boolean; running?: boolean }> {
+    return this.transport({ method: "GET", path: "/api/droid-estop/settings", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<{ enabled: boolean; running?: boolean }>;
   }
 
   /** POST /api/droid-estop/settings (access: admin) */
-  postDroidEstopSettings(): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/droid-estop/settings", query: {}, body: undefined, access: "admin" }) as Promise<void>;
+  postDroidEstopSettings(args: { body: { enabled: boolean; confirm: boolean } }): Promise<{ enabled: boolean; running?: boolean; changed?: boolean }> {
+    return this.transport({ method: "POST", path: "/api/droid-estop/settings", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<{ enabled: boolean; running?: boolean; changed?: boolean }>;
   }
 
   /** GET /api/ecosystem/health (access: user) */
   getEcosystemHealth(): Promise<EcosystemHealth> {
-    return this.transport({ method: "GET", path: "/api/ecosystem/health", query: {}, body: undefined, access: "user" }) as Promise<EcosystemHealth>;
+    return this.transport({ method: "GET", path: "/api/ecosystem/health", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<EcosystemHealth>;
   }
 
   /** GET /api/ecosystem/node-health (access: user) */
   getEcosystemNodeHealth(args?: { query?: { slot?: string } }): Promise<NodeHealth> {
-    return this.transport({ method: "GET", path: "/api/ecosystem/node-health", query: queryOf(args?.query), body: undefined, access: "user" }) as Promise<NodeHealth>;
+    return this.transport({ method: "GET", path: "/api/ecosystem/node-health", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<NodeHealth>;
   }
 
   /** POST /api/ecosystem/service/{unit}/{action} (access: admin) */
   postEcosystemServiceByUnitByAction(args: { path: { unit: string; action: string } }): Promise<Success> {
-    return this.transport({ method: "POST", path: fillPath("/api/ecosystem/service/{unit}/{action}", args?.path), query: {}, body: undefined, access: "admin" }) as Promise<Success>;
+    return this.transport({ method: "POST", path: fillPath("/api/ecosystem/service/{unit}/{action}", args?.path), query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<Success>;
   }
 
   /** GET /api/ecosystem/status (access: public) */
   getEcosystemStatus(): Promise<EcosystemStatus> {
-    return this.transport({ method: "GET", path: "/api/ecosystem/status", query: {}, body: undefined, access: "public" }) as Promise<EcosystemStatus>;
+    return this.transport({ method: "GET", path: "/api/ecosystem/status", query: {}, headers: {}, body: undefined, access: "public" }) as Promise<EcosystemStatus>;
   }
 
   /** GET /api/faults (access: user) */
   getFaults(args?: { query?: { active?: string; limit?: string; verify?: string } }): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/faults", query: queryOf(args?.query), body: undefined, access: "user" }) as Promise<void>;
+    return this.transport({ method: "GET", path: "/api/faults", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<void>;
   }
 
   /** POST /api/hardware/canota/flash (access: admin) */
-  postHardwareCanotaFlash(): Promise<CanotaFlash> {
-    return this.transport({ method: "POST", path: "/api/hardware/canota/flash", query: {}, body: undefined, access: "admin" }) as Promise<CanotaFlash>;
+  postHardwareCanotaFlash(args?: { query?: { tier?: string; slot?: string; relay?: string; hardware_id?: string; version_major?: string; version_minor?: string; version_patch?: string; signature?: string; downgrade_from?: string; target?: string; min_bootloader?: string } }): Promise<CanotaFlash> {
+    return this.transport({ method: "POST", path: "/api/hardware/canota/flash", query: queryOf(args?.query), headers: {}, body: undefined, access: "admin" }) as Promise<CanotaFlash>;
   }
 
   /** GET /api/hardware/canota/version (access: user) */
   getHardwareCanotaVersion(args?: { query?: { relay?: string; slot?: string; tier?: string } }): Promise<Passthrough> {
-    return this.transport({ method: "GET", path: "/api/hardware/canota/version", query: queryOf(args?.query), body: undefined, access: "user" }) as Promise<Passthrough>;
+    return this.transport({ method: "GET", path: "/api/hardware/canota/version", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<Passthrough>;
   }
 
   /** POST /api/hardware/fram/erase (access: admin) */
-  postHardwareFramErase(): Promise<Passthrough> {
-    return this.transport({ method: "POST", path: "/api/hardware/fram/erase", query: {}, body: undefined, access: "admin" }) as Promise<Passthrough>;
+  postHardwareFramErase(args: { body: { confirm: "ERASE" } }): Promise<Passthrough> {
+    return this.transport({ method: "POST", path: "/api/hardware/fram/erase", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<Passthrough>;
   }
 
   /** POST /api/hardware/fram/selftest (access: admin) */
   postHardwareFramSelftest(): Promise<Passthrough> {
-    return this.transport({ method: "POST", path: "/api/hardware/fram/selftest", query: {}, body: undefined, access: "admin" }) as Promise<Passthrough>;
+    return this.transport({ method: "POST", path: "/api/hardware/fram/selftest", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<Passthrough>;
   }
 
   /** GET /api/hil-bridge/settings (access: user) */
-  getHilBridgeSettings(): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/hil-bridge/settings", query: {}, body: undefined, access: "user" }) as Promise<void>;
+  getHilBridgeSettings(): Promise<{ requireTwinPass: boolean; locked?: boolean; persisted?: boolean; ready?: boolean; canChange?: boolean }> {
+    return this.transport({ method: "GET", path: "/api/hil-bridge/settings", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<{ requireTwinPass: boolean; locked?: boolean; persisted?: boolean; ready?: boolean; canChange?: boolean }>;
   }
 
   /** POST /api/hil-bridge/settings (access: admin) */
-  postHilBridgeSettings(): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/hil-bridge/settings", query: {}, body: undefined, access: "admin" }) as Promise<void>;
+  postHilBridgeSettings(args: { body: { requireTwinPass: boolean; confirm: boolean } }): Promise<{ requireTwinPass: boolean; locked?: boolean; persisted?: boolean; ready?: boolean; canChange?: boolean; changed?: boolean }> {
+    return this.transport({ method: "POST", path: "/api/hil-bridge/settings", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<{ requireTwinPass: boolean; locked?: boolean; persisted?: boolean; ready?: boolean; canChange?: boolean; changed?: boolean }>;
   }
 
   /** GET /api/hydra-info (access: public) */
   getHydraInfo(): Promise<HydraInfo> {
-    return this.transport({ method: "GET", path: "/api/hydra-info", query: {}, body: undefined, access: "public" }) as Promise<HydraInfo>;
+    return this.transport({ method: "GET", path: "/api/hydra-info", query: {}, headers: {}, body: undefined, access: "public" }) as Promise<HydraInfo>;
   }
 
   /** POST /api/info/ticket (access: user) */
   postInfoTicket(args?: { body?: { ttlSeconds?: unknown } }): Promise<InfoTicket> {
-    return this.transport({ method: "POST", path: "/api/info/ticket", query: {}, body: args?.body, access: "user" }) as Promise<InfoTicket>;
+    return this.transport({ method: "POST", path: "/api/info/ticket", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<InfoTicket>;
   }
 
   /** POST /api/ingest/dev-server/status (access: public) */
   postIngestDevServerStatus(): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/ingest/dev-server/status", query: {}, body: undefined, access: "public" }) as Promise<void>;
+    return this.transport({ method: "POST", path: "/api/ingest/dev-server/status", query: {}, headers: {}, body: undefined, access: "public" }) as Promise<void>;
   }
 
   /** POST /api/ingest/developer-node/status (access: public) */
   postIngestDeveloperNodeStatus(): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/ingest/developer-node/status", query: {}, body: undefined, access: "public" }) as Promise<void>;
+    return this.transport({ method: "POST", path: "/api/ingest/developer-node/status", query: {}, headers: {}, body: undefined, access: "public" }) as Promise<void>;
   }
 
   /** POST /api/ingest/scenario-outcome (access: user) */
   postIngestScenarioOutcome(): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/ingest/scenario-outcome", query: {}, body: undefined, access: "user" }) as Promise<void>;
+    return this.transport({ method: "POST", path: "/api/ingest/scenario-outcome", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<void>;
   }
 
   /** GET /api/ingest/scenario-outcomes (access: user) */
   getIngestScenarioOutcomes(args?: { query?: { fingerprint_kind?: string; limit?: string; scenario_id?: string; verify?: string } }): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/ingest/scenario-outcomes", query: queryOf(args?.query), body: undefined, access: "user" }) as Promise<void>;
+    return this.transport({ method: "GET", path: "/api/ingest/scenario-outcomes", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<void>;
   }
 
   /** POST /api/integrations/test-connection (access: user) */
   postIntegrationsTestConnection(args: { body: { host: string; port: number } }): Promise<Reachable> {
-    return this.transport({ method: "POST", path: "/api/integrations/test-connection", query: {}, body: args?.body, access: "user" }) as Promise<Reachable>;
+    return this.transport({ method: "POST", path: "/api/integrations/test-connection", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<Reachable>;
   }
 
   /** POST /api/login (access: public) */
   postLogin(args: { body: { username: string; password: string; totp?: string } }): Promise<LoginResult> {
-    return this.transport({ method: "POST", path: "/api/login", query: {}, body: args?.body, access: "public" }) as Promise<LoginResult>;
+    return this.transport({ method: "POST", path: "/api/login", query: {}, headers: {}, body: args?.body, access: "public" }) as Promise<LoginResult>;
   }
 
   /** POST /api/logout (access: public) */
   postLogout(args?: { body?: { refreshToken?: string } }): Promise<Success> {
-    return this.transport({ method: "POST", path: "/api/logout", query: {}, body: args?.body, access: "public" }) as Promise<Success>;
+    return this.transport({ method: "POST", path: "/api/logout", query: {}, headers: {}, body: args?.body, access: "public" }) as Promise<Success>;
   }
 
   /** GET /api/models (access: public) */
   getModels(): Promise<ModelList> {
-    return this.transport({ method: "GET", path: "/api/models", query: {}, body: undefined, access: "public" }) as Promise<ModelList>;
+    return this.transport({ method: "GET", path: "/api/models", query: {}, headers: {}, body: undefined, access: "public" }) as Promise<ModelList>;
   }
 
   /** POST /api/models/submit (access: admin) */
   postModelsSubmit(args?: { body?: { category?: unknown; meshFiles?: unknown; name?: unknown; overwrite?: unknown; urdfFilename?: unknown; urdfXml?: unknown } }): Promise<ModelSubmitted> {
-    return this.transport({ method: "POST", path: "/api/models/submit", query: {}, body: args?.body, access: "admin" }) as Promise<ModelSubmitted>;
+    return this.transport({ method: "POST", path: "/api/models/submit", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<ModelSubmitted>;
   }
 
   /** GET /api/models/{category}/{slug}/download (access: public) */
   getModelsByCategoryBySlugDownload(args: { path: { category: string; slug: string } }): Promise<void> {
-    return this.transport({ method: "GET", path: fillPath("/api/models/{category}/{slug}/download", args?.path), query: {}, body: undefined, access: "public" }) as Promise<void>;
+    return this.transport({ method: "GET", path: fillPath("/api/models/{category}/{slug}/download", args?.path), query: {}, headers: {}, body: undefined, access: "public" }) as Promise<void>;
   }
 
   /** POST /api/operator/confirmations (access: user) */
   postOperatorConfirmations(args: { body: { action: string; job_id: string; confirm: true; ttl_seconds?: number } }): Promise<{ token: string; action: string; job_id: string; expires_at: number; ttl_seconds: number; single_use: true }> {
-    return this.transport({ method: "POST", path: "/api/operator/confirmations", query: {}, body: args?.body, access: "user" }) as Promise<{ token: string; action: string; job_id: string; expires_at: number; ttl_seconds: number; single_use: true }>;
+    return this.transport({ method: "POST", path: "/api/operator/confirmations", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<{ token: string; action: string; job_id: string; expires_at: number; ttl_seconds: number; single_use: true }>;
   }
 
   /** GET /api/operator/presence (access: user) */
   getOperatorPresence(): Promise<OperatorPresence> {
-    return this.transport({ method: "GET", path: "/api/operator/presence", query: {}, body: undefined, access: "user" }) as Promise<OperatorPresence>;
+    return this.transport({ method: "GET", path: "/api/operator/presence", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<OperatorPresence>;
   }
 
   /** POST /api/operator/presence (access: user) */
   postOperatorPresence(args: { body: { type?: "presence_heartbeat"; protocolVersion?: number; sequence: number; intervalSeconds: number; state: "PRESENT" | "LEFT" } }): Promise<OperatorPresenceAck> {
-    return this.transport({ method: "POST", path: "/api/operator/presence", query: {}, body: args?.body, access: "user" }) as Promise<OperatorPresenceAck>;
+    return this.transport({ method: "POST", path: "/api/operator/presence", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<OperatorPresenceAck>;
   }
 
   /** GET /api/ops-agent/proposals (access: admin) */
   getOpsAgentProposals(): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/ops-agent/proposals", query: {}, body: undefined, access: "admin" }) as Promise<void>;
+    return this.transport({ method: "GET", path: "/api/ops-agent/proposals", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<void>;
   }
 
   /** POST /api/ops-agent/proposals/decide (access: admin) */
   postOpsAgentProposalsDecide(): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/ops-agent/proposals/decide", query: {}, body: undefined, access: "admin" }) as Promise<void>;
+    return this.transport({ method: "POST", path: "/api/ops-agent/proposals/decide", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<void>;
   }
 
   /** POST /api/push/devices (access: user) */
   postPushDevices(args: { body: { token: string; platform: "ios"; locale?: "en" | "es" | "de" | "fr" | "it" | "ja" | "zh" | "pt" } }): Promise<PushDeviceRegistered> {
-    return this.transport({ method: "POST", path: "/api/push/devices", query: {}, body: args?.body, access: "user" }) as Promise<PushDeviceRegistered>;
+    return this.transport({ method: "POST", path: "/api/push/devices", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<PushDeviceRegistered>;
   }
 
   /** DELETE /api/push/devices/{token} (access: user) */
   deletePushDevicesByToken(args: { path: { token: string } }): Promise<PushDeviceRemoved> {
-    return this.transport({ method: "DELETE", path: fillPath("/api/push/devices/{token}", args?.path), query: {}, body: undefined, access: "user" }) as Promise<PushDeviceRemoved>;
+    return this.transport({ method: "DELETE", path: fillPath("/api/push/devices/{token}", args?.path), query: {}, headers: {}, body: undefined, access: "user" }) as Promise<PushDeviceRemoved>;
   }
 
   /** POST /api/push/live-activities (access: user) */
   postPushLiveActivities(args: { body: { activityToken: string; robotId: string } }): Promise<LiveActivityRegistered> {
-    return this.transport({ method: "POST", path: "/api/push/live-activities", query: {}, body: args?.body, access: "user" }) as Promise<LiveActivityRegistered>;
+    return this.transport({ method: "POST", path: "/api/push/live-activities", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<LiveActivityRegistered>;
   }
 
   /** DELETE /api/push/live-activities/{token} (access: user) */
   deletePushLiveActivitiesByToken(args: { path: { token: string } }): Promise<LiveActivityRemoved> {
-    return this.transport({ method: "DELETE", path: fillPath("/api/push/live-activities/{token}", args?.path), query: {}, body: undefined, access: "user" }) as Promise<LiveActivityRemoved>;
+    return this.transport({ method: "DELETE", path: fillPath("/api/push/live-activities/{token}", args?.path), query: {}, headers: {}, body: undefined, access: "user" }) as Promise<LiveActivityRemoved>;
   }
 
   /** POST /api/refresh (access: public) */
   postRefresh(args: { body: { refreshToken: string } }): Promise<LoginResult> {
-    return this.transport({ method: "POST", path: "/api/refresh", query: {}, body: args?.body, access: "public" }) as Promise<LoginResult>;
+    return this.transport({ method: "POST", path: "/api/refresh", query: {}, headers: {}, body: args?.body, access: "public" }) as Promise<LoginResult>;
   }
 
   /** GET /api/robot/{id} (access: user) */
-  getRobotById(args: { path: { id: number } }): Promise<void> {
-    return this.transport({ method: "GET", path: fillPath("/api/robot/{id}", args?.path), query: {}, body: undefined, access: "user" }) as Promise<void>;
+  getRobotById(args: { path: { id: number } }): Promise<{ robot: Record<string, unknown>; revision: string; cellId?: unknown }> {
+    return this.transport({ method: "GET", path: fillPath("/api/robot/{id}", args?.path), query: {}, headers: {}, body: undefined, access: "user" }) as Promise<{ robot: Record<string, unknown>; revision: string; cellId?: unknown }>;
   }
 
   /** POST /api/robot/{id}/claim (access: user) */
-  postRobotByIdClaim(args: { path: { id: number }; body?: { ttlMs?: number; force?: boolean; reason?: string } }): Promise<Reservation> {
-    return this.transport({ method: "POST", path: fillPath("/api/robot/{id}/claim", args?.path), query: {}, body: args?.body, access: "user" }) as Promise<Reservation>;
+  postRobotByIdClaim(args: { path: { id: number }; headers?: { "If-Match"?: string; "X-Controller-Id"?: string }; body?: { ttlMs?: number; force?: boolean; reason?: string; controllerId?: string } }): Promise<{ success: boolean; reservation: Record<string, unknown>; reservationHistory: Record<string, unknown>[]; revision: string }> {
+    return this.transport({ method: "POST", path: fillPath("/api/robot/{id}/claim", args?.path), query: {}, headers: queryOf(args?.headers), body: args?.body, access: "user" }) as Promise<{ success: boolean; reservation: Record<string, unknown>; reservationHistory: Record<string, unknown>[]; revision: string }>;
   }
 
   /** POST /api/robot/{id}/command (access: user) */
-  postRobotByIdCommand(args: { path: { id: number }; body: { command: string; params?: Record<string, unknown>; seq?: number } }): Promise<void> {
-    return this.transport({ method: "POST", path: fillPath("/api/robot/{id}/command", args?.path), query: {}, body: args?.body, access: "user" }) as Promise<void>;
+  postRobotByIdCommand(args: { path: { id: number }; headers?: { "If-Match"?: string; "X-Controller-Id"?: string; "X-Correlation-Id"?: string }; body: { command: string; params?: Record<string, unknown>; seq?: number; controllerId?: string } }): Promise<{ success: boolean; affectedCount?: number; revision: string; operation_id?: string; operation?: Record<string, unknown>; lifecycle?: Record<string, unknown>; applied?: Record<string, unknown>; warnings?: unknown[] }> {
+    return this.transport({ method: "POST", path: fillPath("/api/robot/{id}/command", args?.path), query: {}, headers: queryOf(args?.headers), body: args?.body, access: "user" }) as Promise<{ success: boolean; affectedCount?: number; revision: string; operation_id?: string; operation?: Record<string, unknown>; lifecycle?: Record<string, unknown>; applied?: Record<string, unknown>; warnings?: unknown[] }>;
   }
 
   /** POST /api/robot/{id}/heartbeat (access: user) */
   postRobotByIdHeartbeat(args: { path: { id: number } }): Promise<Success> {
-    return this.transport({ method: "POST", path: fillPath("/api/robot/{id}/heartbeat", args?.path), query: {}, body: undefined, access: "user" }) as Promise<Success>;
+    return this.transport({ method: "POST", path: fillPath("/api/robot/{id}/heartbeat", args?.path), query: {}, headers: {}, body: undefined, access: "user" }) as Promise<Success>;
   }
 
   /** POST /api/robot/{id}/jog-arm (access: user) */
-  postRobotByIdJogArm(args: { path: { id: number }; body?: { armed?: unknown; controllerId?: unknown; ttlMs?: unknown } }): Promise<void> {
-    return this.transport({ method: "POST", path: fillPath("/api/robot/{id}/jog-arm", args?.path), query: {}, body: args?.body, access: "user" }) as Promise<void>;
+  postRobotByIdJogArm(args: { path: { id: number }; headers?: { "X-Controller-Id"?: string }; body: { armed: boolean; ttlMs?: number; controllerId?: string } }): Promise<{ success: boolean; armed: boolean; expiresAt?: number; ttlMs?: number }> {
+    return this.transport({ method: "POST", path: fillPath("/api/robot/{id}/jog-arm", args?.path), query: {}, headers: queryOf(args?.headers), body: args?.body, access: "user" }) as Promise<{ success: boolean; armed: boolean; expiresAt?: number; ttlMs?: number }>;
   }
 
   /** POST /api/robot/{id}/release (access: user) */
-  postRobotByIdRelease(args: { path: { id: number }; body?: { reason?: string } }): Promise<Reservation> {
-    return this.transport({ method: "POST", path: fillPath("/api/robot/{id}/release", args?.path), query: {}, body: args?.body, access: "user" }) as Promise<Reservation>;
+  postRobotByIdRelease(args: { path: { id: number }; headers?: { "If-Match"?: string; "X-Controller-Id"?: string }; body?: { reason?: string; controllerId?: string } }): Promise<{ success: boolean; reservationHistory: Record<string, unknown>[]; revision: string }> {
+    return this.transport({ method: "POST", path: fillPath("/api/robot/{id}/release", args?.path), query: {}, headers: queryOf(args?.headers), body: args?.body, access: "user" }) as Promise<{ success: boolean; reservationHistory: Record<string, unknown>[]; revision: string }>;
   }
 
   /** GET /api/robots/liveness (access: user) */
   getRobotsLiveness(): Promise<RobotLiveness> {
-    return this.transport({ method: "GET", path: "/api/robots/liveness", query: {}, body: undefined, access: "user" }) as Promise<RobotLiveness>;
+    return this.transport({ method: "GET", path: "/api/robots/liveness", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<RobotLiveness>;
   }
 
   /** GET /api/ros2-bridge/settings (access: user) */
   getRos2BridgeSettings(): Promise<{ requireSros2: boolean; active: boolean; restartNeeded: boolean; canChange: boolean; environmentReady: boolean }> {
-    return this.transport({ method: "GET", path: "/api/ros2-bridge/settings", query: {}, body: undefined, access: "user" }) as Promise<{ requireSros2: boolean; active: boolean; restartNeeded: boolean; canChange: boolean; environmentReady: boolean }>;
+    return this.transport({ method: "GET", path: "/api/ros2-bridge/settings", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<{ requireSros2: boolean; active: boolean; restartNeeded: boolean; canChange: boolean; environmentReady: boolean }>;
   }
 
   /** POST /api/ros2-bridge/settings (access: admin) */
-  postRos2BridgeSettings(): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/ros2-bridge/settings", query: {}, body: undefined, access: "admin" }) as Promise<void>;
+  postRos2BridgeSettings(args: { body: { requireSros2: boolean; confirm: boolean } }): Promise<{ requireSros2: boolean; active: boolean; restartNeeded: boolean; canChange: boolean; environmentReady: boolean; changed?: boolean; appliesAfterRestart?: boolean }> {
+    return this.transport({ method: "POST", path: "/api/ros2-bridge/settings", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<{ requireSros2: boolean; active: boolean; restartNeeded: boolean; canChange: boolean; environmentReady: boolean; changed?: boolean; appliesAfterRestart?: boolean }>;
   }
 
   /** GET /api/rul/config (access: user) */
   getRulConfig(): Promise<RulConfig> {
-    return this.transport({ method: "GET", path: "/api/rul/config", query: {}, body: undefined, access: "user" }) as Promise<RulConfig>;
+    return this.transport({ method: "GET", path: "/api/rul/config", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<RulConfig>;
   }
 
   /** GET /api/safety-limits (access: user) */
   getSafetyLimits(args?: { query?: { robotId?: string } }): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/safety-limits", query: queryOf(args?.query), body: undefined, access: "user" }) as Promise<void>;
+    return this.transport({ method: "GET", path: "/api/safety-limits", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<void>;
   }
 
   /** GET /api/semantic-planner/settings (access: user) */
-  getSemanticPlannerSettings(): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/semantic-planner/settings", query: {}, body: undefined, access: "user" }) as Promise<void>;
+  getSemanticPlannerSettings(): Promise<{ requireIdentity: boolean; verifiesTokens?: boolean; persisted?: boolean }> {
+    return this.transport({ method: "GET", path: "/api/semantic-planner/settings", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<{ requireIdentity: boolean; verifiesTokens?: boolean; persisted?: boolean }>;
   }
 
   /** POST /api/semantic-planner/settings (access: admin) */
-  postSemanticPlannerSettings(): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/semantic-planner/settings", query: {}, body: undefined, access: "admin" }) as Promise<void>;
+  postSemanticPlannerSettings(args: { body: { requireIdentity: boolean; confirm?: boolean } }): Promise<{ requireIdentity: boolean; verifiesTokens?: boolean; persisted?: boolean; changed?: boolean }> {
+    return this.transport({ method: "POST", path: "/api/semantic-planner/settings", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<{ requireIdentity: boolean; verifiesTokens?: boolean; persisted?: boolean; changed?: boolean }>;
   }
 
   /** GET /api/settings (access: user) */
   getSettings(): Promise<Settings> {
-    return this.transport({ method: "GET", path: "/api/settings", query: {}, body: undefined, access: "user" }) as Promise<Settings>;
+    return this.transport({ method: "GET", path: "/api/settings", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<Settings>;
   }
 
   /** PUT /api/settings (access: admin) */
-  putSettings(): Promise<Success> {
-    return this.transport({ method: "PUT", path: "/api/settings", query: {}, body: undefined, access: "admin" }) as Promise<Success>;
+  putSettings(args: { headers: { "If-Match": string }; body: Settings }): Promise<{ success: boolean; revision: string; warnings?: Record<string, unknown>[] }> {
+    return this.transport({ method: "PUT", path: "/api/settings", query: {}, headers: queryOf(args?.headers), body: args?.body, access: "admin" }) as Promise<{ success: boolean; revision: string; warnings?: Record<string, unknown>[] }>;
   }
 
   /** POST /api/settings (access: admin) */
-  postSettings(): Promise<Success> {
-    return this.transport({ method: "POST", path: "/api/settings", query: {}, body: undefined, access: "admin" }) as Promise<Success>;
+  postSettings(args: { headers?: { "If-Match"?: string }; body: Settings }): Promise<{ success: boolean; revision: string; warnings?: Record<string, unknown>[] }> {
+    return this.transport({ method: "POST", path: "/api/settings", query: {}, headers: queryOf(args?.headers), body: args?.body, access: "admin" }) as Promise<{ success: boolean; revision: string; warnings?: Record<string, unknown>[] }>;
   }
 
   /** POST /api/stop-all (access: user) */
   postStopAll(): Promise<StopAllResult> {
-    return this.transport({ method: "POST", path: "/api/stop-all", query: {}, body: undefined, access: "user" }) as Promise<StopAllResult>;
+    return this.transport({ method: "POST", path: "/api/stop-all", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<StopAllResult>;
   }
 
   /** POST /api/stop-all/release (access: admin) */
   postStopAllRelease(): Promise<GlobalStopReleased> {
-    return this.transport({ method: "POST", path: "/api/stop-all/release", query: {}, body: undefined, access: "admin" }) as Promise<GlobalStopReleased>;
+    return this.transport({ method: "POST", path: "/api/stop-all/release", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<GlobalStopReleased>;
   }
 
   /** POST /api/system/bluetooth/pair (access: admin) */
   postSystemBluetoothPair(args: { body: { mac: string } }): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/system/bluetooth/pair", query: {}, body: args?.body, access: "admin" }) as Promise<void>;
+    return this.transport({ method: "POST", path: "/api/system/bluetooth/pair", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<void>;
   }
 
   /** POST /api/system/bluetooth/power (access: admin) */
   postSystemBluetoothPower(args: { body: { on: boolean } }): Promise<Success> {
-    return this.transport({ method: "POST", path: "/api/system/bluetooth/power", query: {}, body: args?.body, access: "admin" }) as Promise<Success>;
+    return this.transport({ method: "POST", path: "/api/system/bluetooth/power", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<Success>;
   }
 
   /** POST /api/system/bluetooth/remove (access: admin) */
   postSystemBluetoothRemove(args: { body: { mac: string } }): Promise<Success> {
-    return this.transport({ method: "POST", path: "/api/system/bluetooth/remove", query: {}, body: args?.body, access: "admin" }) as Promise<Success>;
+    return this.transport({ method: "POST", path: "/api/system/bluetooth/remove", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<Success>;
   }
 
   /** POST /api/system/bluetooth/scan (access: admin) */
   postSystemBluetoothScan(): Promise<BluetoothScan> {
-    return this.transport({ method: "POST", path: "/api/system/bluetooth/scan", query: {}, body: undefined, access: "admin" }) as Promise<BluetoothScan>;
+    return this.transport({ method: "POST", path: "/api/system/bluetooth/scan", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<BluetoothScan>;
   }
 
   /** GET /api/system/bluetooth/status (access: admin) */
   getSystemBluetoothStatus(): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/system/bluetooth/status", query: {}, body: undefined, access: "admin" }) as Promise<void>;
+    return this.transport({ method: "GET", path: "/api/system/bluetooth/status", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<void>;
   }
 
   /** GET /api/system/metrics (access: public) */
   getSystemMetrics(): Promise<SystemMetrics> {
-    return this.transport({ method: "GET", path: "/api/system/metrics", query: {}, body: undefined, access: "public" }) as Promise<SystemMetrics>;
+    return this.transport({ method: "GET", path: "/api/system/metrics", query: {}, headers: {}, body: undefined, access: "public" }) as Promise<SystemMetrics>;
   }
 
   /** POST /api/system/reboot (access: public) */
   postSystemReboot(): Promise<Success> {
-    return this.transport({ method: "POST", path: "/api/system/reboot", query: {}, body: undefined, access: "public" }) as Promise<Success>;
+    return this.transport({ method: "POST", path: "/api/system/reboot", query: {}, headers: {}, body: undefined, access: "public" }) as Promise<Success>;
   }
 
   /** POST /api/system/shutdown (access: public) */
   postSystemShutdown(): Promise<Success> {
-    return this.transport({ method: "POST", path: "/api/system/shutdown", query: {}, body: undefined, access: "public" }) as Promise<Success>;
+    return this.transport({ method: "POST", path: "/api/system/shutdown", query: {}, headers: {}, body: undefined, access: "public" }) as Promise<Success>;
   }
 
   /** GET /api/system/supervisor (access: public) */
   getSystemSupervisor(): Promise<SupervisorSnapshot> {
-    return this.transport({ method: "GET", path: "/api/system/supervisor", query: {}, body: undefined, access: "public" }) as Promise<SupervisorSnapshot>;
+    return this.transport({ method: "GET", path: "/api/system/supervisor", query: {}, headers: {}, body: undefined, access: "public" }) as Promise<SupervisorSnapshot>;
   }
 
   /** GET /api/telemetry/aggregate (access: user) */
-  getTelemetryAggregate(): Promise<Passthrough> {
-    return this.transport({ method: "GET", path: "/api/telemetry/aggregate", query: {}, body: undefined, access: "user" }) as Promise<Passthrough>;
+  getTelemetryAggregate(args?: { query?: { sourceId?: string; kind?: string; field?: string; bucketMs?: string; start?: string; end?: string; before?: string; agg?: string } }): Promise<{ bucketStart: number; value: number; count: number }[]> {
+    return this.transport({ method: "GET", path: "/api/telemetry/aggregate", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<{ bucketStart: number; value: number; count: number }[]>;
   }
 
   /** GET /api/telemetry/downsample-plan (access: admin) */
-  getTelemetryDownsamplePlan(): Promise<Passthrough> {
-    return this.transport({ method: "GET", path: "/api/telemetry/downsample-plan", query: {}, body: undefined, access: "admin" }) as Promise<Passthrough>;
+  getTelemetryDownsamplePlan(): Promise<{ plan: { tiers: { kind: string; field: string; raw?: unknown; bucket?: unknown; fineBucket?: unknown; rollupRetention?: unknown; fineRetention?: unknown }[]; delete: boolean }; hash: string; tiers?: Record<string, unknown>[]; knownKinds?: string[]; switches?: { allowDelete?: boolean; deleteRequestedByPlan?: boolean; deleteOldSwitch?: boolean; effectiveMode?: "delete" | "dryRun"; fineRollups?: boolean; autoIntervalSeconds?: number }; audit?: Record<string, unknown>[] }> {
+    return this.transport({ method: "GET", path: "/api/telemetry/downsample-plan", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<{ plan: { tiers: { kind: string; field: string; raw?: unknown; bucket?: unknown; fineBucket?: unknown; rollupRetention?: unknown; fineRetention?: unknown }[]; delete: boolean }; hash: string; tiers?: Record<string, unknown>[]; knownKinds?: string[]; switches?: { allowDelete?: boolean; deleteRequestedByPlan?: boolean; deleteOldSwitch?: boolean; effectiveMode?: "delete" | "dryRun"; fineRollups?: boolean; autoIntervalSeconds?: number }; audit?: Record<string, unknown>[] }>;
   }
 
   /** PUT /api/telemetry/downsample-plan (access: admin) */
-  putTelemetryDownsamplePlan(args?: { query?: { preview?: string } }): Promise<Passthrough> {
-    return this.transport({ method: "PUT", path: "/api/telemetry/downsample-plan", query: queryOf(args?.query), body: undefined, access: "admin" }) as Promise<Passthrough>;
+  putTelemetryDownsamplePlan(args: { query?: { preview?: string }; body: { plan: { tiers: { kind: string; field: string; raw?: unknown; bucket?: unknown; fineBucket?: unknown; rollupRetention?: unknown; fineRetention?: unknown }[]; delete: boolean }; expectedHash?: string; confirmDelete?: boolean; preview?: boolean } }): Promise<{ saved: boolean; preview?: boolean; unchanged?: boolean; hash: string; previousHash?: string; tiers?: Record<string, unknown>[]; mode?: "delete" | "dryRun"; changes?: Record<string, unknown>[]; warnings?: string[]; effects?: { totals?: { rawPointsToRollUp?: number; rollupsToExpire?: number; fineRollupsToExpire?: number } }; currentEffects?: { totals?: { rawPointsToRollUp?: number; rollupsToExpire?: number; fineRollupsToExpire?: number } } }> {
+    return this.transport({ method: "PUT", path: "/api/telemetry/downsample-plan", query: queryOf(args?.query), headers: {}, body: args?.body, access: "admin" }) as Promise<{ saved: boolean; preview?: boolean; unchanged?: boolean; hash: string; previousHash?: string; tiers?: Record<string, unknown>[]; mode?: "delete" | "dryRun"; changes?: Record<string, unknown>[]; warnings?: string[]; effects?: { totals?: { rawPointsToRollUp?: number; rollupsToExpire?: number; fineRollupsToExpire?: number } }; currentEffects?: { totals?: { rawPointsToRollUp?: number; rollupsToExpire?: number; fineRollupsToExpire?: number } } }>;
   }
 
   /** GET /api/telemetry/query (access: user) */
-  getTelemetryQuery(): Promise<Passthrough> {
-    return this.transport({ method: "GET", path: "/api/telemetry/query", query: {}, body: undefined, access: "user" }) as Promise<Passthrough>;
+  getTelemetryQuery(args?: { query?: { sourceId?: string; kind?: string; field?: string; start?: string; end?: string; before?: string; limit?: string; cursor?: string } }): Promise<{ sourceId: string; kind: string; field: string; timestamp: number; value: number }[]> {
+    return this.transport({ method: "GET", path: "/api/telemetry/query", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<{ sourceId: string; kind: string; field: string; timestamp: number; value: number }[]>;
   }
 
   /** GET /api/tool-arms (access: user) */
   getToolArms(): Promise<ToolArmsReport> {
-    return this.transport({ method: "GET", path: "/api/tool-arms", query: {}, body: undefined, access: "user" }) as Promise<ToolArmsReport>;
+    return this.transport({ method: "GET", path: "/api/tool-arms", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<ToolArmsReport>;
   }
 
   /** POST /api/tool-arms/reset (access: admin) */
   postToolArmsReset(args: { body: { robot: string; toolId: number; confirm: string } }): Promise<ToolArmResetResult> {
-    return this.transport({ method: "POST", path: "/api/tool-arms/reset", query: {}, body: args?.body, access: "admin" }) as Promise<ToolArmResetResult>;
+    return this.transport({ method: "POST", path: "/api/tool-arms/reset", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<ToolArmResetResult>;
   }
 
   /** POST /api/totp/begin (access: user) */
   postTotpBegin(args: { body: { password: string } }): Promise<TotpEnrolment> {
-    return this.transport({ method: "POST", path: "/api/totp/begin", query: {}, body: args?.body, access: "user" }) as Promise<TotpEnrolment>;
+    return this.transport({ method: "POST", path: "/api/totp/begin", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<TotpEnrolment>;
   }
 
   /** POST /api/totp/confirm (access: user) */
   postTotpConfirm(args: { body: { code: string } }): Promise<TotpConfirmed> {
-    return this.transport({ method: "POST", path: "/api/totp/confirm", query: {}, body: args?.body, access: "user" }) as Promise<TotpConfirmed>;
+    return this.transport({ method: "POST", path: "/api/totp/confirm", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<TotpConfirmed>;
   }
 
   /** POST /api/totp/disable (access: user) */
   postTotpDisable(args: { body: { password: string; code: string } }): Promise<Success> {
-    return this.transport({ method: "POST", path: "/api/totp/disable", query: {}, body: args?.body, access: "user" }) as Promise<Success>;
+    return this.transport({ method: "POST", path: "/api/totp/disable", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<Success>;
   }
 
   /** GET /api/totp/status (access: user) */
   getTotpStatus(): Promise<TotpStatus> {
-    return this.transport({ method: "GET", path: "/api/totp/status", query: {}, body: undefined, access: "user" }) as Promise<TotpStatus>;
+    return this.transport({ method: "GET", path: "/api/totp/status", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<TotpStatus>;
   }
 
   /** POST /api/trajectory/proposals/verify (access: user) */
   postTrajectoryProposalsVerify(): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/trajectory/proposals/verify", query: {}, body: undefined, access: "user" }) as Promise<void>;
+    return this.transport({ method: "POST", path: "/api/trajectory/proposals/verify", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<void>;
   }
 
   /** POST /api/upload-work (access: user) */
-  postUploadWork(args: { body: { folderPath: string; fileName: string; content: string } }): Promise<Success> {
-    return this.transport({ method: "POST", path: "/api/upload-work", query: {}, body: args?.body, access: "user" }) as Promise<Success>;
+  postUploadWork(args: { body: { folderPath: string; fileName: string; content: unknown } }): Promise<Success> {
+    return this.transport({ method: "POST", path: "/api/upload-work", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<Success>;
   }
 
   /** GET /api/users (access: admin) */
   getUsers(): Promise<UserList> {
-    return this.transport({ method: "GET", path: "/api/users", query: {}, body: undefined, access: "admin" }) as Promise<UserList>;
+    return this.transport({ method: "GET", path: "/api/users", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<UserList>;
   }
 
   /** POST /api/users (access: admin) */
   postUsers(args: { body: { username: string; password: string; role: string } }): Promise<Success> {
-    return this.transport({ method: "POST", path: "/api/users", query: {}, body: args?.body, access: "admin" }) as Promise<Success>;
+    return this.transport({ method: "POST", path: "/api/users", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<Success>;
   }
 
   /** PUT /api/users/{username} (access: admin) */
   putUsersByUsername(args: { path: { username: string }; body?: { newUsername?: string; password?: string; role?: string } }): Promise<Success> {
-    return this.transport({ method: "PUT", path: fillPath("/api/users/{username}", args?.path), query: {}, body: args?.body, access: "admin" }) as Promise<Success>;
+    return this.transport({ method: "PUT", path: fillPath("/api/users/{username}", args?.path), query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<Success>;
   }
 
   /** DELETE /api/users/{username} (access: admin) */
   deleteUsersByUsername(args: { path: { username: string } }): Promise<Success> {
-    return this.transport({ method: "DELETE", path: fillPath("/api/users/{username}", args?.path), query: {}, body: undefined, access: "admin" }) as Promise<Success>;
+    return this.transport({ method: "DELETE", path: fillPath("/api/users/{username}", args?.path), query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<Success>;
   }
 
   /** DELETE /api/users/{username}/totp (access: admin) */
   deleteUsersByUsernameTotp(args: { path: { username: string } }): Promise<Success> {
-    return this.transport({ method: "DELETE", path: fillPath("/api/users/{username}/totp", args?.path), query: {}, body: undefined, access: "admin" }) as Promise<Success>;
+    return this.transport({ method: "DELETE", path: fillPath("/api/users/{username}/totp", args?.path), query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<Success>;
   }
 
   /** GET /api/voice/chain (access: admin) */
   getVoiceChain(args?: { query?: { limit?: string; verify?: string } }): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/voice/chain", query: queryOf(args?.query), body: undefined, access: "admin" }) as Promise<void>;
+    return this.transport({ method: "GET", path: "/api/voice/chain", query: queryOf(args?.query), headers: {}, body: undefined, access: "admin" }) as Promise<void>;
   }
 
   /** POST /api/voice/confirm (access: user) */
   postVoiceConfirm(args?: { body?: { confirmationToken?: unknown } }): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/voice/confirm", query: {}, body: args?.body, access: "user" }) as Promise<void>;
+    return this.transport({ method: "POST", path: "/api/voice/confirm", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<void>;
   }
 
   /** POST /api/voice/turn (access: user) */
   postVoiceTurn(args?: { body?: { locale?: unknown; requestId?: unknown; subject?: unknown } }): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/voice/turn", query: {}, body: args?.body, access: "user" }) as Promise<void>;
+    return this.transport({ method: "POST", path: "/api/voice/turn", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<void>;
   }
 
   /** GET /api/watch/system-status (access: user) */
   getWatchSystemStatus(): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/watch/system-status", query: {}, body: undefined, access: "user" }) as Promise<void>;
+    return this.transport({ method: "GET", path: "/api/watch/system-status", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<void>;
   }
 
   /** GET /health (access: public) */
   getHealth(): Promise<HealthReport> {
-    return this.transport({ method: "GET", path: "/health", query: {}, body: undefined, access: "public" }) as Promise<HealthReport>;
+    return this.transport({ method: "GET", path: "/health", query: {}, headers: {}, body: undefined, access: "public" }) as Promise<HealthReport>;
   }
 
   /** GET /metrics (access: public) */
   getMetrics(): Promise<void> {
-    return this.transport({ method: "GET", path: "/metrics", query: {}, body: undefined, access: "public" }) as Promise<void>;
+    return this.transport({ method: "GET", path: "/metrics", query: {}, headers: {}, body: undefined, access: "public" }) as Promise<void>;
   }
 
 }

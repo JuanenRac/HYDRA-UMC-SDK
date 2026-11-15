@@ -11,22 +11,122 @@
       "access": "user",
       "responses": {
         "200": {
-          "description": "Success. The body is documented in docs/REMOTE_API.md."
+          "description": "The settings the service reports. The body is documented in docs/REMOTE_API.md.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "requireTwinPass": {
+                "type": "boolean"
+              },
+              "locked": {
+                "type": "boolean"
+              },
+              "persisted": {
+                "type": "boolean"
+              },
+              "ready": {
+                "type": "boolean"
+              },
+              "canChange": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "requireTwinPass"
+            ]
+          }
+        },
+        "404": {
+          "description": "The server or the service it relays to has no such route. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "The service this route relays to is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
         }
-      }
+      },
+      "relays_status": true
     },
     {
       "method": "post",
       "path": "/api/hil-bridge/settings",
       "summary": "POST /api/hil-bridge/settings",
-      "description": "Requires a signed-in account with the admin role.",
+      "description": "Requires a signed-in account with the admin role. The body is requireTwinPass (true or false) and confirm: true, in both directions. The answer says whether the switch is on (requireTwinPass), locked on by the way the bridge was started (locked), kept across restarts (persisted), ready to be turned on (ready) and changeable from here (canChange).",
       "access": "admin",
       "responses": {
+        "200": {
+          "description": "The change was made; the answer is the settings now in force and changed. The body is documented in docs/REMOTE_API.md.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "requireTwinPass": {
+                "type": "boolean"
+              },
+              "locked": {
+                "type": "boolean"
+              },
+              "persisted": {
+                "type": "boolean"
+              },
+              "ready": {
+                "type": "boolean"
+              },
+              "canChange": {
+                "type": "boolean"
+              },
+              "changed": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "requireTwinPass"
+            ]
+          }
+        },
         "400": {
           "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
+        },
+        "403": {
+          "description": "The service refuses the change (it was started without allowing it, or the token has no role for it). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "The server or the service it relays to has no such route. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "409": {
+          "description": "The service refused the change in its current state (code SETTING_REFUSED). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "The service this route relays to is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
         }
-      }
+      },
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "requireTwinPass": {
+                  "type": "boolean"
+                },
+                "confirm": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "requireTwinPass",
+                "confirm"
+              ]
+            }
+          }
+        }
+      },
+      "relays_status": true
     }
   ]
 }

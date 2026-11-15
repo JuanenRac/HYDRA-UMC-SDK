@@ -162,6 +162,7 @@ def operations(document: dict[str, Any]) -> list[dict[str, Any]]:
                 raise SystemExit(f"GENERATED_CLIENTS=FAIL two routes make the method name {name}: {seen[name]} and {method.upper()} {path}")
             seen[name] = f"{method.upper()} {path}"
             path_parameters, query = parameters(path, operation)
+            headers = [p for p in operation.get("parameters", []) if p.get("in") == "header"]
             body = (operation.get("requestBody") or {}).get("content", {}).get("application/json")
             found.append({
                 "name": name,
@@ -169,6 +170,7 @@ def operations(document: dict[str, Any]) -> list[dict[str, Any]]:
                 "path": path,
                 "path_parameters": path_parameters,
                 "query": query,
+                "headers": headers,
                 "body": type_of(body.get("schema")) if body else None,
                 "body_schema": body.get("schema") if body else None,
                 "body_required": bool((operation.get("requestBody") or {}).get("required")),
@@ -193,6 +195,11 @@ def arguments(op: dict[str, Any]) -> tuple[str, bool]:
         inner = "; ".join(f"{key(p['name'])}{'' if p.get('required') else '?'}: {type_of(p.get('schema', {'type': 'string'}))}" for p in op["query"])
         fields.append(f"query{'' if needed else '?'}: {{ {inner} }}")
         required = required or needed
+    if op["headers"]:
+        needed = any(p.get("required") for p in op["headers"])
+        inner = "; ".join(f"{quote(p['name'])}{'' if p.get('required') else '?'}: {type_of(p.get('schema', {'type': 'string'}))}" for p in op["headers"])
+        fields.append(f"headers{'' if needed else '?'}: {{ {inner} }}")
+        required = required or needed
     if op["body"] is not None:
         fields.append(f"body{'' if op['body_required'] else '?'}: {op['body']}")
         required = required or op["body_required"]
@@ -211,6 +218,7 @@ def as_typescript(document: dict[str, Any]) -> str:
         "  readonly method: string;",
         "  readonly path: string;",
         "  readonly query: Readonly<Record<string, string>>;",
+        "  readonly headers: Readonly<Record<string, string>>;",
         "  readonly body: unknown;",
         "  readonly access: string;",
         "}",
@@ -243,12 +251,13 @@ def as_typescript(document: dict[str, Any]) -> str:
         note = op["summary"] or f"{op['method']} {op['path']}"
         path_expr = "fillPath(" + quote(op["path"]) + ", args?.path)" if op["path_parameters"] else quote(op["path"])
         query_expr = "queryOf(args?.query)" if op["query"] else "{}"
+        headers_expr = "queryOf(args?.headers)" if op["headers"] else "{}"
         body_expr = "args?.body" if op["body"] is not None else "undefined"
         lines += [
             f"  /** {note.replace('*/', '* /')} (access: {op['access']}) */",
             f"  {op['name']}({signature}): Promise<{op['result']}> {{",
             f"    return this.transport({{ method: {quote(op['method'])}, path: {path_expr}, query: {query_expr}, "
-            f"body: {body_expr}, access: {quote(op['access'])} }}) as Promise<{op['result']}>;",
+            f"headers: {headers_expr}, body: {body_expr}, access: {quote(op['access'])} }}) as Promise<{op['result']}>;",
             "  }",
             "",
         ]
@@ -376,6 +385,8 @@ def native_arguments(op: dict[str, Any], flavor: Flavor, cyclic: frozenset[str])
         found.append((identifier(p["name"], flavor, taken), native_type(p.get("schema", default), flavor, cyclic), "path", p["name"], True))
     for p in op["query"]:
         found.append((identifier(p["name"], flavor, taken), native_type(p.get("schema", default), flavor, cyclic), "query", p["name"], bool(p.get("required"))))
+    for p in op["headers"]:
+        found.append((identifier("header " + p["name"], flavor, taken), native_type(p.get("schema", default), flavor, cyclic), "header", p["name"], bool(p.get("required"))))
     if op["body"] is not None:
         found.append((identifier("body", flavor, taken), native_type(op["body_schema"], flavor, cyclic), "body", "body", op["body_required"]))
     found.sort(key=lambda item: not item[4])
@@ -417,7 +428,7 @@ def as_kotlin(document: dict[str, Any]) -> str:
              "// The transport hands back the decoded JSON model: Map, List, String, Long, Double, Boolean or null.", ""]
     lines += schema_aliases(document, flavor)
     lines += [
-        "class HydraRequest(val method: String, val path: String, val query: Map<String, String>, val body: Any?, val access: String)",
+        "class HydraRequest(val method: String, val path: String, val query: Map<String, String>, val body: Any?, val access: String, val headers: Map<String, String> = emptyMap())",
         "",
         "/** Carries one request to the server and returns the decoded JSON of the answer (null when there is none). */",
         "fun interface HydraTransport {",
@@ -441,10 +452,11 @@ def as_kotlin(document: dict[str, Any]) -> str:
         signature = ", ".join(f"{n}: {t}" if req else f"{n}: {flavor.optional(t)} = null" for n, t, _, _, req in params)
         path_values = ", ".join(f"{quote(w)} to {n}" for n, _, where, w, _ in params if where == "path")
         query_values = ", ".join(f"{quote(w)} to {n}" for n, _, where, w, _ in params if where == "query")
+        header_values = ", ".join(f"{quote(w)} to {n}" for n, _, where, w, _ in params if where == "header")
         body_name = next((n for n, _, where, _, _ in params if where == "body"), "null")
         path_expr = f"fillPath({quote(op['path'])}, mapOf({path_values}))" if path_values else quote(op["path"])
         query_expr = f"queryOf(mapOf({query_values}))" if query_values else "emptyMap()"
-        call = f"transport.send(HydraRequest({quote(op['method'])}, {path_expr}, {query_expr}, {body_name}, {quote(op['access'])}))"
+        call = f"transport.send(HydraRequest({quote(op['method'])}, {path_expr}, {query_expr}, {body_name}, {quote(op['access'])}{', headers = queryOf(mapOf(' + header_values + '))' if header_values else ''}))"
         lines += [f"    /** {doc_note(op)} */", f"    suspend fun {op['name']}({signature}): {result} {{"]
         if result == "Unit":
             lines += [f"        {call}", "        return Unit"]
@@ -466,12 +478,13 @@ def as_dart(document: dict[str, Any]) -> str:
     lines += schema_aliases(document, flavor)
     lines += [
         "class HydraRequest {",
-        "  const HydraRequest(this.method, this.path, this.query, this.body, this.access);",
+        "  const HydraRequest(this.method, this.path, this.query, this.body, this.access, {this.headers = const <String, String>{}});",
         "  final String method;",
         "  final String path;",
         "  final Map<String, String> query;",
         "  final Object? body;",
         "  final String access;",
+        "  final Map<String, String> headers;",
         "}",
         "",
         "/// Carries one request to the server and returns the decoded JSON of the answer (null when there is none).",
@@ -508,10 +521,11 @@ def as_dart(document: dict[str, Any]) -> str:
         signature = "{" + ", ".join(pieces) + "}" if pieces else ""
         path_values = ", ".join(f"{dart_string(w)}: {n}" for n, _, where, w, _ in params if where == "path")
         query_values = ", ".join(f"{dart_string(w)}: {n}" for n, _, where, w, _ in params if where == "query")
+        header_values = ", ".join(f"{dart_string(w)}: {n}" for n, _, where, w, _ in params if where == "header")
         body_name = next((n for n, _, where, _, _ in params if where == "body"), "null")
         path_expr = f"fillPath({dart_string(op['path'])}, {{{path_values}}})" if path_values else dart_string(op["path"])
         query_expr = f"queryOf({{{query_values}}})" if query_values else "const <String, String>{}"
-        call = f"_transport(HydraRequest({dart_string(op['method'])}, {path_expr}, {query_expr}, {body_name}, {dart_string(op['access'])}))"
+        call = f"_transport(HydraRequest({dart_string(op['method'])}, {path_expr}, {query_expr}, {body_name}, {dart_string(op['access'])}{', headers: queryOf({' + header_values + '})' if header_values else ''}))"
         lines += [f"  /// {doc_note(op)}", f"  Future<{result}> {op['name']}({signature}) async {{"]
         if result == "void":
             lines.append(f"    await {call};")

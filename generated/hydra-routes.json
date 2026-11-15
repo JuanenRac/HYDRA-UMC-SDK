@@ -645,7 +645,9 @@
       "group": "connector-hub-gate",
       "query": [],
       "statuses": [
-        "200"
+        "200",
+        "404",
+        "503"
       ]
     },
     {
@@ -655,7 +657,12 @@
       "group": "connector-hub-gate",
       "query": [],
       "statuses": [
-        "400"
+        "200",
+        "400",
+        "403",
+        "404",
+        "409",
+        "503"
       ]
     },
     {
@@ -702,7 +709,9 @@
       "group": "droid-estop",
       "query": [],
       "statuses": [
-        "200"
+        "200",
+        "404",
+        "503"
       ]
     },
     {
@@ -712,7 +721,12 @@
       "group": "droid-estop",
       "query": [],
       "statuses": [
-        "400"
+        "200",
+        "400",
+        "403",
+        "404",
+        "409",
+        "503"
       ]
     },
     {
@@ -787,7 +801,19 @@
       "path": "/api/hardware/canota/flash",
       "access": "admin",
       "group": "hardware",
-      "query": [],
+      "query": [
+        "downgrade_from",
+        "hardware_id",
+        "min_bootloader",
+        "relay",
+        "signature",
+        "slot",
+        "target",
+        "tier",
+        "version_major",
+        "version_minor",
+        "version_patch"
+      ],
       "statuses": [
         "200",
         "400",
@@ -847,7 +873,9 @@
       "group": "hil-bridge",
       "query": [],
       "statuses": [
-        "200"
+        "200",
+        "404",
+        "503"
       ]
     },
     {
@@ -857,7 +885,12 @@
       "group": "hil-bridge",
       "query": [],
       "statuses": [
-        "400"
+        "200",
+        "400",
+        "403",
+        "404",
+        "409",
+        "503"
       ]
     },
     {
@@ -1224,7 +1257,9 @@
       "group": "ros2-bridge",
       "query": [],
       "statuses": [
-        "200"
+        "200",
+        "404",
+        "503"
       ]
     },
     {
@@ -1234,7 +1269,12 @@
       "group": "ros2-bridge",
       "query": [],
       "statuses": [
-        "400"
+        "200",
+        "400",
+        "403",
+        "404",
+        "409",
+        "503"
       ]
     },
     {
@@ -1269,7 +1309,9 @@
       "group": "semantic-planner",
       "query": [],
       "statuses": [
-        "200"
+        "200",
+        "404",
+        "503"
       ]
     },
     {
@@ -1279,7 +1321,12 @@
       "group": "semantic-planner",
       "query": [],
       "statuses": [
-        "400"
+        "200",
+        "400",
+        "403",
+        "404",
+        "409",
+        "503"
       ]
     },
     {
@@ -1442,9 +1489,20 @@
       "path": "/api/telemetry/aggregate",
       "access": "user",
       "group": "telemetry",
-      "query": [],
+      "query": [
+        "agg",
+        "before",
+        "bucketMs",
+        "end",
+        "field",
+        "kind",
+        "sourceId",
+        "start"
+      ],
       "statuses": [
-        "200"
+        "200",
+        "400",
+        "503"
       ]
     },
     {
@@ -1454,7 +1512,9 @@
       "group": "telemetry",
       "query": [],
       "statuses": [
-        "200"
+        "200",
+        "404",
+        "503"
       ]
     },
     {
@@ -1466,7 +1526,13 @@
         "preview"
       ],
       "statuses": [
-        "200"
+        "200",
+        "400",
+        "403",
+        "404",
+        "409",
+        "413",
+        "503"
       ]
     },
     {
@@ -1474,9 +1540,20 @@
       "path": "/api/telemetry/query",
       "access": "user",
       "group": "telemetry",
-      "query": [],
+      "query": [
+        "before",
+        "cursor",
+        "end",
+        "field",
+        "kind",
+        "limit",
+        "sourceId",
+        "start"
+      ],
       "statuses": [
-        "200"
+        "200",
+        "400",
+        "503"
       ]
     },
     {

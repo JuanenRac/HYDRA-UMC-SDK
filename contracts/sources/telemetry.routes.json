@@ -11,10 +11,115 @@
       "access": "user",
       "responses": {
         "200": {
-          "description": "Success. The body is documented in docs/REMOTE_API.md.",
-          "shape": "Passthrough"
+          "description": "The buckets of the window. The body is documented in docs/REMOTE_API.md.",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "bucketStart": {
+                  "type": "number"
+                },
+                "value": {
+                  "type": "number"
+                },
+                "count": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "bucketStart",
+                "value",
+                "count"
+              ]
+            }
+          }
+        },
+        "400": {
+          "description": "The data lake refused a parameter. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "The data lake is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
         }
-      }
+      },
+      "parameters": [
+        {
+          "name": "sourceId",
+          "in": "query",
+          "required": false,
+          "description": "Only this source.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "kind",
+          "in": "query",
+          "required": false,
+          "description": "The kind of reading (required by the data lake).",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "field",
+          "in": "query",
+          "required": false,
+          "description": "The field (required by the data lake).",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "bucketMs",
+          "in": "query",
+          "required": false,
+          "description": "The width of a bucket in milliseconds (required by the data lake).",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "start",
+          "in": "query",
+          "required": false,
+          "description": "First timestamp, in milliseconds (required by the data lake).",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "end",
+          "in": "query",
+          "required": false,
+          "description": "End of the window in milliseconds (end or before is required by the data lake).",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "before",
+          "in": "query",
+          "required": false,
+          "description": "End of the window, excluded (instead of end).",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "agg",
+          "in": "query",
+          "required": false,
+          "description": "avg (default), min, max, sum or count.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "relays_status": true,
+      "relays_query": true
     },
     {
       "method": "get",
@@ -24,10 +129,120 @@
       "access": "admin",
       "responses": {
         "200": {
-          "description": "Success. The body is documented in docs/REMOTE_API.md.",
-          "shape": "Passthrough"
+          "description": "The plan the data lake uses, its hash, the kinds it knows, its switches and the tail of its audit.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "plan": {
+                "type": "object",
+                "properties": {
+                  "tiers": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string"
+                        },
+                        "field": {
+                          "type": "string"
+                        },
+                        "raw": {
+                          "description": "How long raw points are kept: milliseconds or text such as 30d."
+                        },
+                        "bucket": {
+                          "description": "Width of the rollup bucket."
+                        },
+                        "fineBucket": {
+                          "description": "Width of the fine rollup bucket."
+                        },
+                        "rollupRetention": {
+                          "description": "How long rollups are kept."
+                        },
+                        "fineRetention": {
+                          "description": "How long fine rollups are kept."
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "field"
+                      ]
+                    }
+                  },
+                  "delete": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "tiers",
+                  "delete"
+                ]
+              },
+              "hash": {
+                "type": "string"
+              },
+              "tiers": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "knownKinds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "switches": {
+                "type": "object",
+                "properties": {
+                  "allowDelete": {
+                    "type": "boolean"
+                  },
+                  "deleteRequestedByPlan": {
+                    "type": "boolean"
+                  },
+                  "deleteOldSwitch": {
+                    "type": "boolean"
+                  },
+                  "effectiveMode": {
+                    "type": "string",
+                    "enum": [
+                      "delete",
+                      "dryRun"
+                    ]
+                  },
+                  "fineRollups": {
+                    "type": "boolean"
+                  },
+                  "autoIntervalSeconds": {
+                    "type": "number"
+                  }
+                }
+              },
+              "audit": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            },
+            "required": [
+              "plan",
+              "hash"
+            ]
+          }
+        },
+        "404": {
+          "description": "The data lake was not started with the plan administration (the screen reads it as off). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "The data lake is not configured or does not answer. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
         }
-      }
+      },
+      "relays_status": true
     },
     {
       "method": "put",
@@ -47,10 +262,192 @@
       ],
       "responses": {
         "200": {
-          "description": "Success. The body is documented in docs/REMOTE_API.md.",
-          "shape": "Passthrough"
+          "description": "What the save did (or, with preview, would do). The body is documented in docs/REMOTE_API.md.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "saved": {
+                "type": "boolean"
+              },
+              "preview": {
+                "type": "boolean"
+              },
+              "unchanged": {
+                "type": "boolean"
+              },
+              "hash": {
+                "type": "string"
+              },
+              "previousHash": {
+                "type": "string"
+              },
+              "tiers": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "delete",
+                  "dryRun"
+                ]
+              },
+              "changes": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "effects": {
+                "type": "object",
+                "properties": {
+                  "totals": {
+                    "type": "object",
+                    "properties": {
+                      "rawPointsToRollUp": {
+                        "type": "number"
+                      },
+                      "rollupsToExpire": {
+                        "type": "number"
+                      },
+                      "fineRollupsToExpire": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              },
+              "currentEffects": {
+                "type": "object",
+                "properties": {
+                  "totals": {
+                    "type": "object",
+                    "properties": {
+                      "rawPointsToRollUp": {
+                        "type": "number"
+                      },
+                      "rollupsToExpire": {
+                        "type": "number"
+                      },
+                      "fineRollupsToExpire": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "required": [
+              "saved",
+              "hash"
+            ]
+          }
+        },
+        "400": {
+          "description": "The plan or the request is invalid (code invalid_request, invalid_plan, incoherent_plan or unknown_kind). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "403": {
+          "description": "The plan asks to delete and the data lake was not started allowing it (delete_not_allowed). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "The data lake was not started with the plan administration. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "409": {
+          "description": "The plan changed meanwhile (plan_changed) or real deletion needs confirmDelete (confirm_delete_required). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "413": {
+          "description": "The plan is too large. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "The data lake is not configured or does not answer. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
         }
-      }
+      },
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "plan": {
+                  "type": "object",
+                  "properties": {
+                    "tiers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string"
+                          },
+                          "field": {
+                            "type": "string"
+                          },
+                          "raw": {
+                            "description": "How long raw points are kept: milliseconds or text such as 30d."
+                          },
+                          "bucket": {
+                            "description": "Width of the rollup bucket."
+                          },
+                          "fineBucket": {
+                            "description": "Width of the fine rollup bucket."
+                          },
+                          "rollupRetention": {
+                            "description": "How long rollups are kept."
+                          },
+                          "fineRetention": {
+                            "description": "How long fine rollups are kept."
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "field"
+                        ]
+                      }
+                    },
+                    "delete": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "tiers",
+                    "delete"
+                  ]
+                },
+                "expectedHash": {
+                  "type": "string"
+                },
+                "confirmDelete": {
+                  "type": "boolean"
+                },
+                "preview": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "plan"
+              ],
+              "additionalProperties": false,
+              "description": "plan is the whole plan; expectedHash is the hash read last (the data lake refuses a plan that changed meanwhile); confirmDelete is needed to switch real deletion on; preview only asks what saving would do."
+            }
+          }
+        }
+      },
+      "relays_status": true
     },
     {
       "method": "get",
@@ -60,10 +457,131 @@
       "access": "user",
       "responses": {
         "200": {
-          "description": "Success. The body is documented in docs/REMOTE_API.md.",
-          "shape": "Passthrough"
+          "description": "The points of the window, oldest first. A next page is announced in the X-Next-Cursor header.",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "sourceId": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "field": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "number"
+                },
+                "value": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "sourceId",
+                "kind",
+                "field",
+                "timestamp",
+                "value"
+              ]
+            }
+          },
+          "headers": {
+            "X-Next-Cursor": {
+              "description": "The cursor of the next page, when there is one.",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "The data lake refused a parameter. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "The data lake is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
         }
-      }
+      },
+      "parameters": [
+        {
+          "name": "sourceId",
+          "in": "query",
+          "required": false,
+          "description": "Only the points of this source.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "kind",
+          "in": "query",
+          "required": false,
+          "description": "Only this kind of reading.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "field",
+          "in": "query",
+          "required": false,
+          "description": "Only this field.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "start",
+          "in": "query",
+          "required": false,
+          "description": "First timestamp to read, in milliseconds (inclusive).",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "end",
+          "in": "query",
+          "required": false,
+          "description": "Last timestamp to read, in milliseconds (exclusive end is made by the data lake).",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "before",
+          "in": "query",
+          "required": false,
+          "description": "Read up to this timestamp, in milliseconds, excluding it (instead of end).",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "description": "How many points at most (default 1000).",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "description": "The page cursor the previous answer gave in the X-Next-Cursor header.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "relays_status": true,
+      "relays_query": true
     }
   ]
 }

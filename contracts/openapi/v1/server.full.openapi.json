@@ -3938,7 +3938,94 @@
         "x-access": "admin",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md."
+            "description": "The limits now in force: success, limits, defaults and hardLimits. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "limits": {
+                      "type": "object",
+                      "properties": {
+                        "jog": {
+                          "type": "object",
+                          "properties": {
+                            "armRequired": {
+                              "type": "boolean"
+                            },
+                            "armTtlMs": {
+                              "type": "number"
+                            },
+                            "default": {
+                              "type": "object",
+                              "properties": {
+                                "maxAmount": {
+                                  "type": "number"
+                                },
+                                "maxAbsolute": {
+                                  "type": "number"
+                                }
+                              }
+                            },
+                            "models": {
+                              "type": "object"
+                            }
+                          }
+                        },
+                        "temperature": {
+                          "type": "object",
+                          "properties": {
+                            "default": {
+                              "type": "object",
+                              "properties": {
+                                "bedMaxC": {
+                                  "type": "number"
+                                }
+                              }
+                            },
+                            "models": {
+                              "type": "object"
+                            }
+                          }
+                        },
+                        "claims": {
+                          "type": "object",
+                          "properties": {
+                            "requireControllerId": {
+                              "type": "boolean"
+                            }
+                          }
+                        },
+                        "audit": {
+                          "type": "object",
+                          "properties": {
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "motionIntervalSeconds": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "defaults": {
+                      "type": "object"
+                    },
+                    "hardLimits": {
+                      "type": "object"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "limits"
+                  ]
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
@@ -3947,6 +4034,80 @@
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "jog": {
+                    "type": "object",
+                    "properties": {
+                      "armRequired": {
+                        "type": "boolean"
+                      },
+                      "armTtlMs": {
+                        "type": "number"
+                      },
+                      "default": {
+                        "type": "object",
+                        "properties": {
+                          "maxAmount": {
+                            "type": "number"
+                          },
+                          "maxAbsolute": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "models": {
+                        "type": "object"
+                      }
+                    }
+                  },
+                  "temperature": {
+                    "type": "object",
+                    "properties": {
+                      "default": {
+                        "type": "object",
+                        "properties": {
+                          "bedMaxC": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "models": {
+                        "type": "object"
+                      }
+                    }
+                  },
+                  "claims": {
+                    "type": "object",
+                    "properties": {
+                      "requireControllerId": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "audit": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "motionIntervalSeconds": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "additionalProperties": false,
+                "description": "A patch of the safety limits: only the blocks and keys sent change, each inside the hard limits of the server."
               }
             }
           }
@@ -4281,17 +4442,37 @@
         "x-access": "admin",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "description": "Success. The body carries success, appliesOnRestart, warnings and the security configuration now in force (the same blocks as GET).",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ServerConfigSaved"
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "appliesOnRestart": {
+                      "type": "boolean"
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "appliesOnRestart",
+                    "warnings"
+                  ],
+                  "additionalProperties": true
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+            "description": "Invalid request (the port is not an integer from 1 to 65535, or a block is refused: the code and message say which). The body is documented in docs/REMOTE_API.md.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4312,19 +4493,151 @@
           }
         },
         "requestBody": {
-          "required": true,
+          "required": false,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "port"
-                ],
                 "properties": {
                   "port": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The listen port, 1 to 65535; it applies when the server restarts."
+                  },
+                  "aiAccess": {
+                    "type": "object",
+                    "description": "The options of the aiAccess block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "infoAuth": {
+                    "type": "object",
+                    "description": "The options of the infoAuth block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "tls": {
+                    "type": "object",
+                    "description": "The options of the tls block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "ble": {
+                    "type": "object",
+                    "description": "The options of the ble block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "mqtt": {
+                    "type": "object",
+                    "description": "The options of the mqtt block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "voice": {
+                    "type": "object",
+                    "description": "The options of the voice block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "mavlink": {
+                    "type": "object",
+                    "description": "The options of the mavlink block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "robots": {
+                    "type": "object",
+                    "description": "The options of the robots block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "connections": {
+                    "type": "object",
+                    "description": "The options of the connections block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "health": {
+                    "type": "object",
+                    "description": "The options of the health block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "ecosystemHealth": {
+                    "type": "object",
+                    "description": "The options of the ecosystemHealth block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "nodeHealth": {
+                    "type": "object",
+                    "description": "The options of the nodeHealth block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "twinRelay": {
+                    "type": "object",
+                    "description": "The options of the twinRelay block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "infoTickets": {
+                    "type": "object",
+                    "description": "The options of the infoTickets block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "deviceTokens": {
+                    "type": "object",
+                    "description": "The options of the deviceTokens block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "updateCheck": {
+                    "type": "object",
+                    "description": "The options of the updateCheck block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "discovery": {
+                    "type": "object",
+                    "description": "The options of the discovery block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "maintenance": {
+                    "type": "object",
+                    "description": "The options of the maintenance block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "atc": {
+                    "type": "object",
+                    "description": "The options of the atc block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "detectionHef": {
+                    "type": "object",
+                    "description": "The options of the detectionHef block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "auth": {
+                    "type": "object",
+                    "description": "The options of the auth block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "presence": {
+                    "type": "object",
+                    "description": "The options of the presence block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "push": {
+                    "type": "object",
+                    "description": "The options of the push block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "trustedNetworks": {
+                    "type": "object",
+                    "description": "The options of the trustedNetworks block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "rul": {
+                    "type": "object",
+                    "description": "The options of the rul block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "safety": {
+                    "type": "object",
+                    "description": "The options of the safety block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "camera": {
+                    "type": "object",
+                    "description": "The options of the camera block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "install": {
+                    "type": "object",
+                    "description": "The options of the install block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "websocket": {
+                    "type": "object",
+                    "description": "The options of the websocket block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "logging": {
+                    "type": "object",
+                    "description": "The options of the logging block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "rateLimits": {
+                    "type": "object",
+                    "description": "The options of the rateLimits block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "bridges": {
+                    "type": "object",
+                    "description": "The options of the bridges block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "jobDispatcher": {
+                    "type": "object",
+                    "description": "The options of the jobDispatcher block of the security configuration that the body changes; only the keys sent are changed."
                   }
-                }
+                },
+                "additionalProperties": false,
+                "description": "Every key is optional: port and any of the blocks of the security configuration. A key that is not one of them is ignored."
               }
             }
           }
@@ -5710,7 +6023,51 @@
         "x-access": "user",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md."
+            "description": "The settings the service reports. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "allowLoopbackNoIdentity": {
+                      "type": "boolean"
+                    },
+                    "loopbackSwitchAllowed": {
+                      "type": "boolean"
+                    },
+                    "verifiesTokens": {
+                      "type": "boolean"
+                    },
+                    "persisted": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "allowLoopbackNoIdentity"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The server or the service it relays to has no such route. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The service this route relays to is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -5724,9 +6081,39 @@
           "connector-hub-gate"
         ],
         "summary": "POST /api/connector-hub/gate/settings",
-        "description": "Requires a signed-in account with the admin role.",
+        "description": "Requires a signed-in account with the admin role. The body is allowLoopbackNoIdentity (true or false) and, to turn it on, confirm: true. The answer is the settings of the gate and changed (whether the change altered anything).",
         "x-access": "admin",
         "responses": {
+          "200": {
+            "description": "The change was made; the answer is the settings now in force and changed. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "allowLoopbackNoIdentity": {
+                      "type": "boolean"
+                    },
+                    "loopbackSwitchAllowed": {
+                      "type": "boolean"
+                    },
+                    "verifiesTokens": {
+                      "type": "boolean"
+                    },
+                    "persisted": {
+                      "type": "boolean"
+                    },
+                    "changed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "allowLoopbackNoIdentity"
+                  ]
+                }
+              }
+            }
+          },
           "400": {
             "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
             "content": {
@@ -5734,6 +6121,67 @@
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
+              }
+            }
+          },
+          "403": {
+            "description": "The service refuses the change (it was started without allowing it, or the token has no role for it). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The server or the service it relays to has no such route. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The service refused the change in its current state (code SETTING_REFUSED). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The service this route relays to is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "allowLoopbackNoIdentity": {
+                    "type": "boolean"
+                  },
+                  "confirm": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "allowLoopbackNoIdentity"
+                ]
               }
             }
           }
@@ -5886,7 +6334,45 @@
         "x-access": "user",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md."
+            "description": "The settings the service reports. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "running": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "enabled"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The server or the service it relays to has no such route. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The service this route relays to is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -5900,9 +6386,33 @@
           "droid-estop"
         ],
         "summary": "POST /api/droid-estop/settings",
-        "description": "Requires a signed-in account with the admin role.",
+        "description": "Requires a signed-in account with the admin role. The body is enabled (true or false) and confirm: true, in both directions. The answer carries enabled (the switch of the safety zones service that makes it read the emergency stop of the droids) and running (the link to the droid bridge is up).",
         "x-access": "admin",
         "responses": {
+          "200": {
+            "description": "The change was made; the answer is the settings now in force and changed. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "running": {
+                      "type": "boolean"
+                    },
+                    "changed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "enabled"
+                  ]
+                }
+              }
+            }
+          },
           "400": {
             "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
             "content": {
@@ -5910,6 +6420,68 @@
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
+              }
+            }
+          },
+          "403": {
+            "description": "The service refuses the change (it was started without allowing it, or the token has no role for it). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The server or the service it relays to has no such route. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The service refused the change in its current state (code SETTING_REFUSED). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The service this route relays to is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "confirm": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "enabled",
+                  "confirm"
+                ]
               }
             }
           }
@@ -6244,6 +6816,118 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "tier",
+            "in": "query",
+            "required": false,
+            "description": "The tier of the target (0 or 1 by default 0).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "slot",
+            "in": "query",
+            "required": false,
+            "description": "The slot of the target.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "relay",
+            "in": "query",
+            "required": false,
+            "description": "1 to reach tier 2 through the resolved tier 0/1 target.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hardware_id",
+            "in": "query",
+            "required": false,
+            "description": "The hardware id the image is for.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version_major",
+            "in": "query",
+            "required": false,
+            "description": "Major version of the image.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version_minor",
+            "in": "query",
+            "required": false,
+            "description": "Minor version of the image.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version_patch",
+            "in": "query",
+            "required": false,
+            "description": "Patch version of the image (whole number).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "signature",
+            "in": "query",
+            "required": false,
+            "description": "The signature of the image, 128 hexadecimal digits.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "downgrade_from",
+            "in": "query",
+            "required": false,
+            "description": "The version installed now (major.minor.patch), for a downgrade.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "target",
+            "in": "query",
+            "required": false,
+            "description": "The name of the board the image is for.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "min_bootloader",
+            "in": "query",
+            "required": false,
+            "description": "The oldest bootloader that may take the image (major.minor.patch).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
         "security": [
           {
             "bearerAuth": []
@@ -6384,6 +7068,27 @@
             }
           }
         },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "confirm": {
+                    "type": "string",
+                    "enum": [
+                      "ERASE"
+                    ]
+                  }
+                },
+                "required": [
+                  "confirm"
+                ]
+              }
+            }
+          }
+        },
         "security": [
           {
             "bearerAuth": []
@@ -6478,7 +7183,54 @@
         "x-access": "user",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md."
+            "description": "The settings the service reports. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "requireTwinPass": {
+                      "type": "boolean"
+                    },
+                    "locked": {
+                      "type": "boolean"
+                    },
+                    "persisted": {
+                      "type": "boolean"
+                    },
+                    "ready": {
+                      "type": "boolean"
+                    },
+                    "canChange": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "requireTwinPass"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The server or the service it relays to has no such route. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The service this route relays to is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -6492,9 +7244,42 @@
           "hil-bridge"
         ],
         "summary": "POST /api/hil-bridge/settings",
-        "description": "Requires a signed-in account with the admin role.",
+        "description": "Requires a signed-in account with the admin role. The body is requireTwinPass (true or false) and confirm: true, in both directions. The answer says whether the switch is on (requireTwinPass), locked on by the way the bridge was started (locked), kept across restarts (persisted), ready to be turned on (ready) and changeable from here (canChange).",
         "x-access": "admin",
         "responses": {
+          "200": {
+            "description": "The change was made; the answer is the settings now in force and changed. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "requireTwinPass": {
+                      "type": "boolean"
+                    },
+                    "locked": {
+                      "type": "boolean"
+                    },
+                    "persisted": {
+                      "type": "boolean"
+                    },
+                    "ready": {
+                      "type": "boolean"
+                    },
+                    "canChange": {
+                      "type": "boolean"
+                    },
+                    "changed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "requireTwinPass"
+                  ]
+                }
+              }
+            }
+          },
           "400": {
             "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
             "content": {
@@ -6502,6 +7287,68 @@
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
+              }
+            }
+          },
+          "403": {
+            "description": "The service refuses the change (it was started without allowing it, or the token has no role for it). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The server or the service it relays to has no such route. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The service refused the change in its current state (code SETTING_REFUSED). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The service this route relays to is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requireTwinPass": {
+                    "type": "boolean"
+                  },
+                  "confirm": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "requireTwinPass",
+                  "confirm"
+                ]
               }
             }
           }
@@ -7730,7 +8577,37 @@
         "x-access": "user",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md."
+            "description": "The robot (cameras' credentials only for an administrator), its revision and the controller that holds it. The ETag header is the revision. Answers 200.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "robot": {
+                      "type": "object"
+                    },
+                    "revision": {
+                      "type": "string"
+                    },
+                    "cellId": {
+                      "description": "The id of the controller the robot belongs to (null when it is in none)."
+                    }
+                  },
+                  "required": [
+                    "robot",
+                    "revision"
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "The revision of the document, to send back as If-Match.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "404": {
             "description": "Not found. The body is documented in docs/REMOTE_API.md.",
@@ -7780,11 +8657,42 @@
         "x-access": "user",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "description": "The claim is held (renewed or taken); the ETag header is the new revision of the robot. Answers 200.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Reservation"
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "reservation": {
+                      "type": "object"
+                    },
+                    "reservationHistory": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "revision": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "reservation",
+                    "reservationHistory",
+                    "revision"
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "The revision of the document, to send back as If-Match.",
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -7838,6 +8746,24 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "description": "The revision read from GET /api/robot/{id}; the request is refused (412, revision-mismatch) when the robot is no longer that version.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Controller-Id",
+            "in": "header",
+            "required": false,
+            "description": "The controller (one client of the account) that asks, 1 to 64 characters: letters, digits, . _ : - (the body field controllerId says the same).",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -7855,6 +8781,9 @@
                     "type": "boolean"
                   },
                   "reason": {
+                    "type": "string"
+                  },
+                  "controllerId": {
                     "type": "string"
                   }
                 }
@@ -7879,7 +8808,47 @@
         "x-access": "user",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md."
+            "description": "The command was accepted and applied; the answer says so with the operation and its first lifecycle event. Answers 200.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "affectedCount": {
+                      "type": "number"
+                    },
+                    "revision": {
+                      "type": "string"
+                    },
+                    "operation_id": {
+                      "type": "string"
+                    },
+                    "operation": {
+                      "type": "object"
+                    },
+                    "lifecycle": {
+                      "type": "object"
+                    },
+                    "applied": {
+                      "type": "object"
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": {
+                        "description": "A string or an object with a message (and the field it is about)."
+                      }
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "revision"
+                  ]
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
@@ -7950,6 +8919,33 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "description": "The revision read from GET /api/robot/{id}; the command is refused (412, revision-mismatch) when the robot is no longer that version. Not applied to stop or disable.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Controller-Id",
+            "in": "header",
+            "required": false,
+            "description": "The controller (one client of the account) that asks, 1 to 64 characters: letters, digits, . _ : - (the body field controllerId says the same).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Correlation-Id",
+            "in": "header",
+            "required": false,
+            "description": "A correlation id carried to the operation and its lifecycle events.",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -7963,13 +8959,17 @@
                 ],
                 "properties": {
                   "command": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "One of the commands the server knows (an unknown one answers 400)."
                   },
                   "params": {
                     "type": "object"
                   },
                   "seq": {
                     "type": "integer"
+                  },
+                  "controllerId": {
+                    "type": "string"
                   }
                 }
               }
@@ -8050,7 +9050,32 @@
         "x-access": "user",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md."
+            "description": "The jog is armed or disarmed; when armed, until expiresAt for ttlMs. Answers 200.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "armed": {
+                      "type": "boolean"
+                    },
+                    "expiresAt": {
+                      "type": "number"
+                    },
+                    "ttlMs": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "armed"
+                  ]
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
@@ -8101,20 +9126,37 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "name": "X-Controller-Id",
+            "in": "header",
+            "required": false,
+            "description": "The controller (one client of the account) that asks, 1 to 64 characters: letters, digits, . _ : - (the body field controllerId says the same).",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
-          "required": false,
-          "description": "JSON body. Only the field names the handler reads are listed; types and limits are checked in the handler.",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
                 "properties": {
-                  "armed": {},
-                  "controllerId": {},
-                  "ttlMs": {}
-                }
+                  "armed": {
+                    "type": "boolean"
+                  },
+                  "ttlMs": {
+                    "type": "number"
+                  },
+                  "controllerId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "armed"
+                ]
               }
             }
           }
@@ -8136,11 +9178,38 @@
         "x-access": "user",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "description": "The claim is released (releasing a robot nobody holds is a success too); the ETag header is the new revision of the robot. Answers 200.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Reservation"
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "reservationHistory": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "revision": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "reservationHistory",
+                    "revision"
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "The revision of the document, to send back as If-Match.",
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -8194,6 +9263,24 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "description": "The revision read from GET /api/robot/{id}; the request is refused (412, revision-mismatch) when the robot is no longer that version.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Controller-Id",
+            "in": "header",
+            "required": false,
+            "description": "The controller (one client of the account) that asks, 1 to 64 characters: letters, digits, . _ : - (the body field controllerId says the same).",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -8205,6 +9292,9 @@
                 "required": [],
                 "properties": {
                   "reason": {
+                    "type": "string"
+                  },
+                  "controllerId": {
                     "type": "string"
                   }
                 }
@@ -8288,6 +9378,26 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "The server or the service it relays to has no such route. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The service this route relays to is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -8304,6 +9414,46 @@
         "description": "Requires a signed-in account with the admin role. The body is requireSros2 (true or false) and confirm: true, in both directions. The bridge writes the value to its configuration file and the value applies when the bridge restarts: the answer has the same fields as the GET, with changed and appliesAfterRestart true. A bridge started without allowing the change answers 403.",
         "x-access": "admin",
         "responses": {
+          "200": {
+            "description": "The change was made; the answer is the settings now in force and changed. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "requireSros2",
+                    "active",
+                    "restartNeeded",
+                    "canChange",
+                    "environmentReady"
+                  ],
+                  "properties": {
+                    "requireSros2": {
+                      "type": "boolean"
+                    },
+                    "active": {
+                      "type": "boolean"
+                    },
+                    "restartNeeded": {
+                      "type": "boolean"
+                    },
+                    "canChange": {
+                      "type": "boolean"
+                    },
+                    "environmentReady": {
+                      "type": "boolean"
+                    },
+                    "changed": {
+                      "type": "boolean"
+                    },
+                    "appliesAfterRestart": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
           "400": {
             "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
             "content": {
@@ -8311,6 +9461,68 @@
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
+              }
+            }
+          },
+          "403": {
+            "description": "The service refuses the change (it was started without allowing it, or the token has no role for it). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The server or the service it relays to has no such route. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The service refused the change in its current state (code SETTING_REFUSED). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The service this route relays to is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requireSros2": {
+                    "type": "boolean"
+                  },
+                  "confirm": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "requireSros2",
+                  "confirm"
+                ]
               }
             }
           }
@@ -8419,7 +9631,48 @@
         "x-access": "user",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md."
+            "description": "The settings the service reports. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "requireIdentity": {
+                      "type": "boolean"
+                    },
+                    "verifiesTokens": {
+                      "type": "boolean"
+                    },
+                    "persisted": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "requireIdentity"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The server or the service it relays to has no such route. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The service this route relays to is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -8433,9 +9686,36 @@
           "semantic-planner"
         ],
         "summary": "POST /api/semantic-planner/settings",
-        "description": "Requires a signed-in account with the admin role.",
+        "description": "Requires a signed-in account with the admin role. The body is requireIdentity (true or false) and, to relax it (false), confirm: true. The answer is the settings of the planner and changed (whether the change altered anything).",
         "x-access": "admin",
         "responses": {
+          "200": {
+            "description": "The change was made; the answer is the settings now in force and changed. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "requireIdentity": {
+                      "type": "boolean"
+                    },
+                    "verifiesTokens": {
+                      "type": "boolean"
+                    },
+                    "persisted": {
+                      "type": "boolean"
+                    },
+                    "changed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "requireIdentity"
+                  ]
+                }
+              }
+            }
+          },
           "400": {
             "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
             "content": {
@@ -8443,6 +9723,67 @@
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
+              }
+            }
+          },
+          "403": {
+            "description": "The service refuses the change (it was started without allowing it, or the token has no role for it). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The server or the service it relays to has no such route. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The service refused the change in its current state (code SETTING_REFUSED). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The service this route relays to is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requireIdentity": {
+                    "type": "boolean"
+                  },
+                  "confirm": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "requireIdentity"
+                ]
               }
             }
           }
@@ -8464,11 +9805,19 @@
         "x-access": "user",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "description": "The settings tree (secrets redacted unless the account is an administrator). The ETag header is its revision.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Settings"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "The revision of the document, to send back as If-Match.",
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -8499,11 +9848,37 @@
         "x-access": "admin",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "description": "Saved. The ETag header and revision are the new version.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Success"
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "revision": {
+                      "type": "string"
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "revision"
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "The revision of the document, to send back as If-Match.",
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -8529,6 +9904,27 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "description": "The ETag read from GET /api/settings; the save is refused (409) when the settings are no longer that version.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Settings"
+              }
+            }
+          }
+        },
         "security": [
           {
             "bearerAuth": []
@@ -8544,11 +9940,37 @@
         "x-access": "admin",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "description": "Saved. The ETag header and revision are the new version.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Success"
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "revision": {
+                      "type": "string"
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "revision"
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "The revision of the document, to send back as If-Match.",
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -8590,6 +10012,27 @@
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "description": "The ETag read from GET /api/settings (a bare * is not accepted).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Settings"
               }
             }
           }
@@ -9009,16 +10452,129 @@
         "x-access": "user",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "description": "The buckets of the window. The body is documented in docs/REMOTE_API.md.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Passthrough"
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "bucketStart": {
+                        "type": "number"
+                      },
+                      "value": {
+                        "type": "number"
+                      },
+                      "count": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "bucketStart",
+                      "value",
+                      "count"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The data lake refused a parameter. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The data lake is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
           }
         },
+        "parameters": [
+          {
+            "name": "sourceId",
+            "in": "query",
+            "required": false,
+            "description": "Only this source.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "description": "The kind of reading (required by the data lake).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "field",
+            "in": "query",
+            "required": false,
+            "description": "The field (required by the data lake).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bucketMs",
+            "in": "query",
+            "required": false,
+            "description": "The width of a bucket in milliseconds (required by the data lake).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "description": "First timestamp, in milliseconds (required by the data lake).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "description": "End of the window in milliseconds (end or before is required by the data lake).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "description": "End of the window, excluded (instead of end).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "agg",
+            "in": "query",
+            "required": false,
+            "description": "avg (default), min, max, sum or count.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -9036,11 +10592,130 @@
         "x-access": "admin",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "description": "The plan the data lake uses, its hash, the kinds it knows, its switches and the tail of its audit.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Passthrough"
+                  "type": "object",
+                  "properties": {
+                    "plan": {
+                      "type": "object",
+                      "properties": {
+                        "tiers": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string"
+                              },
+                              "field": {
+                                "type": "string"
+                              },
+                              "raw": {
+                                "description": "How long raw points are kept: milliseconds or text such as 30d."
+                              },
+                              "bucket": {
+                                "description": "Width of the rollup bucket."
+                              },
+                              "fineBucket": {
+                                "description": "Width of the fine rollup bucket."
+                              },
+                              "rollupRetention": {
+                                "description": "How long rollups are kept."
+                              },
+                              "fineRetention": {
+                                "description": "How long fine rollups are kept."
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "field"
+                            ]
+                          }
+                        },
+                        "delete": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "tiers",
+                        "delete"
+                      ]
+                    },
+                    "hash": {
+                      "type": "string"
+                    },
+                    "tiers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "knownKinds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "switches": {
+                      "type": "object",
+                      "properties": {
+                        "allowDelete": {
+                          "type": "boolean"
+                        },
+                        "deleteRequestedByPlan": {
+                          "type": "boolean"
+                        },
+                        "deleteOldSwitch": {
+                          "type": "boolean"
+                        },
+                        "effectiveMode": {
+                          "type": "string",
+                          "enum": [
+                            "delete",
+                            "dryRun"
+                          ]
+                        },
+                        "fineRollups": {
+                          "type": "boolean"
+                        },
+                        "autoIntervalSeconds": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "audit": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  },
+                  "required": [
+                    "plan",
+                    "hash"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The data lake was not started with the plan administration (the screen reads it as off). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The data lake is not configured or does not answer. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -9061,11 +10736,155 @@
         "x-access": "admin",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "description": "What the save did (or, with preview, would do). The body is documented in docs/REMOTE_API.md.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Passthrough"
+                  "type": "object",
+                  "properties": {
+                    "saved": {
+                      "type": "boolean"
+                    },
+                    "preview": {
+                      "type": "boolean"
+                    },
+                    "unchanged": {
+                      "type": "boolean"
+                    },
+                    "hash": {
+                      "type": "string"
+                    },
+                    "previousHash": {
+                      "type": "string"
+                    },
+                    "tiers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "delete",
+                        "dryRun"
+                      ]
+                    },
+                    "changes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "effects": {
+                      "type": "object",
+                      "properties": {
+                        "totals": {
+                          "type": "object",
+                          "properties": {
+                            "rawPointsToRollUp": {
+                              "type": "number"
+                            },
+                            "rollupsToExpire": {
+                              "type": "number"
+                            },
+                            "fineRollupsToExpire": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "currentEffects": {
+                      "type": "object",
+                      "properties": {
+                        "totals": {
+                          "type": "object",
+                          "properties": {
+                            "rawPointsToRollUp": {
+                              "type": "number"
+                            },
+                            "rollupsToExpire": {
+                              "type": "number"
+                            },
+                            "fineRollupsToExpire": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "saved",
+                    "hash"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The plan or the request is invalid (code invalid_request, invalid_plan, incoherent_plan or unknown_kind). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The plan asks to delete and the data lake was not started allowing it (delete_not_allowed). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The data lake was not started with the plan administration. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The plan changed meanwhile (plan_changed) or real deletion needs confirmDelete (confirm_delete_required). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The plan is too large. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The data lake is not configured or does not answer. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -9081,6 +10900,77 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plan": {
+                    "type": "object",
+                    "properties": {
+                      "tiers": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string"
+                            },
+                            "field": {
+                              "type": "string"
+                            },
+                            "raw": {
+                              "description": "How long raw points are kept: milliseconds or text such as 30d."
+                            },
+                            "bucket": {
+                              "description": "Width of the rollup bucket."
+                            },
+                            "fineBucket": {
+                              "description": "Width of the fine rollup bucket."
+                            },
+                            "rollupRetention": {
+                              "description": "How long rollups are kept."
+                            },
+                            "fineRetention": {
+                              "description": "How long fine rollups are kept."
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "field"
+                          ]
+                        }
+                      },
+                      "delete": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "tiers",
+                      "delete"
+                    ]
+                  },
+                  "expectedHash": {
+                    "type": "string"
+                  },
+                  "confirmDelete": {
+                    "type": "boolean"
+                  },
+                  "preview": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "plan"
+                ],
+                "additionalProperties": false,
+                "description": "plan is the whole plan; expectedHash is the hash read last (the data lake refuses a plan that changed meanwhile); confirmDelete is needed to switch real deletion on; preview only asks what saving would do."
+              }
+            }
+          }
+        },
         "security": [
           {
             "bearerAuth": []
@@ -9098,16 +10988,145 @@
         "x-access": "user",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "description": "The points of the window, oldest first. A next page is announced in the X-Next-Cursor header.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Passthrough"
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "sourceId": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string"
+                      },
+                      "field": {
+                        "type": "string"
+                      },
+                      "timestamp": {
+                        "type": "number"
+                      },
+                      "value": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "sourceId",
+                      "kind",
+                      "field",
+                      "timestamp",
+                      "value"
+                    ]
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Next-Cursor": {
+                "description": "The cursor of the next page, when there is one.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The data lake refused a parameter. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The data lake is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
           }
         },
+        "parameters": [
+          {
+            "name": "sourceId",
+            "in": "query",
+            "required": false,
+            "description": "Only the points of this source.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "description": "Only this kind of reading.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "field",
+            "in": "query",
+            "required": false,
+            "description": "Only this field.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "description": "First timestamp to read, in milliseconds (inclusive).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "description": "Last timestamp to read, in milliseconds (exclusive end is made by the data lake).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "description": "Read up to this timestamp, in milliseconds, excluding it (instead of end).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "How many points at most (default 1000).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "description": "The page cursor the previous answer gave in the X-Next-Cursor header.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -9594,13 +11613,15 @@
                 ],
                 "properties": {
                   "folderPath": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "A folder inside the data folder of the server (no .. allowed)."
                   },
                   "fileName": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The name of the file; only its last component is used."
                   },
                   "content": {
-                    "type": "string"
+                    "description": "Any JSON value (the recorded points are an array); the server writes it pretty-printed as the file."
                   }
                 }
               }

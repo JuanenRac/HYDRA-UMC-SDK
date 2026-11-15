@@ -221,6 +221,8 @@ def inventory_operation(route: dict[str, Any], group: str) -> dict[str, Any]:
             response["content"] = _json(_ref(spec["shape"]))
         elif "schema" in spec:
             response["content"] = _json(spec["schema"])
+        if "headers" in spec:
+            response["headers"] = spec["headers"]
         responses[code] = response
     operation: dict[str, Any] = {
         "tags": [group],
@@ -418,13 +420,13 @@ def compare_with_server_document(source: dict[str, Any], server: dict[str, Any],
             problems.append(f"{label}: access differs (source {route['access']}, server {'public' if _is_public(offered) else 'signed in'})")
         have = set(offered.get("responses", {}))
         for code in route["responses"]:
-            if code not in MIDDLEWARE_CODES and code not in have:
+            if code not in MIDDLEWARE_CODES and code not in have and not route.get("relays_status"):
                 problems.append(f"{label}: the source lists status {code} and the handler never produces it")
         for code in sorted(have - set(route["responses"]) - MIDDLEWARE_CODES):
             problems.append(f"{label}: the handler produces status {code} and the source does not list it")
         declared = query_names(route)
         read = {p["name"] for p in offered.get("parameters", []) if p.get("in") == "query"}
-        for name in sorted(declared - read):
+        for name in sorted(declared - read if not route.get("relays_query") else set()):
             problems.append(f"{label}: the source declares the query parameter {name!r} and the handler never reads it")
         for name in sorted(read - declared):
             problems.append(f"{label}: the handler reads the query parameter {name!r} and the source does not declare it")

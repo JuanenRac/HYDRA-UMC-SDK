@@ -214,12 +214,13 @@ typedef HydraVoiceReply = Map<String, dynamic>;
 typedef HydraWatchStatus = Map<String, dynamic>;
 
 class HydraRequest {
-  const HydraRequest(this.method, this.path, this.query, this.body, this.access);
+  const HydraRequest(this.method, this.path, this.query, this.body, this.access, {this.headers = const <String, String>{}});
   final String method;
   final String path;
   final Map<String, String> query;
   final Object? body;
   final String access;
+  final Map<String, String> headers;
 }
 
 /// Carries one request to the server and returns the decoded JSON of the answer (null when there is none).
@@ -353,8 +354,8 @@ class HydraServerClient {
   }
 
   /// PUT /api/admin/safety-limits (access: admin)
-  Future<void> putAdminSafetyLimits() async {
-    await _transport(HydraRequest('PUT', '/api/admin/safety-limits', const <String, String>{}, null, 'admin'));
+  Future<Map<String, dynamic>> putAdminSafetyLimits({required Map<String, dynamic> body}) async {
+    return (await _transport(HydraRequest('PUT', '/api/admin/safety-limits', const <String, String>{}, body, 'admin'))) as Map<String, dynamic>;
   }
 
   /// GET /api/admin/self-update (access: admin)
@@ -383,8 +384,8 @@ class HydraServerClient {
   }
 
   /// PUT /api/admin/server-config (access: admin)
-  Future<HydraServerConfigSaved> putAdminServerConfig({required Map<String, dynamic> body}) async {
-    return (await _transport(HydraRequest('PUT', '/api/admin/server-config', const <String, String>{}, body, 'admin'))) as HydraServerConfigSaved;
+  Future<Map<String, dynamic>> putAdminServerConfig({Map<String, dynamic>? body}) async {
+    return (await _transport(HydraRequest('PUT', '/api/admin/server-config', const <String, String>{}, body, 'admin'))) as Map<String, dynamic>;
   }
 
   /// GET /api/admin/service-identity (access: admin)
@@ -508,13 +509,13 @@ class HydraServerClient {
   }
 
   /// GET /api/connector-hub/gate/settings (access: user)
-  Future<void> getConnectorHubGateSettings() async {
-    await _transport(HydraRequest('GET', '/api/connector-hub/gate/settings', const <String, String>{}, null, 'user'));
+  Future<Map<String, dynamic>> getConnectorHubGateSettings() async {
+    return (await _transport(HydraRequest('GET', '/api/connector-hub/gate/settings', const <String, String>{}, null, 'user'))) as Map<String, dynamic>;
   }
 
   /// POST /api/connector-hub/gate/settings (access: admin)
-  Future<void> postConnectorHubGateSettings() async {
-    await _transport(HydraRequest('POST', '/api/connector-hub/gate/settings', const <String, String>{}, null, 'admin'));
+  Future<Map<String, dynamic>> postConnectorHubGateSettings({required Map<String, dynamic> body}) async {
+    return (await _transport(HydraRequest('POST', '/api/connector-hub/gate/settings', const <String, String>{}, body, 'admin'))) as Map<String, dynamic>;
   }
 
   /// GET /api/dev-server/status (access: user)
@@ -533,13 +534,13 @@ class HydraServerClient {
   }
 
   /// GET /api/droid-estop/settings (access: user)
-  Future<void> getDroidEstopSettings() async {
-    await _transport(HydraRequest('GET', '/api/droid-estop/settings', const <String, String>{}, null, 'user'));
+  Future<Map<String, dynamic>> getDroidEstopSettings() async {
+    return (await _transport(HydraRequest('GET', '/api/droid-estop/settings', const <String, String>{}, null, 'user'))) as Map<String, dynamic>;
   }
 
   /// POST /api/droid-estop/settings (access: admin)
-  Future<void> postDroidEstopSettings() async {
-    await _transport(HydraRequest('POST', '/api/droid-estop/settings', const <String, String>{}, null, 'admin'));
+  Future<Map<String, dynamic>> postDroidEstopSettings({required Map<String, dynamic> body}) async {
+    return (await _transport(HydraRequest('POST', '/api/droid-estop/settings', const <String, String>{}, body, 'admin'))) as Map<String, dynamic>;
   }
 
   /// GET /api/ecosystem/health (access: user)
@@ -568,8 +569,8 @@ class HydraServerClient {
   }
 
   /// POST /api/hardware/canota/flash (access: admin)
-  Future<HydraCanotaFlash> postHardwareCanotaFlash() async {
-    return (await _transport(HydraRequest('POST', '/api/hardware/canota/flash', const <String, String>{}, null, 'admin'))) as HydraCanotaFlash;
+  Future<HydraCanotaFlash> postHardwareCanotaFlash({String? tier, String? slot, String? relay, String? hardwareId, String? versionMajor, String? versionMinor, String? versionPatch, String? signature, String? downgradeFrom, String? target, String? minBootloader}) async {
+    return (await _transport(HydraRequest('POST', '/api/hardware/canota/flash', queryOf({'tier': tier, 'slot': slot, 'relay': relay, 'hardware_id': hardwareId, 'version_major': versionMajor, 'version_minor': versionMinor, 'version_patch': versionPatch, 'signature': signature, 'downgrade_from': downgradeFrom, 'target': target, 'min_bootloader': minBootloader}), null, 'admin'))) as HydraCanotaFlash;
   }
 
   /// GET /api/hardware/canota/version (access: user)
@@ -578,8 +579,8 @@ class HydraServerClient {
   }
 
   /// POST /api/hardware/fram/erase (access: admin)
-  Future<HydraPassthrough> postHardwareFramErase() async {
-    return (await _transport(HydraRequest('POST', '/api/hardware/fram/erase', const <String, String>{}, null, 'admin'))) as HydraPassthrough;
+  Future<HydraPassthrough> postHardwareFramErase({required Map<String, dynamic> body}) async {
+    return (await _transport(HydraRequest('POST', '/api/hardware/fram/erase', const <String, String>{}, body, 'admin'))) as HydraPassthrough;
   }
 
   /// POST /api/hardware/fram/selftest (access: admin)
@@ -588,13 +589,13 @@ class HydraServerClient {
   }
 
   /// GET /api/hil-bridge/settings (access: user)
-  Future<void> getHilBridgeSettings() async {
-    await _transport(HydraRequest('GET', '/api/hil-bridge/settings', const <String, String>{}, null, 'user'));
+  Future<Map<String, dynamic>> getHilBridgeSettings() async {
+    return (await _transport(HydraRequest('GET', '/api/hil-bridge/settings', const <String, String>{}, null, 'user'))) as Map<String, dynamic>;
   }
 
   /// POST /api/hil-bridge/settings (access: admin)
-  Future<void> postHilBridgeSettings() async {
-    await _transport(HydraRequest('POST', '/api/hil-bridge/settings', const <String, String>{}, null, 'admin'));
+  Future<Map<String, dynamic>> postHilBridgeSettings({required Map<String, dynamic> body}) async {
+    return (await _transport(HydraRequest('POST', '/api/hil-bridge/settings', const <String, String>{}, body, 'admin'))) as Map<String, dynamic>;
   }
 
   /// GET /api/hydra-info (access: public)
@@ -708,18 +709,18 @@ class HydraServerClient {
   }
 
   /// GET /api/robot/{id} (access: user)
-  Future<void> getRobotById({required int id}) async {
-    await _transport(HydraRequest('GET', fillPath('/api/robot/{id}', {'id': id}), const <String, String>{}, null, 'user'));
+  Future<Map<String, dynamic>> getRobotById({required int id}) async {
+    return (await _transport(HydraRequest('GET', fillPath('/api/robot/{id}', {'id': id}), const <String, String>{}, null, 'user'))) as Map<String, dynamic>;
   }
 
   /// POST /api/robot/{id}/claim (access: user)
-  Future<HydraReservation> postRobotByIdClaim({required int id, Map<String, dynamic>? body}) async {
-    return (await _transport(HydraRequest('POST', fillPath('/api/robot/{id}/claim', {'id': id}), const <String, String>{}, body, 'user'))) as HydraReservation;
+  Future<Map<String, dynamic>> postRobotByIdClaim({required int id, String? headerIfMatch, String? headerXControllerId, Map<String, dynamic>? body}) async {
+    return (await _transport(HydraRequest('POST', fillPath('/api/robot/{id}/claim', {'id': id}), const <String, String>{}, body, 'user', headers: queryOf({'If-Match': headerIfMatch, 'X-Controller-Id': headerXControllerId})))) as Map<String, dynamic>;
   }
 
   /// POST /api/robot/{id}/command (access: user)
-  Future<void> postRobotByIdCommand({required int id, required Map<String, dynamic> body}) async {
-    await _transport(HydraRequest('POST', fillPath('/api/robot/{id}/command', {'id': id}), const <String, String>{}, body, 'user'));
+  Future<Map<String, dynamic>> postRobotByIdCommand({required int id, required Map<String, dynamic> body, String? headerIfMatch, String? headerXControllerId, String? headerXCorrelationId}) async {
+    return (await _transport(HydraRequest('POST', fillPath('/api/robot/{id}/command', {'id': id}), const <String, String>{}, body, 'user', headers: queryOf({'If-Match': headerIfMatch, 'X-Controller-Id': headerXControllerId, 'X-Correlation-Id': headerXCorrelationId})))) as Map<String, dynamic>;
   }
 
   /// POST /api/robot/{id}/heartbeat (access: user)
@@ -728,13 +729,13 @@ class HydraServerClient {
   }
 
   /// POST /api/robot/{id}/jog-arm (access: user)
-  Future<void> postRobotByIdJogArm({required int id, Map<String, dynamic>? body}) async {
-    await _transport(HydraRequest('POST', fillPath('/api/robot/{id}/jog-arm', {'id': id}), const <String, String>{}, body, 'user'));
+  Future<Map<String, dynamic>> postRobotByIdJogArm({required int id, required Map<String, dynamic> body, String? headerXControllerId}) async {
+    return (await _transport(HydraRequest('POST', fillPath('/api/robot/{id}/jog-arm', {'id': id}), const <String, String>{}, body, 'user', headers: queryOf({'X-Controller-Id': headerXControllerId})))) as Map<String, dynamic>;
   }
 
   /// POST /api/robot/{id}/release (access: user)
-  Future<HydraReservation> postRobotByIdRelease({required int id, Map<String, dynamic>? body}) async {
-    return (await _transport(HydraRequest('POST', fillPath('/api/robot/{id}/release', {'id': id}), const <String, String>{}, body, 'user'))) as HydraReservation;
+  Future<Map<String, dynamic>> postRobotByIdRelease({required int id, String? headerIfMatch, String? headerXControllerId, Map<String, dynamic>? body}) async {
+    return (await _transport(HydraRequest('POST', fillPath('/api/robot/{id}/release', {'id': id}), const <String, String>{}, body, 'user', headers: queryOf({'If-Match': headerIfMatch, 'X-Controller-Id': headerXControllerId})))) as Map<String, dynamic>;
   }
 
   /// GET /api/robots/liveness (access: user)
@@ -748,8 +749,8 @@ class HydraServerClient {
   }
 
   /// POST /api/ros2-bridge/settings (access: admin)
-  Future<void> postRos2BridgeSettings() async {
-    await _transport(HydraRequest('POST', '/api/ros2-bridge/settings', const <String, String>{}, null, 'admin'));
+  Future<Map<String, dynamic>> postRos2BridgeSettings({required Map<String, dynamic> body}) async {
+    return (await _transport(HydraRequest('POST', '/api/ros2-bridge/settings', const <String, String>{}, body, 'admin'))) as Map<String, dynamic>;
   }
 
   /// GET /api/rul/config (access: user)
@@ -763,13 +764,13 @@ class HydraServerClient {
   }
 
   /// GET /api/semantic-planner/settings (access: user)
-  Future<void> getSemanticPlannerSettings() async {
-    await _transport(HydraRequest('GET', '/api/semantic-planner/settings', const <String, String>{}, null, 'user'));
+  Future<Map<String, dynamic>> getSemanticPlannerSettings() async {
+    return (await _transport(HydraRequest('GET', '/api/semantic-planner/settings', const <String, String>{}, null, 'user'))) as Map<String, dynamic>;
   }
 
   /// POST /api/semantic-planner/settings (access: admin)
-  Future<void> postSemanticPlannerSettings() async {
-    await _transport(HydraRequest('POST', '/api/semantic-planner/settings', const <String, String>{}, null, 'admin'));
+  Future<Map<String, dynamic>> postSemanticPlannerSettings({required Map<String, dynamic> body}) async {
+    return (await _transport(HydraRequest('POST', '/api/semantic-planner/settings', const <String, String>{}, body, 'admin'))) as Map<String, dynamic>;
   }
 
   /// GET /api/settings (access: user)
@@ -778,13 +779,13 @@ class HydraServerClient {
   }
 
   /// PUT /api/settings (access: admin)
-  Future<HydraSuccess> putSettings() async {
-    return (await _transport(HydraRequest('PUT', '/api/settings', const <String, String>{}, null, 'admin'))) as HydraSuccess;
+  Future<Map<String, dynamic>> putSettings({required String headerIfMatch, required HydraSettings body}) async {
+    return (await _transport(HydraRequest('PUT', '/api/settings', const <String, String>{}, body, 'admin', headers: queryOf({'If-Match': headerIfMatch})))) as Map<String, dynamic>;
   }
 
   /// POST /api/settings (access: admin)
-  Future<HydraSuccess> postSettings() async {
-    return (await _transport(HydraRequest('POST', '/api/settings', const <String, String>{}, null, 'admin'))) as HydraSuccess;
+  Future<Map<String, dynamic>> postSettings({required HydraSettings body, String? headerIfMatch}) async {
+    return (await _transport(HydraRequest('POST', '/api/settings', const <String, String>{}, body, 'admin', headers: queryOf({'If-Match': headerIfMatch})))) as Map<String, dynamic>;
   }
 
   /// POST /api/stop-all (access: user)
@@ -843,23 +844,23 @@ class HydraServerClient {
   }
 
   /// GET /api/telemetry/aggregate (access: user)
-  Future<HydraPassthrough> getTelemetryAggregate() async {
-    return (await _transport(HydraRequest('GET', '/api/telemetry/aggregate', const <String, String>{}, null, 'user'))) as HydraPassthrough;
+  Future<List<dynamic>> getTelemetryAggregate({String? sourceId, String? kind, String? field, String? bucketMs, String? start, String? end, String? before, String? agg}) async {
+    return (await _transport(HydraRequest('GET', '/api/telemetry/aggregate', queryOf({'sourceId': sourceId, 'kind': kind, 'field': field, 'bucketMs': bucketMs, 'start': start, 'end': end, 'before': before, 'agg': agg}), null, 'user'))) as List<dynamic>;
   }
 
   /// GET /api/telemetry/downsample-plan (access: admin)
-  Future<HydraPassthrough> getTelemetryDownsamplePlan() async {
-    return (await _transport(HydraRequest('GET', '/api/telemetry/downsample-plan', const <String, String>{}, null, 'admin'))) as HydraPassthrough;
+  Future<Map<String, dynamic>> getTelemetryDownsamplePlan() async {
+    return (await _transport(HydraRequest('GET', '/api/telemetry/downsample-plan', const <String, String>{}, null, 'admin'))) as Map<String, dynamic>;
   }
 
   /// PUT /api/telemetry/downsample-plan (access: admin)
-  Future<HydraPassthrough> putTelemetryDownsamplePlan({String? preview}) async {
-    return (await _transport(HydraRequest('PUT', '/api/telemetry/downsample-plan', queryOf({'preview': preview}), null, 'admin'))) as HydraPassthrough;
+  Future<Map<String, dynamic>> putTelemetryDownsamplePlan({required Map<String, dynamic> body, String? preview}) async {
+    return (await _transport(HydraRequest('PUT', '/api/telemetry/downsample-plan', queryOf({'preview': preview}), body, 'admin'))) as Map<String, dynamic>;
   }
 
   /// GET /api/telemetry/query (access: user)
-  Future<HydraPassthrough> getTelemetryQuery() async {
-    return (await _transport(HydraRequest('GET', '/api/telemetry/query', const <String, String>{}, null, 'user'))) as HydraPassthrough;
+  Future<List<dynamic>> getTelemetryQuery({String? sourceId, String? kind, String? field, String? start, String? end, String? before, String? limit, String? cursor}) async {
+    return (await _transport(HydraRequest('GET', '/api/telemetry/query', queryOf({'sourceId': sourceId, 'kind': kind, 'field': field, 'start': start, 'end': end, 'before': before, 'limit': limit, 'cursor': cursor}), null, 'user'))) as List<dynamic>;
   }
 
   /// GET /api/tool-arms (access: user)

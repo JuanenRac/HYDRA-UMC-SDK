@@ -196,6 +196,8 @@ these two routes.
    into the vendored directories and regenerate the manifests as for any
    schema change.
 
+A route that only passes on what a sibling service answers (a relay) has statuses and query parameters that its handler never writes, so the server inventory cannot show them. Such a route says `"relays_status": true` and/or `"relays_query": true` in its source, and `--check` then does not ask the server for the statuses it lists or the query parameters it declares (the statuses and parameters the handler does write are still compared). An inventory route can also declare header parameters (`"in": "header"`, such as `If-Match`) and the headers of an answer (`"headers"` in a response); the generated clients take the header parameters as an argument and put them in the `headers` set of the request.
+
 ## What the clients do after they repin
 
 The routes below are in `server.full.openapi.json` from the SDK version that carries them, so a client that pins that
