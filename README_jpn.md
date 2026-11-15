@@ -104,7 +104,7 @@ Protobuf の公開はその後の互換性マイルストーンです。Go、Typ
 
 ### アプリ共通の文言
 
-`contracts/i18n/common.json` は、すべてのアプリが同じように表示する言葉（確認、キャンセル、保存、閉じる、再試行、はい、いいえ、読み込み中、オンライン、オフライン、3 つのロール）を 8 言語でまとめています。各アプリは独自の形式を保ち、`tools/i18n_common.py` が STUDIO（JSON）、Android（`strings.xml`）、ARB 用に書き出し、STUDIO のチェックアウトがそれらを含んでいるか確認します。[docs/CONTRACTS.md](docs/CONTRACTS.md) を参照してください。
+`contracts/i18n/common.json` は、すべてのアプリが同じように表示する 100 の言葉（確認、キャンセル、保存、閉じる、再試行、はい、いいえ、読み込み中、オンライン、オフライン、3 つのロール、停止、開始、設定、エラー、更新、ほか）を 8 言語でまとめています（`pt` はヨーロッパ・ポルトガル語）。各アプリはそれ以外について独自の形式と独自のカタログを保ち、`tools/i18n_common.py` が STUDIO（JSON）、SUITE（`.lng`）、Android（`strings.xml`）、ARB 用に言葉を書き出し、STUDIO、SUITE、Android、Flutter のチェックアウトがそれらを含んでいるか確認します。[docs/CONTRACTS.md](docs/CONTRACTS.md) を参照してください。
 
 ## 🔒 セキュリティと安全
 

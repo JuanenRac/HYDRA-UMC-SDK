@@ -96,7 +96,7 @@ Desde então foram publicados mais contratos para além dos quatro do primeiro m
 
 ### Textos comuns das aplicações
 
-`contracts/i18n/common.json` reúne as palavras que todas as aplicações mostram da mesma maneira (confirmar, cancelar, guardar, fechar, tentar novamente, sim, não, a carregar, ligado, desligado e os três perfis) nas oito línguas. Cada aplicação mantém o seu formato; `tools/i18n_common.py` escreve-as para o STUDIO (JSON), o Android (`strings.xml`) e o ARB, e verifica que um STUDIO as traz. Ver [docs/CONTRACTS.md](docs/CONTRACTS.md).
+`contracts/i18n/common.json` reúne as 100 palavras que todas as aplicações mostram da mesma maneira (confirmar, cancelar, guardar, fechar, tentar novamente, sim, não, a carregar, ligado, desligado, os três perfis, parar, iniciar, definições, erro, atualizar e as restantes) nas oito línguas, português europeu para `pt`. Cada aplicação mantém o seu formato e o seu catálogo para tudo o resto; `tools/i18n_common.py` escreve as palavras para o STUDIO (JSON), o SUITE (`.lng`), o Android (`strings.xml`) e o ARB, e verifica que uma cópia do STUDIO, SUITE, Android ou Flutter as traz. Ver [docs/CONTRACTS.md](docs/CONTRACTS.md).
 
 ## 🔒 Segurança e proteção
 

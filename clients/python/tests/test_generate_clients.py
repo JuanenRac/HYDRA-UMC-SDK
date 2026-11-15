@@ -175,3 +175,60 @@ class NativeClientTests(unittest.TestCase):
         self.assertIn("dart analyze", workflow)
         self.assertTrue((ROOT / "conformance" / "generated-clients" / "Smoke.kt").is_file())
         self.assertTrue((ROOT / "conformance" / "generated-clients" / "smoke.dart").is_file())
+
+
+class BinaryTextAndHeaderTests(unittest.TestCase):
+    """A binary body, an answer in text and the response headers reach all three clients."""
+
+    def test_the_typescript_constructor_has_no_parameter_property(self):
+        self.assertIn("  private readonly transport: HydraTransport;\n  constructor(transport: HydraTransport) {\n    this.transport = transport;\n  }", SOURCE)
+        self.assertNotIn("constructor(private", SOURCE)
+
+    def test_the_binary_flash_body_is_sent_as_octet_stream(self):
+        flash = next(o for o in OPS if o["path"] == "/api/hardware/canota/flash")
+        self.assertEqual(flash["body"], "Uint8Array")
+        self.assertEqual(flash["body_media"], "application/octet-stream")
+        self.assertIn('body: args?.body, access: "admin", contentType: "application/octet-stream"', SOURCE)
+        self.assertIn("suspend fun postHardwareCanotaFlash(", KT)
+        self.assertRegex(KT, r'postHardwareCanotaFlash\([^)]*body: ByteArray')
+        self.assertRegex(DART, r"postHardwareCanotaFlash\(\{[^}]*required List<int> body")
+        self.assertIn('contentType = "application/octet-stream"', KT)
+        self.assertIn("contentType: 'application/octet-stream'", DART)
+
+    def test_a_text_or_binary_answer_is_typed_and_flagged(self):
+        text = {"responses": {"200": {"description": "ok", "content": {"application/x-ndjson": {"schema": {"type": "string"}}}}}}
+        binary = {"responses": {"200": {"description": "ok", "content": {"application/octet-stream": {}}}}}
+        self.assertEqual(gc.success_response(text)[0], "text")
+        self.assertEqual(gc.success_type(text), "string")
+        self.assertEqual(gc.success_response(binary)[0], "binary")
+        self.assertEqual(gc.success_type(binary), "Uint8Array")
+        self.assertEqual(gc.success_response({"responses": {"204": {"description": "none"}}})[0], "none")
+        self.assertEqual(gc.success_type({"responses": {"204": {"description": "none"}}}), "void")
+        self.assertEqual(gc.native_type(gc.success_schema(binary), gc.Flavor("kotlin"), frozenset()), "ByteArray")
+        self.assertEqual(gc.native_type(gc.success_schema(binary), gc.Flavor("dart"), frozenset()), "List<int>")
+        op = {"body": None, "body_media": None, "answer": "text", "reply_headers": ["ETag"]}
+        self.assertEqual(gc.request_extras(op, False), [("responseType", "text")])
+        self.assertEqual(gc.request_extras({**op, "answer": "json"}, True), [("replyHeaders", ["ETag"])])
+
+    def test_a_route_that_declares_response_headers_has_a_with_headers_method_in_all_languages(self):
+        declared = {(o["method"], o["path"]): o["reply_headers"] for o in OPS if o["reply_headers"]}
+        self.assertEqual(declared[("GET", "/api/settings")], ["ETag"])
+        self.assertEqual(declared[("GET", "/api/telemetry/query")], ["X-Next-Cursor"])
+        for op in OPS:
+            if not op["reply_headers"]:
+                self.assertNotIn(f"{op['name']}WithHeaders", SOURCE)
+                continue
+            self.assertIn(f"  {op['name']}WithHeaders(", SOURCE)
+            self.assertIn(f"    suspend fun {op['name']}WithHeaders(", KT)
+            self.assertRegex(DART, rf"Future<HydraReply<[^\n]*> {op['name']}WithHeaders\(")
+        self.assertIn("export interface HydraReply<T>", SOURCE)
+        self.assertIn("class HydraReply<T>(val body: T, val headers: Map<String, String>)", KT)
+        self.assertIn("class HydraReply<T> {", DART)
+        self.assertIn('replyHeaders: ["ETag"]', SOURCE)
+        self.assertIn('replyHeaders = listOf("ETag")', KT)
+        self.assertIn("replyHeaders: const <String>['ETag']", DART)
+
+    def test_a_method_name_that_would_collide_with_the_reply_variant_stops_the_generator(self):
+        document = {"paths": {"/a/withHeaders": {"get": {}}}, "components": {"schemas": {}}}
+        with self.assertRaises(SystemExit):
+            gc.operations(document)
