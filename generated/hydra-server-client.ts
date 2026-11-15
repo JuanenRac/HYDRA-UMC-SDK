@@ -2,6 +2,38 @@
 
 /* eslint-disable */
 
+export interface AuditEntry {
+  seq: number;
+  ts: string;
+  prev: string;
+  hash: string;
+  /** Short stable name of the event: claim, release, force-claim, force-release, safety-limits, jog-arm, stop-all, table-move... */
+  type: string;
+  outcome: "ok" | "refused" | "failed";
+  /** The id of the account (any JSON value). */
+  userId?: unknown;
+  username?: string;
+  controllerId?: string;
+  ip?: string;
+  robotId?: number;
+  detail?: Record<string, unknown>;
+  [other: string]: unknown;
+}
+
+export interface AuditReport {
+  enabled: boolean;
+  lockedOff: boolean;
+  entries: AuditEntry[];
+  verification?: AuditVerification;
+}
+
+export interface AuditVerification {
+  ok: boolean;
+  entries: number;
+  brokenAtSeq?: number;
+  reason?: string;
+}
+
 export interface BluetoothScan {
   success: boolean;
   devices: Record<string, unknown>[];
@@ -51,6 +83,27 @@ export interface CameraProcessStatus {
 export interface CanotaFlash {
   success: boolean;
   finalPhase: string;
+}
+
+export interface ClaimList {
+  claims: ClaimView[];
+}
+
+export interface ClaimView {
+  robotId: number;
+  robotName?: unknown;
+  /** The id of the controller the robot belongs to (any JSON value; the server does not fix its type). */
+  cellId?: unknown;
+  /** The id of the account that holds the claim (any JSON value). */
+  ownerId?: unknown;
+  ownerUsername: string;
+  controllerId?: unknown;
+  /** Milliseconds since the epoch. */
+  claimedAt: number;
+  /** Milliseconds since the epoch. */
+  expiresAt: number;
+  /** Milliseconds since the epoch; null when the jog is not armed. */
+  jogArmedUntil?: unknown;
 }
 
 export interface Clients {
@@ -383,6 +436,21 @@ export interface RulConfig {
   timeoutMs: number;
 }
 
+export interface SafetyLimitsConfig {
+  jog: { armRequired: boolean; armTtlMs: number; default: { maxAmount: number; maxAbsolute: number }; models: Record<string, { maxAmount?: number; maxAbsolute?: number }> };
+  temperature: { default: { bedMaxC: number }; models: Record<string, { bedMaxC?: number }> };
+  claims: { requireControllerId: boolean };
+  audit: { enabled: boolean; motionIntervalSeconds: number };
+}
+
+export interface SafetyLimitsView {
+  limits: SafetyLimitsConfig;
+  defaults: SafetyLimitsConfig;
+  /** The fixed ceilings (jogMaxAmount, jogMaxAbsolute, armTtlMs {min,max}, bedMaxC, auditMotionIntervalSeconds {min,max}); the set grows with the server. */
+  hardLimits: Record<string, unknown>;
+  robot?: { id: number; model?: unknown; jog: { maxAmount?: number; maxAbsolute?: number }; temperature: { bedMaxC?: number }; jogArmedUntil?: unknown };
+}
+
 export interface SelfUpdateItem {
   id: "server" | "studio" | "os-agent";
   repo: string;
@@ -422,6 +490,7 @@ export interface SelfUpdateStatus {
 export interface ServerConfig {
   port: number;
   pendingPort: unknown;
+  [other: string]: unknown;
 }
 
 export interface ServerConfigSaved {
@@ -526,6 +595,16 @@ export interface UsbDevices {
 
 export interface UserList {
   users: Record<string, unknown>[];
+}
+
+export interface VoiceConfirmResult {
+  type: unknown;
+  status: "confirmed" | "expired" | "invalid";
+  requestId?: string;
+  intent?: Record<string, unknown>;
+  subject?: string;
+  verified: boolean;
+  [other: string]: unknown;
 }
 
 export interface VoiceReply {
@@ -755,8 +834,13 @@ export class HydraServerClient {
   }
 
   /** GET /api/audit (access: admin) */
-  getAudit(args?: { query?: { afterSeq?: string; format?: string; limit?: string; robotId?: string; type?: string; verify?: string } }): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/audit", query: queryOf(args?.query), headers: {}, body: undefined, access: "admin" }) as Promise<void>;
+  getAudit(args?: { query?: { afterSeq?: string; format?: string; limit?: string; robotId?: string; type?: string; verify?: string } }): Promise<AuditReport> {
+    return this.transport({ method: "GET", path: "/api/audit", query: queryOf(args?.query), headers: {}, body: undefined, access: "admin" }) as Promise<AuditReport>;
+  }
+
+  /** GET /api/audit (access: admin); the answer as text, the way the route offers it besides JSON. */
+  getAuditAsText(args?: { query?: { afterSeq?: string; format?: string; limit?: string; robotId?: string; type?: string; verify?: string } }): Promise<string> {
+    return this.transport({ method: "GET", path: "/api/audit", query: queryOf(args?.query), headers: {}, body: undefined, access: "admin", responseType: "text" }) as Promise<string>;
   }
 
   /** GET /api/bridges (access: user) */
@@ -835,8 +919,8 @@ export class HydraServerClient {
   }
 
   /** GET /api/claims (access: user) */
-  getClaims(): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/claims", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<void>;
+  getClaims(): Promise<ClaimList> {
+    return this.transport({ method: "GET", path: "/api/claims", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<ClaimList>;
   }
 
   /** List the clients the server has seen (access: user) */
@@ -1125,8 +1209,8 @@ export class HydraServerClient {
   }
 
   /** GET /api/safety-limits (access: user) */
-  getSafetyLimits(args?: { query?: { robotId?: string } }): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/safety-limits", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<void>;
+  getSafetyLimits(args?: { query?: { robotId?: string } }): Promise<SafetyLimitsView> {
+    return this.transport({ method: "GET", path: "/api/safety-limits", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<SafetyLimitsView>;
   }
 
   /** GET /api/semantic-planner/settings (access: user) */
@@ -1320,13 +1404,13 @@ export class HydraServerClient {
   }
 
   /** POST /api/voice/confirm (access: user) */
-  postVoiceConfirm(args?: { body?: { confirmationToken?: unknown } }): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/voice/confirm", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<void>;
+  postVoiceConfirm(args?: { body?: { confirmationToken?: unknown } }): Promise<VoiceConfirmResult> {
+    return this.transport({ method: "POST", path: "/api/voice/confirm", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<VoiceConfirmResult>;
   }
 
   /** POST /api/voice/turn (access: user) */
-  postVoiceTurn(args?: { body?: { locale?: unknown; requestId?: unknown; subject?: unknown } }): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/voice/turn", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<void>;
+  postVoiceTurn(args?: { body?: { locale?: unknown; requestId?: unknown; subject?: unknown } }): Promise<VoiceReply> {
+    return this.transport({ method: "POST", path: "/api/voice/turn", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<VoiceReply>;
   }
 
   /** GET /api/watch/system-status (access: user) */

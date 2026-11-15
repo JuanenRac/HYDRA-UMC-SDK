@@ -13,7 +13,9 @@ schema of the document becomes an interface. The client never touches the networ
 to an injectable transport, so an app keeps its own fetch, its own token and its own error handling. Nothing in the
 output is edited by hand. A route may also take a binary body (`application/octet-stream`), answer in text or in bytes, and
 declare response headers (the `ETag` of the settings): the request then carries `contentType` and `responseType`, and a method
-named `<route>WithHeaders` asks the transport for a `{ body, headers }` reply. The Kotlin and Dart clients have the same shape and no dependency: the transport is a
+named `<route>WithHeaders` asks the transport for a `{ body, headers }` reply. A route whose 2xx answer is JSON and that also
+offers the same answer as text (`GET /api/audit?format=jsonl` is JSON by default and downloads as lines) gets a second method named
+`<route>AsText` that takes the same arguments and asks for the text. The Kotlin and Dart clients have the same shape and no dependency: the transport is a
 `suspend` function interface in Kotlin and a `Future` function in Dart, and every object of the contract is a class
 with fields (a `data class` in Kotlin, a `const` class in Dart) with `fromJson` and `toJson` over the plain JSON model
 (maps, lists and scalars), so any JSON library can feed them and none is needed. The rules of the classes are written
@@ -156,6 +158,17 @@ def success_response(operation: dict[str, Any]) -> tuple[str, dict[str, Any] | N
     return "none", None, []
 
 
+def has_text_variant(operation: dict[str, Any]) -> bool:
+    """True when the first 2xx answer is JSON and the same route also offers a text media type (lines, plain text)."""
+    for status in sorted(operation.get("responses", {})):
+        if status.startswith("2"):
+            content = (operation["responses"][status] or {}).get("content") or {}
+            if "application/json" not in content:
+                return False
+            return any(m.startswith("text/") or m.endswith(("ndjson", "jsonl")) for m in content if m != "application/json")
+    return False
+
+
 def success_type(operation: dict[str, Any]) -> str:
     schema = success_response(operation)[1]
     return type_of(schema) if schema is not None else "void"
@@ -178,6 +191,8 @@ def operations(document: dict[str, Any]) -> list[dict[str, Any]]:
             if name in seen:
                 raise SystemExit(f"GENERATED_CLIENTS=FAIL two routes make the method name {name}: {seen[name]} and {method.upper()} {path}")
             seen[name] = f"{method.upper()} {path}"
+            if name.endswith("AsText"):
+                raise SystemExit(f"GENERATED_CLIENTS=FAIL the method name {name} ends in AsText, which the generator keeps for the text variant")
             if name.endswith("WithHeaders"):
                 raise SystemExit(f"GENERATED_CLIENTS=FAIL the method name {name} ends in WithHeaders, which the generator keeps for the reply variant")
             path_parameters, query = parameters(path, operation)
@@ -200,6 +215,7 @@ def operations(document: dict[str, Any]) -> list[dict[str, Any]]:
                 "body_media": media if body else None,
                 "answer": answer,
                 "reply_headers": reply_headers,
+                "text_variant": has_text_variant(operation),
                 "body_required": bool((operation.get("requestBody") or {}).get("required")),
                 "result": success_type(operation),
                 "result_schema": success_schema(operation),
@@ -338,6 +354,14 @@ def as_typescript(document: dict[str, Any]) -> str:
             "  }",
             "",
         ]
+        if op["text_variant"]:
+            lines += [
+                f"  /** {note.replace('*/', '* /')} (access: {op['access']}); the answer as text, the way the route offers it besides JSON. */",
+                f"  {op['name']}AsText({signature}): Promise<string> {{",
+                f"    return {send}{extras_text({**op, 'answer': 'text'}, False, ': ', quote, ts_list)} }}) as Promise<string>;",
+                "  }",
+                "",
+            ]
         if op["reply_headers"]:
             extras = extras_text(op, True, ": ", quote, ts_list)
             lines += [
@@ -873,6 +897,12 @@ def as_kotlin(document: dict[str, Any], package: str = KOTLIN_PACKAGE) -> str:
         else:
             methods += [f"        val raw = {call}", f"        return {result.decode('raw', 0)}"]
         methods += ["    }", ""]
+        if op["text_variant"]:
+            as_text = head + extras_text({**op, "answer": "text"}, False, " = ", quote, kt_list) + "))"
+            methods += [f"    /** {doc_note(op)}; the answer as text, the way the route offers it besides JSON. */",
+                        f"    suspend fun {op['name']}AsText({signature}): String {{",
+                        f"        return {as_text} as String",
+                        "    }", ""]
         if op["reply_headers"]:
             wrapped = head + extras_text(op, True, " = ", quote, kt_list) + "))"
             decoded = "Unit" if result is None else result.decode("reply.body", 0)
@@ -951,6 +981,12 @@ def as_dart(document: dict[str, Any]) -> str:
         else:
             methods += [f"    final raw = await {call};", f"    return {result.decode('raw', 0)};"]
         methods += ["  }", ""]
+        if op["text_variant"]:
+            as_text = head + extras_text({**op, "answer": "text"}, False, ": ", dart_string, dart_list) + "))"
+            methods += [f"  /// {doc_note(op)}; the answer as text, the way the route offers it besides JSON.",
+                        f"  Future<String> {op['name']}AsText({signature}) async {{",
+                        f"    return (await {as_text}) as String;",
+                        "  }", ""]
         if op["reply_headers"]:
             wrapped = head + extras_text(op, True, ": ", dart_string, dart_list) + "))"
             decoded = "null" if result is None else result.decode("reply.body", 0)

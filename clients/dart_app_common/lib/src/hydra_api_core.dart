@@ -116,16 +116,21 @@ class HydraApiCore {
   // -------------------------------------------------------------------------
 
   /// Sends one request through the (renewing) transport, within [timeout].
+  ///
+  /// [bodyBytes] is the raw body of an upload that is not text and [binaryResponse] asks for the answer as bytes
+  /// ([HttpResponseData.bodyBytes]); the answer always carries the response headers the transport gave.
   Future<HttpResponseData> call(
     String method,
     String url, {
     Map<String, String> headers = const {},
     String? body,
+    List<int>? bodyBytes,
+    bool binaryResponse = false,
     required Duration timeout,
   }) async {
-    final req = HttpRequestData(method, url, headers: headers, body: body);
+    final req = HttpRequestData(method, url, headers: headers, body: body, bodyBytes: bodyBytes, binaryResponse: binaryResponse);
     final resp = await _transport.send(req).timeout(timeout);
-    return resp.path.isEmpty ? HttpResponseData(resp.statusCode, resp.body, path: req.path) : resp;
+    return resp.path.isEmpty ? resp.copyWith(path: req.path) : resp;
   }
 
   /// GET [path] with the client and auth headers.
