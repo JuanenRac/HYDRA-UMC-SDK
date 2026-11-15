@@ -69,6 +69,8 @@ export const HYDRA_ROUTES: readonly HydraRoute[] = [
   { method: "GET", path: "/api/dev-server/status", access: "user", group: "feeds", query: ["verify"], statuses: ["200"] },
   { method: "GET", path: "/api/developer-node/status", access: "user", group: "feeds", query: ["verify"], statuses: ["200"] },
   { method: "POST", path: "/api/device/login", access: "public", group: "device", query: [], statuses: ["200", "401", "403", "404"] },
+  { method: "GET", path: "/api/droid-estop/settings", access: "user", group: "droid-estop", query: [], statuses: ["200"] },
+  { method: "POST", path: "/api/droid-estop/settings", access: "admin", group: "droid-estop", query: [], statuses: ["400"] },
   { method: "GET", path: "/api/ecosystem/health", access: "user", group: "ecosystem", query: [], statuses: ["200", "403", "404", "503"] },
   { method: "GET", path: "/api/ecosystem/node-health", access: "user", group: "ecosystem", query: ["slot"], statuses: ["200", "400", "403", "404", "503"] },
   { method: "POST", path: "/api/ecosystem/service/{unit}/{action}", access: "admin", group: "ecosystem", query: [], statuses: ["200", "400", "403", "404", "503"] },

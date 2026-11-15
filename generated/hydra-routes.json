@@ -697,6 +697,26 @@
     },
     {
       "method": "GET",
+      "path": "/api/droid-estop/settings",
+      "access": "user",
+      "group": "droid-estop",
+      "query": [],
+      "statuses": [
+        "200"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/droid-estop/settings",
+      "access": "admin",
+      "group": "droid-estop",
+      "query": [],
+      "statuses": [
+        "400"
+      ]
+    },
+    {
+      "method": "GET",
       "path": "/api/ecosystem/health",
       "access": "user",
       "group": "ecosystem",
