@@ -141,7 +141,7 @@ durch die obige Kompatibilitätsmatrix.
 
 ### Gemeinsame Texte der Apps
 
-`contracts/i18n/common.json` enthält die Wörter, die jede App gleich zeigt (bestätigen, abbrechen, speichern, schließen, erneut versuchen, ja, nein, wird geladen, online, offline und die drei Rollen) in den acht Sprachen. Jede App behält ihr eigenes Format; `tools/i18n_common.py` schreibt sie für STUDIO (JSON), Android (`strings.xml`) und ARB und prüft, dass ein STUDIO-Checkout sie trägt. Siehe [docs/CONTRACTS.md](docs/CONTRACTS.md).
+`contracts/i18n/common.json` enthält die 100 Wörter, die jede App gleich zeigt (bestätigen, abbrechen, speichern, schließen, erneut versuchen, ja, nein, wird geladen, online, offline, die drei Rollen, Stopp, Start, Einstellungen, Fehler, aktualisieren und die übrigen) in den acht Sprachen, europäisches Portugiesisch für `pt`. Jede App behält ihr eigenes Format und ihren eigenen Katalog für alles andere; `tools/i18n_common.py` schreibt die Wörter für STUDIO (JSON), SUITE (`.lng`), Android (`strings.xml`) und ARB und prüft, dass ein STUDIO-, SUITE-, Android- oder Flutter-Checkout sie trägt. Siehe [docs/CONTRACTS.md](docs/CONTRACTS.md).
 
 ## 🔒 Sicherheit und Schutz
 

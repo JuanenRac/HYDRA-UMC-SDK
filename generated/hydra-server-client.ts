@@ -560,9 +560,21 @@ export interface HydraRequest {
   readonly headers: Readonly<Record<string, string>>;
   readonly body: unknown;
   readonly access: string;
+  /** The media type of the body when it is not JSON (a binary image goes as application/octet-stream). */
+  readonly contentType?: string;
+  /** How the answer is read when it is not JSON: text (a string) or binary (a Uint8Array). */
+  readonly responseType?: "text" | "binary";
+  /** True for the WithHeaders methods: the transport answers with a HydraReply that holds the response headers the contract declares. */
+  readonly withHeaders?: boolean;
 }
 
-/** Carries one request to the server and returns the decoded JSON of the answer (undefined when there is none). */
+/** The answer of a route that declares response headers: the decoded body and the headers under their declared names (ETag, X-Next-Cursor). */
+export interface HydraReply<T> {
+  readonly body: T;
+  readonly headers: Readonly<Record<string, string>>;
+}
+
+/** Carries one request to the server and returns the decoded answer (undefined when there is none); a request with withHeaders gets a HydraReply. */
 export type HydraTransport = (request: HydraRequest) => Promise<unknown>;
 
 export function fillPath(template: string, values: Readonly<Record<string, string | number>> | undefined): string {
@@ -582,7 +594,10 @@ export function queryOf(values: Readonly<Record<string, unknown>> | undefined): 
 }
 
 export class HydraServerClient {
-  constructor(private readonly transport: HydraTransport) {}
+  private readonly transport: HydraTransport;
+  constructor(transport: HydraTransport) {
+    this.transport = transport;
+  }
 
   /** GET /.well-known/jwks.json (access: public) */
   getWellKnownJwksJson(): Promise<JwksDocument> {
@@ -905,8 +920,8 @@ export class HydraServerClient {
   }
 
   /** POST /api/hardware/canota/flash (access: admin) */
-  postHardwareCanotaFlash(args?: { query?: { tier?: string; slot?: string; relay?: string; hardware_id?: string; version_major?: string; version_minor?: string; version_patch?: string; signature?: string; downgrade_from?: string; target?: string; min_bootloader?: string } }): Promise<CanotaFlash> {
-    return this.transport({ method: "POST", path: "/api/hardware/canota/flash", query: queryOf(args?.query), headers: {}, body: undefined, access: "admin" }) as Promise<CanotaFlash>;
+  postHardwareCanotaFlash(args: { query?: { tier?: string; slot?: string; relay?: string; hardware_id?: string; version_major?: string; version_minor?: string; version_patch?: string; signature?: string; downgrade_from?: string; target?: string; min_bootloader?: string }; body: Uint8Array }): Promise<CanotaFlash> {
+    return this.transport({ method: "POST", path: "/api/hardware/canota/flash", query: queryOf(args?.query), headers: {}, body: args?.body, access: "admin", contentType: "application/octet-stream" }) as Promise<CanotaFlash>;
   }
 
   /** GET /api/hardware/canota/version (access: user) */
@@ -1049,9 +1064,19 @@ export class HydraServerClient {
     return this.transport({ method: "GET", path: fillPath("/api/robot/{id}", args?.path), query: {}, headers: {}, body: undefined, access: "user" }) as Promise<{ robot: Record<string, unknown>; revision: string; cellId?: unknown }>;
   }
 
+  /** GET /api/robot/{id} (access: user); the reply also holds the response headers ETag. */
+  getRobotByIdWithHeaders(args: { path: { id: number } }): Promise<HydraReply<{ robot: Record<string, unknown>; revision: string; cellId?: unknown }>> {
+    return this.transport({ method: "GET", path: fillPath("/api/robot/{id}", args?.path), query: {}, headers: {}, body: undefined, access: "user", withHeaders: true }) as Promise<HydraReply<{ robot: Record<string, unknown>; revision: string; cellId?: unknown }>>;
+  }
+
   /** POST /api/robot/{id}/claim (access: user) */
   postRobotByIdClaim(args: { path: { id: number }; headers?: { "If-Match"?: string; "X-Controller-Id"?: string }; body?: { ttlMs?: number; force?: boolean; reason?: string; controllerId?: string } }): Promise<{ success: boolean; reservation: Record<string, unknown>; reservationHistory: Record<string, unknown>[]; revision: string }> {
     return this.transport({ method: "POST", path: fillPath("/api/robot/{id}/claim", args?.path), query: {}, headers: queryOf(args?.headers), body: args?.body, access: "user" }) as Promise<{ success: boolean; reservation: Record<string, unknown>; reservationHistory: Record<string, unknown>[]; revision: string }>;
+  }
+
+  /** POST /api/robot/{id}/claim (access: user); the reply also holds the response headers ETag. */
+  postRobotByIdClaimWithHeaders(args: { path: { id: number }; headers?: { "If-Match"?: string; "X-Controller-Id"?: string }; body?: { ttlMs?: number; force?: boolean; reason?: string; controllerId?: string } }): Promise<HydraReply<{ success: boolean; reservation: Record<string, unknown>; reservationHistory: Record<string, unknown>[]; revision: string }>> {
+    return this.transport({ method: "POST", path: fillPath("/api/robot/{id}/claim", args?.path), query: {}, headers: queryOf(args?.headers), body: args?.body, access: "user", withHeaders: true }) as Promise<HydraReply<{ success: boolean; reservation: Record<string, unknown>; reservationHistory: Record<string, unknown>[]; revision: string }>>;
   }
 
   /** POST /api/robot/{id}/command (access: user) */
@@ -1072,6 +1097,11 @@ export class HydraServerClient {
   /** POST /api/robot/{id}/release (access: user) */
   postRobotByIdRelease(args: { path: { id: number }; headers?: { "If-Match"?: string; "X-Controller-Id"?: string }; body?: { reason?: string; controllerId?: string } }): Promise<{ success: boolean; reservationHistory: Record<string, unknown>[]; revision: string }> {
     return this.transport({ method: "POST", path: fillPath("/api/robot/{id}/release", args?.path), query: {}, headers: queryOf(args?.headers), body: args?.body, access: "user" }) as Promise<{ success: boolean; reservationHistory: Record<string, unknown>[]; revision: string }>;
+  }
+
+  /** POST /api/robot/{id}/release (access: user); the reply also holds the response headers ETag. */
+  postRobotByIdReleaseWithHeaders(args: { path: { id: number }; headers?: { "If-Match"?: string; "X-Controller-Id"?: string }; body?: { reason?: string; controllerId?: string } }): Promise<HydraReply<{ success: boolean; reservationHistory: Record<string, unknown>[]; revision: string }>> {
+    return this.transport({ method: "POST", path: fillPath("/api/robot/{id}/release", args?.path), query: {}, headers: queryOf(args?.headers), body: args?.body, access: "user", withHeaders: true }) as Promise<HydraReply<{ success: boolean; reservationHistory: Record<string, unknown>[]; revision: string }>>;
   }
 
   /** GET /api/robots/liveness (access: user) */
@@ -1114,14 +1144,29 @@ export class HydraServerClient {
     return this.transport({ method: "GET", path: "/api/settings", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<Settings>;
   }
 
+  /** GET /api/settings (access: user); the reply also holds the response headers ETag. */
+  getSettingsWithHeaders(): Promise<HydraReply<Settings>> {
+    return this.transport({ method: "GET", path: "/api/settings", query: {}, headers: {}, body: undefined, access: "user", withHeaders: true }) as Promise<HydraReply<Settings>>;
+  }
+
   /** PUT /api/settings (access: admin) */
   putSettings(args: { headers: { "If-Match": string }; body: Settings }): Promise<{ success: boolean; revision: string; warnings?: Record<string, unknown>[] }> {
     return this.transport({ method: "PUT", path: "/api/settings", query: {}, headers: queryOf(args?.headers), body: args?.body, access: "admin" }) as Promise<{ success: boolean; revision: string; warnings?: Record<string, unknown>[] }>;
   }
 
+  /** PUT /api/settings (access: admin); the reply also holds the response headers ETag. */
+  putSettingsWithHeaders(args: { headers: { "If-Match": string }; body: Settings }): Promise<HydraReply<{ success: boolean; revision: string; warnings?: Record<string, unknown>[] }>> {
+    return this.transport({ method: "PUT", path: "/api/settings", query: {}, headers: queryOf(args?.headers), body: args?.body, access: "admin", withHeaders: true }) as Promise<HydraReply<{ success: boolean; revision: string; warnings?: Record<string, unknown>[] }>>;
+  }
+
   /** POST /api/settings (access: admin) */
   postSettings(args: { headers?: { "If-Match"?: string }; body: Settings }): Promise<{ success: boolean; revision: string; warnings?: Record<string, unknown>[] }> {
     return this.transport({ method: "POST", path: "/api/settings", query: {}, headers: queryOf(args?.headers), body: args?.body, access: "admin" }) as Promise<{ success: boolean; revision: string; warnings?: Record<string, unknown>[] }>;
+  }
+
+  /** POST /api/settings (access: admin); the reply also holds the response headers ETag. */
+  postSettingsWithHeaders(args: { headers?: { "If-Match"?: string }; body: Settings }): Promise<HydraReply<{ success: boolean; revision: string; warnings?: Record<string, unknown>[] }>> {
+    return this.transport({ method: "POST", path: "/api/settings", query: {}, headers: queryOf(args?.headers), body: args?.body, access: "admin", withHeaders: true }) as Promise<HydraReply<{ success: boolean; revision: string; warnings?: Record<string, unknown>[] }>>;
   }
 
   /** POST /api/stop-all (access: user) */
@@ -1197,6 +1242,11 @@ export class HydraServerClient {
   /** GET /api/telemetry/query (access: user) */
   getTelemetryQuery(args?: { query?: { sourceId?: string; kind?: string; field?: string; start?: string; end?: string; before?: string; limit?: string; cursor?: string } }): Promise<{ sourceId: string; kind: string; field: string; timestamp: number; value: number }[]> {
     return this.transport({ method: "GET", path: "/api/telemetry/query", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<{ sourceId: string; kind: string; field: string; timestamp: number; value: number }[]>;
+  }
+
+  /** GET /api/telemetry/query (access: user); the reply also holds the response headers X-Next-Cursor. */
+  getTelemetryQueryWithHeaders(args?: { query?: { sourceId?: string; kind?: string; field?: string; start?: string; end?: string; before?: string; limit?: string; cursor?: string } }): Promise<HydraReply<{ sourceId: string; kind: string; field: string; timestamp: number; value: number }[]>> {
+    return this.transport({ method: "GET", path: "/api/telemetry/query", query: queryOf(args?.query), headers: {}, body: undefined, access: "user", withHeaders: true }) as Promise<HydraReply<{ sourceId: string; kind: string; field: string; timestamp: number; value: number }[]>>;
   }
 
   /** GET /api/tool-arms (access: user) */

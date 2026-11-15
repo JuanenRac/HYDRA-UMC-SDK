@@ -11,7 +11,9 @@ operation the generator writes one method whose name is made from the verb and t
 parameters, the query parameters and the body, and whose result is the type of the first 2xx JSON answer. Every named
 schema of the document becomes an interface. The client never touches the network: it builds the request and hands it
 to an injectable transport, so an app keeps its own fetch, its own token and its own error handling. Nothing in the
-output is edited by hand. The Kotlin and Dart clients have the same shape and no dependency: the transport is a
+output is edited by hand. A route may also take a binary body (`application/octet-stream`), answer in text or in bytes, and
+declare response headers (the `ETag` of the settings): the request then carries `contentType` and `responseType`, and a method
+named `<route>WithHeaders` asks the transport for a `{ body, headers }` reply. The Kotlin and Dart clients have the same shape and no dependency: the transport is a
 `suspend` function interface in Kotlin and a `Future` function in Dart, and the named schemas are aliases of the plain
 JSON model (maps, lists and scalars) so any JSON library can feed them.
 
@@ -61,7 +63,7 @@ def type_of(schema: dict[str, Any] | None) -> str:
         return " | ".join(quote(v) if isinstance(v, str) else json.dumps(v) for v in schema["enum"]) + nullable
     kind = schema.get("type")
     if kind == "string":
-        return "string" + nullable
+        return ("Uint8Array" if schema.get("format") == "binary" else "string") + nullable
     if kind in ("integer", "number"):
         return "number" + nullable
     if kind == "boolean":
@@ -128,25 +130,32 @@ def parameters(path: str, operation: dict[str, Any]) -> tuple[list[dict[str, Any
     return path_parameters, query
 
 
-def success_type(operation: dict[str, Any]) -> str:
+def success_response(operation: dict[str, Any]) -> tuple[str, dict[str, Any] | None, list[str]]:
+    """The kind of the first 2xx answer (json, text, binary or none), its schema and the response headers it declares."""
     for status in sorted(operation.get("responses", {})):
         if status.startswith("2"):
-            content = operation["responses"][status].get("content") or {}
+            answer = operation["responses"][status]
+            content = answer.get("content") or {}
+            headers = list((answer.get("headers") or {}).keys())
             if "application/json" in content:
-                return type_of(content["application/json"].get("schema"))
-            return "void"
-    return "void"
+                return "json", content["application/json"].get("schema") or {}, headers
+            for media in content:
+                if "octet" in media:
+                    return "binary", {"type": "string", "format": "binary"}, headers
+                if media.startswith("text/") or media.endswith(("json", "ndjson", "jsonl")):
+                    return "text", {"type": "string"}, headers
+            return "none", None, headers
+    return "none", None, []
+
+
+def success_type(operation: dict[str, Any]) -> str:
+    schema = success_response(operation)[1]
+    return type_of(schema) if schema is not None else "void"
 
 
 def success_schema(operation: dict[str, Any]) -> dict[str, Any] | None:
-    """The schema of the first 2xx JSON answer, an empty dict when none is declared, None when there is no body."""
-    for status in sorted(operation.get("responses", {})):
-        if status.startswith("2"):
-            content = operation["responses"][status].get("content") or {}
-            if "application/json" in content:
-                return content["application/json"].get("schema") or {}
-            return None
-    return None
+    """The schema of the first 2xx answer, an empty dict when a JSON answer declares none, None when there is no body."""
+    return success_response(operation)[1]
 
 
 def operations(document: dict[str, Any]) -> list[dict[str, Any]]:
@@ -161,9 +170,16 @@ def operations(document: dict[str, Any]) -> list[dict[str, Any]]:
             if name in seen:
                 raise SystemExit(f"GENERATED_CLIENTS=FAIL two routes make the method name {name}: {seen[name]} and {method.upper()} {path}")
             seen[name] = f"{method.upper()} {path}"
+            if name.endswith("WithHeaders"):
+                raise SystemExit(f"GENERATED_CLIENTS=FAIL the method name {name} ends in WithHeaders, which the generator keeps for the reply variant")
             path_parameters, query = parameters(path, operation)
             headers = [p for p in operation.get("parameters", []) if p.get("in") == "header"]
-            body = (operation.get("requestBody") or {}).get("content", {}).get("application/json")
+            content = (operation.get("requestBody") or {}).get("content", {})
+            media = "application/json" if "application/json" in content else next(iter(content), None)
+            body = content[media] if media else None
+            if body is not None and media != "application/json":
+                body = {**body, "schema": {"type": "string", "format": "binary"}}
+            answer, _, reply_headers = success_response(operation)
             found.append({
                 "name": name,
                 "method": method.upper(),
@@ -173,6 +189,9 @@ def operations(document: dict[str, Any]) -> list[dict[str, Any]]:
                 "headers": headers,
                 "body": type_of(body.get("schema")) if body else None,
                 "body_schema": body.get("schema") if body else None,
+                "body_media": media if body else None,
+                "answer": answer,
+                "reply_headers": reply_headers,
                 "body_required": bool((operation.get("requestBody") or {}).get("required")),
                 "result": success_type(operation),
                 "result_schema": success_schema(operation),
@@ -208,6 +227,18 @@ def arguments(op: dict[str, Any]) -> tuple[str, bool]:
     return "args" + ("" if required else "?") + ": { " + "; ".join(fields) + " }", required
 
 
+def request_extras(op: dict[str, Any], with_headers: bool) -> list[tuple[str, str]]:
+    """The request fields that are not the default (a JSON body, a JSON or empty answer, no reply headers) as (field, value)."""
+    extras: list[tuple[str, str]] = []
+    if op["body"] is not None and op["body_media"] != "application/json":
+        extras.append(("contentType", op["body_media"]))
+    if op["answer"] in ("text", "binary"):
+        extras.append(("responseType", op["answer"]))
+    if with_headers:
+        extras.append(("withHeaders", "true"))
+    return extras
+
+
 def as_typescript(document: dict[str, Any]) -> str:
     ops = operations(document)
     lines = [f"// {HEADER}", "", "/* eslint-disable */", ""]
@@ -221,9 +252,21 @@ def as_typescript(document: dict[str, Any]) -> str:
         "  readonly headers: Readonly<Record<string, string>>;",
         "  readonly body: unknown;",
         "  readonly access: string;",
+        "  /** The media type of the body when it is not JSON (a binary image goes as application/octet-stream). */",
+        "  readonly contentType?: string;",
+        "  /** How the answer is read when it is not JSON: text (a string) or binary (a Uint8Array). */",
+        "  readonly responseType?: \"text\" | \"binary\";",
+        "  /** True for the WithHeaders methods: the transport answers with a HydraReply that holds the response headers the contract declares. */",
+        "  readonly withHeaders?: boolean;",
         "}",
         "",
-        "/** Carries one request to the server and returns the decoded JSON of the answer (undefined when there is none). */",
+        "/** The answer of a route that declares response headers: the decoded body and the headers under their declared names (ETag, X-Next-Cursor). */",
+        "export interface HydraReply<T> {",
+        "  readonly body: T;",
+        "  readonly headers: Readonly<Record<string, string>>;",
+        "}",
+        "",
+        "/** Carries one request to the server and returns the decoded answer (undefined when there is none); a request with withHeaders gets a HydraReply. */",
         "export type HydraTransport = (request: HydraRequest) => Promise<unknown>;",
         "",
         "export function fillPath(template: string, values: Readonly<Record<string, string | number>> | undefined): string {",
@@ -243,7 +286,10 @@ def as_typescript(document: dict[str, Any]) -> str:
         "}",
         "",
         "export class HydraServerClient {",
-        "  constructor(private readonly transport: HydraTransport) {}",
+        "  private readonly transport: HydraTransport;",
+        "  constructor(transport: HydraTransport) {",
+        "    this.transport = transport;",
+        "  }",
         "",
     ]
     for op in ops:
@@ -253,14 +299,25 @@ def as_typescript(document: dict[str, Any]) -> str:
         query_expr = "queryOf(args?.query)" if op["query"] else "{}"
         headers_expr = "queryOf(args?.headers)" if op["headers"] else "{}"
         body_expr = "args?.body" if op["body"] is not None else "undefined"
+        send = (f"this.transport({{ method: {quote(op['method'])}, path: {path_expr}, query: {query_expr}, "
+                f"headers: {headers_expr}, body: {body_expr}, access: {quote(op['access'])}")
+        plain = "".join(f", {f}: {quote(v)}" for f, v in request_extras(op, False))
         lines += [
             f"  /** {note.replace('*/', '* /')} (access: {op['access']}) */",
             f"  {op['name']}({signature}): Promise<{op['result']}> {{",
-            f"    return this.transport({{ method: {quote(op['method'])}, path: {path_expr}, query: {query_expr}, "
-            f"headers: {headers_expr}, body: {body_expr}, access: {quote(op['access'])} }}) as Promise<{op['result']}>;",
+            f"    return {send}{plain} }}) as Promise<{op['result']}>;",
             "  }",
             "",
         ]
+        if op["reply_headers"]:
+            extras = "".join(f", {f}: {v if f == 'withHeaders' else quote(v)}" for f, v in request_extras(op, True))
+            lines += [
+                f"  /** {note.replace('*/', '* /')} (access: {op['access']}); the reply also holds the response headers {', '.join(op['reply_headers'])}. */",
+                f"  {op['name']}WithHeaders({signature}): Promise<HydraReply<{op['result']}>> {{",
+                f"    return {send}{extras} }}) as Promise<HydraReply<{op['result']}>>;",
+                "  }",
+                "",
+            ]
     lines += ["}", "", "export const HYDRA_CLIENT_OPERATIONS: readonly string[] = ["]
     lines += [f"  {quote(op['name'])}," for op in ops]
     lines += ["];", ""]
@@ -280,6 +337,7 @@ class Flavor:
         self.words = KOTLIN_WORDS if self.kotlin else DART_WORDS
         self.scalars = ({"string": "String", "integer": "Long", "number": "Double", "boolean": "Boolean"} if self.kotlin
                         else {"string": "String", "integer": "int", "number": "num", "boolean": "bool"})
+        self.bytes = "ByteArray" if self.kotlin else "List<int>"
         self.any = "Any?" if self.kotlin else "dynamic"
         self.object = "Map<String, Any?>" if self.kotlin else "Map<String, dynamic>"
         self.list = "List<Any?>" if self.kotlin else "List<dynamic>"
@@ -312,7 +370,9 @@ def native_type(schema: dict[str, Any] | None, flavor: Flavor, cyclic: frozenset
         values = [v for v in schema["enum"] if v is not None]
         kind = "string" if values and all(isinstance(v, str) for v in values) else None
         nullable = nullable or len(values) != len(schema["enum"])
-    if kind in flavor.scalars:
+    if kind == "string" and schema.get("format") == "binary":
+        result = flavor.bytes
+    elif kind in flavor.scalars:
         result = flavor.scalars[kind]
     elif kind == "array":
         item = native_type(schema.get("items"), flavor, cyclic)
@@ -428,9 +488,14 @@ def as_kotlin(document: dict[str, Any]) -> str:
              "// The transport hands back the decoded JSON model: Map, List, String, Long, Double, Boolean or null.", ""]
     lines += schema_aliases(document, flavor)
     lines += [
-        "class HydraRequest(val method: String, val path: String, val query: Map<String, String>, val body: Any?, val access: String, val headers: Map<String, String> = emptyMap())",
+        "/** contentType is the media type of a body that is not JSON; responseType is text or binary when the answer is not JSON; withHeaders asks for a HydraReply. */",
+        "class HydraRequest(val method: String, val path: String, val query: Map<String, String>, val body: Any?, val access: String, val headers: Map<String, String> = emptyMap(),",
+        "                   val contentType: String? = null, val responseType: String? = null, val withHeaders: Boolean = false)",
         "",
-        "/** Carries one request to the server and returns the decoded JSON of the answer (null when there is none). */",
+        "/** The answer of a route that declares response headers: the decoded body and the headers under their declared names (ETag, X-Next-Cursor). */",
+        "class HydraReply<T>(val body: T, val headers: Map<String, String>)",
+        "",
+        "/** Carries one request to the server and returns the decoded answer (null when there is none); a request with withHeaders gets a HydraReply. */",
         "fun interface HydraTransport {",
         "    suspend fun send(request: HydraRequest): Any?",
         "}",
@@ -456,13 +521,21 @@ def as_kotlin(document: dict[str, Any]) -> str:
         body_name = next((n for n, _, where, _, _ in params if where == "body"), "null")
         path_expr = f"fillPath({quote(op['path'])}, mapOf({path_values}))" if path_values else quote(op["path"])
         query_expr = f"queryOf(mapOf({query_values}))" if query_values else "emptyMap()"
-        call = f"transport.send(HydraRequest({quote(op['method'])}, {path_expr}, {query_expr}, {body_name}, {quote(op['access'])}{', headers = queryOf(mapOf(' + header_values + '))' if header_values else ''}))"
+        head = f"transport.send(HydraRequest({quote(op['method'])}, {path_expr}, {query_expr}, {body_name}, {quote(op['access'])}{', headers = queryOf(mapOf(' + header_values + '))' if header_values else ''}"
+        call = head + "".join(f", {f} = {quote(v)}" for f, v in request_extras(op, False)) + "))"
         lines += [f"    /** {doc_note(op)} */", f"    suspend fun {op['name']}({signature}): {result} {{"]
         if result == "Unit":
             lines += [f"        {call}", "        return Unit"]
         else:
             lines.append(f"        return {call} as {result}")
         lines += ["    }", ""]
+        if op["reply_headers"]:
+            wrapped = head + "".join(f", {f} = {v if f == 'withHeaders' else quote(v)}" for f, v in request_extras(op, True)) + "))"
+            lines += [f"    /** {doc_note(op)}; the reply also holds the response headers {', '.join(op['reply_headers'])}. */",
+                      f"    suspend fun {op['name']}WithHeaders({signature}): HydraReply<{result}> {{",
+                      f"        val reply = {wrapped} as HydraReply<Any?>",
+                      f"        return HydraReply(reply.body as {result}, reply.headers)",
+                      "    }", ""]
     lines += ["}", "", "val HYDRA_CLIENT_OPERATIONS: List<String> = listOf("]
     lines += [f"    {quote(op['name'])}," for op in ops]
     lines += [")", ""]
@@ -478,16 +551,29 @@ def as_dart(document: dict[str, Any]) -> str:
     lines += schema_aliases(document, flavor)
     lines += [
         "class HydraRequest {",
-        "  const HydraRequest(this.method, this.path, this.query, this.body, this.access, {this.headers = const <String, String>{}});",
+        "  const HydraRequest(this.method, this.path, this.query, this.body, this.access, {this.headers = const <String, String>{}, this.contentType, this.responseType, this.withHeaders = false});",
         "  final String method;",
         "  final String path;",
         "  final Map<String, String> query;",
         "  final Object? body;",
         "  final String access;",
         "  final Map<String, String> headers;",
+        "  /// The media type of a body that is not JSON.",
+        "  final String? contentType;",
+        "  /// 'text' or 'binary' when the answer is not JSON.",
+        "  final String? responseType;",
+        "  /// True for the WithHeaders methods: the transport answers with a HydraReply.",
+        "  final bool withHeaders;",
         "}",
         "",
-        "/// Carries one request to the server and returns the decoded JSON of the answer (null when there is none).",
+        "/// The answer of a route that declares response headers: the decoded body and the headers under their declared names (ETag, X-Next-Cursor).",
+        "class HydraReply<T> {",
+        "  const HydraReply(this.body, this.headers);",
+        "  final T body;",
+        "  final Map<String, String> headers;",
+        "}",
+        "",
+        "/// Carries one request to the server and returns the decoded answer (null when there is none); a request with withHeaders gets a HydraReply.",
         "typedef HydraTransport = Future<dynamic> Function(HydraRequest request);",
         "",
         "String fillPath(String template, Map<String, Object> values) {",
@@ -525,13 +611,21 @@ def as_dart(document: dict[str, Any]) -> str:
         body_name = next((n for n, _, where, _, _ in params if where == "body"), "null")
         path_expr = f"fillPath({dart_string(op['path'])}, {{{path_values}}})" if path_values else dart_string(op["path"])
         query_expr = f"queryOf({{{query_values}}})" if query_values else "const <String, String>{}"
-        call = f"_transport(HydraRequest({dart_string(op['method'])}, {path_expr}, {query_expr}, {body_name}, {dart_string(op['access'])}{', headers: queryOf({' + header_values + '})' if header_values else ''}))"
+        head = f"_transport(HydraRequest({dart_string(op['method'])}, {path_expr}, {query_expr}, {body_name}, {dart_string(op['access'])}{', headers: queryOf({' + header_values + '})' if header_values else ''}"
+        call = head + "".join(f", {f}: {dart_string(v)}" for f, v in request_extras(op, False)) + "))"
         lines += [f"  /// {doc_note(op)}", f"  Future<{result}> {op['name']}({signature}) async {{"]
         if result == "void":
             lines.append(f"    await {call};")
         else:
             lines.append(f"    return (await {call}) as {result};")
         lines += ["  }", ""]
+        if op["reply_headers"]:
+            wrapped = head + "".join(f", {f}: {v if f == 'withHeaders' else dart_string(v)}" for f, v in request_extras(op, True)) + "))"
+            lines += [f"  /// {doc_note(op)}; the reply also holds the response headers {', '.join(op['reply_headers'])}.",
+                      f"  Future<HydraReply<{result}>> {op['name']}WithHeaders({signature}) async {{",
+                      f"    final reply = (await {wrapped}) as HydraReply<dynamic>;",
+                      f"    return HydraReply<{result}>(reply.body as {result}, reply.headers);",
+                      "  }", ""]
     lines += ["}", "", "const List<String> hydraClientOperations = ["]
     lines += [f"  {dart_string(op['name'])}," for op in ops]
     lines += ["];", ""]

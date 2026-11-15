@@ -136,7 +136,7 @@ matrix above.
 
 ### Common texts of the apps
 
-`contracts/i18n/common.json` holds the words every app shows the same way (confirm, cancel, save, close, try again, yes, no, loading, online, offline and the three roles) in the eight languages. Each app keeps its own format; `tools/i18n_common.py` writes them for STUDIO (JSON), Android (`strings.xml`) and ARB, and checks that a STUDIO checkout carries them. See [docs/CONTRACTS.md](docs/CONTRACTS.md).
+`contracts/i18n/common.json` holds the 100 words every app shows the same way (confirm, cancel, save, close, try again, yes, no, loading, online, offline, the three roles, stop, start, settings, error, update and the rest) in the eight languages, European Portuguese for `pt`. Each app keeps its own format and its own catalog for everything else; `tools/i18n_common.py` writes the words for STUDIO (JSON), SUITE (`.lng`), Android (`strings.xml`) and ARB, and checks that a STUDIO, SUITE, Android or Flutter checkout carries them. See [docs/CONTRACTS.md](docs/CONTRACTS.md).
 
 ## 🔒 Security & Safety
 

@@ -216,9 +216,14 @@ typealias HydraVoiceReply = Map<String, Any?>
 /** Fields: type, headline, detail, level, speak */
 typealias HydraWatchStatus = Map<String, Any?>
 
-class HydraRequest(val method: String, val path: String, val query: Map<String, String>, val body: Any?, val access: String, val headers: Map<String, String> = emptyMap())
+/** contentType is the media type of a body that is not JSON; responseType is text or binary when the answer is not JSON; withHeaders asks for a HydraReply. */
+class HydraRequest(val method: String, val path: String, val query: Map<String, String>, val body: Any?, val access: String, val headers: Map<String, String> = emptyMap(),
+                   val contentType: String? = null, val responseType: String? = null, val withHeaders: Boolean = false)
 
-/** Carries one request to the server and returns the decoded JSON of the answer (null when there is none). */
+/** The answer of a route that declares response headers: the decoded body and the headers under their declared names (ETag, X-Next-Cursor). */
+class HydraReply<T>(val body: T, val headers: Map<String, String>)
+
+/** Carries one request to the server and returns the decoded answer (null when there is none); a request with withHeaders gets a HydraReply. */
 fun interface HydraTransport {
     suspend fun send(request: HydraRequest): Any?
 }
@@ -566,8 +571,8 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** POST /api/hardware/canota/flash (access: admin) */
-    suspend fun postHardwareCanotaFlash(tier: String? = null, slot: String? = null, relay: String? = null, hardwareId: String? = null, versionMajor: String? = null, versionMinor: String? = null, versionPatch: String? = null, signature: String? = null, downgradeFrom: String? = null, target: String? = null, minBootloader: String? = null): HydraCanotaFlash {
-        return transport.send(HydraRequest("POST", "/api/hardware/canota/flash", queryOf(mapOf("tier" to tier, "slot" to slot, "relay" to relay, "hardware_id" to hardwareId, "version_major" to versionMajor, "version_minor" to versionMinor, "version_patch" to versionPatch, "signature" to signature, "downgrade_from" to downgradeFrom, "target" to target, "min_bootloader" to minBootloader)), null, "admin")) as HydraCanotaFlash
+    suspend fun postHardwareCanotaFlash(body: ByteArray, tier: String? = null, slot: String? = null, relay: String? = null, hardwareId: String? = null, versionMajor: String? = null, versionMinor: String? = null, versionPatch: String? = null, signature: String? = null, downgradeFrom: String? = null, target: String? = null, minBootloader: String? = null): HydraCanotaFlash {
+        return transport.send(HydraRequest("POST", "/api/hardware/canota/flash", queryOf(mapOf("tier" to tier, "slot" to slot, "relay" to relay, "hardware_id" to hardwareId, "version_major" to versionMajor, "version_minor" to versionMinor, "version_patch" to versionPatch, "signature" to signature, "downgrade_from" to downgradeFrom, "target" to target, "min_bootloader" to minBootloader)), body, "admin", contentType = "application/octet-stream")) as HydraCanotaFlash
     }
 
     /** GET /api/hardware/canota/version (access: user) */
@@ -715,9 +720,21 @@ class HydraServerClient(private val transport: HydraTransport) {
         return transport.send(HydraRequest("GET", fillPath("/api/robot/{id}", mapOf("id" to id)), emptyMap(), null, "user")) as Map<String, Any?>
     }
 
+    /** GET /api/robot/{id} (access: user); the reply also holds the response headers ETag. */
+    suspend fun getRobotByIdWithHeaders(id: Long): HydraReply<Map<String, Any?>> {
+        val reply = transport.send(HydraRequest("GET", fillPath("/api/robot/{id}", mapOf("id" to id)), emptyMap(), null, "user", withHeaders = true)) as HydraReply<Any?>
+        return HydraReply(reply.body as Map<String, Any?>, reply.headers)
+    }
+
     /** POST /api/robot/{id}/claim (access: user) */
     suspend fun postRobotByIdClaim(id: Long, headerIfMatch: String? = null, headerXControllerId: String? = null, body: Map<String, Any?>? = null): Map<String, Any?> {
         return transport.send(HydraRequest("POST", fillPath("/api/robot/{id}/claim", mapOf("id" to id)), emptyMap(), body, "user", headers = queryOf(mapOf("If-Match" to headerIfMatch, "X-Controller-Id" to headerXControllerId)))) as Map<String, Any?>
+    }
+
+    /** POST /api/robot/{id}/claim (access: user); the reply also holds the response headers ETag. */
+    suspend fun postRobotByIdClaimWithHeaders(id: Long, headerIfMatch: String? = null, headerXControllerId: String? = null, body: Map<String, Any?>? = null): HydraReply<Map<String, Any?>> {
+        val reply = transport.send(HydraRequest("POST", fillPath("/api/robot/{id}/claim", mapOf("id" to id)), emptyMap(), body, "user", headers = queryOf(mapOf("If-Match" to headerIfMatch, "X-Controller-Id" to headerXControllerId)), withHeaders = true)) as HydraReply<Any?>
+        return HydraReply(reply.body as Map<String, Any?>, reply.headers)
     }
 
     /** POST /api/robot/{id}/command (access: user) */
@@ -738,6 +755,12 @@ class HydraServerClient(private val transport: HydraTransport) {
     /** POST /api/robot/{id}/release (access: user) */
     suspend fun postRobotByIdRelease(id: Long, headerIfMatch: String? = null, headerXControllerId: String? = null, body: Map<String, Any?>? = null): Map<String, Any?> {
         return transport.send(HydraRequest("POST", fillPath("/api/robot/{id}/release", mapOf("id" to id)), emptyMap(), body, "user", headers = queryOf(mapOf("If-Match" to headerIfMatch, "X-Controller-Id" to headerXControllerId)))) as Map<String, Any?>
+    }
+
+    /** POST /api/robot/{id}/release (access: user); the reply also holds the response headers ETag. */
+    suspend fun postRobotByIdReleaseWithHeaders(id: Long, headerIfMatch: String? = null, headerXControllerId: String? = null, body: Map<String, Any?>? = null): HydraReply<Map<String, Any?>> {
+        val reply = transport.send(HydraRequest("POST", fillPath("/api/robot/{id}/release", mapOf("id" to id)), emptyMap(), body, "user", headers = queryOf(mapOf("If-Match" to headerIfMatch, "X-Controller-Id" to headerXControllerId)), withHeaders = true)) as HydraReply<Any?>
+        return HydraReply(reply.body as Map<String, Any?>, reply.headers)
     }
 
     /** GET /api/robots/liveness (access: user) */
@@ -781,14 +804,32 @@ class HydraServerClient(private val transport: HydraTransport) {
         return transport.send(HydraRequest("GET", "/api/settings", emptyMap(), null, "user")) as HydraSettings
     }
 
+    /** GET /api/settings (access: user); the reply also holds the response headers ETag. */
+    suspend fun getSettingsWithHeaders(): HydraReply<HydraSettings> {
+        val reply = transport.send(HydraRequest("GET", "/api/settings", emptyMap(), null, "user", withHeaders = true)) as HydraReply<Any?>
+        return HydraReply(reply.body as HydraSettings, reply.headers)
+    }
+
     /** PUT /api/settings (access: admin) */
     suspend fun putSettings(headerIfMatch: String, body: HydraSettings): Map<String, Any?> {
         return transport.send(HydraRequest("PUT", "/api/settings", emptyMap(), body, "admin", headers = queryOf(mapOf("If-Match" to headerIfMatch)))) as Map<String, Any?>
     }
 
+    /** PUT /api/settings (access: admin); the reply also holds the response headers ETag. */
+    suspend fun putSettingsWithHeaders(headerIfMatch: String, body: HydraSettings): HydraReply<Map<String, Any?>> {
+        val reply = transport.send(HydraRequest("PUT", "/api/settings", emptyMap(), body, "admin", headers = queryOf(mapOf("If-Match" to headerIfMatch)), withHeaders = true)) as HydraReply<Any?>
+        return HydraReply(reply.body as Map<String, Any?>, reply.headers)
+    }
+
     /** POST /api/settings (access: admin) */
     suspend fun postSettings(body: HydraSettings, headerIfMatch: String? = null): Map<String, Any?> {
         return transport.send(HydraRequest("POST", "/api/settings", emptyMap(), body, "admin", headers = queryOf(mapOf("If-Match" to headerIfMatch)))) as Map<String, Any?>
+    }
+
+    /** POST /api/settings (access: admin); the reply also holds the response headers ETag. */
+    suspend fun postSettingsWithHeaders(body: HydraSettings, headerIfMatch: String? = null): HydraReply<Map<String, Any?>> {
+        val reply = transport.send(HydraRequest("POST", "/api/settings", emptyMap(), body, "admin", headers = queryOf(mapOf("If-Match" to headerIfMatch)), withHeaders = true)) as HydraReply<Any?>
+        return HydraReply(reply.body as Map<String, Any?>, reply.headers)
     }
 
     /** POST /api/stop-all (access: user) */
@@ -866,6 +907,12 @@ class HydraServerClient(private val transport: HydraTransport) {
     /** GET /api/telemetry/query (access: user) */
     suspend fun getTelemetryQuery(sourceId: String? = null, kind: String? = null, field: String? = null, start: String? = null, end: String? = null, before: String? = null, limit: String? = null, cursor: String? = null): List<Map<String, Any?>> {
         return transport.send(HydraRequest("GET", "/api/telemetry/query", queryOf(mapOf("sourceId" to sourceId, "kind" to kind, "field" to field, "start" to start, "end" to end, "before" to before, "limit" to limit, "cursor" to cursor)), null, "user")) as List<Map<String, Any?>>
+    }
+
+    /** GET /api/telemetry/query (access: user); the reply also holds the response headers X-Next-Cursor. */
+    suspend fun getTelemetryQueryWithHeaders(sourceId: String? = null, kind: String? = null, field: String? = null, start: String? = null, end: String? = null, before: String? = null, limit: String? = null, cursor: String? = null): HydraReply<List<Map<String, Any?>>> {
+        val reply = transport.send(HydraRequest("GET", "/api/telemetry/query", queryOf(mapOf("sourceId" to sourceId, "kind" to kind, "field" to field, "start" to start, "end" to end, "before" to before, "limit" to limit, "cursor" to cursor)), null, "user", withHeaders = true)) as HydraReply<Any?>
+        return HydraReply(reply.body as List<Map<String, Any?>>, reply.headers)
     }
 
     /** GET /api/tool-arms (access: user) */

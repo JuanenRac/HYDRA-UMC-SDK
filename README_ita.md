@@ -140,7 +140,7 @@ valida, verificate dalla matrice di compatibilità sopra.
 
 ### Testi comuni delle app
 
-`contracts/i18n/common.json` raccoglie le parole che ogni app mostra allo stesso modo (conferma, annulla, salva, chiudi, riprova, sì, no, caricamento, online, offline e i tre ruoli) negli otto idiomi. Ogni app mantiene il proprio formato; `tools/i18n_common.py` le scrive per STUDIO (JSON), Android (`strings.xml`) e ARB, e verifica che uno STUDIO le contenga. Vedi [docs/CONTRACTS.md](docs/CONTRACTS.md).
+`contracts/i18n/common.json` raccoglie le 100 parole che ogni app mostra allo stesso modo (conferma, annulla, salva, chiudi, riprova, sì, no, caricamento, online, offline, i tre ruoli, arresta, avvia, impostazioni, errore, aggiorna e il resto) negli otto idiomi, portoghese europeo per `pt`. Ogni app mantiene il proprio formato e il proprio catalogo per tutto il resto; `tools/i18n_common.py` scrive le parole per STUDIO (JSON), SUITE (`.lng`), Android (`strings.xml`) e ARB, e verifica che una copia di STUDIO, SUITE, Android o Flutter le contenga. Vedi [docs/CONTRACTS.md](docs/CONTRACTS.md).
 
 ## 🔒 Sicurezza e protezione
 

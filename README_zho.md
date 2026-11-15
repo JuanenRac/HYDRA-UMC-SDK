@@ -102,7 +102,7 @@ OpenAPI v1 切片(`contracts/openapi/v1/server.openapi.json` - 参见
 
 ### 应用共用文字
 
-`contracts/i18n/common.json` 以八种语言收录所有应用以相同方式显示的词语（确认、取消、保存、关闭、重试、是、否、加载中、在线、离线以及三种角色）。各应用保留自己的格式；`tools/i18n_common.py` 将其写成 STUDIO（JSON）、Android（`strings.xml`）和 ARB 的格式，并检查 STUDIO 检出是否包含这些词语。参见 [docs/CONTRACTS.md](docs/CONTRACTS.md)。
+`contracts/i18n/common.json` 以八种语言收录所有应用以相同方式显示的 100 个词语（确认、取消、保存、关闭、重试、是、否、加载中、在线、离线、三种角色、停止、开始、设置、错误、更新等），`pt` 使用欧洲葡萄牙语。其余内容各应用保留自己的格式和目录；`tools/i18n_common.py` 将这些词语写成 STUDIO（JSON）、SUITE（`.lng`）、Android（`strings.xml`）和 ARB 的格式，并检查 STUDIO、SUITE、Android 或 Flutter 检出是否包含这些词语。参见 [docs/CONTRACTS.md](docs/CONTRACTS.md)。
 
 ## 🔒 安全与防护
 
