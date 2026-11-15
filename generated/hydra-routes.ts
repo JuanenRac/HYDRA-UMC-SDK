@@ -109,6 +109,8 @@ export const HYDRA_ROUTES: readonly HydraRoute[] = [
   { method: "POST", path: "/api/robot/{id}/jog-arm", access: "user", group: "robot", query: [], statuses: ["200", "400", "404", "409", "423"] },
   { method: "POST", path: "/api/robot/{id}/release", access: "user", group: "robot", query: [], statuses: ["200", "400", "404", "409", "412"] },
   { method: "GET", path: "/api/robots/liveness", access: "user", group: "robots", query: [], statuses: ["200"] },
+  { method: "GET", path: "/api/ros2-bridge/settings", access: "user", group: "ros2-bridge", query: [], statuses: ["200"] },
+  { method: "POST", path: "/api/ros2-bridge/settings", access: "admin", group: "ros2-bridge", query: [], statuses: ["400"] },
   { method: "GET", path: "/api/rul/config", access: "user", group: "rul", query: [], statuses: ["200"] },
   { method: "GET", path: "/api/safety-limits", access: "user", group: "safety-limits", query: ["robotId"], statuses: ["200", "400", "404", "409"] },
   { method: "GET", path: "/api/semantic-planner/settings", access: "user", group: "semantic-planner", query: [], statuses: ["200"] },

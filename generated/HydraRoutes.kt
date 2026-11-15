@@ -101,6 +101,8 @@ val HYDRA_ROUTES: List<HydraRoute> = listOf(
     HydraRoute("POST", "/api/robot/{id}/jog-arm", "user", "robot", listOf(), listOf("200", "400", "404", "409", "423")),
     HydraRoute("POST", "/api/robot/{id}/release", "user", "robot", listOf(), listOf("200", "400", "404", "409", "412")),
     HydraRoute("GET", "/api/robots/liveness", "user", "robots", listOf(), listOf("200")),
+    HydraRoute("GET", "/api/ros2-bridge/settings", "user", "ros2-bridge", listOf(), listOf("200")),
+    HydraRoute("POST", "/api/ros2-bridge/settings", "admin", "ros2-bridge", listOf(), listOf("400")),
     HydraRoute("GET", "/api/rul/config", "user", "rul", listOf(), listOf("200")),
     HydraRoute("GET", "/api/safety-limits", "user", "safety-limits", listOf("robotId"), listOf("200", "400", "404", "409")),
     HydraRoute("GET", "/api/semantic-planner/settings", "user", "semantic-planner", listOf(), listOf("200")),

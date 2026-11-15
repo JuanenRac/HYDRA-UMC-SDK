@@ -108,6 +108,8 @@ const List<HydraRoute> hydraRoutes = <HydraRoute>[
   HydraRoute('POST', '/api/robot/{id}/jog-arm', 'user', 'robot', <String>[], <String>['200', '400', '404', '409', '423']),
   HydraRoute('POST', '/api/robot/{id}/release', 'user', 'robot', <String>[], <String>['200', '400', '404', '409', '412']),
   HydraRoute('GET', '/api/robots/liveness', 'user', 'robots', <String>[], <String>['200']),
+  HydraRoute('GET', '/api/ros2-bridge/settings', 'user', 'ros2-bridge', <String>[], <String>['200']),
+  HydraRoute('POST', '/api/ros2-bridge/settings', 'admin', 'ros2-bridge', <String>[], <String>['400']),
   HydraRoute('GET', '/api/rul/config', 'user', 'rul', <String>[], <String>['200']),
   HydraRoute('GET', '/api/safety-limits', 'user', 'safety-limits', <String>['robotId'], <String>['200', '400', '404', '409']),
   HydraRoute('GET', '/api/semantic-planner/settings', 'user', 'semantic-planner', <String>[], <String>['200']),

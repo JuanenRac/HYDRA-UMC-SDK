@@ -1,0 +1,59 @@
+{
+  "source_version": "1",
+  "group": "ros2-bridge",
+  "kind": "inventory",
+  "routes": [
+    {
+      "method": "get",
+      "path": "/api/ros2-bridge/settings",
+      "summary": "GET /api/ros2-bridge/settings",
+      "description": "Requires a signed-in account (bearer token). The server carries the token to the ROS 2 bridge, which keeps the requirement of ROS 2 security (security.require_sros2) in its own configuration file: requireSros2 is the value in that file, active the value the running bridge started with, restartNeeded says they differ, canChange says whether the bridge was started allowing the change, and environmentReady whether the ROS 2 security variables of the bridge are all set. Answers 503 with available false when the server has no ROS 2 bridge configured.",
+      "access": "user",
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "schema": {
+            "type": "object",
+            "required": [
+              "requireSros2",
+              "active",
+              "restartNeeded",
+              "canChange",
+              "environmentReady"
+            ],
+            "properties": {
+              "requireSros2": {
+                "type": "boolean"
+              },
+              "active": {
+                "type": "boolean"
+              },
+              "restartNeeded": {
+                "type": "boolean"
+              },
+              "canChange": {
+                "type": "boolean"
+              },
+              "environmentReady": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "method": "post",
+      "path": "/api/ros2-bridge/settings",
+      "summary": "POST /api/ros2-bridge/settings",
+      "description": "Requires a signed-in account with the admin role. The body is requireSros2 (true or false) and confirm: true, in both directions. The bridge writes the value to its configuration file and the value applies when the bridge restarts: the answer has the same fields as the GET, with changed and appliesAfterRestart true. A bridge started without allowing the change answers 403.",
+      "access": "admin",
+      "responses": {
+        "400": {
+          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    }
+  ]
+}
