@@ -739,6 +739,578 @@
         "zh": "视觉中心",
         "pt": "Centro de visão"
       }
+    },
+    {
+      "id": "stop",
+      "text": {
+        "en": "Stop",
+        "es": "Detener",
+        "de": "Stopp",
+        "fr": "Stop",
+        "it": "Ferma",
+        "ja": "停止",
+        "zh": "停止",
+        "pt": "Parar"
+      }
+    },
+    {
+      "id": "start",
+      "text": {
+        "en": "Start",
+        "es": "Iniciar",
+        "de": "Starten",
+        "fr": "Démarrer",
+        "it": "Avvia",
+        "ja": "開始",
+        "zh": "开始",
+        "pt": "Iniciar"
+      }
+    },
+    {
+      "id": "off",
+      "text": {
+        "en": "Off",
+        "es": "Desactivado",
+        "de": "Aus",
+        "fr": "Désactivé",
+        "it": "Disattivato",
+        "ja": "オフ",
+        "zh": "关闭",
+        "pt": "Desligado"
+      }
+    },
+    {
+      "id": "default",
+      "text": {
+        "en": "Default",
+        "es": "Por defecto",
+        "de": "Standard",
+        "fr": "Par défaut",
+        "it": "Predefinito",
+        "ja": "既定",
+        "zh": "默认",
+        "pt": "Predefinido"
+      }
+    },
+    {
+      "id": "continue",
+      "text": {
+        "en": "Continue",
+        "es": "Continuar",
+        "de": "Weiter",
+        "fr": "Continuer",
+        "it": "Continua",
+        "ja": "続ける",
+        "zh": "继续",
+        "pt": "Continuar"
+      }
+    },
+    {
+      "id": "connecting",
+      "text": {
+        "en": "Connecting…",
+        "es": "Conectando…",
+        "de": "Verbindung wird hergestellt…",
+        "fr": "Connexion en cours…",
+        "it": "Connessione in corso…",
+        "ja": "接続中…",
+        "zh": "连接中…",
+        "pt": "A ligar…"
+      }
+    },
+    {
+      "id": "error",
+      "text": {
+        "en": "Error",
+        "es": "Error",
+        "de": "Fehler",
+        "fr": "Erreur",
+        "it": "Errore",
+        "ja": "エラー",
+        "zh": "错误",
+        "pt": "Erro"
+      }
+    },
+    {
+      "id": "running",
+      "text": {
+        "en": "Running",
+        "es": "En marcha",
+        "de": "Läuft",
+        "fr": "En cours",
+        "it": "In esecuzione",
+        "ja": "稼働中",
+        "zh": "运行中",
+        "pt": "Em execução"
+      }
+    },
+    {
+      "id": "restart",
+      "text": {
+        "en": "Restart",
+        "es": "Reiniciar",
+        "de": "Neu starten",
+        "fr": "Redémarrer",
+        "it": "Riavvia",
+        "ja": "再起動",
+        "zh": "重启",
+        "pt": "Reiniciar"
+      }
+    },
+    {
+      "id": "resume",
+      "text": {
+        "en": "Resume",
+        "es": "Reanudar",
+        "de": "Fortsetzen",
+        "fr": "Reprendre",
+        "it": "Riprendi",
+        "ja": "再開",
+        "zh": "继续",
+        "pt": "Retomar"
+      }
+    },
+    {
+      "id": "play",
+      "text": {
+        "en": "Play",
+        "es": "Reproducir",
+        "de": "Abspielen",
+        "fr": "Lecture",
+        "it": "Riproduci",
+        "ja": "再生",
+        "zh": "播放",
+        "pt": "Reproduzir"
+      }
+    },
+    {
+      "id": "step",
+      "text": {
+        "en": "Step",
+        "es": "Paso",
+        "de": "Schritt",
+        "fr": "Pas",
+        "it": "Passo",
+        "ja": "ステップ",
+        "zh": "步进",
+        "pt": "Passo"
+      }
+    },
+    {
+      "id": "server",
+      "text": {
+        "en": "Server",
+        "es": "Servidor",
+        "de": "Server",
+        "fr": "Serveur",
+        "it": "Server",
+        "ja": "サーバー",
+        "zh": "服务器",
+        "pt": "Servidor"
+      }
+    },
+    {
+      "id": "settings",
+      "text": {
+        "en": "Settings",
+        "es": "Ajustes",
+        "de": "Einstellungen",
+        "fr": "Paramètres",
+        "it": "Impostazioni",
+        "ja": "設定",
+        "zh": "设置",
+        "pt": "Definições"
+      }
+    },
+    {
+      "id": "security",
+      "text": {
+        "en": "Security",
+        "es": "Seguridad",
+        "de": "Sicherheit",
+        "fr": "Sécurité",
+        "it": "Sicurezza",
+        "ja": "セキュリティ",
+        "zh": "安全",
+        "pt": "Segurança"
+      }
+    },
+    {
+      "id": "refresh",
+      "text": {
+        "en": "Refresh",
+        "es": "Actualizar",
+        "de": "Aktualisieren",
+        "fr": "Actualiser",
+        "it": "Aggiorna",
+        "ja": "更新",
+        "zh": "刷新",
+        "pt": "Atualizar"
+      }
+    },
+    {
+      "id": "other",
+      "text": {
+        "en": "Other",
+        "es": "Otro",
+        "de": "Sonstige",
+        "fr": "Autre",
+        "it": "Altro",
+        "ja": "その他",
+        "zh": "其他",
+        "pt": "Outro"
+      }
+    },
+    {
+      "id": "release",
+      "text": {
+        "en": "Release",
+        "es": "Liberar",
+        "de": "Freigeben",
+        "fr": "Libérer",
+        "it": "Rilascia",
+        "ja": "解放する",
+        "zh": "释放",
+        "pt": "Libertar"
+      }
+    },
+    {
+      "id": "reserve",
+      "text": {
+        "en": "Reserve",
+        "es": "Reservar",
+        "de": "Reservieren",
+        "fr": "Réserver",
+        "it": "Riserva",
+        "ja": "予約",
+        "zh": "预留",
+        "pt": "Reservar"
+      }
+    },
+    {
+      "id": "port",
+      "text": {
+        "en": "Port",
+        "es": "Puerto",
+        "de": "Port",
+        "fr": "Port",
+        "it": "Porta",
+        "ja": "ポート",
+        "zh": "端口",
+        "pt": "Porta"
+      }
+    },
+    {
+      "id": "uptime",
+      "text": {
+        "en": "Uptime",
+        "es": "Tiempo activo",
+        "de": "Laufzeit",
+        "fr": "Disponibilité",
+        "it": "Tempo di attività",
+        "ja": "稼働時間",
+        "zh": "运行时间",
+        "pt": "Tempo ativo"
+      }
+    },
+    {
+      "id": "cpu_load",
+      "text": {
+        "en": "CPU Load",
+        "es": "Carga CPU",
+        "de": "CPU-Last",
+        "fr": "Charge CPU",
+        "it": "Carico CPU",
+        "ja": "CPU 負荷",
+        "zh": "CPU 负载",
+        "pt": "Carga do CPU"
+      }
+    },
+    {
+      "id": "memory_usage",
+      "text": {
+        "en": "Memory Usage",
+        "es": "Uso de memoria",
+        "de": "Speichernutzung",
+        "fr": "Utilisation mémoire",
+        "it": "Uso memoria",
+        "ja": "メモリ使用量",
+        "zh": "内存使用",
+        "pt": "Uso de memória"
+      }
+    },
+    {
+      "id": "address",
+      "text": {
+        "en": "Address",
+        "es": "Dirección",
+        "de": "Adresse",
+        "fr": "Adresse",
+        "it": "Indirizzo",
+        "ja": "アドレス",
+        "zh": "地址",
+        "pt": "Endereço"
+      }
+    },
+    {
+      "id": "camera",
+      "text": {
+        "en": "Camera",
+        "es": "Cámara",
+        "de": "Kamera",
+        "fr": "Caméra",
+        "it": "Fotocamera",
+        "ja": "カメラ",
+        "zh": "摄像头",
+        "pt": "Câmara"
+      }
+    },
+    {
+      "id": "acceleration",
+      "text": {
+        "en": "Acceleration",
+        "es": "Aceleración",
+        "de": "Beschleunigung",
+        "fr": "Accélération",
+        "it": "Accelerazione",
+        "ja": "加速度",
+        "zh": "加速度",
+        "pt": "Aceleração"
+      }
+    },
+    {
+      "id": "sign_out",
+      "text": {
+        "en": "Sign Out",
+        "es": "Cerrar sesión",
+        "de": "Abmelden",
+        "fr": "Se déconnecter",
+        "it": "Esci",
+        "ja": "サインアウト",
+        "zh": "退出登录",
+        "pt": "Terminar sessão"
+      }
+    },
+    {
+      "id": "username",
+      "text": {
+        "en": "Username",
+        "es": "Usuario",
+        "de": "Benutzername",
+        "fr": "Nom d'utilisateur",
+        "it": "Nome utente",
+        "ja": "ユーザー名",
+        "zh": "用户名",
+        "pt": "Utilizador"
+      }
+    },
+    {
+      "id": "standard",
+      "text": {
+        "en": "Standard",
+        "es": "Estándar",
+        "de": "Standard",
+        "fr": "Standard",
+        "it": "Standard",
+        "ja": "標準",
+        "zh": "标准",
+        "pt": "Padrão"
+      }
+    },
+    {
+      "id": "dashboard",
+      "text": {
+        "en": "Dashboard",
+        "es": "Dashboard",
+        "de": "Dashboard",
+        "fr": "Tableau de bord",
+        "it": "Dashboard",
+        "ja": "ダッシュボード",
+        "zh": "仪表盘",
+        "pt": "Painel"
+      }
+    },
+    {
+      "id": "updates",
+      "text": {
+        "en": "Updates",
+        "es": "Actualizaciones",
+        "de": "Updates",
+        "fr": "Mises à jour",
+        "it": "Aggiornamenti",
+        "ja": "アップデート",
+        "zh": "更新",
+        "pt": "Atualizações"
+      }
+    },
+    {
+      "id": "connections",
+      "text": {
+        "en": "Connections",
+        "es": "Conexiones",
+        "de": "Verbindungen",
+        "fr": "Connexions",
+        "it": "Connessioni",
+        "ja": "接続",
+        "zh": "连接",
+        "pt": "Ligações"
+      }
+    },
+    {
+      "id": "ecosystem",
+      "text": {
+        "en": "Ecosystem",
+        "es": "Ecosistema",
+        "de": "Ökosystem",
+        "fr": "Écosystème",
+        "it": "Ecosistema",
+        "ja": "エコシステム",
+        "zh": "生态系统",
+        "pt": "Ecossistema"
+      }
+    },
+    {
+      "id": "voice",
+      "text": {
+        "en": "Voice",
+        "es": "Voz",
+        "de": "Sprache",
+        "fr": "Voix",
+        "it": "Voce",
+        "ja": "音声",
+        "zh": "语音",
+        "pt": "Voz"
+      }
+    },
+    {
+      "id": "voice_assistant",
+      "text": {
+        "en": "Voice assistant",
+        "es": "Asistente de voz",
+        "de": "Sprachassistent",
+        "fr": "Assistant vocal",
+        "it": "Assistente vocale",
+        "ja": "音声アシスタント",
+        "zh": "语音助手",
+        "pt": "Assistente de voz"
+      }
+    },
+    {
+      "id": "all_robots",
+      "text": {
+        "en": "All robots",
+        "es": "Todos los robots",
+        "de": "Alle Roboter",
+        "fr": "Tous les robots",
+        "it": "Tutti i robot",
+        "ja": "すべてのロボット",
+        "zh": "所有机器人",
+        "pt": "Todos os robôs"
+      }
+    },
+    {
+      "id": "all_types",
+      "text": {
+        "en": "All types",
+        "es": "Todos los tipos",
+        "de": "Alle Typen",
+        "fr": "Tous les types",
+        "it": "Tutti i tipi",
+        "ja": "すべての種類",
+        "zh": "所有类型",
+        "pt": "Todos os tipos"
+      }
+    },
+    {
+      "id": "warning",
+      "text": {
+        "en": "Warning",
+        "es": "Aviso",
+        "de": "Warnung",
+        "fr": "Avertissement",
+        "it": "Avviso",
+        "ja": "警告",
+        "zh": "警告",
+        "pt": "Aviso"
+      }
+    },
+    {
+      "id": "send",
+      "text": {
+        "en": "Send",
+        "es": "Enviar",
+        "de": "Senden",
+        "fr": "Envoyer",
+        "it": "Invia",
+        "ja": "送信",
+        "zh": "发送",
+        "pt": "Enviar"
+      }
+    },
+    {
+      "id": "state",
+      "text": {
+        "en": "State",
+        "es": "Estado",
+        "de": "Zustand",
+        "fr": "État",
+        "it": "Stato",
+        "ja": "状態",
+        "zh": "状态",
+        "pt": "Estado"
+      }
+    },
+    {
+      "id": "update",
+      "text": {
+        "en": "Update",
+        "es": "Actualizar",
+        "de": "Aktualisieren",
+        "fr": "Mettre à jour",
+        "it": "Aggiorna",
+        "ja": "更新",
+        "zh": "更新",
+        "pt": "Atualizar"
+      }
+    },
+    {
+      "id": "up_to_date",
+      "text": {
+        "en": "Up to date",
+        "es": "Al día",
+        "de": "Aktuell",
+        "fr": "À jour",
+        "it": "Aggiornato",
+        "ja": "最新です",
+        "zh": "已是最新",
+        "pt": "Atualizado"
+      }
+    },
+    {
+      "id": "system_default",
+      "text": {
+        "en": "System default",
+        "es": "Predeterminado del sistema",
+        "de": "Systemstandard",
+        "fr": "Par défaut du système",
+        "it": "Predefinito di sistema",
+        "ja": "システムの既定値",
+        "zh": "跟随系统",
+        "pt": "Predefinição do sistema"
+      }
+    },
+    {
+      "id": "select_a_robot",
+      "text": {
+        "en": "Select a robot",
+        "es": "Selecciona un robot",
+        "de": "Roboter auswählen",
+        "fr": "Sélectionnez un robot",
+        "it": "Seleziona un robot",
+        "ja": "ロボットを選択してください",
+        "zh": "请选择一个机器人",
+        "pt": "Selecione um robô"
+      }
     }
   ]
 }

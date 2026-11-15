@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- **The common words of the apps go from 56 to 100 (`contracts/i18n/common.json`):** 44 more words that the screens of the apps wrote more than once, with the text the majority of them already used in each of the eight languages (European Portuguese for `pt`): stop, start, off, default, continue, connecting, error, running, restart, resume, play, step, server, settings, security, refresh, other, release, reserve, port, uptime, CPU load, memory usage, address, camera, acceleration, sign out, username, standard, dashboard, updates, connections, ecosystem, voice, voice assistant, all robots, all types, warning, send, state, update, up to date, system default and select a robot. Words whose form changes with the thing they speak of (stopped, ready, connected, refused and the like) are not common words, because the feminine and the plural of the languages that agree would be wrong for some of the screens. A word that differed only in form (capitals, a colon, a trailing dot) is written once in plain form and the screen applies the rest; a test keeps the contract free of forms that belong to the screen.
+- **The common words can be checked in an Android app and in a Flutter app (`tools/i18n_common.py check-android`, `check-arb`):** the first reads `res/values[-lang]/strings.xml` and expects the `common_<id>` lines, the second reads `lib/l10n/app_<lang>.arb` and expects the `common<Id>` entries, exactly as `render android` and `render arb` write them; the app may carry more.
+
 ## [0.6.5]
 
 ### Changed

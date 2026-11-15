@@ -12,6 +12,8 @@
     python tools/i18n_common.py check-studio --repo <STUDIO>  every src/locales/<lang>.json carries the "common" texts of the contract
     python tools/i18n_common.py render lng --lang pt          the lines of a SUITE language file (keys COMMON_<ID>)
     python tools/i18n_common.py check-suite --repo <SUITE>    every language/<name>.lng carries the COMMON_<ID> lines of the contract
+    python tools/i18n_common.py check-android --repo <APP>    every res/values[-lang]/strings.xml carries the common_<id> lines of the contract
+    python tools/i18n_common.py check-arb --repo <APP>        every lib/l10n/app_<lang>.arb carries the common<Id> entries of the contract
 
 Each app keeps its own format; this file is the one place where the words are written. `check-studio` exits 0 when the eight catalogs carry every common
 text as the contract writes it (a catalog may carry more under "common") and 1 with the list of what differs."""
@@ -21,6 +23,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from xml.etree import ElementTree
 from xml.sax.saxutils import escape
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -106,6 +109,56 @@ def check_studio(contract: dict, repo: Path) -> list[str]:
     return problems
 
 
+def _android_unescape(text: str) -> str:
+    return text.replace("\\'", "'").replace('\\"', '"')
+
+
+def check_android(contract: dict, repo: Path) -> list[str]:
+    """What differs between the `strings.xml` files of an Android checkout (values/ and values-<lang>/) and the contract; empty when it carries every common text."""
+    problems: list[str] = []
+    for lang in contract["languages"]:
+        folder = "values" if lang == "en" else f"values-{lang}"
+        path = repo / "app" / "src" / "main" / "res" / folder / "strings.xml"
+        if not path.is_file():
+            problems.append(f"{lang}: {path} does not exist")
+            continue
+        try:
+            root = ElementTree.fromstring(path.read_bytes())
+        except ElementTree.ParseError as error:
+            problems.append(f"{lang}: {path} is not valid XML ({error})")
+            continue
+        carried = {element.get("name"): _android_unescape("".join(element.itertext())) for element in root.findall("string")}
+        for key, want in texts(contract, lang).items():
+            name = f"common_{key}"
+            if name not in carried:
+                problems.append(f"{lang}: {name} is missing")
+            elif carried[name] != want:
+                problems.append(f"{lang}: {name} is {carried[name]!r}, the contract says {want!r}")
+    return problems
+
+
+def check_arb(contract: dict, repo: Path) -> list[str]:
+    """What differs between the ARB files of a Flutter checkout (lib/l10n/app_<lang>.arb) and the contract; empty when it carries every common text."""
+    problems: list[str] = []
+    for lang in contract["languages"]:
+        path = repo / "lib" / "l10n" / f"app_{lang}.arb"
+        if not path.is_file():
+            problems.append(f"{lang}: {path} does not exist")
+            continue
+        try:
+            carried = json.loads(path.read_text(encoding="utf-8"))
+        except ValueError as error:
+            problems.append(f"{lang}: {path} is not valid JSON ({error})")
+            continue
+        for key, want in texts(contract, lang).items():
+            name = f"common{_camel(key)}"
+            if name not in carried:
+                problems.append(f"{lang}: {name} is missing")
+            elif carried[name] != want:
+                problems.append(f"{lang}: {name} is {carried[name]!r}, the contract says {want!r}")
+    return problems
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="The common texts of the apps, in the format of each app.")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -116,6 +169,10 @@ def main(argv: list[str] | None = None) -> int:
     check.add_argument("--repo", required=True, type=Path)
     check_suite_parser = sub.add_parser("check-suite", help="check that a SUITE checkout carries the texts")
     check_suite_parser.add_argument("--repo", required=True, type=Path)
+    check_android_parser = sub.add_parser("check-android", help="check that an Android checkout carries the texts")
+    check_android_parser.add_argument("--repo", required=True, type=Path)
+    check_arb_parser = sub.add_parser("check-arb", help="check that a Flutter (ARB) checkout carries the texts")
+    check_arb_parser.add_argument("--repo", required=True, type=Path)
     arguments = parser.parse_args(argv)
     contract = load()
     if arguments.command == "render":
@@ -126,7 +183,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"I18N_COMMON=FAIL {error}", file=sys.stderr)
             return 2
         return 0
-    problems = check_suite(contract, arguments.repo) if arguments.command == "check-suite" else check_studio(contract, arguments.repo)
+    checkers = {"check-suite": check_suite, "check-studio": check_studio, "check-android": check_android, "check-arb": check_arb}
+    problems = checkers[arguments.command](contract, arguments.repo)
     for problem in problems:
         print(problem)
     print(f"I18N_COMMON={'FAIL' if problems else 'PASS'} {len(contract['strings'])} texts x {len(contract['languages'])} languages")
