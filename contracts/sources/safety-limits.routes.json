@@ -21,7 +21,8 @@
       ],
       "responses": {
         "200": {
-          "description": "Success. The body is documented in docs/REMOTE_API.md."
+          "description": "The limits in force, the defaults and the ceilings; with robotId, also the limits of that robot.",
+          "shape": "SafetyLimitsView"
         },
         "400": {
           "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",

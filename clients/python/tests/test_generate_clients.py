@@ -246,6 +246,64 @@ class BinaryTextAndHeaderTests(unittest.TestCase):
             gc.operations(document)
 
 
+class TextVariantAndTypedAnswerTests(unittest.TestCase):
+    """A JSON route that also offers text has an AsText method, and the routes that used to answer void are typed."""
+
+    def test_a_json_route_that_also_offers_text_has_a_text_variant_in_all_languages(self):
+        both = {"responses": {"200": {"description": "ok", "content": {"application/json": {"schema": {"type": "object"}}, "application/x-ndjson": {"schema": {"type": "string"}}}}}}
+        self.assertTrue(gc.has_text_variant(both))
+        self.assertFalse(gc.has_text_variant({"responses": {"200": {"description": "ok", "content": {"application/json": {"schema": {"type": "object"}}}}}}))
+        self.assertFalse(gc.has_text_variant({"responses": {"200": {"description": "ok", "content": {"application/x-ndjson": {"schema": {"type": "string"}}}}}}))
+        self.assertFalse(gc.has_text_variant({"responses": {"204": {"description": "none"}}}))
+        wanted = {o["name"] for o in OPS if o["text_variant"]}
+        self.assertEqual(wanted, {"getAudit"})
+        for name in wanted:
+            self.assertIn(f"  {name}AsText(", SOURCE)
+            self.assertIn(f"    suspend fun {name}AsText(", KT)
+            self.assertIn(f"  Future<String> {name}AsText(", DART)
+        self.assertIn('query: queryOf(args?.query), headers: {}, body: undefined, access: "admin", responseType: "text" }) as Promise<string>;', SOURCE)
+        self.assertIn('responseType = "text")) as String', KT)
+        self.assertIn("responseType: 'text'))) as String;", DART)
+
+    def test_a_text_variant_is_not_a_second_operation_and_a_clashing_name_stops_the_generator(self):
+        self.assertNotIn("getAuditAsText", [o["name"] for o in OPS])
+        document = {"paths": {"/a/asText": {"get": {}}}, "components": {"schemas": {}}}
+        with self.assertRaises(SystemExit):
+            gc.operations(document)
+
+    def test_the_audit_route_offers_json_and_lines_and_the_other_routes_are_typed(self):
+        audit = FULL["paths"]["/api/audit"]["get"]["responses"]["200"]["content"]
+        self.assertEqual(set(audit), {"application/json", "application/x-ndjson"})
+        self.assertEqual(audit["application/json"]["schema"], {"$ref": "#/components/schemas/AuditReport"})
+        typed = {
+            ("get", "/api/claims"): "ClaimList",
+            ("get", "/api/safety-limits"): "SafetyLimitsView",
+            ("post", "/api/voice/turn"): "VoiceReply",
+            ("post", "/api/voice/confirm"): "VoiceConfirmResult",
+        }
+        for (method, path), shape in typed.items():
+            schema = FULL["paths"][path][method]["responses"]["200"]["content"]["application/json"]["schema"]
+            self.assertEqual(schema, {"$ref": f"#/components/schemas/{shape}"}, f"{method} {path}")
+        for name in ("getClaims", "getSafetyLimits", "postVoiceTurn", "postVoiceConfirm", "getAudit"):
+            self.assertNotIn(f"Future<void> {name}(", DART)
+            self.assertNotIn(f"suspend fun {name}(): Unit", KT)
+
+    def test_the_server_configuration_keeps_the_keys_it_does_not_list(self):
+        self.assertIs(FULL["components"]["schemas"]["ServerConfig"].get("additionalProperties"), True)
+        self.assertIn("val additionalProperties: Map<String, Any?>", KT)
+        self.assertIn("final Map<String, dynamic> additionalProperties;", DART.split("class HydraServerConfig {", 1)[1].split("class HydraServerConfigSaved", 1)[0])
+
+    def test_the_new_shapes_follow_the_handlers_of_the_server(self):
+        schemas = FULL["components"]["schemas"]
+        self.assertEqual(schemas["ClaimView"]["required"], ["robotId", "ownerUsername", "claimedAt", "expiresAt"])
+        self.assertEqual(set(schemas["ClaimView"]["properties"]), {"robotId", "robotName", "cellId", "ownerId", "ownerUsername", "controllerId", "claimedAt", "expiresAt", "jogArmedUntil"})
+        self.assertEqual(set(schemas["SafetyLimitsView"]["properties"]), {"limits", "defaults", "hardLimits", "robot"})
+        self.assertEqual(set(schemas["SafetyLimitsConfig"]["properties"]), {"jog", "temperature", "claims", "audit"})
+        self.assertEqual(schemas["AuditEntry"]["properties"]["outcome"]["enum"], ["ok", "refused", "failed"])
+        self.assertEqual(set(schemas["AuditReport"]["properties"]), {"enabled", "lockedOff", "entries", "verification"})
+        self.assertEqual(schemas["VoiceConfirmResult"]["properties"]["status"]["enum"], ["confirmed", "expired", "invalid"])
+
+
 SYNTHETIC = json.loads((ROOT / "conformance" / "generated-clients" / "synthetic" / "openapi.json").read_text(encoding="utf-8"))
 
 

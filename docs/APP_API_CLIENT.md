@@ -4,7 +4,7 @@
 
 | Piece | What it does |
 |---|---|
-| `HttpTransport` (`HttpRequestData` / `HttpResponseData`) | Sends one request and answers. The app wraps `package:http` (or any test double) behind it. Timeouts are applied by the client. |
+| `HttpTransport` (`HttpRequestData` / `HttpResponseData`) | Sends one request and answers. The app wraps `package:http` (or any test double) behind it. Timeouts are applied by the client. The answer carries the response `headers` (`header(name)` reads one whatever the case; `headersNamed(names)` lists the ones a route declares, which is what a `HydraReply` of the generated client holds) and, for a binary answer (`HttpRequestData.binaryResponse`), the `bodyBytes`; an upload that is not text goes in `HttpRequestData.bodyBytes`. Both are optional, so an older transport keeps working. |
 | `RenewingTransport` | Decorates a transport: a request that carried a bearer token and was answered with an expired or invalid session (401, or 403 `TOKEN_EXPIRED` / `TOKEN_INVALID`) asks the `TokenRenewer` for a new token and is sent once more. Any other answer and a failed renewal reach the caller untouched. |
 | `CommandSequence` | Numbers the motion commands (`seq`): always above the previous number and not below the clock. |
 | `HydraApiCore` | Headers (client tag, bearer, controller id, `If-Match`), the numbering, the renewal, the reading of error answers (`HydraApiException`) and the endpoints every app calls (login, refresh, logout, settings, robot command, claim, release, jog arming, stop-all, metrics, text and JSON helpers). |

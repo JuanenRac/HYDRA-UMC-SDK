@@ -221,6 +221,9 @@ def inventory_operation(route: dict[str, Any], group: str) -> dict[str, Any]:
             response["content"] = _json(_ref(spec["shape"]))
         elif "schema" in spec:
             response["content"] = _json(spec["schema"])
+        if "other_media" in spec:
+            # the same answer in another media type (lines of text besides JSON): the generated clients add a `<route>AsText` method for it
+            response["content"] = {**response.get("content", {}), **spec["other_media"]}
         if "headers" in spec:
             response["headers"] = spec["headers"]
         responses[code] = response

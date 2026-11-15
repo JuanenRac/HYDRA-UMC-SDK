@@ -61,7 +61,15 @@
       ],
       "responses": {
         "200": {
-          "description": "Success. The body is documented in docs/REMOTE_API.md."
+          "description": "The audit record as JSON, or as lines of JSON (application/x-ndjson, an attachment audit.jsonl) when format=jsonl.",
+          "shape": "AuditReport",
+          "other_media": {
+            "application/x-ndjson": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
         },
         "404": {
           "description": "Not found. The body is documented in docs/REMOTE_API.md.",

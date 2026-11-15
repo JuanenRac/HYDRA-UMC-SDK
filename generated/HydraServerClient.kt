@@ -13,6 +13,116 @@ typealias HydraPassthrough = Map<String, Any?>
 
 typealias HydraSupervisorSnapshot = Map<String, Any?>
 
+/** One line of the audit record: the hash chain (seq, prev, hash) around the event. The keys of an event the server adds later are kept. */
+data class HydraAuditEntry(
+    val seq: Long,
+    val ts: String,
+    val prev: String,
+    val hash: String,
+    /** Short stable name of the event: claim, release, force-claim, force-release, safety-limits, jog-arm, stop-all, table-move... */
+    val type: String,
+    val outcome: String,
+    /** The id of the account (any JSON value). */
+    val userId: Any? = null,
+    val username: String? = null,
+    val controllerId: String? = null,
+    val ip: String? = null,
+    val robotId: Long? = null,
+    val detail: Map<String, Any?>? = null,
+    /** The keys the contract does not list, kept as they came. */
+    val additionalProperties: Map<String, Any?> = emptyMap(),
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut.putAll(additionalProperties)
+        jsonOut["seq"] = seq
+        jsonOut["ts"] = ts
+        jsonOut["prev"] = prev
+        jsonOut["hash"] = hash
+        jsonOut["type"] = type
+        jsonOut["outcome"] = outcome
+        if (userId != null) jsonOut["userId"] = userId
+        if (username != null) jsonOut["username"] = username
+        if (controllerId != null) jsonOut["controllerId"] = controllerId
+        if (ip != null) jsonOut["ip"] = ip
+        if (robotId != null) jsonOut["robotId"] = robotId
+        if (detail != null) jsonOut["detail"] = detail
+        return jsonOut
+    }
+
+    companion object {
+        private val knownKeys: Set<String> = setOf("seq", "ts", "prev", "hash", "type", "outcome", "userId", "username", "controllerId", "ip", "robotId", "detail")
+
+        fun fromJson(json: Map<String, Any?>): HydraAuditEntry = HydraAuditEntry(
+            seq = (json["seq"] as Number).toLong(),
+            ts = json["ts"] as String,
+            prev = json["prev"] as String,
+            hash = json["hash"] as String,
+            type = json["type"] as String,
+            outcome = json["outcome"] as String,
+            userId = json["userId"],
+            username = json["username"]?.let { v0 -> v0 as String },
+            controllerId = json["controllerId"]?.let { v0 -> v0 as String },
+            ip = json["ip"]?.let { v0 -> v0 as String },
+            robotId = json["robotId"]?.let { v0 -> (v0 as Number).toLong() },
+            detail = json["detail"]?.let { v0 -> hydraMap(v0) },
+            additionalProperties = hydraMap(json.filterKeys { it !in knownKeys }),
+        )
+    }
+}
+
+/** GET /api/audit as JSON: the newest entries (oldest first) and, with ?verify=1, the check of the hash chain. The same entries come as lines of JSON with ?format=jsonl. */
+data class HydraAuditReport(
+    val enabled: Boolean,
+    val lockedOff: Boolean,
+    val entries: List<HydraAuditEntry>,
+    val verification: HydraAuditVerification? = null,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["enabled"] = enabled
+        jsonOut["lockedOff"] = lockedOff
+        jsonOut["entries"] = entries.map { v0 -> v0.toJson() }
+        if (verification != null) jsonOut["verification"] = verification.toJson()
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraAuditReport = HydraAuditReport(
+            enabled = json["enabled"] as Boolean,
+            lockedOff = json["lockedOff"] as Boolean,
+            entries = hydraList(json["entries"]).map { v0 -> HydraAuditEntry.fromJson(hydraMap(v0)) },
+            verification = json["verification"]?.let { v0 -> HydraAuditVerification.fromJson(hydraMap(v0)) },
+        )
+    }
+}
+
+/** An object of the server contract. */
+data class HydraAuditVerification(
+    val ok: Boolean,
+    val entries: Long,
+    val brokenAtSeq: Long? = null,
+    val reason: String? = null,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["ok"] = ok
+        jsonOut["entries"] = entries
+        if (brokenAtSeq != null) jsonOut["brokenAtSeq"] = brokenAtSeq
+        if (reason != null) jsonOut["reason"] = reason
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraAuditVerification = HydraAuditVerification(
+            ok = json["ok"] as Boolean,
+            entries = (json["entries"] as Number).toLong(),
+            brokenAtSeq = json["brokenAtSeq"]?.let { v0 -> (v0 as Number).toLong() },
+            reason = json["reason"]?.let { v0 -> v0 as String },
+        )
+    }
+}
+
 /** An object of the server contract. */
 data class HydraBluetoothScan(
     val success: Boolean,
@@ -236,6 +346,69 @@ data class HydraCanotaFlash(
         fun fromJson(json: Map<String, Any?>): HydraCanotaFlash = HydraCanotaFlash(
             success = json["success"] as Boolean,
             finalPhase = json["finalPhase"] as String,
+        )
+    }
+}
+
+/** An object of the server contract. */
+data class HydraClaimList(
+    val claims: List<HydraClaimView>,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["claims"] = claims.map { v0 -> v0.toJson() }
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraClaimList = HydraClaimList(
+            claims = hydraList(json["claims"]).map { v0 -> HydraClaimView.fromJson(hydraMap(v0)) },
+        )
+    }
+}
+
+/** One robot that has an active claim: who holds it, from which controller, until when and until when its jog is armed. */
+data class HydraClaimView(
+    val robotId: Long,
+    val robotName: String? = null,
+    /** The id of the controller the robot belongs to (any JSON value; the server does not fix its type). */
+    val cellId: Any? = null,
+    /** The id of the account that holds the claim (any JSON value). */
+    val ownerId: Any? = null,
+    val ownerUsername: String,
+    val controllerId: String? = null,
+    /** Milliseconds since the epoch. */
+    val claimedAt: Double,
+    /** Milliseconds since the epoch. */
+    val expiresAt: Double,
+    /** Milliseconds since the epoch; null when the jog is not armed. */
+    val jogArmedUntil: Double? = null,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["robotId"] = robotId
+        if (robotName != null) jsonOut["robotName"] = robotName
+        if (cellId != null) jsonOut["cellId"] = cellId
+        if (ownerId != null) jsonOut["ownerId"] = ownerId
+        jsonOut["ownerUsername"] = ownerUsername
+        if (controllerId != null) jsonOut["controllerId"] = controllerId
+        jsonOut["claimedAt"] = claimedAt
+        jsonOut["expiresAt"] = expiresAt
+        if (jogArmedUntil != null) jsonOut["jogArmedUntil"] = jogArmedUntil
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraClaimView = HydraClaimView(
+            robotId = (json["robotId"] as Number).toLong(),
+            robotName = json["robotName"]?.let { v0 -> v0 as String },
+            cellId = json["cellId"],
+            ownerId = json["ownerId"],
+            ownerUsername = json["ownerUsername"] as String,
+            controllerId = json["controllerId"]?.let { v0 -> v0 as String },
+            claimedAt = (json["claimedAt"] as Number).toDouble(),
+            expiresAt = (json["expiresAt"] as Number).toDouble(),
+            jogArmedUntil = json["jogArmedUntil"]?.let { v0 -> (v0 as Number).toDouble() },
         )
     }
 }
@@ -4234,6 +4407,284 @@ data class HydraRulConfig(
     }
 }
 
+/** The limits every client is held to (data/safety-limits.json), as saved by PUT /api/admin/safety-limits. */
+data class HydraSafetyLimitsConfig(
+    val jog: HydraSafetyLimitsConfigJog,
+    val temperature: HydraSafetyLimitsConfigTemperature,
+    val claims: HydraSafetyLimitsConfigClaims,
+    val audit: HydraSafetyLimitsConfigAudit,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["jog"] = jog.toJson()
+        jsonOut["temperature"] = temperature.toJson()
+        jsonOut["claims"] = claims.toJson()
+        jsonOut["audit"] = audit.toJson()
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraSafetyLimitsConfig = HydraSafetyLimitsConfig(
+            jog = HydraSafetyLimitsConfigJog.fromJson(hydraMap(json["jog"])),
+            temperature = HydraSafetyLimitsConfigTemperature.fromJson(hydraMap(json["temperature"])),
+            claims = HydraSafetyLimitsConfigClaims.fromJson(hydraMap(json["claims"])),
+            audit = HydraSafetyLimitsConfigAudit.fromJson(hydraMap(json["audit"])),
+        )
+    }
+}
+
+/** An object of the server contract. */
+data class HydraSafetyLimitsConfigAudit(
+    val enabled: Boolean,
+    val motionIntervalSeconds: Double,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["enabled"] = enabled
+        jsonOut["motionIntervalSeconds"] = motionIntervalSeconds
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraSafetyLimitsConfigAudit = HydraSafetyLimitsConfigAudit(
+            enabled = json["enabled"] as Boolean,
+            motionIntervalSeconds = (json["motionIntervalSeconds"] as Number).toDouble(),
+        )
+    }
+}
+
+/** An object of the server contract. */
+data class HydraSafetyLimitsConfigClaims(
+    val requireControllerId: Boolean,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["requireControllerId"] = requireControllerId
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraSafetyLimitsConfigClaims = HydraSafetyLimitsConfigClaims(
+            requireControllerId = json["requireControllerId"] as Boolean,
+        )
+    }
+}
+
+/** An object of the server contract. */
+data class HydraSafetyLimitsConfigJog(
+    val armRequired: Boolean,
+    val armTtlMs: Double,
+    val default: HydraSafetyLimitsConfigJogDefault,
+    /** Per model (lower-case name before the parenthesis), the entries that differ from the default. */
+    val models: Map<String, HydraSafetyLimitsConfigJogModelsValue>,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["armRequired"] = armRequired
+        jsonOut["armTtlMs"] = armTtlMs
+        jsonOut["default"] = default.toJson()
+        jsonOut["models"] = models.mapValues { (_, v0) -> v0.toJson() }
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraSafetyLimitsConfigJog = HydraSafetyLimitsConfigJog(
+            armRequired = json["armRequired"] as Boolean,
+            armTtlMs = (json["armTtlMs"] as Number).toDouble(),
+            default = HydraSafetyLimitsConfigJogDefault.fromJson(hydraMap(json["default"])),
+            models = hydraMap(json["models"]).mapValues { (_, v0) -> HydraSafetyLimitsConfigJogModelsValue.fromJson(hydraMap(v0)) },
+        )
+    }
+}
+
+/** An object of the server contract. */
+data class HydraSafetyLimitsConfigJogDefault(
+    val maxAmount: Double,
+    val maxAbsolute: Double,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["maxAmount"] = maxAmount
+        jsonOut["maxAbsolute"] = maxAbsolute
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraSafetyLimitsConfigJogDefault = HydraSafetyLimitsConfigJogDefault(
+            maxAmount = (json["maxAmount"] as Number).toDouble(),
+            maxAbsolute = (json["maxAbsolute"] as Number).toDouble(),
+        )
+    }
+}
+
+/** The limits of a relative and an absolute jog; a model entry names only what it changes. */
+data class HydraSafetyLimitsConfigJogModelsValue(
+    val maxAmount: Double? = null,
+    val maxAbsolute: Double? = null,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        if (maxAmount != null) jsonOut["maxAmount"] = maxAmount
+        if (maxAbsolute != null) jsonOut["maxAbsolute"] = maxAbsolute
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraSafetyLimitsConfigJogModelsValue = HydraSafetyLimitsConfigJogModelsValue(
+            maxAmount = json["maxAmount"]?.let { v0 -> (v0 as Number).toDouble() },
+            maxAbsolute = json["maxAbsolute"]?.let { v0 -> (v0 as Number).toDouble() },
+        )
+    }
+}
+
+/** An object of the server contract. */
+data class HydraSafetyLimitsConfigTemperature(
+    val default: HydraSafetyLimitsConfigTemperatureDefault,
+    val models: Map<String, HydraSafetyLimitsConfigTemperatureModelsValue>,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["default"] = default.toJson()
+        jsonOut["models"] = models.mapValues { (_, v0) -> v0.toJson() }
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraSafetyLimitsConfigTemperature = HydraSafetyLimitsConfigTemperature(
+            default = HydraSafetyLimitsConfigTemperatureDefault.fromJson(hydraMap(json["default"])),
+            models = hydraMap(json["models"]).mapValues { (_, v0) -> HydraSafetyLimitsConfigTemperatureModelsValue.fromJson(hydraMap(v0)) },
+        )
+    }
+}
+
+/** An object of the server contract. */
+data class HydraSafetyLimitsConfigTemperatureDefault(
+    val bedMaxC: Double,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["bedMaxC"] = bedMaxC
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraSafetyLimitsConfigTemperatureDefault = HydraSafetyLimitsConfigTemperatureDefault(
+            bedMaxC = (json["bedMaxC"] as Number).toDouble(),
+        )
+    }
+}
+
+/** An object of the server contract. */
+data class HydraSafetyLimitsConfigTemperatureModelsValue(
+    val bedMaxC: Double? = null,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        if (bedMaxC != null) jsonOut["bedMaxC"] = bedMaxC
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraSafetyLimitsConfigTemperatureModelsValue = HydraSafetyLimitsConfigTemperatureModelsValue(
+            bedMaxC = json["bedMaxC"]?.let { v0 -> (v0 as Number).toDouble() },
+        )
+    }
+}
+
+/** GET /api/safety-limits: the limits in force, the defaults, the ceilings no value can pass and, when ?robotId= names a robot, the limits that apply to it. */
+data class HydraSafetyLimitsView(
+    val limits: HydraSafetyLimitsConfig,
+    val defaults: HydraSafetyLimitsConfig,
+    /** The fixed ceilings (jogMaxAmount, jogMaxAbsolute, armTtlMs {min,max}, bedMaxC, auditMotionIntervalSeconds {min,max}); the set grows with the server. */
+    val hardLimits: Map<String, Any?>,
+    val robot: HydraSafetyLimitsViewRobot? = null,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["limits"] = limits.toJson()
+        jsonOut["defaults"] = defaults.toJson()
+        jsonOut["hardLimits"] = hardLimits
+        if (robot != null) jsonOut["robot"] = robot.toJson()
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraSafetyLimitsView = HydraSafetyLimitsView(
+            limits = HydraSafetyLimitsConfig.fromJson(hydraMap(json["limits"])),
+            defaults = HydraSafetyLimitsConfig.fromJson(hydraMap(json["defaults"])),
+            hardLimits = hydraMap(json["hardLimits"]),
+            robot = json["robot"]?.let { v0 -> HydraSafetyLimitsViewRobot.fromJson(hydraMap(v0)) },
+        )
+    }
+}
+
+/** An object of the server contract. */
+data class HydraSafetyLimitsViewRobot(
+    val id: Long,
+    val model: String? = null,
+    val jog: HydraSafetyLimitsViewRobotJog,
+    val temperature: HydraSafetyLimitsViewRobotTemperature,
+    /** Milliseconds since the epoch; null when the jog is not armed. */
+    val jogArmedUntil: Double? = null,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["id"] = id
+        if (model != null) jsonOut["model"] = model
+        jsonOut["jog"] = jog.toJson()
+        jsonOut["temperature"] = temperature.toJson()
+        if (jogArmedUntil != null) jsonOut["jogArmedUntil"] = jogArmedUntil
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraSafetyLimitsViewRobot = HydraSafetyLimitsViewRobot(
+            id = (json["id"] as Number).toLong(),
+            model = json["model"]?.let { v0 -> v0 as String },
+            jog = HydraSafetyLimitsViewRobotJog.fromJson(hydraMap(json["jog"])),
+            temperature = HydraSafetyLimitsViewRobotTemperature.fromJson(hydraMap(json["temperature"])),
+            jogArmedUntil = json["jogArmedUntil"]?.let { v0 -> (v0 as Number).toDouble() },
+        )
+    }
+}
+
+/** An object of the server contract. */
+data class HydraSafetyLimitsViewRobotJog(
+    val maxAmount: Double? = null,
+    val maxAbsolute: Double? = null,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        if (maxAmount != null) jsonOut["maxAmount"] = maxAmount
+        if (maxAbsolute != null) jsonOut["maxAbsolute"] = maxAbsolute
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraSafetyLimitsViewRobotJog = HydraSafetyLimitsViewRobotJog(
+            maxAmount = json["maxAmount"]?.let { v0 -> (v0 as Number).toDouble() },
+            maxAbsolute = json["maxAbsolute"]?.let { v0 -> (v0 as Number).toDouble() },
+        )
+    }
+}
+
+/** An object of the server contract. */
+data class HydraSafetyLimitsViewRobotTemperature(
+    val bedMaxC: Double? = null,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        if (bedMaxC != null) jsonOut["bedMaxC"] = bedMaxC
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraSafetyLimitsViewRobotTemperature = HydraSafetyLimitsViewRobotTemperature(
+            bedMaxC = json["bedMaxC"]?.let { v0 -> (v0 as Number).toDouble() },
+        )
+    }
+}
+
 /** An object of the server contract. */
 data class HydraSelfUpdateItem(
     val id: String,
@@ -4378,22 +4829,28 @@ data class HydraSelfUpdateStatus(
     }
 }
 
-/** An object of the server contract. */
+/** The listen port and, besides it, the security options of the server (the groups of PUT /api/admin/server-config: tls, ble, mqtt, voice, auth, ingest...). The groups grow with the server, so a key this list does not name is kept, not dropped. */
 data class HydraServerConfig(
     val port: Long,
     val pendingPort: Long?,
+    /** The keys the contract does not list, kept as they came. */
+    val additionalProperties: Map<String, Any?> = emptyMap(),
 ) {
     fun toJson(): Map<String, Any?> {
         val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut.putAll(additionalProperties)
         jsonOut["port"] = port
         jsonOut["pendingPort"] = pendingPort
         return jsonOut
     }
 
     companion object {
+        private val knownKeys: Set<String> = setOf("port", "pendingPort")
+
         fun fromJson(json: Map<String, Any?>): HydraServerConfig = HydraServerConfig(
             port = (json["port"] as Number).toLong(),
             pendingPort = json["pendingPort"]?.let { v0 -> (v0 as Number).toLong() },
+            additionalProperties = hydraMap(json.filterKeys { it !in knownKeys }),
         )
     }
 }
@@ -4858,6 +5315,44 @@ data class HydraUserList(
     }
 }
 
+/** The answer of POST /api/voice/confirm: the confirmation result of the voice interface and whether the server verified its signature. Keys the interface adds are kept. */
+data class HydraVoiceConfirmResult(
+    val type: String,
+    val status: String,
+    val requestId: String? = null,
+    val intent: Map<String, Any?>? = null,
+    val subject: String? = null,
+    val verified: Boolean,
+    /** The keys the contract does not list, kept as they came. */
+    val additionalProperties: Map<String, Any?> = emptyMap(),
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut.putAll(additionalProperties)
+        jsonOut["type"] = type
+        jsonOut["status"] = status
+        if (requestId != null) jsonOut["requestId"] = requestId
+        if (intent != null) jsonOut["intent"] = intent
+        if (subject != null) jsonOut["subject"] = subject
+        jsonOut["verified"] = verified
+        return jsonOut
+    }
+
+    companion object {
+        private val knownKeys: Set<String> = setOf("type", "status", "requestId", "intent", "subject", "verified")
+
+        fun fromJson(json: Map<String, Any?>): HydraVoiceConfirmResult = HydraVoiceConfirmResult(
+            type = json["type"] as String,
+            status = json["status"] as String,
+            requestId = json["requestId"]?.let { v0 -> v0 as String },
+            intent = json["intent"]?.let { v0 -> hydraMap(v0) },
+            subject = json["subject"]?.let { v0 -> v0 as String },
+            verified = json["verified"] as Boolean,
+            additionalProperties = hydraMap(json.filterKeys { it !in knownKeys }),
+        )
+    }
+}
+
 /** An object of the server contract. */
 data class HydraVoiceReply(
     val type: String,
@@ -5158,9 +5653,14 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** GET /api/audit (access: admin) */
-    suspend fun getAudit(afterSeq: String? = null, format: String? = null, limit: String? = null, robotId: String? = null, type: String? = null, verify: String? = null): Unit {
-        transport.send(HydraRequest("GET", "/api/audit", queryOf(mapOf("afterSeq" to afterSeq, "format" to format, "limit" to limit, "robotId" to robotId, "type" to type, "verify" to verify)), null, "admin"))
-        return Unit
+    suspend fun getAudit(afterSeq: String? = null, format: String? = null, limit: String? = null, robotId: String? = null, type: String? = null, verify: String? = null): HydraAuditReport {
+        val raw = transport.send(HydraRequest("GET", "/api/audit", queryOf(mapOf("afterSeq" to afterSeq, "format" to format, "limit" to limit, "robotId" to robotId, "type" to type, "verify" to verify)), null, "admin"))
+        return HydraAuditReport.fromJson(hydraMap(raw))
+    }
+
+    /** GET /api/audit (access: admin); the answer as text, the way the route offers it besides JSON. */
+    suspend fun getAuditAsText(afterSeq: String? = null, format: String? = null, limit: String? = null, robotId: String? = null, type: String? = null, verify: String? = null): String {
+        return transport.send(HydraRequest("GET", "/api/audit", queryOf(mapOf("afterSeq" to afterSeq, "format" to format, "limit" to limit, "robotId" to robotId, "type" to type, "verify" to verify)), null, "admin", responseType = "text")) as String
     }
 
     /** GET /api/bridges (access: user) */
@@ -5254,9 +5754,9 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** GET /api/claims (access: user) */
-    suspend fun getClaims(): Unit {
-        transport.send(HydraRequest("GET", "/api/claims", emptyMap(), null, "user"))
-        return Unit
+    suspend fun getClaims(): HydraClaimList {
+        val raw = transport.send(HydraRequest("GET", "/api/claims", emptyMap(), null, "user"))
+        return HydraClaimList.fromJson(hydraMap(raw))
     }
 
     /** List the clients the server has seen (access: user) */
@@ -5602,9 +6102,9 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** GET /api/safety-limits (access: user) */
-    suspend fun getSafetyLimits(robotId: String? = null): Unit {
-        transport.send(HydraRequest("GET", "/api/safety-limits", queryOf(mapOf("robotId" to robotId)), null, "user"))
-        return Unit
+    suspend fun getSafetyLimits(robotId: String? = null): HydraSafetyLimitsView {
+        val raw = transport.send(HydraRequest("GET", "/api/safety-limits", queryOf(mapOf("robotId" to robotId)), null, "user"))
+        return HydraSafetyLimitsView.fromJson(hydraMap(raw))
     }
 
     /** GET /api/semantic-planner/settings (access: user) */
@@ -5836,15 +6336,15 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** POST /api/voice/confirm (access: user) */
-    suspend fun postVoiceConfirm(body: HydraPostVoiceConfirmBody? = null): Unit {
-        transport.send(HydraRequest("POST", "/api/voice/confirm", emptyMap(), body?.toJson(), "user"))
-        return Unit
+    suspend fun postVoiceConfirm(body: HydraPostVoiceConfirmBody? = null): HydraVoiceConfirmResult {
+        val raw = transport.send(HydraRequest("POST", "/api/voice/confirm", emptyMap(), body?.toJson(), "user"))
+        return HydraVoiceConfirmResult.fromJson(hydraMap(raw))
     }
 
     /** POST /api/voice/turn (access: user) */
-    suspend fun postVoiceTurn(body: HydraPostVoiceTurnBody? = null): Unit {
-        transport.send(HydraRequest("POST", "/api/voice/turn", emptyMap(), body?.toJson(), "user"))
-        return Unit
+    suspend fun postVoiceTurn(body: HydraPostVoiceTurnBody? = null): HydraVoiceReply {
+        val raw = transport.send(HydraRequest("POST", "/api/voice/turn", emptyMap(), body?.toJson(), "user"))
+        return HydraVoiceReply.fromJson(hydraMap(raw))
     }
 
     /** GET /api/watch/system-status (access: user) */

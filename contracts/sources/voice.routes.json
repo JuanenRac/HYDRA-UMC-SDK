@@ -24,6 +24,10 @@
         }
       },
       "responses": {
+        "200": {
+          "description": "The confirmation result and whether its signature was verified.",
+          "shape": "VoiceConfirmResult"
+        },
         "400": {
           "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
@@ -44,7 +48,8 @@
           "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
         }
-      }
+      },
+      "relays_status": true
     },
     {
       "method": "post",
@@ -69,6 +74,10 @@
         }
       },
       "responses": {
+        "200": {
+          "description": "The assistant reply of the voice interface for the turn (the transcript is added only when the administrator allows it).",
+          "shape": "VoiceReply"
+        },
         "400": {
           "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
@@ -85,7 +94,8 @@
           "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
         }
-      }
+      },
+      "relays_status": true
     }
   ]
 }

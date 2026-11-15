@@ -11,7 +11,8 @@
       "access": "user",
       "responses": {
         "200": {
-          "description": "Success. The body is documented in docs/REMOTE_API.md."
+          "description": "Who controls which robot, for every robot that has an active claim.",
+          "shape": "ClaimList"
         }
       }
     }

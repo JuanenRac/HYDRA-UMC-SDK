@@ -12,29 +12,97 @@
 
 import 'dart:convert';
 
-/// One request, already built: the URL is absolute and the body is text.
+/// One request, already built: the URL is absolute and the body is text (or, for an upload that is not text, [bodyBytes]).
 class HttpRequestData {
-  const HttpRequestData(this.method, this.url, {this.headers = const {}, this.body});
+  const HttpRequestData(
+    this.method,
+    this.url, {
+    this.headers = const {},
+    this.body,
+    this.bodyBytes,
+    this.binaryResponse = false,
+  });
 
   final String method;
   final String url;
   final Map<String, String> headers;
   final String? body;
 
-  HttpRequestData withHeader(String name, String value) =>
-      HttpRequestData(method, url, headers: {...headers, name: value}, body: body);
+  /// The raw body of an upload that is not text (a firmware image). When set, [body] is null and the transport sends these bytes as they are.
+  final List<int>? bodyBytes;
+
+  /// True when the answer is not text (a binary download): the transport hands the bytes back in [HttpResponseData.bodyBytes] and
+  /// does not decode them, because decoding a binary body as text corrupts it.
+  final bool binaryResponse;
+
+  HttpRequestData withHeader(String name, String value) => HttpRequestData(
+        method,
+        url,
+        headers: {...headers, name: value},
+        body: body,
+        bodyBytes: bodyBytes,
+        binaryResponse: binaryResponse,
+      );
 
   /// The path of the URL (what an error message names).
   String get path => Uri.parse(url).path;
 }
 
-/// What came back: the status, the body as text and the path that was asked.
+/// What came back: the status, the body as text, the path that was asked, the response headers and, for a binary answer, the bytes.
+///
+/// [headers] and [bodyBytes] are optional and empty by default, so a transport written before they existed keeps working: it simply
+/// hands back no headers (a caller that needs one, like the ETag of the settings, then finds it missing and says so).
 class HttpResponseData {
-  const HttpResponseData(this.statusCode, this.body, {this.path = ''});
+  const HttpResponseData(
+    this.statusCode,
+    this.body, {
+    this.path = '',
+    this.headers = const {},
+    this.bodyBytes,
+  });
 
   final int statusCode;
+
+  /// The body as text. For a binary answer ([bodyBytes] set) it is empty.
   final String body;
   final String path;
+
+  /// The response headers. A transport should hand them over with lower-case names (HTTP names are case-insensitive); [header] reads one
+  /// whatever the case.
+  final Map<String, String> headers;
+
+  /// The raw bytes of a binary answer (the request had [HttpRequestData.binaryResponse]); null for a text answer.
+  final List<int>? bodyBytes;
+
+  /// One response header by name, whatever the case it came in; null when the answer did not carry it.
+  String? header(String name) {
+    final wanted = name.toLowerCase();
+    for (final entry in headers.entries) {
+      if (entry.key.toLowerCase() == wanted) return entry.value;
+    }
+    return null;
+  }
+
+  /// The response headers a route declares (`ETag`, `X-Next-Cursor`), found whatever the case they came in and listed under the
+  /// declared name; a header the answer did not carry is left out. This is what a [HydraReply] of the generated client holds.
+  Map<String, String> headersNamed(Iterable<String> names) {
+    final found = <String, String>{};
+    for (final name in names) {
+      final value = header(name);
+      if (value != null) found[name] = value;
+    }
+    return found;
+  }
+
+  /// The same answer with the path (and optionally other parts) replaced; everything else, headers and bytes included, is kept.
+  HttpResponseData copyWith({int? statusCode, String? body, String? path, Map<String, String>? headers, List<int>? bodyBytes}) =>
+      HttpResponseData(
+        statusCode ?? this.statusCode,
+        body ?? this.body,
+        path: path ?? this.path,
+        headers: headers ?? this.headers,
+        bodyBytes: bodyBytes ?? this.bodyBytes,
+      );
 }
 
 /// The platform side of the client. Timeouts are applied by the client, so an

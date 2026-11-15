@@ -11,6 +11,9 @@ Future<void> main() async {
   final seen = <HydraRequest>[];
   final client = HydraServerClient((request) async {
     seen.add(request);
+    if (request.responseType == 'text') {
+      return '{"seq":1,"type":"claim"}\n{"seq":2,"type":"release"}\n';
+    }
     if (request.replyHeaders.isNotEmpty) {
       return const HydraReply<dynamic>(<String, dynamic>{'controllers': <dynamic>[<String, dynamic>{'id': 'c1'}]}, <String, String>{'ETag': 'w/1'});
     }
@@ -19,6 +22,14 @@ Future<void> main() async {
         return <String, dynamic>{'success': true, 'revision': 'r2', 'affectedCount': 1, 'operation_id': 'op-1'};
       case '/api/robot/9':
         return <String, dynamic>{'robot': <String, dynamic>{'id': 9}, 'revision': 'r1'};
+      case '/api/claims':
+        return <String, dynamic>{
+          'claims': <dynamic>[
+            <String, dynamic>{'robotId': 3, 'robotName': null, 'cellId': 'c1', 'ownerId': 5, 'ownerUsername': 'ana', 'controllerId': null, 'claimedAt': 1000, 'expiresAt': 2000.5, 'jogArmedUntil': null},
+          ],
+        };
+      case '/api/admin/server-config':
+        return <String, dynamic>{'port': 3000, 'pendingPort': null, 'tls': <String, dynamic>{'enabled': false}};
       case '/api/hardware/canota/flash':
         return <String, dynamic>{'success': true, 'finalPhase': 'done'};
     }
@@ -30,6 +41,9 @@ Future<void> main() async {
   final robot = await client.getRobotById(id: 9);
   final flash = await client.postHardwareCanotaFlash(body: <int>[1, 2, 3]);
   final settings = await client.getSettingsWithHeaders();
+  final auditLines = await client.getAuditAsText(format: 'jsonl', limit: '2');
+  final claims = await client.getClaims();
+  final serverConfig = await client.getAdminServerConfig();
 
   _expect(seen[0].method == 'GET' && seen[0].path == '/api/admin/logs' && seen[0].query['lines'] == '5', 'query');
   final sent = seen[1].body;
@@ -42,6 +56,9 @@ Future<void> main() async {
   _expect(robot.revision == 'r1' && robot.robot['id'] == 9 && robot.cellId == null, 'an optional field that is absent reads as null');
   _expect(flash.finalPhase == 'done', 'the answer of the binary route');
   _expect(settings.body.controllers?.length == 1, 'the reply with headers keeps the typed body');
+  _expect(seen[5].path == '/api/audit' && seen[5].responseType == 'text' && seen[5].query['format'] == 'jsonl' && auditLines.split('\n').where((l) => l.isNotEmpty).length == 2, 'a JSON route that also offers text has an AsText method that asks for text');
+  _expect(claims.claims.length == 1 && claims.claims[0].robotId == 3 && claims.claims[0].ownerUsername == 'ana' && claims.claims[0].jogArmedUntil == null, 'the claims are read into their class');
+  _expect(serverConfig.port == 3000 && serverConfig.pendingPort == null && (serverConfig.additionalProperties['tls'] as Map)['enabled'] == false, 'the open keys of the server configuration are kept');
   final left = const HydraPostRobotByIdCommandBody(command: 'stop', seq: 3).toJson();
   _expect(left.length == 2 && left['seq'] == 3 && !left.containsKey('controllerId'), 'an optional field that is null is left out of toJson');
   var refusedField = false;

@@ -10,6 +10,21 @@ private fun <T> roundTrip(label: String, example: Map<String, Any?>, read: (Map<
     if (again != example) failures.add("$label changed: $again instead of $example")
 }
 
+private fun roundTripHydraAuditEntry() {
+    roundTrip("HydraAuditEntry full", mapOf<String, Any?>("seq" to 7L, "ts" to "text", "prev" to "text", "hash" to "text", "type" to "text", "outcome" to "ok", "userId" to "sample", "username" to "text", "controllerId" to "text", "ip" to "text", "robotId" to 7L, "detail" to mapOf<String, Any?>("extraKey" to "extra"), "extraKey" to "extra"), { HydraAuditEntry.fromJson(it) }, { it.toJson() })
+    roundTrip("HydraAuditEntry required only", mapOf<String, Any?>("seq" to 7L, "ts" to "text", "prev" to "text", "hash" to "text", "type" to "text", "outcome" to "ok"), { HydraAuditEntry.fromJson(it) }, { it.toJson() })
+}
+
+private fun roundTripHydraAuditReport() {
+    roundTrip("HydraAuditReport full", mapOf<String, Any?>("enabled" to true, "lockedOff" to true, "entries" to listOf<Any?>(mapOf<String, Any?>("seq" to 7L, "ts" to "text", "prev" to "text", "hash" to "text", "type" to "text", "outcome" to "ok", "userId" to "sample", "username" to "text", "controllerId" to "text", "ip" to "text", "robotId" to 7L, "detail" to mapOf<String, Any?>("extraKey" to "extra"), "extraKey" to "extra")), "verification" to mapOf<String, Any?>("ok" to true, "entries" to 7L, "brokenAtSeq" to 7L, "reason" to "text")), { HydraAuditReport.fromJson(it) }, { it.toJson() })
+    roundTrip("HydraAuditReport required only", mapOf<String, Any?>("enabled" to true, "lockedOff" to true, "entries" to listOf<Any?>(mapOf<String, Any?>("seq" to 7L, "ts" to "text", "prev" to "text", "hash" to "text", "type" to "text", "outcome" to "ok"))), { HydraAuditReport.fromJson(it) }, { it.toJson() })
+}
+
+private fun roundTripHydraAuditVerification() {
+    roundTrip("HydraAuditVerification full", mapOf<String, Any?>("ok" to true, "entries" to 7L, "brokenAtSeq" to 7L, "reason" to "text"), { HydraAuditVerification.fromJson(it) }, { it.toJson() })
+    roundTrip("HydraAuditVerification required only", mapOf<String, Any?>("ok" to true, "entries" to 7L), { HydraAuditVerification.fromJson(it) }, { it.toJson() })
+}
+
 private fun roundTripHydraBluetoothScan() {
     roundTrip("HydraBluetoothScan full", mapOf<String, Any?>("success" to true, "devices" to listOf<Any?>(mapOf<String, Any?>("key" to "value"))), { HydraBluetoothScan.fromJson(it) }, { it.toJson() })
     roundTrip("HydraBluetoothScan required only", mapOf<String, Any?>("success" to true, "devices" to listOf<Any?>(mapOf<String, Any?>("key" to "value"))), { HydraBluetoothScan.fromJson(it) }, { it.toJson() })
@@ -43,6 +58,16 @@ private fun roundTripHydraCameraMediaList() {
 private fun roundTripHydraCanotaFlash() {
     roundTrip("HydraCanotaFlash full", mapOf<String, Any?>("success" to true, "finalPhase" to "text"), { HydraCanotaFlash.fromJson(it) }, { it.toJson() })
     roundTrip("HydraCanotaFlash required only", mapOf<String, Any?>("success" to true, "finalPhase" to "text"), { HydraCanotaFlash.fromJson(it) }, { it.toJson() })
+}
+
+private fun roundTripHydraClaimList() {
+    roundTrip("HydraClaimList full", mapOf<String, Any?>("claims" to listOf<Any?>(mapOf<String, Any?>("robotId" to 7L, "robotName" to "text", "cellId" to "sample", "ownerId" to "sample", "ownerUsername" to "text", "controllerId" to "text", "claimedAt" to 1.5, "expiresAt" to 1.5, "jogArmedUntil" to 1.5))), { HydraClaimList.fromJson(it) }, { it.toJson() })
+    roundTrip("HydraClaimList required only", mapOf<String, Any?>("claims" to listOf<Any?>(mapOf<String, Any?>("robotId" to 7L, "ownerUsername" to "text", "claimedAt" to 1.5, "expiresAt" to 1.5))), { HydraClaimList.fromJson(it) }, { it.toJson() })
+}
+
+private fun roundTripHydraClaimView() {
+    roundTrip("HydraClaimView full", mapOf<String, Any?>("robotId" to 7L, "robotName" to "text", "cellId" to "sample", "ownerId" to "sample", "ownerUsername" to "text", "controllerId" to "text", "claimedAt" to 1.5, "expiresAt" to 1.5, "jogArmedUntil" to 1.5), { HydraClaimView.fromJson(it) }, { it.toJson() })
+    roundTrip("HydraClaimView required only", mapOf<String, Any?>("robotId" to 7L, "ownerUsername" to "text", "claimedAt" to 1.5, "expiresAt" to 1.5), { HydraClaimView.fromJson(it) }, { it.toJson() })
 }
 
 private fun roundTripHydraClients() {
@@ -245,6 +270,16 @@ private fun roundTripHydraRulConfig() {
     roundTrip("HydraRulConfig required only", mapOf<String, Any?>("enabled" to true, "maxPoints" to 7L, "timeoutMs" to 7L), { HydraRulConfig.fromJson(it) }, { it.toJson() })
 }
 
+private fun roundTripHydraSafetyLimitsConfig() {
+    roundTrip("HydraSafetyLimitsConfig full", mapOf<String, Any?>("jog" to mapOf<String, Any?>("armRequired" to true, "armTtlMs" to 1.5, "default" to mapOf<String, Any?>("maxAmount" to 1.5, "maxAbsolute" to 1.5), "models" to mapOf<String, Any?>("extraKey" to mapOf<String, Any?>("maxAmount" to 1.5, "maxAbsolute" to 1.5))), "temperature" to mapOf<String, Any?>("default" to mapOf<String, Any?>("bedMaxC" to 1.5), "models" to mapOf<String, Any?>("extraKey" to mapOf<String, Any?>("bedMaxC" to 1.5))), "claims" to mapOf<String, Any?>("requireControllerId" to true), "audit" to mapOf<String, Any?>("enabled" to true, "motionIntervalSeconds" to 1.5)), { HydraSafetyLimitsConfig.fromJson(it) }, { it.toJson() })
+    roundTrip("HydraSafetyLimitsConfig required only", mapOf<String, Any?>("jog" to mapOf<String, Any?>("armRequired" to true, "armTtlMs" to 1.5, "default" to mapOf<String, Any?>("maxAmount" to 1.5, "maxAbsolute" to 1.5), "models" to mapOf<String, Any?>()), "temperature" to mapOf<String, Any?>("default" to mapOf<String, Any?>("bedMaxC" to 1.5), "models" to mapOf<String, Any?>()), "claims" to mapOf<String, Any?>("requireControllerId" to true), "audit" to mapOf<String, Any?>("enabled" to true, "motionIntervalSeconds" to 1.5)), { HydraSafetyLimitsConfig.fromJson(it) }, { it.toJson() })
+}
+
+private fun roundTripHydraSafetyLimitsView() {
+    roundTrip("HydraSafetyLimitsView full", mapOf<String, Any?>("limits" to mapOf<String, Any?>("jog" to mapOf<String, Any?>("armRequired" to true, "armTtlMs" to 1.5, "default" to mapOf<String, Any?>("maxAmount" to 1.5, "maxAbsolute" to 1.5), "models" to mapOf<String, Any?>("extraKey" to mapOf<String, Any?>("maxAmount" to 1.5, "maxAbsolute" to 1.5))), "temperature" to mapOf<String, Any?>("default" to mapOf<String, Any?>("bedMaxC" to 1.5), "models" to mapOf<String, Any?>("extraKey" to mapOf<String, Any?>("bedMaxC" to 1.5))), "claims" to mapOf<String, Any?>("requireControllerId" to true), "audit" to mapOf<String, Any?>("enabled" to true, "motionIntervalSeconds" to 1.5)), "defaults" to mapOf<String, Any?>("jog" to mapOf<String, Any?>("armRequired" to true, "armTtlMs" to 1.5, "default" to mapOf<String, Any?>("maxAmount" to 1.5, "maxAbsolute" to 1.5), "models" to mapOf<String, Any?>("extraKey" to mapOf<String, Any?>("maxAmount" to 1.5, "maxAbsolute" to 1.5))), "temperature" to mapOf<String, Any?>("default" to mapOf<String, Any?>("bedMaxC" to 1.5), "models" to mapOf<String, Any?>("extraKey" to mapOf<String, Any?>("bedMaxC" to 1.5))), "claims" to mapOf<String, Any?>("requireControllerId" to true), "audit" to mapOf<String, Any?>("enabled" to true, "motionIntervalSeconds" to 1.5)), "hardLimits" to mapOf<String, Any?>("extraKey" to "extra"), "robot" to mapOf<String, Any?>("id" to 7L, "model" to "text", "jog" to mapOf<String, Any?>("maxAmount" to 1.5, "maxAbsolute" to 1.5), "temperature" to mapOf<String, Any?>("bedMaxC" to 1.5), "jogArmedUntil" to 1.5)), { HydraSafetyLimitsView.fromJson(it) }, { it.toJson() })
+    roundTrip("HydraSafetyLimitsView required only", mapOf<String, Any?>("limits" to mapOf<String, Any?>("jog" to mapOf<String, Any?>("armRequired" to true, "armTtlMs" to 1.5, "default" to mapOf<String, Any?>("maxAmount" to 1.5, "maxAbsolute" to 1.5), "models" to mapOf<String, Any?>()), "temperature" to mapOf<String, Any?>("default" to mapOf<String, Any?>("bedMaxC" to 1.5), "models" to mapOf<String, Any?>()), "claims" to mapOf<String, Any?>("requireControllerId" to true), "audit" to mapOf<String, Any?>("enabled" to true, "motionIntervalSeconds" to 1.5)), "defaults" to mapOf<String, Any?>("jog" to mapOf<String, Any?>("armRequired" to true, "armTtlMs" to 1.5, "default" to mapOf<String, Any?>("maxAmount" to 1.5, "maxAbsolute" to 1.5), "models" to mapOf<String, Any?>()), "temperature" to mapOf<String, Any?>("default" to mapOf<String, Any?>("bedMaxC" to 1.5), "models" to mapOf<String, Any?>()), "claims" to mapOf<String, Any?>("requireControllerId" to true), "audit" to mapOf<String, Any?>("enabled" to true, "motionIntervalSeconds" to 1.5)), "hardLimits" to mapOf<String, Any?>()), { HydraSafetyLimitsView.fromJson(it) }, { it.toJson() })
+}
+
 private fun roundTripHydraSelfUpdateItem() {
     roundTrip("HydraSelfUpdateItem full", mapOf<String, Any?>("id" to "server", "repo" to "text", "installed" to "text", "previous" to "text", "latest" to "text", "state" to "current", "signedPackage" to true), { HydraSelfUpdateItem.fromJson(it) }, { it.toJson() })
     roundTrip("HydraSelfUpdateItem required only", mapOf<String, Any?>("id" to "server", "repo" to "text", "installed" to "text", "previous" to "text", "latest" to "text", "state" to "current", "signedPackage" to true), { HydraSelfUpdateItem.fromJson(it) }, { it.toJson() })
@@ -261,7 +296,7 @@ private fun roundTripHydraSelfUpdateStatus() {
 }
 
 private fun roundTripHydraServerConfig() {
-    roundTrip("HydraServerConfig full", mapOf<String, Any?>("port" to 7L, "pendingPort" to 7L), { HydraServerConfig.fromJson(it) }, { it.toJson() })
+    roundTrip("HydraServerConfig full", mapOf<String, Any?>("port" to 7L, "pendingPort" to 7L, "extraKey" to "extra"), { HydraServerConfig.fromJson(it) }, { it.toJson() })
     roundTrip("HydraServerConfig required only", mapOf<String, Any?>("port" to 7L, "pendingPort" to 7L), { HydraServerConfig.fromJson(it) }, { it.toJson() })
 }
 
@@ -340,6 +375,11 @@ private fun roundTripHydraUserList() {
     roundTrip("HydraUserList required only", mapOf<String, Any?>("users" to listOf<Any?>(mapOf<String, Any?>("key" to "value"))), { HydraUserList.fromJson(it) }, { it.toJson() })
 }
 
+private fun roundTripHydraVoiceConfirmResult() {
+    roundTrip("HydraVoiceConfirmResult full", mapOf<String, Any?>("type" to "confirmation_result", "status" to "confirmed", "requestId" to "text", "intent" to mapOf<String, Any?>("key" to "value"), "subject" to "text", "verified" to true, "extraKey" to "extra"), { HydraVoiceConfirmResult.fromJson(it) }, { it.toJson() })
+    roundTrip("HydraVoiceConfirmResult required only", mapOf<String, Any?>("type" to "confirmation_result", "status" to "confirmed", "verified" to true), { HydraVoiceConfirmResult.fromJson(it) }, { it.toJson() })
+}
+
 private fun roundTripHydraVoiceReply() {
     roundTrip("HydraVoiceReply full", mapOf<String, Any?>("type" to "assistant_reply", "requestId" to "text", "text" to "text", "level" to "text", "speak" to true, "requiresConfirmation" to true, "visualState" to "text", "intent" to mapOf<String, Any?>("key" to "value"), "interpretation" to mapOf<String, Any?>("key" to "value"), "messageCode" to "text", "messageParams" to mapOf<String, Any?>("key" to "value"), "textLanguage" to "text", "confirmationToken" to "text", "confirmationValiditySeconds" to 1.5), { HydraVoiceReply.fromJson(it) }, { it.toJson() })
     roundTrip("HydraVoiceReply required only", mapOf<String, Any?>("type" to "assistant_reply", "requestId" to "text", "text" to "text", "level" to "text", "speak" to true, "requiresConfirmation" to true), { HydraVoiceReply.fromJson(it) }, { it.toJson() })
@@ -353,6 +393,9 @@ private fun roundTripHydraWatchStatus() {
 /** Runs every round trip and returns the failures (empty when all pass). */
 fun roundTripAll(): List<String> {
     failures.clear()
+    roundTripHydraAuditEntry()
+    roundTripHydraAuditReport()
+    roundTripHydraAuditVerification()
     roundTripHydraBluetoothScan()
     roundTripHydraBridgeCommandAccepted()
     roundTripHydraBridgeList()
@@ -360,6 +403,8 @@ fun roundTripAll(): List<String> {
     roundTripHydraCameraCapture()
     roundTripHydraCameraMediaList()
     roundTripHydraCanotaFlash()
+    roundTripHydraClaimList()
+    roundTripHydraClaimView()
     roundTripHydraClients()
     roundTripHydraConnectionClient()
     roundTripHydraConnectionClientList()
@@ -400,6 +445,8 @@ fun roundTripAll(): List<String> {
     roundTripHydraReservation()
     roundTripHydraRobotLiveness()
     roundTripHydraRulConfig()
+    roundTripHydraSafetyLimitsConfig()
+    roundTripHydraSafetyLimitsView()
     roundTripHydraSelfUpdateItem()
     roundTripHydraSelfUpdateJob()
     roundTripHydraSelfUpdateStatus()
@@ -419,8 +466,9 @@ fun roundTripAll(): List<String> {
     roundTripHydraUpdateReport()
     roundTripHydraUsbDevices()
     roundTripHydraUserList()
+    roundTripHydraVoiceConfirmResult()
     roundTripHydraVoiceReply()
     roundTripHydraWatchStatus()
     return failures.toList()
 }
-const val ROUND_TRIP_CLASSES: Int = 68
+const val ROUND_TRIP_CLASSES: Int = 76
