@@ -11,25 +11,113 @@
       "access": "admin",
       "responses": {
         "200": {
-          "description": "Success. The body is documented in docs/REMOTE_API.md."
+          "description": "The proposals that wait for a person and the decisions already taken. The body is documented in docs/REMOTE_API.md.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "pending": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "decided": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            },
+            "required": [
+              "pending"
+            ]
+          }
+        },
+        "404": {
+          "description": "The server has no such route. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "502": {
+          "description": "The node watchdog refused or could not answer the request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "The channel to the node watchdog is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
         }
-      }
+      },
+      "relays_status": true
     },
     {
       "method": "post",
       "path": "/api/ops-agent/proposals/decide",
       "summary": "POST /api/ops-agent/proposals/decide",
-      "description": "Requires a signed-in account with the admin role.",
+      "description": "Requires a signed-in account with the admin role. The body is the incidentId, the decision (approved or rejected) and, to approve, confirm: true; the account that decides is the signed-in one, named by the server.",
       "access": "admin",
       "responses": {
         "200": {
-          "description": "Success. The body is documented in docs/REMOTE_API.md."
+          "description": "The watchdog took the decision; the answer carries it. The body is documented in docs/REMOTE_API.md.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "decision": {
+                "type": "string",
+                "enum": [
+                  "approved",
+                  "rejected"
+                ]
+              }
+            }
+          }
         },
         "400": {
-          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "description": "Invalid request (approving needs confirm: true). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "The server has no such route, or the proposal is not pending any more. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "502": {
+          "description": "The node watchdog refused or could not answer the request. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "The channel to the node watchdog is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
         }
-      }
+      },
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "incidentId": {
+                  "type": "string"
+                },
+                "decision": {
+                  "type": "string",
+                  "enum": [
+                    "approved",
+                    "rejected"
+                  ]
+                },
+                "confirm": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "incidentId",
+                "decision"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "relays_status": true
     }
   ]
 }

@@ -437,6 +437,37 @@
                 "jobDispatcher": {
                   "type": "object",
                   "description": "The options of the jobDispatcher block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "ingest": {
+                  "type": "object",
+                  "description": "The ingest switches (each true or false) and the file of the public keys of the operators that sign trajectory proposals; only the keys sent are changed, and an environment variable still locks its switch.",
+                  "properties": {
+                    "faultFeed": {
+                      "type": "boolean"
+                    },
+                    "scenario": {
+                      "type": "boolean"
+                    },
+                    "developerNode": {
+                      "type": "boolean"
+                    },
+                    "anomalyFeed": {
+                      "type": "boolean"
+                    },
+                    "anomalyVoiceRelay": {
+                      "type": "boolean"
+                    },
+                    "voiceChain": {
+                      "type": "boolean"
+                    },
+                    "proposalVerify": {
+                      "type": "boolean"
+                    },
+                    "proposalKeysFile": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
                 }
               },
               "additionalProperties": false,

@@ -676,15 +676,13 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** GET /api/ops-agent/proposals (access: admin) */
-    suspend fun getOpsAgentProposals(): Unit {
-        transport.send(HydraRequest("GET", "/api/ops-agent/proposals", emptyMap(), null, "admin"))
-        return Unit
+    suspend fun getOpsAgentProposals(): Map<String, Any?> {
+        return transport.send(HydraRequest("GET", "/api/ops-agent/proposals", emptyMap(), null, "admin")) as Map<String, Any?>
     }
 
     /** POST /api/ops-agent/proposals/decide (access: admin) */
-    suspend fun postOpsAgentProposalsDecide(): Unit {
-        transport.send(HydraRequest("POST", "/api/ops-agent/proposals/decide", emptyMap(), null, "admin"))
-        return Unit
+    suspend fun postOpsAgentProposalsDecide(body: Map<String, Any?>): Map<String, Any?> {
+        return transport.send(HydraRequest("POST", "/api/ops-agent/proposals/decide", emptyMap(), body, "admin")) as Map<String, Any?>
     }
 
     /** POST /api/push/devices (access: user) */
