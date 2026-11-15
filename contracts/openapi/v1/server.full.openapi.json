@@ -4634,6 +4634,37 @@
                   "jobDispatcher": {
                     "type": "object",
                     "description": "The options of the jobDispatcher block of the security configuration that the body changes; only the keys sent are changed."
+                  },
+                  "ingest": {
+                    "type": "object",
+                    "description": "The ingest switches (each true or false) and the file of the public keys of the operators that sign trajectory proposals; only the keys sent are changed, and an environment variable still locks its switch.",
+                    "properties": {
+                      "faultFeed": {
+                        "type": "boolean"
+                      },
+                      "scenario": {
+                        "type": "boolean"
+                      },
+                      "developerNode": {
+                        "type": "boolean"
+                      },
+                      "anomalyFeed": {
+                        "type": "boolean"
+                      },
+                      "anomalyVoiceRelay": {
+                        "type": "boolean"
+                      },
+                      "voiceChain": {
+                        "type": "boolean"
+                      },
+                      "proposalVerify": {
+                        "type": "boolean"
+                      },
+                      "proposalKeysFile": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
                   }
                 },
                 "additionalProperties": false,
@@ -8216,7 +8247,61 @@
         "x-access": "admin",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md."
+            "description": "The proposals that wait for a person and the decisions already taken. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pending": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "decided": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  },
+                  "required": [
+                    "pending"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The server has no such route. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The node watchdog refused or could not answer the request. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The channel to the node watchdog is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -8232,19 +8317,95 @@
           "ops-agent"
         ],
         "summary": "POST /api/ops-agent/proposals/decide",
-        "description": "Requires a signed-in account with the admin role.",
+        "description": "Requires a signed-in account with the admin role. The body is the incidentId, the decision (approved or rejected) and, to approve, confirm: true; the account that decides is the signed-in one, named by the server.",
         "x-access": "admin",
         "responses": {
           "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md."
+            "description": "The watchdog took the decision; the answer carries it. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "decision": {
+                      "type": "string",
+                      "enum": [
+                        "approved",
+                        "rejected"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
-            "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+            "description": "Invalid request (approving needs confirm: true). The body is documented in docs/REMOTE_API.md.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
+              }
+            }
+          },
+          "404": {
+            "description": "The server has no such route, or the proposal is not pending any more. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The node watchdog refused or could not answer the request. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The channel to the node watchdog is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "incidentId": {
+                    "type": "string"
+                  },
+                  "decision": {
+                    "type": "string",
+                    "enum": [
+                      "approved",
+                      "rejected"
+                    ]
+                  },
+                  "confirm": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "incidentId",
+                  "decision"
+                ],
+                "additionalProperties": false
               }
             }
           }

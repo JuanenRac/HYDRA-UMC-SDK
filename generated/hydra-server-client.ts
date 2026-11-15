@@ -720,7 +720,7 @@ export class HydraServerClient {
   }
 
   /** PUT /api/admin/server-config (access: admin) */
-  putAdminServerConfig(args?: { body?: { port?: number; aiAccess?: Record<string, unknown>; infoAuth?: Record<string, unknown>; tls?: Record<string, unknown>; ble?: Record<string, unknown>; mqtt?: Record<string, unknown>; voice?: Record<string, unknown>; mavlink?: Record<string, unknown>; robots?: Record<string, unknown>; connections?: Record<string, unknown>; health?: Record<string, unknown>; ecosystemHealth?: Record<string, unknown>; nodeHealth?: Record<string, unknown>; twinRelay?: Record<string, unknown>; infoTickets?: Record<string, unknown>; deviceTokens?: Record<string, unknown>; updateCheck?: Record<string, unknown>; discovery?: Record<string, unknown>; maintenance?: Record<string, unknown>; atc?: Record<string, unknown>; detectionHef?: Record<string, unknown>; auth?: Record<string, unknown>; presence?: Record<string, unknown>; push?: Record<string, unknown>; trustedNetworks?: Record<string, unknown>; rul?: Record<string, unknown>; safety?: Record<string, unknown>; camera?: Record<string, unknown>; install?: Record<string, unknown>; websocket?: Record<string, unknown>; logging?: Record<string, unknown>; rateLimits?: Record<string, unknown>; bridges?: Record<string, unknown>; jobDispatcher?: Record<string, unknown> } }): Promise<{ success: boolean; appliesOnRestart: boolean; warnings: string[]; [other: string]: unknown }> {
+  putAdminServerConfig(args?: { body?: { port?: number; aiAccess?: Record<string, unknown>; infoAuth?: Record<string, unknown>; tls?: Record<string, unknown>; ble?: Record<string, unknown>; mqtt?: Record<string, unknown>; voice?: Record<string, unknown>; mavlink?: Record<string, unknown>; robots?: Record<string, unknown>; connections?: Record<string, unknown>; health?: Record<string, unknown>; ecosystemHealth?: Record<string, unknown>; nodeHealth?: Record<string, unknown>; twinRelay?: Record<string, unknown>; infoTickets?: Record<string, unknown>; deviceTokens?: Record<string, unknown>; updateCheck?: Record<string, unknown>; discovery?: Record<string, unknown>; maintenance?: Record<string, unknown>; atc?: Record<string, unknown>; detectionHef?: Record<string, unknown>; auth?: Record<string, unknown>; presence?: Record<string, unknown>; push?: Record<string, unknown>; trustedNetworks?: Record<string, unknown>; rul?: Record<string, unknown>; safety?: Record<string, unknown>; camera?: Record<string, unknown>; install?: Record<string, unknown>; websocket?: Record<string, unknown>; logging?: Record<string, unknown>; rateLimits?: Record<string, unknown>; bridges?: Record<string, unknown>; jobDispatcher?: Record<string, unknown>; ingest?: { faultFeed?: boolean; scenario?: boolean; developerNode?: boolean; anomalyFeed?: boolean; anomalyVoiceRelay?: boolean; voiceChain?: boolean; proposalVerify?: boolean; proposalKeysFile?: string } } }): Promise<{ success: boolean; appliesOnRestart: boolean; warnings: string[]; [other: string]: unknown }> {
     return this.transport({ method: "PUT", path: "/api/admin/server-config", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<{ success: boolean; appliesOnRestart: boolean; warnings: string[]; [other: string]: unknown }>;
   }
 
@@ -1010,13 +1010,13 @@ export class HydraServerClient {
   }
 
   /** GET /api/ops-agent/proposals (access: admin) */
-  getOpsAgentProposals(): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/ops-agent/proposals", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<void>;
+  getOpsAgentProposals(): Promise<{ pending: Record<string, unknown>[]; decided?: Record<string, unknown>[] }> {
+    return this.transport({ method: "GET", path: "/api/ops-agent/proposals", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<{ pending: Record<string, unknown>[]; decided?: Record<string, unknown>[] }>;
   }
 
   /** POST /api/ops-agent/proposals/decide (access: admin) */
-  postOpsAgentProposalsDecide(): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/ops-agent/proposals/decide", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<void>;
+  postOpsAgentProposalsDecide(args: { body: { incidentId: string; decision: "approved" | "rejected"; confirm?: boolean } }): Promise<{ decision?: "approved" | "rejected" }> {
+    return this.transport({ method: "POST", path: "/api/ops-agent/proposals/decide", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<{ decision?: "approved" | "rejected" }>;
   }
 
   /** POST /api/push/devices (access: user) */

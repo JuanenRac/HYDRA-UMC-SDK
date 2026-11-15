@@ -674,13 +674,13 @@ class HydraServerClient {
   }
 
   /// GET /api/ops-agent/proposals (access: admin)
-  Future<void> getOpsAgentProposals() async {
-    await _transport(HydraRequest('GET', '/api/ops-agent/proposals', const <String, String>{}, null, 'admin'));
+  Future<Map<String, dynamic>> getOpsAgentProposals() async {
+    return (await _transport(HydraRequest('GET', '/api/ops-agent/proposals', const <String, String>{}, null, 'admin'))) as Map<String, dynamic>;
   }
 
   /// POST /api/ops-agent/proposals/decide (access: admin)
-  Future<void> postOpsAgentProposalsDecide() async {
-    await _transport(HydraRequest('POST', '/api/ops-agent/proposals/decide', const <String, String>{}, null, 'admin'));
+  Future<Map<String, dynamic>> postOpsAgentProposalsDecide({required Map<String, dynamic> body}) async {
+    return (await _transport(HydraRequest('POST', '/api/ops-agent/proposals/decide', const <String, String>{}, body, 'admin'))) as Map<String, dynamic>;
   }
 
   /// POST /api/push/devices (access: user)

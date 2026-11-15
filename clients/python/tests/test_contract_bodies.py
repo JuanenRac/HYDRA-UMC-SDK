@@ -102,5 +102,37 @@ class DeclaredBodiesTests(unittest.TestCase):
         self.assertIn('path: "/api/droid-estop/settings", query: {}, headers: {}', TS)
 
 
+class IngestAndWatchdogTests(unittest.TestCase):
+    def test_the_server_config_body_declares_the_ingest_block_and_stays_closed(self):
+        schema = OPS[("PUT", "/api/admin/server-config")]["body_schema"]
+        ingest = schema["properties"]["ingest"]
+        self.assertIs(ingest["additionalProperties"], False)
+        self.assertEqual(
+            set(ingest["properties"]),
+            {"faultFeed", "scenario", "developerNode", "anomalyFeed", "anomalyVoiceRelay", "voiceChain", "proposalVerify", "proposalKeysFile"},
+        )
+        self.assertEqual(ingest["properties"]["proposalKeysFile"]["type"], "string")
+        for name in ingest["properties"]:
+            if name != "proposalKeysFile":
+                self.assertEqual(ingest["properties"][name]["type"], "boolean", name)
+
+    def test_the_watchdog_decision_declares_its_body_and_the_relay_statuses(self):
+        decide = OPS[("POST", "/api/ops-agent/proposals/decide")]
+        schema = decide["body_schema"]
+        self.assertEqual(set(schema["properties"]), {"incidentId", "decision", "confirm"})
+        self.assertEqual(schema["required"], ["incidentId", "decision"])
+        self.assertEqual(schema["properties"]["decision"]["enum"], ["approved", "rejected"])
+        listing = OPS[("GET", "/api/ops-agent/proposals")]
+        self.assertNotEqual(listing["result"], "void")
+        routes = {(r["method"].lower(), r["path"]): r for r in json.loads((ROOT / "generated" / "hydra-routes.json").read_text(encoding="utf-8"))["routes"]}
+        for key in (("get", "/api/ops-agent/proposals"), ("post", "/api/ops-agent/proposals/decide")):
+            self.assertTrue({"404", "502", "503"} <= set(routes[key]["statuses"]), key)
+
+    def test_the_generated_clients_carry_the_decision_body(self):
+        self.assertIn("postOpsAgentProposalsDecide(args: { body:", TS)
+        self.assertIn("postOpsAgentProposalsDecide(body: Map<String, Any?>)", KT)
+        self.assertIn("postOpsAgentProposalsDecide({required Map<String, dynamic> body})", DART)
+
+
 if __name__ == "__main__":
     unittest.main()

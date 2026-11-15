@@ -2840,8 +2840,77 @@
         }
       }
     },
+    "GET /api/ops-agent/proposals": {
+      "200": {
+        "minimal": {
+          "pending": []
+        },
+        "full": {
+          "pending": [
+            {}
+          ],
+          "decided": [
+            {}
+          ]
+        }
+      },
+      "404": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      },
+      "502": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      },
+      "503": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      }
+    },
     "POST /api/ops-agent/proposals/decide": {
+      "200": {
+        "minimal": {},
+        "full": {
+          "decision": "approved"
+        }
+      },
       "400": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      },
+      "404": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      },
+      "502": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      },
+      "503": {
         "minimal": {
           "error": "sample"
         },
