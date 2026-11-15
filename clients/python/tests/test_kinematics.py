@@ -117,7 +117,7 @@ class KinematicsDocumentTests(unittest.TestCase):
             with self.assertRaises(ContractValidationError):
                 validate_kinematics(payload)  # type: ignore[arg-type]
 
-    def test_the_ranges_equal_the_copies_of_the_apps_when_they_are_next_to_this_one(self) -> None:
+    def test_the_models_equal_the_copies_of_the_apps_when_they_are_next_to_this_one(self) -> None:
         copies = [
             ROOT.parent / "HYDRA-UMC-STUDIO" / "src" / "data" / "kinematicData.json",
             ROOT.parent / "HYDRA-UMC-SERVER" / "src" / "data" / "kinematicData.json",
@@ -128,8 +128,7 @@ class KinematicsDocumentTests(unittest.TestCase):
             self.skipTest("no app repository is next to this checkout")
         for path in present:
             theirs = load(path)["models"]
-            ours = {name: {"limits": m["limits"], "home": m["home"]} for name, m in self.document["models"].items()}
-            self.assertEqual(theirs, ours, str(path))
+            self.assertEqual(theirs, self.document["models"], str(path))
 
 
 if __name__ == "__main__":

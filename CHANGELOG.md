@@ -14,6 +14,8 @@
 
 ## [Unreleased]
 
+- **The test of the app copies of the kinematics compares the whole model:** `test_the_models_equal_the_copies_of_the_apps_when_they_are_next_to_this_one` compared only the ranges and the home pose, so the copies of STUDIO, SERVER and SUITE (which carry the chain of the Universal Robots models too) failed it whenever they sat next to this checkout. The copy must now equal the model of `contracts/kinematics.json`, chain included.
+
 - **`GET /api/tool-arms` no longer lists the status `400` in the contract (group tool-arms):** the route takes no filter and no body, and the handler of the server never answers it (a state it cannot read is `404`, `502` or `503`). The generated OpenAPI document, the route tables (TypeScript, Kotlin, Dart, JSON) and the app fixtures are regenerated.
 - **The Dart app package checks a downloaded release against its digest and its Ed25519 signature:** `src/ed25519.dart` holds SHA-512 and Ed25519 (RFC 8032) in plain Dart, with no package and no platform code, and `src/release_signature.dart` holds the pinned public key of the releases, the verdict (`ReleaseCheck`), the reading of a `.sig` file (base64, 64 bytes), `verifyDownloadedRelease` (the digest rule first, the signature only when the caller asks for it) and the check of a `.sha256` file; this is the one copy of what the iOS and the display apps each kept. The tests (14 for the hash and the curve, 12 for the verdicts) use the RFC 8032 vectors 1 to 3, a vector made by the Python reference of the firmware tools and keys made at run time. Nothing in the contract changes.
 
