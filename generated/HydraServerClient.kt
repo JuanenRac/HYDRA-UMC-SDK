@@ -216,7 +216,7 @@ typealias HydraVoiceReply = Map<String, Any?>
 /** Fields: type, headline, detail, level, speak */
 typealias HydraWatchStatus = Map<String, Any?>
 
-class HydraRequest(val method: String, val path: String, val query: Map<String, String>, val body: Any?, val access: String)
+class HydraRequest(val method: String, val path: String, val query: Map<String, String>, val body: Any?, val access: String, val headers: Map<String, String> = emptyMap())
 
 /** Carries one request to the server and returns the decoded JSON of the answer (null when there is none). */
 fun interface HydraTransport {
@@ -341,9 +341,8 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** PUT /api/admin/safety-limits (access: admin) */
-    suspend fun putAdminSafetyLimits(): Unit {
-        transport.send(HydraRequest("PUT", "/api/admin/safety-limits", emptyMap(), null, "admin"))
-        return Unit
+    suspend fun putAdminSafetyLimits(body: Map<String, Any?>): Map<String, Any?> {
+        return transport.send(HydraRequest("PUT", "/api/admin/safety-limits", emptyMap(), body, "admin")) as Map<String, Any?>
     }
 
     /** GET /api/admin/self-update (access: admin) */
@@ -372,8 +371,8 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** PUT /api/admin/server-config (access: admin) */
-    suspend fun putAdminServerConfig(body: Map<String, Any?>): HydraServerConfigSaved {
-        return transport.send(HydraRequest("PUT", "/api/admin/server-config", emptyMap(), body, "admin")) as HydraServerConfigSaved
+    suspend fun putAdminServerConfig(body: Map<String, Any?>? = null): Map<String, Any?> {
+        return transport.send(HydraRequest("PUT", "/api/admin/server-config", emptyMap(), body, "admin")) as Map<String, Any?>
     }
 
     /** GET /api/admin/service-identity (access: admin) */
@@ -504,15 +503,13 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** GET /api/connector-hub/gate/settings (access: user) */
-    suspend fun getConnectorHubGateSettings(): Unit {
-        transport.send(HydraRequest("GET", "/api/connector-hub/gate/settings", emptyMap(), null, "user"))
-        return Unit
+    suspend fun getConnectorHubGateSettings(): Map<String, Any?> {
+        return transport.send(HydraRequest("GET", "/api/connector-hub/gate/settings", emptyMap(), null, "user")) as Map<String, Any?>
     }
 
     /** POST /api/connector-hub/gate/settings (access: admin) */
-    suspend fun postConnectorHubGateSettings(): Unit {
-        transport.send(HydraRequest("POST", "/api/connector-hub/gate/settings", emptyMap(), null, "admin"))
-        return Unit
+    suspend fun postConnectorHubGateSettings(body: Map<String, Any?>): Map<String, Any?> {
+        return transport.send(HydraRequest("POST", "/api/connector-hub/gate/settings", emptyMap(), body, "admin")) as Map<String, Any?>
     }
 
     /** GET /api/dev-server/status (access: user) */
@@ -533,15 +530,13 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** GET /api/droid-estop/settings (access: user) */
-    suspend fun getDroidEstopSettings(): Unit {
-        transport.send(HydraRequest("GET", "/api/droid-estop/settings", emptyMap(), null, "user"))
-        return Unit
+    suspend fun getDroidEstopSettings(): Map<String, Any?> {
+        return transport.send(HydraRequest("GET", "/api/droid-estop/settings", emptyMap(), null, "user")) as Map<String, Any?>
     }
 
     /** POST /api/droid-estop/settings (access: admin) */
-    suspend fun postDroidEstopSettings(): Unit {
-        transport.send(HydraRequest("POST", "/api/droid-estop/settings", emptyMap(), null, "admin"))
-        return Unit
+    suspend fun postDroidEstopSettings(body: Map<String, Any?>): Map<String, Any?> {
+        return transport.send(HydraRequest("POST", "/api/droid-estop/settings", emptyMap(), body, "admin")) as Map<String, Any?>
     }
 
     /** GET /api/ecosystem/health (access: user) */
@@ -571,8 +566,8 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** POST /api/hardware/canota/flash (access: admin) */
-    suspend fun postHardwareCanotaFlash(): HydraCanotaFlash {
-        return transport.send(HydraRequest("POST", "/api/hardware/canota/flash", emptyMap(), null, "admin")) as HydraCanotaFlash
+    suspend fun postHardwareCanotaFlash(tier: String? = null, slot: String? = null, relay: String? = null, hardwareId: String? = null, versionMajor: String? = null, versionMinor: String? = null, versionPatch: String? = null, signature: String? = null, downgradeFrom: String? = null, target: String? = null, minBootloader: String? = null): HydraCanotaFlash {
+        return transport.send(HydraRequest("POST", "/api/hardware/canota/flash", queryOf(mapOf("tier" to tier, "slot" to slot, "relay" to relay, "hardware_id" to hardwareId, "version_major" to versionMajor, "version_minor" to versionMinor, "version_patch" to versionPatch, "signature" to signature, "downgrade_from" to downgradeFrom, "target" to target, "min_bootloader" to minBootloader)), null, "admin")) as HydraCanotaFlash
     }
 
     /** GET /api/hardware/canota/version (access: user) */
@@ -581,8 +576,8 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** POST /api/hardware/fram/erase (access: admin) */
-    suspend fun postHardwareFramErase(): HydraPassthrough {
-        return transport.send(HydraRequest("POST", "/api/hardware/fram/erase", emptyMap(), null, "admin")) as HydraPassthrough
+    suspend fun postHardwareFramErase(body: Map<String, Any?>): HydraPassthrough {
+        return transport.send(HydraRequest("POST", "/api/hardware/fram/erase", emptyMap(), body, "admin")) as HydraPassthrough
     }
 
     /** POST /api/hardware/fram/selftest (access: admin) */
@@ -591,15 +586,13 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** GET /api/hil-bridge/settings (access: user) */
-    suspend fun getHilBridgeSettings(): Unit {
-        transport.send(HydraRequest("GET", "/api/hil-bridge/settings", emptyMap(), null, "user"))
-        return Unit
+    suspend fun getHilBridgeSettings(): Map<String, Any?> {
+        return transport.send(HydraRequest("GET", "/api/hil-bridge/settings", emptyMap(), null, "user")) as Map<String, Any?>
     }
 
     /** POST /api/hil-bridge/settings (access: admin) */
-    suspend fun postHilBridgeSettings(): Unit {
-        transport.send(HydraRequest("POST", "/api/hil-bridge/settings", emptyMap(), null, "admin"))
-        return Unit
+    suspend fun postHilBridgeSettings(body: Map<String, Any?>): Map<String, Any?> {
+        return transport.send(HydraRequest("POST", "/api/hil-bridge/settings", emptyMap(), body, "admin")) as Map<String, Any?>
     }
 
     /** GET /api/hydra-info (access: public) */
@@ -720,20 +713,18 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** GET /api/robot/{id} (access: user) */
-    suspend fun getRobotById(id: Long): Unit {
-        transport.send(HydraRequest("GET", fillPath("/api/robot/{id}", mapOf("id" to id)), emptyMap(), null, "user"))
-        return Unit
+    suspend fun getRobotById(id: Long): Map<String, Any?> {
+        return transport.send(HydraRequest("GET", fillPath("/api/robot/{id}", mapOf("id" to id)), emptyMap(), null, "user")) as Map<String, Any?>
     }
 
     /** POST /api/robot/{id}/claim (access: user) */
-    suspend fun postRobotByIdClaim(id: Long, body: Map<String, Any?>? = null): HydraReservation {
-        return transport.send(HydraRequest("POST", fillPath("/api/robot/{id}/claim", mapOf("id" to id)), emptyMap(), body, "user")) as HydraReservation
+    suspend fun postRobotByIdClaim(id: Long, headerIfMatch: String? = null, headerXControllerId: String? = null, body: Map<String, Any?>? = null): Map<String, Any?> {
+        return transport.send(HydraRequest("POST", fillPath("/api/robot/{id}/claim", mapOf("id" to id)), emptyMap(), body, "user", headers = queryOf(mapOf("If-Match" to headerIfMatch, "X-Controller-Id" to headerXControllerId)))) as Map<String, Any?>
     }
 
     /** POST /api/robot/{id}/command (access: user) */
-    suspend fun postRobotByIdCommand(id: Long, body: Map<String, Any?>): Unit {
-        transport.send(HydraRequest("POST", fillPath("/api/robot/{id}/command", mapOf("id" to id)), emptyMap(), body, "user"))
-        return Unit
+    suspend fun postRobotByIdCommand(id: Long, body: Map<String, Any?>, headerIfMatch: String? = null, headerXControllerId: String? = null, headerXCorrelationId: String? = null): Map<String, Any?> {
+        return transport.send(HydraRequest("POST", fillPath("/api/robot/{id}/command", mapOf("id" to id)), emptyMap(), body, "user", headers = queryOf(mapOf("If-Match" to headerIfMatch, "X-Controller-Id" to headerXControllerId, "X-Correlation-Id" to headerXCorrelationId)))) as Map<String, Any?>
     }
 
     /** POST /api/robot/{id}/heartbeat (access: user) */
@@ -742,14 +733,13 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** POST /api/robot/{id}/jog-arm (access: user) */
-    suspend fun postRobotByIdJogArm(id: Long, body: Map<String, Any?>? = null): Unit {
-        transport.send(HydraRequest("POST", fillPath("/api/robot/{id}/jog-arm", mapOf("id" to id)), emptyMap(), body, "user"))
-        return Unit
+    suspend fun postRobotByIdJogArm(id: Long, body: Map<String, Any?>, headerXControllerId: String? = null): Map<String, Any?> {
+        return transport.send(HydraRequest("POST", fillPath("/api/robot/{id}/jog-arm", mapOf("id" to id)), emptyMap(), body, "user", headers = queryOf(mapOf("X-Controller-Id" to headerXControllerId)))) as Map<String, Any?>
     }
 
     /** POST /api/robot/{id}/release (access: user) */
-    suspend fun postRobotByIdRelease(id: Long, body: Map<String, Any?>? = null): HydraReservation {
-        return transport.send(HydraRequest("POST", fillPath("/api/robot/{id}/release", mapOf("id" to id)), emptyMap(), body, "user")) as HydraReservation
+    suspend fun postRobotByIdRelease(id: Long, headerIfMatch: String? = null, headerXControllerId: String? = null, body: Map<String, Any?>? = null): Map<String, Any?> {
+        return transport.send(HydraRequest("POST", fillPath("/api/robot/{id}/release", mapOf("id" to id)), emptyMap(), body, "user", headers = queryOf(mapOf("If-Match" to headerIfMatch, "X-Controller-Id" to headerXControllerId)))) as Map<String, Any?>
     }
 
     /** GET /api/robots/liveness (access: user) */
@@ -763,9 +753,8 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** POST /api/ros2-bridge/settings (access: admin) */
-    suspend fun postRos2BridgeSettings(): Unit {
-        transport.send(HydraRequest("POST", "/api/ros2-bridge/settings", emptyMap(), null, "admin"))
-        return Unit
+    suspend fun postRos2BridgeSettings(body: Map<String, Any?>): Map<String, Any?> {
+        return transport.send(HydraRequest("POST", "/api/ros2-bridge/settings", emptyMap(), body, "admin")) as Map<String, Any?>
     }
 
     /** GET /api/rul/config (access: user) */
@@ -780,15 +769,13 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** GET /api/semantic-planner/settings (access: user) */
-    suspend fun getSemanticPlannerSettings(): Unit {
-        transport.send(HydraRequest("GET", "/api/semantic-planner/settings", emptyMap(), null, "user"))
-        return Unit
+    suspend fun getSemanticPlannerSettings(): Map<String, Any?> {
+        return transport.send(HydraRequest("GET", "/api/semantic-planner/settings", emptyMap(), null, "user")) as Map<String, Any?>
     }
 
     /** POST /api/semantic-planner/settings (access: admin) */
-    suspend fun postSemanticPlannerSettings(): Unit {
-        transport.send(HydraRequest("POST", "/api/semantic-planner/settings", emptyMap(), null, "admin"))
-        return Unit
+    suspend fun postSemanticPlannerSettings(body: Map<String, Any?>): Map<String, Any?> {
+        return transport.send(HydraRequest("POST", "/api/semantic-planner/settings", emptyMap(), body, "admin")) as Map<String, Any?>
     }
 
     /** GET /api/settings (access: user) */
@@ -797,13 +784,13 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** PUT /api/settings (access: admin) */
-    suspend fun putSettings(): HydraSuccess {
-        return transport.send(HydraRequest("PUT", "/api/settings", emptyMap(), null, "admin")) as HydraSuccess
+    suspend fun putSettings(headerIfMatch: String, body: HydraSettings): Map<String, Any?> {
+        return transport.send(HydraRequest("PUT", "/api/settings", emptyMap(), body, "admin", headers = queryOf(mapOf("If-Match" to headerIfMatch)))) as Map<String, Any?>
     }
 
     /** POST /api/settings (access: admin) */
-    suspend fun postSettings(): HydraSuccess {
-        return transport.send(HydraRequest("POST", "/api/settings", emptyMap(), null, "admin")) as HydraSuccess
+    suspend fun postSettings(body: HydraSettings, headerIfMatch: String? = null): Map<String, Any?> {
+        return transport.send(HydraRequest("POST", "/api/settings", emptyMap(), body, "admin", headers = queryOf(mapOf("If-Match" to headerIfMatch)))) as Map<String, Any?>
     }
 
     /** POST /api/stop-all (access: user) */
@@ -864,23 +851,23 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** GET /api/telemetry/aggregate (access: user) */
-    suspend fun getTelemetryAggregate(): HydraPassthrough {
-        return transport.send(HydraRequest("GET", "/api/telemetry/aggregate", emptyMap(), null, "user")) as HydraPassthrough
+    suspend fun getTelemetryAggregate(sourceId: String? = null, kind: String? = null, field: String? = null, bucketMs: String? = null, start: String? = null, end: String? = null, before: String? = null, agg: String? = null): List<Map<String, Any?>> {
+        return transport.send(HydraRequest("GET", "/api/telemetry/aggregate", queryOf(mapOf("sourceId" to sourceId, "kind" to kind, "field" to field, "bucketMs" to bucketMs, "start" to start, "end" to end, "before" to before, "agg" to agg)), null, "user")) as List<Map<String, Any?>>
     }
 
     /** GET /api/telemetry/downsample-plan (access: admin) */
-    suspend fun getTelemetryDownsamplePlan(): HydraPassthrough {
-        return transport.send(HydraRequest("GET", "/api/telemetry/downsample-plan", emptyMap(), null, "admin")) as HydraPassthrough
+    suspend fun getTelemetryDownsamplePlan(): Map<String, Any?> {
+        return transport.send(HydraRequest("GET", "/api/telemetry/downsample-plan", emptyMap(), null, "admin")) as Map<String, Any?>
     }
 
     /** PUT /api/telemetry/downsample-plan (access: admin) */
-    suspend fun putTelemetryDownsamplePlan(preview: String? = null): HydraPassthrough {
-        return transport.send(HydraRequest("PUT", "/api/telemetry/downsample-plan", queryOf(mapOf("preview" to preview)), null, "admin")) as HydraPassthrough
+    suspend fun putTelemetryDownsamplePlan(body: Map<String, Any?>, preview: String? = null): Map<String, Any?> {
+        return transport.send(HydraRequest("PUT", "/api/telemetry/downsample-plan", queryOf(mapOf("preview" to preview)), body, "admin")) as Map<String, Any?>
     }
 
     /** GET /api/telemetry/query (access: user) */
-    suspend fun getTelemetryQuery(): HydraPassthrough {
-        return transport.send(HydraRequest("GET", "/api/telemetry/query", emptyMap(), null, "user")) as HydraPassthrough
+    suspend fun getTelemetryQuery(sourceId: String? = null, kind: String? = null, field: String? = null, start: String? = null, end: String? = null, before: String? = null, limit: String? = null, cursor: String? = null): List<Map<String, Any?>> {
+        return transport.send(HydraRequest("GET", "/api/telemetry/query", queryOf(mapOf("sourceId" to sourceId, "kind" to kind, "field" to field, "start" to start, "end" to end, "before" to before, "limit" to limit, "cursor" to cursor)), null, "user")) as List<Map<String, Any?>>
     }
 
     /** GET /api/tool-arms (access: user) */

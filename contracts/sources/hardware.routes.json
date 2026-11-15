@@ -26,6 +26,119 @@
           "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
         }
+      },
+      "parameters": [
+        {
+          "name": "tier",
+          "in": "query",
+          "required": false,
+          "description": "The tier of the target (0 or 1 by default 0).",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "slot",
+          "in": "query",
+          "required": false,
+          "description": "The slot of the target.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "relay",
+          "in": "query",
+          "required": false,
+          "description": "1 to reach tier 2 through the resolved tier 0/1 target.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "hardware_id",
+          "in": "query",
+          "required": false,
+          "description": "The hardware id the image is for.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "version_major",
+          "in": "query",
+          "required": false,
+          "description": "Major version of the image.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "version_minor",
+          "in": "query",
+          "required": false,
+          "description": "Minor version of the image.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "version_patch",
+          "in": "query",
+          "required": false,
+          "description": "Patch version of the image (whole number).",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "signature",
+          "in": "query",
+          "required": false,
+          "description": "The signature of the image, 128 hexadecimal digits.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "downgrade_from",
+          "in": "query",
+          "required": false,
+          "description": "The version installed now (major.minor.patch), for a downgrade.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "target",
+          "in": "query",
+          "required": false,
+          "description": "The name of the board the image is for.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "min_bootloader",
+          "in": "query",
+          "required": false,
+          "description": "The oldest bootloader that may take the image (major.minor.patch).",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "relays_query": true,
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/octet-stream": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
       }
     },
     {
@@ -101,6 +214,27 @@
         "504": {
           "description": "Upstream service did not answer in time. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
+        }
+      },
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "confirm": {
+                  "type": "string",
+                  "enum": [
+                    "ERASE"
+                  ]
+                }
+              },
+              "required": [
+                "confirm"
+              ]
+            }
+          }
         }
       }
     },

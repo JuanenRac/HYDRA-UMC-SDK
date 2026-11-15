@@ -22,13 +22,15 @@
               ],
               "properties": {
                 "folderPath": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "A folder inside the data folder of the server (no .. allowed)."
                 },
                 "fileName": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "The name of the file; only its last component is used."
                 },
                 "content": {
-                  "type": "string"
+                  "description": "Any JSON value (the recorded points are an array); the server writes it pretty-printed as the file."
                 }
               }
             }

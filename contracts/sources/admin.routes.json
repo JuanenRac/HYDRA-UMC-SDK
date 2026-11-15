@@ -111,11 +111,168 @@
       "access": "admin",
       "responses": {
         "200": {
-          "description": "Success. The body is documented in docs/REMOTE_API.md."
+          "description": "The limits now in force: success, limits, defaults and hardLimits. The body is documented in docs/REMOTE_API.md.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "limits": {
+                "type": "object",
+                "properties": {
+                  "jog": {
+                    "type": "object",
+                    "properties": {
+                      "armRequired": {
+                        "type": "boolean"
+                      },
+                      "armTtlMs": {
+                        "type": "number"
+                      },
+                      "default": {
+                        "type": "object",
+                        "properties": {
+                          "maxAmount": {
+                            "type": "number"
+                          },
+                          "maxAbsolute": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "models": {
+                        "type": "object"
+                      }
+                    }
+                  },
+                  "temperature": {
+                    "type": "object",
+                    "properties": {
+                      "default": {
+                        "type": "object",
+                        "properties": {
+                          "bedMaxC": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "models": {
+                        "type": "object"
+                      }
+                    }
+                  },
+                  "claims": {
+                    "type": "object",
+                    "properties": {
+                      "requireControllerId": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "audit": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "motionIntervalSeconds": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              },
+              "defaults": {
+                "type": "object"
+              },
+              "hardLimits": {
+                "type": "object"
+              },
+              "success": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "success",
+              "limits"
+            ]
+          }
         },
         "400": {
           "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
+        }
+      },
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "jog": {
+                  "type": "object",
+                  "properties": {
+                    "armRequired": {
+                      "type": "boolean"
+                    },
+                    "armTtlMs": {
+                      "type": "number"
+                    },
+                    "default": {
+                      "type": "object",
+                      "properties": {
+                        "maxAmount": {
+                          "type": "number"
+                        },
+                        "maxAbsolute": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "models": {
+                      "type": "object"
+                    }
+                  }
+                },
+                "temperature": {
+                  "type": "object",
+                  "properties": {
+                    "default": {
+                      "type": "object",
+                      "properties": {
+                        "bedMaxC": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "models": {
+                      "type": "object"
+                    }
+                  }
+                },
+                "claims": {
+                  "type": "object",
+                  "properties": {
+                    "requireControllerId": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "audit": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "motionIntervalSeconds": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "additionalProperties": false,
+              "description": "A patch of the safety limits: only the blocks and keys sent change, each inside the hard limits of the server."
+            }
+          }
         }
       }
     },
@@ -139,30 +296,184 @@
       "description": "Requires a signed-in account with the admin role.",
       "access": "admin",
       "request_body": {
-        "required": true,
+        "required": false,
         "content": {
           "application/json": {
             "schema": {
               "type": "object",
-              "required": [
-                "port"
-              ],
               "properties": {
                 "port": {
-                  "type": "integer"
+                  "type": "integer",
+                  "description": "The listen port, 1 to 65535; it applies when the server restarts."
+                },
+                "aiAccess": {
+                  "type": "object",
+                  "description": "The options of the aiAccess block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "infoAuth": {
+                  "type": "object",
+                  "description": "The options of the infoAuth block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "tls": {
+                  "type": "object",
+                  "description": "The options of the tls block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "ble": {
+                  "type": "object",
+                  "description": "The options of the ble block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "mqtt": {
+                  "type": "object",
+                  "description": "The options of the mqtt block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "voice": {
+                  "type": "object",
+                  "description": "The options of the voice block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "mavlink": {
+                  "type": "object",
+                  "description": "The options of the mavlink block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "robots": {
+                  "type": "object",
+                  "description": "The options of the robots block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "connections": {
+                  "type": "object",
+                  "description": "The options of the connections block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "health": {
+                  "type": "object",
+                  "description": "The options of the health block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "ecosystemHealth": {
+                  "type": "object",
+                  "description": "The options of the ecosystemHealth block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "nodeHealth": {
+                  "type": "object",
+                  "description": "The options of the nodeHealth block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "twinRelay": {
+                  "type": "object",
+                  "description": "The options of the twinRelay block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "infoTickets": {
+                  "type": "object",
+                  "description": "The options of the infoTickets block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "deviceTokens": {
+                  "type": "object",
+                  "description": "The options of the deviceTokens block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "updateCheck": {
+                  "type": "object",
+                  "description": "The options of the updateCheck block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "discovery": {
+                  "type": "object",
+                  "description": "The options of the discovery block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "maintenance": {
+                  "type": "object",
+                  "description": "The options of the maintenance block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "atc": {
+                  "type": "object",
+                  "description": "The options of the atc block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "detectionHef": {
+                  "type": "object",
+                  "description": "The options of the detectionHef block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "auth": {
+                  "type": "object",
+                  "description": "The options of the auth block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "presence": {
+                  "type": "object",
+                  "description": "The options of the presence block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "push": {
+                  "type": "object",
+                  "description": "The options of the push block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "trustedNetworks": {
+                  "type": "object",
+                  "description": "The options of the trustedNetworks block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "rul": {
+                  "type": "object",
+                  "description": "The options of the rul block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "safety": {
+                  "type": "object",
+                  "description": "The options of the safety block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "camera": {
+                  "type": "object",
+                  "description": "The options of the camera block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "install": {
+                  "type": "object",
+                  "description": "The options of the install block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "websocket": {
+                  "type": "object",
+                  "description": "The options of the websocket block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "logging": {
+                  "type": "object",
+                  "description": "The options of the logging block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "rateLimits": {
+                  "type": "object",
+                  "description": "The options of the rateLimits block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "bridges": {
+                  "type": "object",
+                  "description": "The options of the bridges block of the security configuration that the body changes; only the keys sent are changed."
+                },
+                "jobDispatcher": {
+                  "type": "object",
+                  "description": "The options of the jobDispatcher block of the security configuration that the body changes; only the keys sent are changed."
                 }
-              }
+              },
+              "additionalProperties": false,
+              "description": "Every key is optional: port and any of the blocks of the security configuration. A key that is not one of them is ignored."
             }
           }
         }
       },
       "responses": {
         "200": {
-          "description": "Success. The body is documented in docs/REMOTE_API.md.",
-          "shape": "ServerConfigSaved"
+          "description": "Success. The body carries success, appliesOnRestart, warnings and the security configuration now in force (the same blocks as GET).",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean"
+              },
+              "appliesOnRestart": {
+                "type": "boolean"
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "success",
+              "appliesOnRestart",
+              "warnings"
+            ],
+            "additionalProperties": true
+          }
         },
         "400": {
-          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+          "description": "Invalid request (the port is not an integer from 1 to 65535, or a block is refused: the code and message say which). The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
         },
         "500": {

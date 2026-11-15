@@ -39,8 +39,17 @@
               }
             }
           }
+        },
+        "404": {
+          "description": "The server or the service it relays to has no such route. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "The service this route relays to is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
         }
-      }
+      },
+      "relays_status": true
     },
     {
       "method": "post",
@@ -49,11 +58,86 @@
       "description": "Requires a signed-in account with the admin role. The body is requireSros2 (true or false) and confirm: true, in both directions. The bridge writes the value to its configuration file and the value applies when the bridge restarts: the answer has the same fields as the GET, with changed and appliesAfterRestart true. A bridge started without allowing the change answers 403.",
       "access": "admin",
       "responses": {
+        "200": {
+          "description": "The change was made; the answer is the settings now in force and changed. The body is documented in docs/REMOTE_API.md.",
+          "schema": {
+            "type": "object",
+            "required": [
+              "requireSros2",
+              "active",
+              "restartNeeded",
+              "canChange",
+              "environmentReady"
+            ],
+            "properties": {
+              "requireSros2": {
+                "type": "boolean"
+              },
+              "active": {
+                "type": "boolean"
+              },
+              "restartNeeded": {
+                "type": "boolean"
+              },
+              "canChange": {
+                "type": "boolean"
+              },
+              "environmentReady": {
+                "type": "boolean"
+              },
+              "changed": {
+                "type": "boolean"
+              },
+              "appliesAfterRestart": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
         "400": {
           "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
+        },
+        "403": {
+          "description": "The service refuses the change (it was started without allowing it, or the token has no role for it). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "404": {
+          "description": "The server or the service it relays to has no such route. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "409": {
+          "description": "The service refused the change in its current state (code SETTING_REFUSED). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "503": {
+          "description": "The service this route relays to is not configured or does not answer (available false). The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
         }
-      }
+      },
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "requireSros2": {
+                  "type": "boolean"
+                },
+                "confirm": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "requireSros2",
+                "confirm"
+              ]
+            }
+          }
+        }
+      },
+      "relays_status": true
     }
   ]
 }
