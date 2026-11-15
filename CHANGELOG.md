@@ -21,6 +21,7 @@
 
 ## [Unreleased]
 
+- **A test records that `read_request_id` accepts a final line feed:** the pattern ends with `$`, so `"r1\n"` is a valid request id of the contract, while BRIDGE-CNC reads the id with a full match and refuses it. The behaviour is unchanged; the test says that a bridge may be stricter than this module.
 - **The baseline action of this repository is the canonical one again:** `.github/actions/hydra-baseline/action.yml` had fallen behind `tools/canonical/hydra-baseline-action.yml` (the `slow` input and the steps that use it), so `tools/sync_repo_tools.py --check` reported drift in the SDK itself; the copy now equals the canonical file byte for byte.
 - **The settings of the ROS 2 bridge have a contract (group `ros2-bridge`):** `GET /api/ros2-bridge/settings` and `POST /api/ros2-bridge/settings` carry the requirement of ROS 2 security (`security.require_sros2`, off by default) between the screens and the bridge through the server, like the switch of the HIL bridge. The reading says the value in the file of the bridge (`requireSros2`), the value it started with (`active`), whether a restart is needed, whether the bridge was started allowing the change and whether its ROS 2 security variables are set; the change needs an administrator and `confirm: true` in both directions, and applies when the bridge restarts. The routes, the generated route lists (TypeScript, Kotlin, Dart, JSON) and the app fixtures are regenerated.
 
