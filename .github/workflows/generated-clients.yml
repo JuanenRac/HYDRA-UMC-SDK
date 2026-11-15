@@ -1,0 +1,77 @@
+# =============================================================================
+# HYDRA-UMC - Generated server clients: analyse and run the Kotlin and Dart files
+# Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
+# GPL-3.0 - see LICENSE
+# =============================================================================
+name: Generated clients compile
+
+on:
+  push:
+    paths:
+      - "generated/HydraServerClient.kt"
+      - "generated/hydra_server_client.dart"
+      - "conformance/generated-clients/**"
+      - "tools/generate_clients.py"
+      - ".github/workflows/generated-clients.yml"
+  pull_request:
+    paths:
+      - "generated/HydraServerClient.kt"
+      - "generated/hydra_server_client.dart"
+      - "conformance/generated-clients/**"
+      - "tools/generate_clients.py"
+      - ".github/workflows/generated-clients.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dart-client:
+    name: Analyze and run the Dart client
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Flutter (ships the Dart SDK)
+        run: |
+          git clone --depth 1 --branch 3.47.9 https://github.com/flutter/flutter.git "$RUNNER_TEMP/flutter"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+      - name: Analyze and run the generated client
+        run: |
+          package="$RUNNER_TEMP/dart_client"
+          mkdir -p "$package"
+          cp generated/hydra_server_client.dart conformance/generated-clients/smoke.dart "$package/"
+          printf 'name: hydra_client_smoke\nenvironment:\n  sdk: ^3.13.0\n' > "$package/pubspec.yaml"
+          cd "$package"
+          dart analyze --fatal-infos --fatal-warnings
+          dart run smoke.dart
+
+  kotlin-client:
+    name: Compile and run the Kotlin client
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Java
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Fetch the Kotlin compiler
+        run: |
+          curl --fail --location --silent --show-error --retry 3 \
+            --output "$RUNNER_TEMP/kotlin.zip" \
+            https://github.com/JetBrains/kotlin/releases/download/v2.1.20/kotlin-compiler-2.1.20.zip
+          unzip -q "$RUNNER_TEMP/kotlin.zip" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/kotlinc/bin" >> "$GITHUB_PATH"
+      - name: Compile and run the generated client
+        run: |
+          kotlinc generated/HydraServerClient.kt conformance/generated-clients/Smoke.kt \
+            -include-runtime -d "$RUNNER_TEMP/client.jar"
+          java -cp "$RUNNER_TEMP/client.jar" hydra.umc.client.SmokeKt
