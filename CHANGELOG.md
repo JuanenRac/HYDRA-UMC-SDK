@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.6.9]
+
+### Changed
+
+- Automated build version increment from 0.6.8.
+
 ## [0.6.8]
 
 ### Changed
