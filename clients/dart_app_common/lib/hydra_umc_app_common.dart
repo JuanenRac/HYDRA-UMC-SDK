@@ -34,4 +34,5 @@ export 'src/server_info.dart';
 export 'src/session_store.dart';
 export 'src/sha256.dart';
 export 'src/stop_all_result.dart';
+export 'src/stop_state_notice.dart';
 export 'src/tls_settings.dart';

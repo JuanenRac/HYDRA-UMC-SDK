@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The shared Dart socket hands on the `stop-state` message and Listen only lets the end of a jog through:** `HydraWebSocket` takes `onStopState` (the whole message), and the new `StopStateNotice.restoredAfterRestart()` reads whether the stop of the server was restored after a restart, the same reading as the Android app. `ListenOnlyGate` now lets the robot command `jogStop` through next to `stop` and `disable`, because refusing the end of a jog would be the unsafe side. The conformance vectors list which commands leave the app (`listen_only`) and the Dart tests read them.
+
 ## [0.7.1]
 
 - **The shared Dart transport carries the response headers, a binary body and a text answer (`clients/dart_app_common`):** `HttpResponseData` has `headers` (read by name whatever the case, `header()`, and `headersNamed()` for the names a route declares, which is what a `HydraReply` holds) and `bodyBytes` (the bytes of a binary answer), `HttpRequestData` has `bodyBytes` (an upload that is not text) and `binaryResponse` (the transport must not decode the answer as text), `HttpResponseData.copyWith()` keeps all of it, and `HydraApiCore.call()` takes `bodyBytes` and `binaryResponse` and no longer drops the headers when it fills in the path. Every new field is optional, so a transport and an answer written before them keep working. The renewal of an expired session repeats the request with its binary body and flag. New `test/http_transport_test.dart`.

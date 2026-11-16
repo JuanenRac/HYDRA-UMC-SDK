@@ -25,7 +25,7 @@ void main() {
     expect(ListenOnlyGate.allows('GET', '/api/settings', null), isTrue);
     expect(ListenOnlyGate.allows('head', '/api/settings', null), isTrue);
     expect(ListenOnlyGate.allows('POST', '/api/stop-all', null), isTrue);
-    for (final c in ['stop', 'disable']) {
+    for (final c in ['stop', 'jogStop', 'disable']) {
       expect(ListenOnlyGate.allows('POST', '/api/robot/3/command', _cmd(c)), isTrue, reason: c);
     }
     for (final p in ['/api/login', '/api/refresh', '/api/logout', '/api/device/login']) {
