@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "about": "Behaviour every HYDRA-UMC app client must share. sequence: the number put on numbered commands (a clock that only moves when a step says so). session_answers: which answers an expired session produces. errors: how an error answer is read. renewal: a scripted conversation with a transport; each answer is [status, body]; the client sends calls in order and the renewer returns the given token (null: renewal failed).",
+  "about": "Behaviour every HYDRA-UMC app client must share. sequence: the number put on numbered commands (a clock that only moves when a step says so). session_answers: which answers an expired session produces. errors: how an error answer is read. listen_only: the robot commands that still leave the app while Listen only is on (every other one is refused). renewal: a scripted conversation with a transport; each answer is [status, body]; the client sends calls in order and the renewer returns the given token (null: renewal failed).",
   "sequence": {
     "numbered": ["stop", "jog", "jogStart", "jogStop", "table", "reset", "joints"],
     "steps": [
@@ -12,6 +12,10 @@
       {"clock": 4000, "command": "jogStop", "seq": 5001},
       {"clock": 4000, "command": "play", "seq": null}
     ]
+  },
+  "listen_only": {
+    "allowed_commands": ["stop", "jogStop", "disable"],
+    "refused_commands": ["jog", "jogStart", "play", "pause", "reset", "enable", "tool", "valve", "pump", "speed", "vision"]
   },
   "session_answers": [
     {"status": 401, "body": "", "expired": true},

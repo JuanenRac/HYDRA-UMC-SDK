@@ -80,6 +80,21 @@ void main() {
     });
   });
 
+  group('listen only vectors', () {
+    final lo = vectors['listen_only'] as Map<String, dynamic>;
+    String body(String c) => jsonEncode({'command': c});
+    test('the commands that still leave the app', () {
+      for (final c in (lo['allowed_commands'] as List).cast<String>()) {
+        expect(ListenOnlyGate.allows('POST', '/api/robot/1/command', body(c)), isTrue, reason: c);
+      }
+    });
+    test('every other command is refused', () {
+      for (final c in (lo['refused_commands'] as List).cast<String>()) {
+        expect(ListenOnlyGate.allows('POST', '/api/robot/1/command', body(c)), isFalse, reason: c);
+      }
+    });
+  });
+
   group('session answer vectors', () {
     for (final v in vectors['session_answers'] as List) {
       test('${v['status']} ${v['body']}', () {

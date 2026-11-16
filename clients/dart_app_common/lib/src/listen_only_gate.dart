@@ -42,7 +42,7 @@ class ListenOnlyGate {
   static Set<String> cleanServers(Iterable<String> raw) =>
       raw.where((s) => s.isNotEmpty && s.length <= 200 && s.trim() == s).take(maxServers).toSet();
 
-  static const Set<String> _allowedCommands = {'stop', 'disable'};
+  static const Set<String> _allowedCommands = {'stop', 'jogStop', 'disable'};
   static const Set<String> _sessionNames = {'login', 'refresh', 'logout'};
 
   /// Whether a request may leave the app while the mode is on. Pure. The path is read by its segments.

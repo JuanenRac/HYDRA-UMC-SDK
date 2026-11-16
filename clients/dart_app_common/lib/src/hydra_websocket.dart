@@ -110,6 +110,10 @@ class HydraWebSocket {
   /// as it came; [CanOtaProgress.fromMessage] reads it. Without it the message is ignored.
   final void Function(Map<String, dynamic> message)? onCanOtaProgress;
 
+  /// The `stop-state` message (whether the stop of the server holds, and whether it was restored after a restart of
+  /// the server): the whole message, as it came. Without it the message is ignored.
+  final void Function(Map<String, dynamic> message)? onStopState;
+
   WebSocketChannel? _channel;
   StreamSubscription? _sub;
   bool _closingByUser = false;
@@ -133,6 +137,7 @@ class HydraWebSocket {
     this.onDelta,
     this.onClaims,
     this.onCanOtaProgress,
+    this.onStopState,
     this.httpClientFactory,
   });
 
@@ -262,6 +267,10 @@ class HydraWebSocket {
     final type = msg['type'];
     if (type == 'claims') {
       onClaims?.call(msg);
+      return;
+    }
+    if (type == 'stop-state') {
+      onStopState?.call(msg);
       return;
     }
     if (type == 'canota_progress') {
