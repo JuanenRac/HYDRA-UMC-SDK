@@ -3269,6 +3269,26 @@ data class HydraPostTotpDisableBody(
 }
 
 /** An object of the server contract. */
+data class HydraPostTotpRecoveryCodesBody(
+    val password: String,
+    val code: String,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["password"] = password
+        jsonOut["code"] = code
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraPostTotpRecoveryCodesBody = HydraPostTotpRecoveryCodesBody(
+            password = json["password"] as String,
+            code = json["code"] as String,
+        )
+    }
+}
+
+/** An object of the server contract. */
 data class HydraPostUploadWorkBody(
     /** A folder inside the data folder of the server (no .. allowed). */
     val folderPath: String,
@@ -6281,6 +6301,12 @@ class HydraServerClient(private val transport: HydraTransport) {
         return HydraSuccess.fromJson(hydraMap(raw))
     }
 
+    /** POST /api/totp/recovery-codes (access: user) */
+    suspend fun postTotpRecoveryCodes(body: HydraPostTotpRecoveryCodesBody): HydraTotpConfirmed {
+        val raw = transport.send(HydraRequest("POST", "/api/totp/recovery-codes", emptyMap(), body.toJson(), "user"))
+        return HydraTotpConfirmed.fromJson(hydraMap(raw))
+    }
+
     /** GET /api/totp/status (access: user) */
     suspend fun getTotpStatus(): HydraTotpStatus {
         val raw = transport.send(HydraRequest("GET", "/api/totp/status", emptyMap(), null, "user"))
@@ -6496,6 +6522,7 @@ val HYDRA_CLIENT_OPERATIONS: List<String> = listOf(
     "postTotpBegin",
     "postTotpConfirm",
     "postTotpDisable",
+    "postTotpRecoveryCodes",
     "getTotpStatus",
     "postTrajectoryProposalsVerify",
     "postUploadWork",

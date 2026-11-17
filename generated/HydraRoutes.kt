@@ -132,6 +132,7 @@ val HYDRA_ROUTES: List<HydraRoute> = listOf(
     HydraRoute("POST", "/api/totp/begin", "user", "totp", listOf(), listOf("200", "401", "409")),
     HydraRoute("POST", "/api/totp/confirm", "user", "totp", listOf(), listOf("200", "400")),
     HydraRoute("POST", "/api/totp/disable", "user", "totp", listOf(), listOf("200", "401", "429")),
+    HydraRoute("POST", "/api/totp/recovery-codes", "user", "totp", listOf(), listOf("200", "401", "429")),
     HydraRoute("GET", "/api/totp/status", "user", "totp", listOf(), listOf("200")),
     HydraRoute("POST", "/api/trajectory/proposals/verify", "user", "feeds", listOf(), listOf("200", "400", "503")),
     HydraRoute("POST", "/api/upload-work", "user", "upload-work", listOf(), listOf("200", "400", "403", "500")),

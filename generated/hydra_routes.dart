@@ -139,6 +139,7 @@ const List<HydraRoute> hydraRoutes = <HydraRoute>[
   HydraRoute('POST', '/api/totp/begin', 'user', 'totp', <String>[], <String>['200', '401', '409']),
   HydraRoute('POST', '/api/totp/confirm', 'user', 'totp', <String>[], <String>['200', '400']),
   HydraRoute('POST', '/api/totp/disable', 'user', 'totp', <String>[], <String>['200', '401', '429']),
+  HydraRoute('POST', '/api/totp/recovery-codes', 'user', 'totp', <String>[], <String>['200', '401', '429']),
   HydraRoute('GET', '/api/totp/status', 'user', 'totp', <String>[], <String>['200']),
   HydraRoute('POST', '/api/trajectory/proposals/verify', 'user', 'feeds', <String>[], <String>['200', '400', '503']),
   HydraRoute('POST', '/api/upload-work', 'user', 'upload-work', <String>[], <String>['200', '400', '403', '500']),

@@ -1626,6 +1626,18 @@
       ]
     },
     {
+      "method": "POST",
+      "path": "/api/totp/recovery-codes",
+      "access": "user",
+      "group": "totp",
+      "query": [],
+      "statuses": [
+        "200",
+        "401",
+        "429"
+      ]
+    },
+    {
       "method": "GET",
       "path": "/api/totp/status",
       "access": "user",
