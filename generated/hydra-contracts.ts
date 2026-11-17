@@ -116,6 +116,19 @@ export interface CommandLifecycleEvent {
   [extra: string]: unknown;
 }
 
+export interface ConfirmationProof {
+  schema_version: "1.0";
+  kind: "approval" | "voice";
+  action_id: string;
+  subject_id: string;
+  operator: string;
+  approved_at_ms: number;
+  expires_at_ms: number;
+  approval_id?: string;
+  signature: string;
+  [extra: string]: unknown;
+}
+
 export interface ConnectionClient {
   schema_version: "1.0";
   id: string;

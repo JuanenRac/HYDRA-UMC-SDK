@@ -59,6 +59,7 @@ const CONTRACT_FILES: Record<ContractName, string> = {
   RobotState: "robot-state.schema.json",
   ConnectionEvent: "connection-event.schema.json",
   ConnectionClient: "connection-client.schema.json",
+  ConfirmationProof: "confirmation-proof.schema.json",
   ProductionEvent: "production-event.schema.json",
   EcosystemHealth: "ecosystem-health.schema.json",
   RobotLiveness: "robot-liveness.schema.json",

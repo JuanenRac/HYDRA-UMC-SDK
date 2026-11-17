@@ -309,6 +309,41 @@ class CommandLifecycleEvent {
       };
 }
 
+class ConfirmationProof {
+  final String schema_version;
+  final String kind;
+  final String action_id;
+  final String subject_id;
+  final String operator_;
+  final int approved_at_ms;
+  final int expires_at_ms;
+  final String? approval_id;
+  final String signature;
+  const ConfirmationProof({required this.schema_version, required this.kind, required this.action_id, required this.subject_id, required this.operator_, required this.approved_at_ms, required this.expires_at_ms, this.approval_id, required this.signature});
+  factory ConfirmationProof.fromJson(Map<String, dynamic> json) => ConfirmationProof(
+        schema_version: json["schema_version"] as String,
+        kind: json["kind"] as String,
+        action_id: json["action_id"] as String,
+        subject_id: json["subject_id"] as String,
+        operator_: json["operator"] as String,
+        approved_at_ms: (json["approved_at_ms"] as num).toInt(),
+        expires_at_ms: (json["expires_at_ms"] as num).toInt(),
+        approval_id: json["approval_id"] == null ? null : json["approval_id"] as String,
+        signature: json["signature"] as String,
+      );
+  Map<String, dynamic> toJson() => {
+        "schema_version": schema_version,
+        "kind": kind,
+        "action_id": action_id,
+        "subject_id": subject_id,
+        "operator": operator_,
+        "approved_at_ms": approved_at_ms,
+        "expires_at_ms": expires_at_ms,
+        if (approval_id != null) "approval_id": approval_id,
+        "signature": signature,
+      };
+}
+
 class ConnectionClient {
   final String schema_version;
   final String id;

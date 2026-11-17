@@ -36,6 +36,7 @@ according to its use case.
 | `EcosystemHealth` | Server (`GET /api/ecosystem/health`, off until an administrator turns it on) | Studio, Suite, apps, dashboard |
 | `RobotLiveness` | Server (`GET /api/robots/liveness`) | Studio, Suite, apps, OPC UA server |
 | `RobotRoster` | Any reader of the settings of the server (adapters, gateways, tools) | Adapters, gateways, tools |
+| `ConfirmationProof` | The layer that records a human confirmation (approval of a proposal, signed result of the voice interface) | Controllers and nodes that act only on a confirmed action |
 | `ProductionEvent` | Orchestrator, bridges, robots (one finished cycle) | Production reports, Data Lake |
 | `CommandLifecycleEvent` | Server (the step a robot command reached: accepted, running, completed, failed, cancelled) | Studio, Suite, apps |
 | `VisualTargetRequest` | Callers of visual servoing | Visual servoing service |

@@ -107,6 +107,18 @@ data class CommandLifecycleEvent(
     val reason: String? = null
 )
 
+data class ConfirmationProof(
+    val schema_version: String,
+    val kind: String,
+    val action_id: String,
+    val subject_id: String,
+    val operator: String,
+    val approved_at_ms: Long,
+    val expires_at_ms: Long,
+    val approval_id: String? = null,
+    val signature: String
+)
+
 data class ConnectionClient(
     val schema_version: String,
     val id: String,

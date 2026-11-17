@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://juanenrac.github.io/HYDRA-UMC-SDK/contracts/json-schema/v1/confirmation-proof.schema.json",
+  "title": "ConfirmationProof",
+  "description": "The proof that a person confirmed one exact action: what was confirmed (the identity of the action, for a trajectory its fingerprint), for which robot or subject, who confirmed it, when, until when it counts and a keyed signature over all of that. kind says where the confirmation came from: approval (the approval of a proposal) or voice (a signed result of the voice interface). approval_id, when present, lets the layer that acts accept the proof only once. The schema is closed; a consumer that acts checks the signature, the subject, the action and the window with the helpers of the clients, never the schema alone.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "action_id",
+    "subject_id",
+    "operator",
+    "approved_at_ms",
+    "expires_at_ms",
+    "signature"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "kind": {
+      "enum": [
+        "approval",
+        "voice"
+      ],
+      "description": "Where the confirmation came from."
+    },
+    "action_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The identity of the action that was confirmed (for a trajectory, its fingerprint)."
+    },
+    "subject_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The robot or machine the action is for."
+    },
+    "operator": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,64}$",
+      "description": "The person who confirmed."
+    },
+    "approved_at_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "When the person confirmed, in milliseconds since the epoch."
+    },
+    "expires_at_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Until when the proof counts, in milliseconds since the epoch."
+    },
+    "approval_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$",
+      "description": "A random identity of this proof, for accepting it only once."
+    },
+    "signature": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "HMAC-SHA256, in hexadecimal, over the other fields as the clients build the message."
+    }
+  }
+}

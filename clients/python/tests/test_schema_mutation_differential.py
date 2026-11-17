@@ -41,6 +41,7 @@ CONTRACTS = {
     "ProjectManifest": "project-manifest",
     "ConnectionEvent": "connection-event",
     "ConnectionClient": "connection-client",
+    "ConfirmationProof": "confirmation-proof",
     "ProductionEvent": "production-event",
     "EcosystemHealth": "ecosystem-health",
     "RobotLiveness": "robot-liveness",
