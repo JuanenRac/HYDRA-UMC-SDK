@@ -73,6 +73,13 @@
       ],
       "pattern": "^[A-Za-z0-9._:-]{1,64}$",
       "description": "The frame the command was computed from, when there is one."
+    },
+    "gate": {
+      "enum": [
+        "passed",
+        "none"
+      ],
+      "description": "Whether the command went through the safety gate of the service (passed) or the service had no gate in the path (none). Absent when the service does not say."
     }
   }
 }

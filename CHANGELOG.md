@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- **The velocity command can say whether it went through the safety gate (a minor, additive step of the contract):** `VelocityCommand` takes an optional `gate`, `passed` or `none`, in the JSON Schema, the generated TypeScript, Kotlin and Dart types, the three client copies of the schema, the Python validation and the conformance fixture. A command without it stays valid; a consumer that validates a closed schema with an older copy rejects the field until it takes the new one.
 - **The shared Dart socket hands on the `stop-state` message and Listen only lets the end of a jog through:** `HydraWebSocket` takes `onStopState` (the whole message), and the new `StopStateNotice.restoredAfterRestart()` reads whether the stop of the server was restored after a restart, the same reading as the Android app. `ListenOnlyGate` now lets the robot command `jogStop` through next to `stop` and `disable`, because refusing the end of a jog would be the unsafe side. The conformance vectors list which commands leave the app (`listen_only`) and the Dart tests read them.
 
 ## [0.7.1]
