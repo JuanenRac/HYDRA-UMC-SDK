@@ -151,7 +151,7 @@
     },
     {
       "file": "velocity-command.schema.json",
-      "sha256": "910e33b001fdc622bd7f5fa6059cff1ea979b88c08eefbfe8affb1a4a34c3147"
+      "sha256": "e1e0287df41eda01ab825855e4b5e0e7bd89860074a445c82ae5f9c65131eef3"
     },
     {
       "file": "visual-target-request.schema.json",

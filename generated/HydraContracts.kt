@@ -814,7 +814,8 @@ data class VelocityCommand(
     val issued_at_ms: Long,
     val valid_for_ms: Double,
     val seq: Long,
-    val frame_id: String? = null
+    val frame_id: String? = null,
+    val gate: String? = null
 )
 
 data class VisualTargetRequest(
