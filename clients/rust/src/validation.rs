@@ -73,6 +73,7 @@ const CONTRACT_FILES: &[(&str, &str)] = &[
     ("RobotState", "robot-state.schema.json"),
     ("ConnectionEvent", "connection-event.schema.json"),
     ("ConnectionClient", "connection-client.schema.json"),
+    ("ConfirmationProof", "confirmation-proof.schema.json"),
     ("ProductionEvent", "production-event.schema.json"),
     ("EcosystemHealth", "ecosystem-health.schema.json"),
     ("RobotLiveness", "robot-liveness.schema.json"),
@@ -167,6 +168,10 @@ const SCHEMA_FILES: &[(&str, &str)] = &[
     (
         "connection-client.schema.json",
         include_str!("../schemas/connection-client.schema.json"),
+    ),
+    (
+        "confirmation-proof.schema.json",
+        include_str!("../schemas/confirmation-proof.schema.json"),
     ),
     (
         "production-event.schema.json",

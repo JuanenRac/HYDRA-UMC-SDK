@@ -22,6 +22,10 @@
       "sha256": "0026ff3af340f42533b6d6ebc184cdd74801dead412151ca5fb63e4e09f4fc82"
     },
     {
+      "file": "confirmation-proof.schema.json",
+      "sha256": "d7a85e3b64cc00dc9176837642979efdd5b172eece6977e3cafde8410f16f21d"
+    },
+    {
       "file": "connection-client.schema.json",
       "sha256": "edf2fe0687546d6996b38f3048b257ff99967ff79df1327a622fcfe47338975a"
     },

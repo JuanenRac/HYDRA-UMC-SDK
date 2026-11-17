@@ -293,6 +293,7 @@ export type ContractName =
   | "RobotState"
   | "ConnectionEvent"
   | "ConnectionClient"
+  | "ConfirmationProof"
   | "ProductionEvent"
   | "EcosystemHealth"
   | "RobotLiveness"

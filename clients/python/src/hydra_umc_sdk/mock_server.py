@@ -414,6 +414,16 @@ EXAMPLE_PAYLOADS: dict[str, dict[str, Any]] = {
         "temperature_c": 318.5,
         "setpoint_c": 320
     },
+    "ConfirmationProof": {
+        "schema_version": "1.0",
+        "kind": "approval",
+        "action_id": "trajectory-1",
+        "subject_id": "arm-1",
+        "operator": "ana",
+        "approved_at_ms": 1767261600000,
+        "expires_at_ms": 1767261630000,
+        "signature": "a" * 64,
+    },
     "ProductionEvent": {
         "schema_version": "1.0",
         "source_id": "cnc-1",

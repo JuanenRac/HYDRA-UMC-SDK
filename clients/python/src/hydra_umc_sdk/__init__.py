@@ -48,6 +48,7 @@ from .promotion_journal import PromotionJournal, PromotionPhase, PromotionRecord
 from .pose import FRAMES as POSE_FRAMES, Pose, Quaternion, pose_from_dict, pose_to_legacy_euler, validate_pose
 from .scenario import ScenarioComparison, compare_runs
 from .model_weights import ANY_WEIGHT_SUFFIXES, COMPILED_MODEL_SUFFIXES, contains_model_artifact
+from .confirmation_proof import proof_message, sign_confirmation_proof, validate_confirmation_proof, verify_confirmation_proof
 from .production_event import production_event_fields, validate_production_event
 from .command_lifecycle import COMMAND_STATES, command_state_from_operation, is_terminal_state, validate_command_lifecycle_event, validate_state_transition
 from .mcu_errors import MCU_ERROR_CODES, RECOVERY_ACTIONS, McuErrorCode, default_mcu_error_action, describe_mcu_error, is_known_mcu_error
@@ -131,6 +132,11 @@ __all__ = [
     "validate_robot_roster",
     "validate_robot_liveness",
     "validate_connection_client",
+    "validate_production_event",
+    "validate_confirmation_proof",
+    "sign_confirmation_proof",
+    "verify_confirmation_proof",
+    "proof_message",
     "validate_production_event",
     "COMMAND_STATES",
     "MCU_ERROR_CODES",

@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "kind": "approval",
+  "action_id": "3f786850e387550fdab836ed7e6dc881de23001b9d1d6c5b0f2d8a8b2f7e1a90",
+  "subject_id": "arm-1",
+  "operator": "ana",
+  "approved_at_ms": 1767261600000,
+  "expires_at_ms": 1767261630000,
+  "approval_id": "0123456789abcdef0123456789abcdef",
+  "signature": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}

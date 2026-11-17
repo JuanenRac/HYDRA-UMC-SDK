@@ -60,6 +60,7 @@ var contractFixtureFile = map[string]string{
 	"RobotState":            "robot-state",
 	"ConnectionEvent":       "connection-event",
 	"ConnectionClient":      "connection-client",
+	"ConfirmationProof":     "confirmation-proof",
 	"ProductionEvent":       "production-event",
 	"EcosystemHealth":       "ecosystem-health",
 	"RobotLiveness":         "robot-liveness",
