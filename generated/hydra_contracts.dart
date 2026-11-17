@@ -2363,7 +2363,8 @@ class VelocityCommand {
   final double valid_for_ms;
   final int seq;
   final String? frame_id;
-  const VelocityCommand({required this.schema_version, required this.vx, required this.vy, required this.vz, required this.wroll, required this.wpitch, required this.wyaw, required this.hold, required this.issued_at_ms, required this.valid_for_ms, required this.seq, this.frame_id});
+  final String? gate;
+  const VelocityCommand({required this.schema_version, required this.vx, required this.vy, required this.vz, required this.wroll, required this.wpitch, required this.wyaw, required this.hold, required this.issued_at_ms, required this.valid_for_ms, required this.seq, this.frame_id, this.gate});
   factory VelocityCommand.fromJson(Map<String, dynamic> json) => VelocityCommand(
         schema_version: json["schema_version"] as String,
         vx: (json["vx"] as num).toDouble(),
@@ -2377,6 +2378,7 @@ class VelocityCommand {
         valid_for_ms: (json["valid_for_ms"] as num).toDouble(),
         seq: (json["seq"] as num).toInt(),
         frame_id: json["frame_id"] == null ? null : json["frame_id"] as String,
+        gate: json["gate"] == null ? null : json["gate"] as String,
       );
   Map<String, dynamic> toJson() => {
         "schema_version": schema_version,
@@ -2391,6 +2393,7 @@ class VelocityCommand {
         "valid_for_ms": valid_for_ms,
         "seq": seq,
         if (frame_id != null) "frame_id": frame_id,
+        if (gate != null) "gate": gate,
       };
 }
 

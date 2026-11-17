@@ -27,7 +27,8 @@ MAX_VALID_FOR_MS = 60000
 _REQUEST_REQUIRED = ("schema_version", "frame_id", "current", "target", "confidence", "safety_state")
 _REQUEST_OPTIONAL = ("data_age_ms", "captured_at_utc", "calibration_version", "calibration_age_days")
 _COMMAND_REQUIRED = ("schema_version", "vx", "vy", "vz", "wroll", "wpitch", "wyaw", "hold", "issued_at_ms", "valid_for_ms", "seq")
-_COMMAND_OPTIONAL = ("frame_id",)
+_COMMAND_OPTIONAL = ("frame_id", "gate")
+GATE_VALUES = ("passed", "none")
 
 
 def _pose(payload: dict[str, Any], name: str) -> None:
@@ -73,6 +74,8 @@ def validate_velocity_command(payload: dict[str, Any]) -> None:
     whole(payload, "seq", 0)
     if payload.get("frame_id") is not None:
         identifier(payload, "frame_id")
+    if "gate" in payload:
+        one_of(payload, "gate", GATE_VALUES)
 
 
 def command_is_current(payload: dict[str, Any], now_ms: int) -> bool:

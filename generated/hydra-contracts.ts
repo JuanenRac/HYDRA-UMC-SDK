@@ -916,6 +916,7 @@ export interface VelocityCommand {
   valid_for_ms: number;
   seq: number;
   frame_id?: string | null;
+  gate?: "passed" | "none";
   [extra: string]: unknown;
 }
 

@@ -148,6 +148,20 @@ class ServoingTests(unittest.TestCase):
                 validate("VelocityCommand", _changed(command, vx=bad))
 
 
+class VelocityCommandGateTests(unittest.TestCase):
+    def test_the_gate_is_optional_and_only_passed_or_none(self):
+        command = _fixture("velocity-command", "valid")
+        for value in ("passed", "none"):
+            with self.subTest(value=value):
+                validate("VelocityCommand", _changed(command, gate=value))
+        without = {key: value for key, value in command.items() if key != "gate"}
+        validate("VelocityCommand", without)
+        self.assertTrue(command_is_current(without, without["issued_at_ms"]))
+        for bad in ("PASSED", "open", "", None, True, 1, ["passed"]):
+            with self.subTest(bad=bad), self.assertRaises(ContractValidationError):
+                validate("VelocityCommand", _changed(command, gate=bad))
+
+
 class VisionPipelineTests(unittest.TestCase):
     def test_a_box_cannot_end_before_it_starts(self):
         frame = _fixture("detection-frame", "valid")
