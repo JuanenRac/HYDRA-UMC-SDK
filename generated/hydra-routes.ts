@@ -140,6 +140,7 @@ export const HYDRA_ROUTES: readonly HydraRoute[] = [
   { method: "POST", path: "/api/totp/begin", access: "user", group: "totp", query: [], statuses: ["200", "401", "409"] },
   { method: "POST", path: "/api/totp/confirm", access: "user", group: "totp", query: [], statuses: ["200", "400"] },
   { method: "POST", path: "/api/totp/disable", access: "user", group: "totp", query: [], statuses: ["200", "401", "429"] },
+  { method: "POST", path: "/api/totp/recovery-codes", access: "user", group: "totp", query: [], statuses: ["200", "401", "429"] },
   { method: "GET", path: "/api/totp/status", access: "user", group: "totp", query: [], statuses: ["200"] },
   { method: "POST", path: "/api/trajectory/proposals/verify", access: "user", group: "feeds", query: [], statuses: ["200", "400", "503"] },
   { method: "POST", path: "/api/upload-work", access: "user", group: "upload-work", query: [], statuses: ["200", "400", "403", "500"] },

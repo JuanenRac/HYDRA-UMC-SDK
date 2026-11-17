@@ -79,6 +79,49 @@
     },
     {
       "method": "post",
+      "path": "/api/totp/recovery-codes",
+      "summary": "POST /api/totp/recovery-codes",
+      "description": "Requires a signed-in account (bearer token).",
+      "access": "user",
+      "request_body": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "password",
+                "code"
+              ],
+              "properties": {
+                "password": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Success. The body is documented in docs/REMOTE_API.md.",
+          "shape": "TotpConfirmed"
+        },
+        "401": {
+          "description": "Not signed in or token rejected. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
+        "429": {
+          "description": "Rate limited. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        }
+      }
+    },
+    {
+      "method": "post",
       "path": "/api/totp/disable",
       "summary": "POST /api/totp/disable",
       "description": "Requires a signed-in account (bearer token).",
