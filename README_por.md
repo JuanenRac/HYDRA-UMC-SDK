@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-1270%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-1292%20passing-2ea44f.svg" alt="Tests">
   <img src="https://img.shields.io/badge/Version-0.7.2-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **Verificação de honestidade - o que realmente funciona hoje:** os quarenta contratos JSON Schema v1 com uma fixture válida e outra inválida cada um, o validador Python, a primeira fatia OpenAPI v1 do HYDRA-UMC-SERVER, os clientes Go, TypeScript e Rust que aplicam os mesmos esquemas, os auxiliares de ponte e a matriz de compatibilidade são reais e testados num computador (1270 testes Python, mais as suites dos outros três clientes). O Protobuf ainda não está publicado, a porta de trabalhos é uma função de software partilhada e não uma função de segurança certificada, e nada disto correu em hardware real.
+> **Verificação de honestidade - o que realmente funciona hoje:** os quarenta e um contratos JSON Schema v1 com uma fixture válida e outra inválida cada um, o validador Python, a primeira fatia OpenAPI v1 do HYDRA-UMC-SERVER, os clientes Go, TypeScript e Rust que aplicam os mesmos esquemas, os auxiliares de ponte e a matriz de compatibilidade são reais e testados num computador (1292 testes Python, mais as suites dos outros três clientes). O Protobuf ainda não está publicado, a porta de trabalhos é uma função de software partilhada e não uma função de segurança certificada, e nada disto correu em hardware real.
 
 ---
 
@@ -40,7 +40,7 @@ GPL-3.0-or-later - see LICENSE
 |---|---|
 | Versão | `0.7.2` |
 | Maturidade | Estabelecido |
-| Testes | 1270 (`python -m unittest discover -s clients/python/tests`) |
+| Testes | 1292 (`python -m unittest discover -s clients/python/tests`) |
 | Tecnologia | Python / TypeScript / Go / Rust / JSON Schema |
 | Em hardware real | Não aplicável: nada aqui corre em hardware |
 
@@ -55,7 +55,7 @@ Cada linha é uma parte deste repositório e a luz diz até onde chega hoje. É 
 | Área | Estado | O que significa aqui |
 |---|---|---|
 | Software | 🟢 | Completo para o seu propósito e estável; a verificação de honestidade deste README lista os limites conhecidos |
-| Testes | 🟢 | 1270 testes automáticos, executados a cada alteração |
+| Testes | 🟢 | 1292 testes automáticos, executados a cada alteração |
 | Hardware real | ⚪ | Não aplicável: nada aqui corre em hardware |
 | Implantação | 🟠 | Publicado como release; instalá-lo numa máquina limpa está documentado mas não registado |
 | Contratos e clientes | 🟢 | Cada contrato fechado tem um exemplo válido e um inválido e é validado em Python, Go, Rust e TypeScript contra os mesmos esquemas |
@@ -93,6 +93,9 @@ Desde então foram publicados mais contratos para além dos quatro do primeiro m
 - **Contratos de mensagens:** `MqttPublish` leva um `qos` (0, 1 ou 2) e `ProductionEvent` descreve um ciclo terminado (`source_id`, `at_utc`, `good`, `cycle_time_s`), que os relatórios de produção convertem em OEE.
 - **As rotas que o servidor acrescentou depois do piloto, com contratos tipados:** `contracts/openapi/v1/server.full.openapi.json` lista `GET /api/ecosystem/health`, `GET /api/robots/liveness`, `POST /api/robot/{id}/heartbeat`, `POST /api/stop-all/release`, as rotas das ligações e o `GET /health` público, e a fatia tipada descreve as quatro primeiras. Dois novos contratos fechados, `EcosystemHealth` (estado, código do motivo e desvio de versão de cada serviço e estado do certificado do servidor) e `RobotLiveness` (vivo, desatualizado ou desconhecido para cada robô), são validados pelo cliente Python e incluídos nos clientes Go, Rust e TypeScript com os seus hashes, fixtures e testes diferenciais. Ver [`docs/CONTRACTS.md`](docs/CONTRACTS.md).
 - **Um transporte de pontes que se pode reforçar, com todos os limites desativados por omissão:** `MessageDispatcher(..., max_queue=N, max_payload_bytes=N)` limita as ordens que esperam atrás da que está a correr (a mais antiga é descartada e contada) e recusa uma carga demasiado grande; a faixa de paragem nunca é limitada e os verbos de paragem ficam isentos do teto. `stats()` devolve os contadores `dropped`, `oversized` e `queued`. `connect_with_retry` e `open_bridge_client` aceitam uma espera exponencial com jitter na primeira ligação, e `reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` definem o atraso de religação do cliente MQTT. Ver [`docs/PYTHON_CLIENT.md`](docs/PYTHON_CLIENT.md).
+- **Um leitor comum do estado de uma célula (`hydra_umc_sdk.cell_state_source`):** um bridge lê `READY`, `INHIBITED`, `FAULT` ou `SAFE_STOP` de uma palavra fixa, de um pequeno ficheiro que tem de ser recente, ou do veredicto assinado do serviço das zonas de segurança (um ficheiro ou um endereço HTTP; HMAC-SHA256 com uma chave partilhada, ou Ed25519 com a chave pública; uma marca temporal recente e um contador que nunca recua). O que não é de confiança lê-se como `SAFE_STOP`, `describe()` diz que fonte respondeu e `config_from_environment(name)` não devolve nada quando não há fonte definida. Levá-lo para cada bridge é um passo à parte; nenhum foi testado numa célula real.
+- **A mensagem de ocupação das zonas de segurança tem um leitor (`hydra_umc_sdk.zone_occupancy`):** com o seu campo opcional `known`, `known: false` diz que o emissor não conseguiu ver as zonas, pelo que a lista vazia não é lida como livre. Uma mensagem sem `known` lê-se como antes, uma marca com mais de dois segundos no futuro é recusada e qualquer campo fora do contrato torna a mensagem ilegível.
+- **As definições TLS do Flutter guardam uma impressão digital por servidor (`clients/dart_app_common`):** `pinnedFingerprints` associa cada `host:porta` à sua impressão digital, pelo que dois servidores autoassinados podem ser ambos de confiança; `createHttpClient` e `createClient` recebem o host e a porta para achar a impressão digital desse servidor, e `TlsPrefsCore.load` passa a impressão digital única das versões anteriores para o último servidor. `allowPlainWithPin` (desligado por predefinição) é o interruptor que permite chegar a um servidor fixado sem TLS.
 
 ### Textos comuns das aplicações
 
@@ -115,7 +118,7 @@ Desde então foram publicados mais contratos para além dos quatro do primeiro m
 
 | Tópico ou rota | O que leva |
 |---|---|
-| `contracts/json-schema/v1/` | quarenta contratos JSON Schema v1: capacidade, descritor de dispositivo, envelope de evento, relatório de saúde, operação, manifesto de projeto, estado de segurança, resultado de cenário, descoberta de servidor, manifesto de atualização, cliente de ligação, evento de ligação, pose, evento de produção, estado do robô, estado do gémeo, saúde do ecossistema, sinal de vida do robô, evento do ciclo de vida de um comando, pedido de alvo visual, comando de velocidade, metadados da imagem, imagem de deteções, incidente de manutenção, descritor de ferramenta, estado de ferramenta, instantâneo do nó, proposta de alteração, resultado da implementação canário, evento de falha, pacote de evidências, estado do Jetson, estimativa de pose, lista de robôs, estado das zonas de segurança, aprovação do VLA, cinemática, poses das articulações, identificadores CAN, braços de ferramenta |
+| `contracts/json-schema/v1/` | quarenta e um contratos JSON Schema v1: capacidade, descritor de dispositivo, envelope de evento, relatório de saúde, operação, manifesto de projeto, estado de segurança, resultado de cenário, descoberta de servidor, manifesto de atualização, cliente de ligação, evento de ligação, pose, evento de produção, estado do robô, estado do gémeo, saúde do ecossistema, sinal de vida do robô, evento do ciclo de vida de um comando, pedido de alvo visual, comando de velocidade, metadados da imagem, imagem de deteções, incidente de manutenção, descritor de ferramenta, estado de ferramenta, instantâneo do nó, proposta de alteração, resultado da implementação canário, evento de falha, pacote de evidências, estado do Jetson, estimativa de pose, lista de robôs, estado das zonas de segurança, aprovação do VLA, cinemática, poses das articulações, identificadores CAN, braços de ferramenta |
 | `contracts/openapi/v1/server.openapi.json` | a primeira fatia OpenAPI v1 do HYDRA-UMC-SERVER: descoberta, início de sessão, definições e comandos (um subconjunto do `docs/openapi.json` do próprio servidor) |
 | `contracts/ports.yaml` | o registo de porta, caminho de saúde e unidade systemd de cada serviço, gerado por `tools/sync_ports.py` |
 | `hydra/bridges/<name>/cmd/#` | onde uma ponte escuta; responde em `.../<verbo>/result` |
@@ -145,7 +148,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 Testes
 
-1270 testes automáticos correm com `python -m unittest discover -s clients/python/tests`. Os outros clientes têm as suas próprias suites: 29 testes em Go (`go test ./...`), 133 em TypeScript (`npm test`) e 31 em Rust (`cargo test`), executados por `tools/extra_build_steps.py` se a cadeia de ferramentas estiver instalada. Nenhum precisa de hardware.
+1292 testes automáticos correm com `python -m unittest discover -s clients/python/tests`. Os outros clientes têm as suas próprias suites: 29 testes em Go (`go test ./...`), 133 em TypeScript (`npm test`) e 31 em Rust (`cargo test`), executados por `tools/extra_build_steps.py` se a cadeia de ferramentas estiver instalada. Nenhum precisa de hardware.
 
 A CI executa `HYDRA_UMC_CI=1 python tools/ci_validate.py`, que verifica o manifesto, os documentos, os oito README e as imagens.
 
