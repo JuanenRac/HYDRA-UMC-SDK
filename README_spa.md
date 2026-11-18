@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-1270%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-1292%20passing-2ea44f.svg" alt="Tests">
   <img src="https://img.shields.io/badge/Version-0.7.2-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **Comprobación de honestidad - qué funciona realmente hoy:** los cuarenta contratos JSON Schema v1 con un fixture válido y otro inválido cada uno, el validador de Python, el primer corte OpenAPI v1 de HYDRA-UMC-SERVER, los clientes de Go, TypeScript y Rust que aplican los mismos esquemas, las ayudas para puentes y la matriz de compatibilidad son reales y están probados en un ordenador (1270 pruebas de Python, más las suites de los otros tres clientes). Protobuf aún no se publica, la puerta de trabajos es una función de software compartida y no una función de seguridad certificada, y nada de esto se ha ejecutado en hardware real.
+> **Comprobación de honestidad - qué funciona realmente hoy:** los cuarenta y un contratos JSON Schema v1 con un fixture válido y otro inválido cada uno, el validador de Python, el primer corte OpenAPI v1 de HYDRA-UMC-SERVER, los clientes de Go, TypeScript y Rust que aplican los mismos esquemas, las ayudas para puentes y la matriz de compatibilidad son reales y están probados en un ordenador (1292 pruebas de Python, más las suites de los otros tres clientes). Protobuf aún no se publica, la puerta de trabajos es una función de software compartida y no una función de seguridad certificada, y nada de esto se ha ejecutado en hardware real.
 
 ---
 
@@ -40,7 +40,7 @@ GPL-3.0-or-later - see LICENSE
 |---|---|
 | Versión | `0.7.2` |
 | Madurez | Establecido |
-| Tests | 1270 (`python -m unittest discover -s clients/python/tests`) |
+| Tests | 1292 (`python -m unittest discover -s clients/python/tests`) |
 | Tecnología | Python / TypeScript / Go / Rust / JSON Schema |
 | En hardware real | No aplica: nada de esto se ejecuta en hardware |
 
@@ -55,7 +55,7 @@ Cada línea es una parte de este repositorio y la luz dice hasta dónde llega ho
 | Área | Estado | Qué significa aquí |
 |---|---|---|
 | Software | 🟢 | Completo para su propósito y estable; la comprobación de honestidad de este README lista los límites conocidos |
-| Pruebas | 🟢 | 1270 pruebas automáticas, ejecutadas en cada cambio |
+| Pruebas | 🟢 | 1292 pruebas automáticas, ejecutadas en cada cambio |
 | Hardware real | ⚪ | No aplica: nada de esto se ejecuta en hardware |
 | Despliegue | 🟠 | Publicado como release; instalarlo en un equipo limpio está documentado pero no consta |
 | Contratos y clientes | 🟢 | Cada contrato cerrado tiene un ejemplo válido y uno inválido y se valida en Python, Go, Rust y TypeScript contra los mismos esquemas |
@@ -89,6 +89,9 @@ Los contratos JSON Schema v1, los accesorios válidos/no válidos, un cliente de
 y las pruebas del lado del host ya están implementados, junto con una primera porción real de
 OpenAPI v1 para la superficie HTTP propia de HYDRA-UMC-SERVER (`contracts/openapi/v1/server.openapi.json`
 - ver [docs/CONTRACTS.md](docs/CONTRACTS.md#openapi-v1)). La publicación de Protobuf es un hito de compatibilidad posterior; los clientes Go, TypeScript y Rust ya existen.
+- **Un lector común del estado de una celda (`hydra_umc_sdk.cell_state_source`):** un bridge lee `READY`, `INHIBITED`, `FAULT` o `SAFE_STOP` de una palabra fija, de un pequeño fichero que debe ser reciente, o del veredicto firmado del servicio de zonas de seguridad (un fichero o una dirección HTTP; HMAC-SHA256 con una clave compartida, o Ed25519 con la clave pública; una marca de tiempo reciente y un contador que nunca retrocede). Lo que no es de fiar se lee como `SAFE_STOP`, `describe()` dice qué fuente respondió y `config_from_environment(name)` no devuelve nada cuando no hay fuente. Llevarlo a cada bridge es un paso aparte; ninguno se ha probado en una celda real.
+- **El mensaje de ocupación de las zonas de seguridad tiene un lector (`hydra_umc_sdk.zone_occupancy`):** con su campo opcional `known`, `known: false` dice que el emisor no pudo ver las zonas, así que la lista vacía no se lee como libre. Un mensaje sin `known` se lee como antes, se rechaza una marca de más de dos segundos en el futuro y cualquier campo fuera del contrato hace ilegible el mensaje.
+- **Los ajustes TLS de Flutter guardan una huella por servidor (`clients/dart_app_common`):** `pinnedFingerprints` asigna a cada `host:puerto` su huella, de modo que dos servidores autofirmados pueden ser de confianza a la vez; `createHttpClient` y `createClient` reciben el host y el puerto para hallar la huella de ese servidor, y `TlsPrefsCore.load` pasa la huella única de versiones anteriores al último servidor. `allowPlainWithPin` (desactivado por defecto) es el interruptor que permite llegar a un servidor con huella fijada sin TLS.
 
 Una matriz de compatibilidad real y automática (`tools/verify_contract_matrix.py`)
 contrasta cada esquema publicado con la propia lista de contratos del validador
@@ -124,7 +127,7 @@ nunca se trate silenciosamente como utilizable; y un
 `hydra-umc-sdk-mock-server` (`mock_server.py`) que sirve un payload de
 ejemplo válido por cada contrato conocido sobre HTTP plano, para que una
 UI o un adaptador puedan desarrollarse antes de que exista hardware
-CM5/robot/MCU real. Los 40 contratos tienen al menos un accesorio de
+CM5/robot/MCU real. Los 41 contratos tienen al menos un accesorio de
 conformidad válido e inválido, verificados por la matriz de
 compatibilidad de arriba.
 
@@ -156,7 +159,7 @@ compatibilidad de arriba.
 
 | Topic o ruta | Qué lleva |
 |---|---|
-| `contracts/json-schema/v1/` | cuarenta contratos JSON Schema v1: capacidad, descriptor de dispositivo, sobre de evento, informe de salud, operación, manifiesto de proyecto, estado de seguridad, resultado de escenario, descubrimiento de servidor, manifiesto de actualización, cliente de conexión, evento de conexión, pose, evento de producción, estado del robot, estado del gemelo, salud del ecosistema, señal de vida del robot, evento del ciclo de vida de una orden, solicitud de objetivo visual, orden de velocidad, metadatos de fotograma, fotograma de detecciones, incidente de mantenimiento, descriptor de herramienta, estado de herramienta, instantánea de nodo, propuesta de cambio, resultado de despliegue canario, evento de fallo, paquete de evidencias, estado del Jetson, estimación de pose, lista de robots, estado de las zonas de seguridad, aprobación del VLA, cinemática, poses de articulaciones, identificadores CAN, brazos de herramienta |
+| `contracts/json-schema/v1/` | cuarenta y un contratos JSON Schema v1: capacidad, descriptor de dispositivo, sobre de evento, informe de salud, operación, manifiesto de proyecto, estado de seguridad, resultado de escenario, descubrimiento de servidor, manifiesto de actualización, cliente de conexión, evento de conexión, pose, evento de producción, estado del robot, estado del gemelo, salud del ecosistema, señal de vida del robot, evento del ciclo de vida de una orden, solicitud de objetivo visual, orden de velocidad, metadatos de fotograma, fotograma de detecciones, incidente de mantenimiento, descriptor de herramienta, estado de herramienta, instantánea de nodo, propuesta de cambio, resultado de despliegue canario, evento de fallo, paquete de evidencias, estado del Jetson, estimación de pose, lista de robots, estado de las zonas de seguridad, aprobación del VLA, cinemática, poses de articulaciones, identificadores CAN, brazos de herramienta |
 | `contracts/openapi/v1/server.openapi.json` | el primer corte OpenAPI v1 de HYDRA-UMC-SERVER: descubrimiento, inicio de sesión, ajustes y órdenes (un subconjunto del `docs/openapi.json` del propio servidor) |
 | `contracts/ports.yaml` | el registro del puerto, la ruta de salud y la unidad systemd de cada servicio, generado por `tools/sync_ports.py` |
 | `hydra/bridges/<name>/cmd/#` | donde escucha un puente; responde en `.../<verbo>/result` |
@@ -186,7 +189,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 Pruebas
 
-1270 pruebas automáticas se ejecutan con `python -m unittest discover -s clients/python/tests`. Los otros clientes tienen sus propias suites: 29 pruebas en Go (`go test ./...`), 133 en TypeScript (`npm test`) y 31 en Rust (`cargo test`), que ejecuta `tools/extra_build_steps.py` si la cadena de herramientas está instalada. Ninguna necesita hardware.
+1292 pruebas automáticas se ejecutan con `python -m unittest discover -s clients/python/tests`. Los otros clientes tienen sus propias suites: 29 pruebas en Go (`go test ./...`), 133 en TypeScript (`npm test`) y 31 en Rust (`cargo test`), que ejecuta `tools/extra_build_steps.py` si la cadena de herramientas está instalada. Ninguna necesita hardware.
 
 El CI ejecuta `HYDRA_UMC_CI=1 python tools/ci_validate.py`, que comprueba el manifiesto, los documentos, los ocho README y las imágenes.
 

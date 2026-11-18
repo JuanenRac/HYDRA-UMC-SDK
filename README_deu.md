@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-1270%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-1292%20passing-2ea44f.svg" alt="Tests">
   <img src="https://img.shields.io/badge/Version-0.7.2-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **Ehrlichkeitscheck - was heute wirklich läuft:** die vierzig JSON-Schema-v1-Verträge mit je einer gültigen und einer ungültigen Fixture, der Python-Validator, der erste OpenAPI-v1-Ausschnitt von HYDRA-UMC-SERVER, die Go-, TypeScript- und Rust-Clients, die dieselben Schemas durchsetzen, die Bridge-Helfer und die Kompatibilitätsmatrix sind echt und auf einem Rechner getestet (1270 Python-Tests, dazu die Suiten der anderen drei Clients). Protobuf ist noch nicht veröffentlicht, das Job-Gate ist eine gemeinsame Software-Funktion und keine zertifizierte Sicherheitsfunktion, und nichts davon lief auf echter Hardware.
+> **Ehrlichkeitscheck - was heute wirklich läuft:** die einundvierzig JSON-Schema-v1-Verträge mit je einer gültigen und einer ungültigen Fixture, der Python-Validator, der erste OpenAPI-v1-Ausschnitt von HYDRA-UMC-SERVER, die Go-, TypeScript- und Rust-Clients, die dieselben Schemas durchsetzen, die Bridge-Helfer und die Kompatibilitätsmatrix sind echt und auf einem Rechner getestet (1292 Python-Tests, dazu die Suiten der anderen drei Clients). Protobuf ist noch nicht veröffentlicht, das Job-Gate ist eine gemeinsame Software-Funktion und keine zertifizierte Sicherheitsfunktion, und nichts davon lief auf echter Hardware.
 
 ---
 
@@ -40,7 +40,7 @@ GPL-3.0-or-later - see LICENSE
 |---|---|
 | Version | `0.7.2` |
 | Reifegrad | Etabliert |
-| Tests | 1270 (`python -m unittest discover -s clients/python/tests`) |
+| Tests | 1292 (`python -m unittest discover -s clients/python/tests`) |
 | Technik | Python / TypeScript / Go / Rust / JSON Schema |
 | Auf echter Hardware | Nicht zutreffend: nichts hiervon läuft auf Hardware |
 
@@ -55,7 +55,7 @@ Jede Zeile ist ein Teil dieses Repositorys, und die Ampel sagt, wie weit er heut
 | Bereich | Stand | Was das hier bedeutet |
 |---|---|---|
 | Software | 🟢 | Für seinen Zweck vollständig und stabil; die Ehrlichkeitsprüfung in diesem README nennt die bekannten Grenzen |
-| Tests | 🟢 | 1270 automatische Tests, bei jeder Änderung ausgeführt |
+| Tests | 🟢 | 1292 automatische Tests, bei jeder Änderung ausgeführt |
 | Echte Hardware | ⚪ | Nicht zutreffend: nichts hiervon läuft auf Hardware |
 | Bereitstellung | 🟠 | Als Release veröffentlicht; die Installation auf einem frischen Rechner ist dokumentiert, aber nicht vermerkt |
 | Verträge und Clients | 🟢 | Jeder geschlossene Vertrag hat ein gültiges und ein ungültiges Beispiel und wird in Python, Go, Rust und TypeScript gegen dieselben Schemas geprüft |
@@ -89,6 +89,9 @@ JSON Schema v1-Verträge, gültige/ungültige Fixtures, ein Python-Validierungsc
 und hostseitige Tests werden implementiert, ebenso ein echter erster OpenAPI-v1-Ausschnitt
 für die eigene HTTP-Oberfläche von HYDRA-UMC-SERVER (`contracts/openapi/v1/server.openapi.json`
 - siehe [docs/CONTRACTS.md](docs/CONTRACTS.md#openapi-v1)). Die Protobuf-Veröffentlichung ist ein späterer Kompatibilitätsmeilenstein; die Clients für Go, TypeScript und Rust gibt es bereits.
+- **Ein gemeinsamer Leser für den Zustand einer Zelle (`hydra_umc_sdk.cell_state_source`):** ein Bridge liest `READY`, `INHIBITED`, `FAULT` oder `SAFE_STOP` aus einem festen Wort, aus einer kleinen Datei, die frisch sein muss, oder aus dem signierten Urteil des Dienstes für die Sicherheitszonen (eine Datei oder eine HTTP-Adresse; HMAC-SHA256 mit gemeinsamem Schlüssel oder Ed25519 mit dem öffentlichen Schlüssel; ein frischer Zeitstempel und ein Zähler, der nie zurückgeht). Was nicht vertrauenswürdig ist, wird als `SAFE_STOP` gelesen, `describe()` nennt die antwortende Quelle, und `config_from_environment(name)` liefert nichts, wenn keine Quelle gesetzt ist. Die Übernahme in jeden Bridge ist ein eigener Schritt; keiner wurde an einer echten Zelle erprobt.
+- **Die Belegungsnachricht der Sicherheitszonen hat einen Leser (`hydra_umc_sdk.zone_occupancy`):** mit seinem optionalen Feld `known` besagt `known: false`, dass der Sender die Zonen nicht sehen konnte, die leere Liste also nicht als frei gelesen wird. Eine Nachricht ohne `known` wird wie bisher gelesen, ein Zeitstempel mehr als zwei Sekunden in der Zukunft wird abgelehnt, und jedes Feld außerhalb des Vertrags macht die Nachricht unlesbar.
+- **Die Flutter-TLS-Einstellungen merken sich einen Fingerabdruck je Server (`clients/dart_app_common`):** `pinnedFingerprints` ordnet jedem `host:port` seinen Fingerabdruck zu, sodass zwei selbstsignierte Server beide vertraut werden können; `createHttpClient` und `createClient` nehmen Host und Port, um den Fingerabdruck dieses Servers zu finden, und `TlsPrefsCore.load` verschiebt den einzelnen Fingerabdruck älterer Versionen auf den letzten Server. `allowPlainWithPin` (standardmäßig aus) ist der Schalter, der einen angehefteten Server ohne TLS erreichbar macht.
 
 Eine echte, automatische Kompatibilitätsmatrix (`tools/verify_contract_matrix.py`)
 gleicht jedes veröffentlichte Schema mit der eigenen Vertragsliste des
@@ -160,7 +163,7 @@ durch die obige Kompatibilitätsmatrix.
 
 | Topic oder Route | Was es trägt |
 |---|---|
-| `contracts/json-schema/v1/` | vierzig JSON-Schema-v1-Verträge: Fähigkeit, Gerätedeskriptor, Ereignis-Umschlag, Gesundheitsbericht, Operation, Projektmanifest, Sicherheitszustand, Szenarioergebnis, Server-Erkennung, Update-Manifest, Verbindungs-Client, Verbindungsereignis, Pose, Produktionsereignis, Roboterzustand, Zwillingszustand, Ökosystem-Gesundheit, Roboter-Lebenszeichen, Befehlslebenszyklus-Ereignis, Sichtziel-Anfrage, Geschwindigkeitsbefehl, Bildmetadaten, Detektionsbild, Wartungsvorfall, Werkzeugdeskriptor, Werkzeugzustand, Knoten-Momentaufnahme, Änderungsvorschlag, Canary-Deploy-Ergebnis, Fehlerereignis, Beweispaket, Jetson-Zustand, Posenschätzung, Roboterliste, Zustand der Sicherheitszonen, VLA-Freigabe, Kinematik, Gelenkposen, CAN-Kennungen, Werkzeugarme |
+| `contracts/json-schema/v1/` | einundvierzig JSON-Schema-v1-Verträge: Fähigkeit, Gerätedeskriptor, Ereignis-Umschlag, Gesundheitsbericht, Operation, Projektmanifest, Sicherheitszustand, Szenarioergebnis, Server-Erkennung, Update-Manifest, Verbindungs-Client, Verbindungsereignis, Pose, Produktionsereignis, Roboterzustand, Zwillingszustand, Ökosystem-Gesundheit, Roboter-Lebenszeichen, Befehlslebenszyklus-Ereignis, Sichtziel-Anfrage, Geschwindigkeitsbefehl, Bildmetadaten, Detektionsbild, Wartungsvorfall, Werkzeugdeskriptor, Werkzeugzustand, Knoten-Momentaufnahme, Änderungsvorschlag, Canary-Deploy-Ergebnis, Fehlerereignis, Beweispaket, Jetson-Zustand, Posenschätzung, Roboterliste, Zustand der Sicherheitszonen, VLA-Freigabe, Kinematik, Gelenkposen, CAN-Kennungen, Werkzeugarme |
 | `contracts/openapi/v1/server.openapi.json` | der erste OpenAPI-v1-Ausschnitt von HYDRA-UMC-SERVER: Erkennung, Anmeldung, Einstellungen und Befehle (eine Teilmenge der `docs/openapi.json` des Servers selbst) |
 | `contracts/ports.yaml` | das Register von Port, Gesundheitspfad und systemd-Unit jedes Dienstes, erzeugt von `tools/sync_ports.py` |
 | `hydra/bridges/<name>/cmd/#` | wo eine Bridge lauscht; sie antwortet auf `.../<verb>/result` |
@@ -190,7 +193,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 Tests
 
-1270 automatische Tests laufen mit `python -m unittest discover -s clients/python/tests`. Die anderen Clients haben eigene Suiten: 29 Tests in Go (`go test ./...`), 133 in TypeScript (`npm test`) und 31 in Rust (`cargo test`), ausgeführt von `tools/extra_build_steps.py`, wenn die Toolchain installiert ist. Keiner braucht Hardware.
+1292 automatische Tests laufen mit `python -m unittest discover -s clients/python/tests`. Die anderen Clients haben eigene Suiten: 29 Tests in Go (`go test ./...`), 133 in TypeScript (`npm test`) und 31 in Rust (`cargo test`), ausgeführt von `tools/extra_build_steps.py`, wenn die Toolchain installiert ist. Keiner braucht Hardware.
 
 Die CI führt `HYDRA_UMC_CI=1 python tools/ci_validate.py` aus; das prüft das Manifest, die Dokumente, die acht READMEs und die Bilder.
 

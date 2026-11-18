@@ -19,14 +19,14 @@ GPL-3.0-or-later - see LICENSE
   <img src="https://img.shields.io/badge/Contracts-JSON%20Schema%20%7C%20OpenAPI-orange.svg" alt="Contracts">
   <img src="https://img.shields.io/badge/Reference%20clients-Python%20%7C%20Go%20%7C%20TypeScript%20%7C%20Rust-blueviolet.svg" alt="Reference%20clients">
   <img src="https://img.shields.io/badge/Integration-CM5%20%7C%20URTC-red.svg" alt="Integration">
-  <img src="https://img.shields.io/badge/Tests-1270%20passing-2ea44f.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-1292%20passing-2ea44f.svg" alt="Tests">
   <img src="https://img.shields.io/badge/Version-0.7.2-0f6cbd.svg" alt="Version">
   <img src="https://img.shields.io/badge/Maturity-established-2EA44F.svg" alt="Maturity">
 </p>
 
 ---
 
-> **誠実性チェック - 今日実際に動くもの:** JSON Schema v1 の 40 件の契約（それぞれ有効・無効のフィクスチャ付き）、Python の検証器、HYDRA-UMC-SERVER の最初の OpenAPI v1 部分、同じスキーマを強制する Go・TypeScript・Rust のクライアント、ブリッジ用ヘルパー、互換性マトリクスは実在し、コンピューター上でテスト済みです（Python のテスト 1270 件と、他の 3 つのクライアントのスイート）。Protobuf はまだ公開されておらず、ジョブゲートは共有のソフトウェア機能であって認証済みの安全機能ではなく、ここにあるものは実機では動かしていません。
+> **誠実性チェック - 今日実際に動くもの:** JSON Schema v1 の 41 件の契約（それぞれ有効・無効のフィクスチャ付き）、Python の検証器、HYDRA-UMC-SERVER の最初の OpenAPI v1 部分、同じスキーマを強制する Go・TypeScript・Rust のクライアント、ブリッジ用ヘルパー、互換性マトリクスは実在し、コンピューター上でテスト済みです（Python のテスト 1292 件と、他の 3 つのクライアントのスイート）。Protobuf はまだ公開されておらず、ジョブゲートは共有のソフトウェア機能であって認証済みの安全機能ではなく、ここにあるものは実機では動かしていません。
 
 ---
 
@@ -40,7 +40,7 @@ GPL-3.0-or-later - see LICENSE
 |---|---|
 | バージョン | `0.7.2` |
 | 成熟度 | 確立 |
-| テスト | 1270 (`python -m unittest discover -s clients/python/tests`) |
+| テスト | 1292 (`python -m unittest discover -s clients/python/tests`) |
 | 技術 | Python / TypeScript / Go / Rust / JSON Schema |
 | 実機での確認 | 対象外：ここにあるものはハードウェア上では動きません |
 
@@ -55,7 +55,7 @@ GPL-3.0-or-later - see LICENSE
 | 領域 | 状態 | ここでの意味 |
 |---|---|---|
 | ソフトウェア | 🟢 | 目的に対して完成していて安定しています。既知の制限はこの README の正直さの確認に書かれています |
-| テスト | 🟢 | 自動テスト 1270 件。変更のたびに実行されます |
+| テスト | 🟢 | 自動テスト 1292 件。変更のたびに実行されます |
 | 実機 | ⚪ | 対象外：ここにあるものはハードウェア上では動きません |
 | デプロイ | 🟠 | リリースとして公開されています。新しい環境へのインストールは文書化されていますが記録はありません |
 | 契約とクライアント | 🟢 | 閉じた契約にはそれぞれ有効な例と無効な例があり、Python、Go、Rust、TypeScript で同じスキーマに対して検証されます |
@@ -101,6 +101,9 @@ Protobuf の公開はその後の互換性マイルストーンです。Go、Typ
 - **メッセージング契約：** `MqttPublish` は `qos`（0、1、2）を運び、`ProductionEvent` は終わった 1 サイクル（`source_id`、`at_utc`、`good`、`cycle_time_s`）を表し、生産レポートが OEE に変換します。
 - **パイロットの後にサーバーが追加したルートと型付き契約：** `contracts/openapi/v1/server.full.openapi.json` は `GET /api/ecosystem/health`、`GET /api/robots/liveness`、`POST /api/robot/{id}/heartbeat`、`POST /api/stop-all/release`、接続のルート、公開の `GET /health` を載せ、型付きの部分は最初の 4 つを記述します。新しい閉じた契約 2 つ、`EcosystemHealth`（各サービスの状態・理由コード・バージョンのずれとサーバー証明書の状態）と `RobotLiveness`（各ロボットの live・stale・unknown）は Python クライアントが検証し、Go・Rust・TypeScript のクライアントにハッシュ、フィクスチャ、差分テスト付きで取り込まれています。[`docs/CONTRACTS.md`](docs/CONTRACTS.md) を参照してください。
 - **強化できるブリッジ転送（制限はすべて既定でオフ）：** `MessageDispatcher(..., max_queue=N, max_payload_bytes=N)` は実行中のコマンドの後ろで待つコマンドを制限し（最も古いものを破棄して数えます）、大きすぎるペイロードを拒否します。停止レーンは制限されず、停止の動詞は上限の対象外です。`stats()` は `dropped`、`oversized`、`queued` のカウンターを返します。`connect_with_retry` と `open_bridge_client` は最初の接続にジッター付きの指数的な待ちを取り、`reconnect_min_delay_seconds` / `reconnect_max_delay_seconds` で MQTT クライアントの再接続遅延を設定します。[`docs/PYTHON_CLIENT.md`](docs/PYTHON_CLIENT.md) を参照してください。
+- **セルの状態を読む共通リーダー（`hydra_umc_sdk.cell_state_source`）：** ブリッジは `READY`・`INHIBITED`・`FAULT`・`SAFE_STOP` を、固定の単語、新しくなければならない小さなファイル、または安全ゾーンサービスの署名付き判定（ファイルまたは HTTP アドレス。共有鍵の HMAC-SHA256 か公開鍵の Ed25519。新しいタイムスタンプと、戻らないカウンター）から読みます。信頼できないものは `SAFE_STOP` として読まれ、`describe()` はどの情報源が答えたかを示し、`config_from_environment(name)` は情報源が未設定のとき何も返しません。各ブリッジへの組み込みは別の作業で、実機のセルで試したものはありません。
+- **安全ゾーンの占有メッセージのリーダー（`hydra_umc_sdk.zone_occupancy`）：** 任意の `known` フィールドで、`known: false` は送信側がゾーンを見られなかったことを示し、空のリストを「空き」とは読みません。`known` のないメッセージはこれまで通りに読まれ、2 秒を超えて未来のタイムスタンプは拒否され、契約にないフィールドがあるとメッセージは読めないものになります。
+- **Flutter の TLS 設定はサーバーごとにフィンガープリントを保持します（`clients/dart_app_common`）：** `pinnedFingerprints` は `host:port` ごとにフィンガープリントを対応付けるので、自己署名の 2 台のサーバーを両方信頼できます。`createHttpClient` と `createClient` はホストとポートを受け取ってそのサーバーのフィンガープリントを探し、`TlsPrefsCore.load` は旧バージョンの単一のフィンガープリントを最後のサーバーに移します。`allowPlainWithPin`（既定はオフ）は、固定済みのサーバーに TLS なしで接続できるようにするスイッチです。
 
 ### アプリ共通の文言
 
@@ -123,7 +126,7 @@ Protobuf の公開はその後の互換性マイルストーンです。Go、Typ
 
 | トピックまたはルート | 内容 |
 |---|---|
-| `contracts/json-schema/v1/` | JSON Schema v1 の契約 40 件：能力、デバイス記述子、イベントエンベロープ、ヘルスレポート、オペレーション、プロジェクトマニフェスト、安全状態、シナリオ結果、サーバー探索、更新マニフェスト、接続クライアント、接続イベント、姿勢、生産イベント、ロボット状態、ツイン状態、エコシステムの健全性、ロボットの生存信号、コマンドのライフサイクルイベント、視覚ターゲット要求、速度コマンド、フレームメタデータ、検出フレーム、保守インシデント、ツール記述子、ツール状態、ノードスナップショット、変更提案、カナリアデプロイ結果、障害イベント、証拠バンドル、Jetson の状態、姿勢推定、ロボット名簿、安全ゾーンの状態、VLA の承認、運動学、関節姿勢、CAN 識別子、ツールアーム |
+| `contracts/json-schema/v1/` | JSON Schema v1 の契約 41 件：能力、デバイス記述子、イベントエンベロープ、ヘルスレポート、オペレーション、プロジェクトマニフェスト、安全状態、シナリオ結果、サーバー探索、更新マニフェスト、接続クライアント、接続イベント、姿勢、生産イベント、ロボット状態、ツイン状態、エコシステムの健全性、ロボットの生存信号、コマンドのライフサイクルイベント、視覚ターゲット要求、速度コマンド、フレームメタデータ、検出フレーム、保守インシデント、ツール記述子、ツール状態、ノードスナップショット、変更提案、カナリアデプロイ結果、障害イベント、証拠バンドル、Jetson の状態、姿勢推定、ロボット名簿、安全ゾーンの状態、VLA の承認、運動学、関節姿勢、CAN 識別子、ツールアーム |
 | `contracts/openapi/v1/server.openapi.json` | HYDRA-UMC-SERVER の最初の OpenAPI v1 部分：探索、サインイン、設定、コマンド（サーバー自身の `docs/openapi.json` の一部） |
 | `contracts/ports.yaml` | 各サービスのポート、ヘルスパス、systemd ユニットの一覧。`tools/sync_ports.py` が生成 |
 | `hydra/bridges/<name>/cmd/#` | ブリッジが待ち受ける場所。応答は `.../<動詞>/result` |
@@ -153,7 +156,7 @@ PYTHONPATH=clients/python/src python -m hydra_umc_sdk.validation --help         
 
 ## 🧪 テスト
 
-`python -m unittest discover -s clients/python/tests` で自動テスト 1270 件を実行します。 他のクライアントには独自のスイートがあります。Go は 29 件（`go test ./...`）、TypeScript は 133 件（`npm test`）、Rust は 31 件（`cargo test`）で、ツールチェーンがあれば `tools/extra_build_steps.py` が実行します。ハードウェアは不要です。
+`python -m unittest discover -s clients/python/tests` で自動テスト 1292 件を実行します。 他のクライアントには独自のスイートがあります。Go は 29 件（`go test ./...`）、TypeScript は 133 件（`npm test`）、Rust は 31 件（`cargo test`）で、ツールチェーンがあれば `tools/extra_build_steps.py` が実行します。ハードウェアは不要です。
 
 CI は `HYDRA_UMC_CI=1 python tools/ci_validate.py` を実行し、マニフェスト、文書、8 つの README、図を検査します。
 
