@@ -97,6 +97,87 @@ void main() {
     });
   });
 
+  group('a fingerprint for each server', () {
+    final other = '2' * 64;
+
+    test('a server uses its own fingerprint, else the single one of older versions', () {
+      final s = TlsSettings(pinnedFingerprint: kTestCertFingerprint).withPin('hydra.local', 8443, other);
+      expect(s.pinFor('hydra.local', 8443), other);
+      expect(s.pinFor('HYDRA.local', 8443), other);
+      expect(s.pinFor('hydra.local', 9443), kTestCertFingerprint);
+      expect(s.pinFor('other.lan', 8443), kTestCertFingerprint);
+      expect(const TlsSettings().pinFor('hydra.local', 8443), isEmpty);
+    });
+
+    test('two servers keep two fingerprints and one can be removed', () {
+      final s = const TlsSettings().withPin('a.lan', 1, kTestCertFingerprint).withPin('b.lan', 2, other);
+      expect(s.pinFor('a.lan', 1), kTestCertFingerprint);
+      expect(s.pinFor('b.lan', 2), other);
+      final without = s.withPin('a.lan', 1, '');
+      expect(without.pinFor('a.lan', 1), isEmpty);
+      expect(without.pinFor('b.lan', 2), other);
+    });
+
+    test('a damaged fingerprint of a server is a problem, a blank one is not', () {
+      expect(const TlsSettings().withPin('a.lan', 1, 'abc').validate(), TlsProblem.fingerprintInvalid);
+      expect(const TlsSettings(pinnedFingerprints: {'a.lan:1': ' '}).validate(), isNull);
+      final n = TlsSettings(pinnedFingerprints: {'A.lan:1': TlsFingerprint.display(kTestCertFingerprint), 'b.lan:2': ' '}).normalized();
+      expect(n.pinnedFingerprints, {'a.lan:1': kTestCertFingerprint});
+    });
+
+    test('settings with the same fingerprints are equal', () {
+      final a = const TlsSettings().withPin('a.lan', 1, other).withPin('b.lan', 2, kTestCertFingerprint);
+      final b = const TlsSettings().withPin('b.lan', 2, kTestCertFingerprint).withPin('a.lan', 1, other);
+      expect(a, b);
+      expect(a.hashCode, b.hashCode);
+      expect(a == a.withPin('a.lan', 1, '3' * 64), isFalse);
+    });
+
+    test('a pinned server is not offered plain HTTP unless the switch for it is on', () {
+      final pinned = const TlsSettings(allowPlainHttp: true).withPin('192.168.1.5', 8443, other);
+      expect(pinned.plainAllowedFor('192.168.1.5'), isFalse);
+      expect(pinned.plainAllowedFor('192.168.1.6'), isTrue);
+      expect(pinned.plainAllowedFor('127.0.0.1'), isTrue);
+      expect(pinned.copyWith(allowPlainWithPin: true).plainAllowedFor('192.168.1.5'), isTrue);
+      // the single fingerprint of older versions counts for every host
+      final legacy = TlsSettings(allowPlainHttp: true, pinnedFingerprint: kTestCertFingerprint);
+      expect(legacy.plainAllowedFor('192.168.1.6'), isFalse);
+      expect(legacy.copyWith(allowPlainWithPin: true).plainAllowedFor('192.168.1.6'), isTrue);
+      expect(const TlsSettings().allowPlainWithPin, isFalse);
+    });
+
+    test('the single fingerprint moves to the last server and the old key stays stored', () async {
+      final store = MemoryPrefsStore({'hydra_tls_pinned_fingerprint': kTestCertFingerprint});
+      final loaded = await TlsPrefsCore(store).load(lastServerHost: 'Hydra.local', lastServerPort: 8443);
+      expect(loaded.pinnedFingerprint, isEmpty);
+      expect(loaded.pinFor('hydra.local', 8443), kTestCertFingerprint);
+      expect(loaded.pinFor('other.lan', 8443), isEmpty);
+      expect(store.values['hydra_tls_pinned_fingerprint'], kTestCertFingerprint);
+      // read again: the same, and a server with its own fingerprint is not overwritten
+      final again = await TlsPrefsCore(store).load(lastServerHost: 'hydra.local', lastServerPort: 8443);
+      expect(again.pinFor('hydra.local', 8443), kTestCertFingerprint);
+    });
+
+    test('without a last server the single fingerprint stays as it was', () async {
+      final store = MemoryPrefsStore({'hydra_tls_pinned_fingerprint': kTestCertFingerprint});
+      final loaded = await TlsPrefsCore(store).load();
+      expect(loaded.pinnedFingerprint, kTestCertFingerprint);
+      expect(loaded.pinnedFingerprints, isEmpty);
+    });
+
+    test('the fingerprints by server are saved and read back, and damaged storage reads as none', () async {
+      final store = MemoryPrefsStore();
+      final prefs = TlsPrefsCore(store);
+      final saved = const TlsSettings(allowPlainWithPin: true).withPin('a.lan', 1, other);
+      await prefs.save(saved);
+      expect(await prefs.load(), saved);
+      store.values['hydra_tls_pinned_fingerprints'] = 'not json';
+      expect((await prefs.load()).pinnedFingerprints, isEmpty);
+      store.values['hydra_tls_pinned_fingerprints'] = '[1]';
+      expect((await prefs.load()).pinnedFingerprints, isEmpty);
+    });
+  });
+
   group('stored settings', () {
     test('nothing stored means the conservative defaults', () async {
       final loaded = await TlsPrefsCore(MemoryPrefsStore()).load();
@@ -115,6 +196,8 @@ void main() {
         'hydra_tls_allow_plain_remote',
         'hydra_tls_pinned_fingerprint',
         'hydra_tls_custom_ca_pem',
+        'hydra_tls_pinned_fingerprints',
+        'hydra_tls_allow_plain_with_pin',
       });
     });
   });
@@ -155,6 +238,26 @@ void main() {
       final c = createClient(TlsSettings(pinnedFingerprint: '1' * 64));
       await expectLater(get(c), throwsA(anything));
       c.close();
+    });
+
+    test('it is accepted with the fingerprint of that server and refused with the one of another', () async {
+      final mine = TlsSettings().withPin('127.0.0.1', server.port, kTestCertFingerprint);
+      final c = createClient(mine, '127.0.0.1', server.port);
+      expect((await get(c)).statusCode, 200);
+      c.close();
+      final wrong = TlsSettings(pinnedFingerprint: '1' * 64).withPin('127.0.0.1', server.port, '1' * 64);
+      final d = createClient(wrong, '127.0.0.1', server.port);
+      await expectLater(get(d), throwsA(anything));
+      d.close();
+    });
+
+    test('a client made without the server still trusts the fingerprint pinned for the server it reaches', () async {
+      final c = createClient(TlsSettings().withPin('127.0.0.1', server.port, kTestCertFingerprint));
+      expect((await get(c)).statusCode, 200);
+      c.close();
+      final other = createClient(TlsSettings().withPin('127.0.0.1', server.port + 1, kTestCertFingerprint));
+      await expectLater(get(other), throwsA(anything));
+      other.close();
     });
 
     test('it is accepted when its certificate is the trusted CA', () async {
