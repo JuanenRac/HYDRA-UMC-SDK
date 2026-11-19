@@ -198,30 +198,6 @@
           }
         }
       },
-      "Reservation": {
-        "type": "object",
-        "required": [
-          "success",
-          "reservationHistory"
-        ],
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "reservation": {
-            "type": [
-              "object",
-              "null"
-            ]
-          },
-          "reservationHistory": {
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
-          }
-        }
-      },
       "StopAllResult": {
         "type": "object",
         "required": [
@@ -459,21 +435,6 @@
           }
         },
         "additionalProperties": true
-      },
-      "ServerConfigSaved": {
-        "type": "object",
-        "required": [
-          "success",
-          "appliesOnRestart"
-        ],
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "appliesOnRestart": {
-            "type": "boolean"
-          }
-        }
       },
       "Reachable": {
         "type": "object",
@@ -3145,6 +3106,45 @@
           }
         },
         "additionalProperties": true
+      },
+      "UpdateManifestVerdict": {
+        "type": "object",
+        "required": [
+          "accepted",
+          "code",
+          "key_id",
+          "require_asymmetric_signature"
+        ],
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "legacy",
+              "downgrade_refused",
+              "malformed",
+              "bad_signature",
+              "unknown_key",
+              "key_revoked",
+              "key_not_yet_valid",
+              "key_expired"
+            ]
+          },
+          "key_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The key that signed the manifest, or null when it carries no signature."
+          },
+          "require_asymmetric_signature": {
+            "type": "boolean",
+            "description": "Whether the switch that refuses a manifest without an Ed25519 signature was on when the manifest was checked."
+          }
+        }
       }
     }
   },
@@ -5155,6 +5155,65 @@
         ]
       }
     },
+    "/api/admin/updates/manifest/check": {
+      "post": {
+        "tags": [
+          "updates"
+        ],
+        "summary": "POST /api/admin/updates/manifest/check",
+        "description": "Requires a signed-in account with the admin role. Checks an UpdateManifest against the list of trusted public keys of this server and says whether it would be accepted; it changes nothing.",
+        "x-access": "admin",
+        "responses": {
+          "200": {
+            "description": "The verdict. A manifest that is refused still answers 200 with accepted false and the code of the refusal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateManifestVerdict"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The body is not an object. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "An UpdateManifest (schema update-manifest of the contracts)."
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/anomaly/verdicts": {
       "get": {
         "tags": [
@@ -5336,6 +5395,16 @@
         "responses": {
           "200": {
             "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BridgeCommandAccepted"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted. The body is documented in docs/REMOTE_API.md.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5956,6 +6025,16 @@
           },
           "503": {
             "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "507": {
+            "description": "Insufficient storage: the quota of the saved recordings is reached. The body is documented in docs/REMOTE_API.md.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6664,37 +6743,6 @@
         ]
       }
     },
-    "/api/developer-node/status": {
-      "get": {
-        "tags": [
-          "feeds"
-        ],
-        "summary": "GET /api/developer-node/status",
-        "description": "Requires a signed-in account (bearer token). Deprecated alias of /api/dev-server/status; it answers the same body and is kept for one version.",
-        "x-access": "user",
-        "responses": {
-          "200": {
-            "description": "Success. The body is documented in docs/REMOTE_API.md."
-          }
-        },
-        "deprecated": true,
-        "parameters": [
-          {
-            "name": "verify",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
     "/api/device/login": {
       "post": {
         "tags": [
@@ -7228,6 +7276,16 @@
           },
           "400": {
             "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7917,42 +7975,6 @@
             }
           }
         }
-      }
-    },
-    "/api/ingest/developer-node/status": {
-      "post": {
-        "tags": [
-          "feeds"
-        ],
-        "summary": "POST /api/ingest/developer-node/status",
-        "description": "No authentication required by the route itself. Deprecated alias of /api/ingest/dev-server/status; it answers the same body and is kept for one version.",
-        "x-access": "public",
-        "responses": {
-          "201": {
-            "description": "Created. The body is documented in docs/REMOTE_API.md."
-          },
-          "400": {
-            "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "deprecated": true
       }
     },
     "/api/ingest/scenario-outcome": {
@@ -10668,6 +10690,16 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "The operation failed on the server. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -12082,6 +12114,16 @@
           },
           "401": {
             "description": "Not signed in or token rejected. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
             "content": {
               "application/json": {
                 "schema": {

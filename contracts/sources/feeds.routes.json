@@ -61,29 +61,6 @@
     },
     {
       "method": "get",
-      "path": "/api/developer-node/status",
-      "summary": "GET /api/developer-node/status",
-      "description": "Requires a signed-in account (bearer token). Deprecated alias of /api/dev-server/status; it answers the same body and is kept for one version.",
-      "access": "user",
-      "parameters": [
-        {
-          "name": "verify",
-          "in": "query",
-          "required": false,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
-      "responses": {
-        "200": {
-          "description": "Success. The body is documented in docs/REMOTE_API.md."
-        }
-      },
-      "deprecated": true
-    },
-    {
-      "method": "get",
       "path": "/api/faults",
       "summary": "GET /api/faults",
       "description": "Requires a signed-in account (bearer token).",
@@ -139,27 +116,6 @@
           "shape": "Error"
         }
       }
-    },
-    {
-      "method": "post",
-      "path": "/api/ingest/developer-node/status",
-      "summary": "POST /api/ingest/developer-node/status",
-      "description": "No authentication required by the route itself. Deprecated alias of /api/ingest/dev-server/status; it answers the same body and is kept for one version.",
-      "access": "public",
-      "responses": {
-        "201": {
-          "description": "Created. The body is documented in docs/REMOTE_API.md."
-        },
-        "400": {
-          "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
-          "shape": "Error"
-        },
-        "503": {
-          "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
-          "shape": "Error"
-        }
-      },
-      "deprecated": true
     },
     {
       "method": "post",

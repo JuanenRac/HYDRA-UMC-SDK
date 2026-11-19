@@ -415,12 +415,6 @@ export interface Reachable {
   reachable: boolean;
 }
 
-export interface Reservation {
-  success: boolean;
-  reservation?: unknown;
-  reservationHistory: Record<string, unknown>[];
-}
-
 export interface RobotLiveness {
   schema_version: string;
   stale_after_s: number;
@@ -491,11 +485,6 @@ export interface ServerConfig {
   port: number;
   pendingPort: unknown;
   [other: string]: unknown;
-}
-
-export interface ServerConfigSaved {
-  success: boolean;
-  appliesOnRestart: boolean;
 }
 
 export interface ServiceIdentityStatus {
@@ -579,6 +568,15 @@ export interface UpdateItem {
   /** The newest published release, or null when it could not be looked up. */
   latest: unknown;
   state: "current" | "behind" | "ahead" | "unknown";
+}
+
+export interface UpdateManifestVerdict {
+  accepted: boolean;
+  code: "ok" | "legacy" | "downgrade_refused" | "malformed" | "bad_signature" | "unknown_key" | "key_revoked" | "key_not_yet_valid" | "key_expired";
+  /** The key that signed the manifest, or null when it carries no signature. */
+  key_id: unknown;
+  /** Whether the switch that refuses a manifest without an Ed25519 signature was on when the manifest was checked. */
+  require_asymmetric_signature: boolean;
 }
 
 export interface UpdateReport {
@@ -828,6 +826,11 @@ export class HydraServerClient {
     return this.transport({ method: "GET", path: "/api/admin/updates", query: queryOf(args?.query), headers: {}, body: undefined, access: "admin" }) as Promise<UpdateReport>;
   }
 
+  /** POST /api/admin/updates/manifest/check (access: admin) */
+  postAdminUpdatesManifestCheck(args: { body: Record<string, unknown> }): Promise<UpdateManifestVerdict> {
+    return this.transport({ method: "POST", path: "/api/admin/updates/manifest/check", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<UpdateManifestVerdict>;
+  }
+
   /** GET /api/anomaly/verdicts (access: user) */
   getAnomalyVerdicts(args?: { query?: { verdict?: string; verify?: string } }): Promise<void> {
     return this.transport({ method: "GET", path: "/api/anomaly/verdicts", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<void>;
@@ -958,11 +961,6 @@ export class HydraServerClient {
     return this.transport({ method: "GET", path: "/api/dev-server/status", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<void>;
   }
 
-  /** GET /api/developer-node/status (access: user) */
-  getDeveloperNodeStatus(args?: { query?: { verify?: string } }): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/developer-node/status", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<void>;
-  }
-
   /** POST /api/device/login (access: public) */
   postDeviceLogin(args: { body: { token: string } }): Promise<LoginResult> {
     return this.transport({ method: "POST", path: "/api/device/login", query: {}, headers: {}, body: args?.body, access: "public" }) as Promise<LoginResult>;
@@ -1046,11 +1044,6 @@ export class HydraServerClient {
   /** POST /api/ingest/dev-server/status (access: public) */
   postIngestDevServerStatus(): Promise<void> {
     return this.transport({ method: "POST", path: "/api/ingest/dev-server/status", query: {}, headers: {}, body: undefined, access: "public" }) as Promise<void>;
-  }
-
-  /** POST /api/ingest/developer-node/status (access: public) */
-  postIngestDeveloperNodeStatus(): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/ingest/developer-node/status", query: {}, headers: {}, body: undefined, access: "public" }) as Promise<void>;
   }
 
   /** POST /api/ingest/scenario-outcome (access: user) */
@@ -1466,6 +1459,7 @@ export const HYDRA_CLIENT_OPERATIONS: readonly string[] = [
   "putAdminServerConfig",
   "getAdminServiceIdentity",
   "getAdminUpdates",
+  "postAdminUpdatesManifestCheck",
   "getAnomalyVerdicts",
   "getAudit",
   "getBridges",
@@ -1491,7 +1485,6 @@ export const HYDRA_CLIENT_OPERATIONS: readonly string[] = [
   "getConnectorHubGateSettings",
   "postConnectorHubGateSettings",
   "getDevServerStatus",
-  "getDeveloperNodeStatus",
   "postDeviceLogin",
   "getDroidEstopSettings",
   "postDroidEstopSettings",
@@ -1509,7 +1502,6 @@ export const HYDRA_CLIENT_OPERATIONS: readonly string[] = [
   "getHydraInfo",
   "postInfoTicket",
   "postIngestDevServerStatus",
-  "postIngestDeveloperNodeStatus",
   "postIngestScenarioOutcome",
   "getIngestScenarioOutcomes",
   "postIntegrationsTestConnection",

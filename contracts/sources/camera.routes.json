@@ -288,6 +288,10 @@
         "503": {
           "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
+        },
+        "507": {
+          "description": "Insufficient storage: the quota of the saved recordings is reached. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
         }
       }
     },

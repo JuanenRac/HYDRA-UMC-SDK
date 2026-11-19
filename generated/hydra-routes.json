@@ -363,6 +363,18 @@
       ]
     },
     {
+      "method": "POST",
+      "path": "/api/admin/updates/manifest/check",
+      "access": "admin",
+      "group": "updates",
+      "query": [],
+      "statuses": [
+        "200",
+        "400",
+        "503"
+      ]
+    },
+    {
       "method": "GET",
       "path": "/api/anomaly/verdicts",
       "access": "user",
@@ -413,6 +425,7 @@
       "query": [],
       "statuses": [
         "200",
+        "202",
         "400",
         "403",
         "404",
@@ -525,7 +538,8 @@
         "200",
         "400",
         "409",
-        "503"
+        "503",
+        "507"
       ]
     },
     {
@@ -678,18 +692,6 @@
       ]
     },
     {
-      "method": "GET",
-      "path": "/api/developer-node/status",
-      "access": "user",
-      "group": "feeds",
-      "query": [
-        "verify"
-      ],
-      "statuses": [
-        "200"
-      ]
-    },
-    {
       "method": "POST",
       "path": "/api/device/login",
       "access": "public",
@@ -817,6 +819,7 @@
       "statuses": [
         "200",
         "400",
+        "409",
         "502",
         "503"
       ]
@@ -918,18 +921,6 @@
     {
       "method": "POST",
       "path": "/api/ingest/dev-server/status",
-      "access": "public",
-      "group": "feeds",
-      "query": [],
-      "statuses": [
-        "201",
-        "400",
-        "503"
-      ]
-    },
-    {
-      "method": "POST",
-      "path": "/api/ingest/developer-node/status",
       "access": "public",
       "group": "feeds",
       "query": [],
@@ -1389,7 +1380,8 @@
       "group": "stop-all",
       "query": [],
       "statuses": [
-        "200"
+        "200",
+        "500"
       ]
     },
     {
@@ -1634,6 +1626,7 @@
       "statuses": [
         "200",
         "401",
+        "409",
         "429"
       ]
     },

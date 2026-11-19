@@ -18,6 +18,10 @@
           "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"
         },
+        "409": {
+          "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
+        },
         "502": {
           "description": "Upstream service rejected the request. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"

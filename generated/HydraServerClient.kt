@@ -4323,29 +4323,6 @@ data class HydraReachable(
 }
 
 /** An object of the server contract. */
-data class HydraReservation(
-    val success: Boolean,
-    val reservation: Map<String, Any?>? = null,
-    val reservationHistory: List<Map<String, Any?>>,
-) {
-    fun toJson(): Map<String, Any?> {
-        val jsonOut = LinkedHashMap<String, Any?>()
-        jsonOut["success"] = success
-        if (reservation != null) jsonOut["reservation"] = reservation
-        jsonOut["reservationHistory"] = reservationHistory
-        return jsonOut
-    }
-
-    companion object {
-        fun fromJson(json: Map<String, Any?>): HydraReservation = HydraReservation(
-            success = json["success"] as Boolean,
-            reservation = json["reservation"]?.let { v0 -> hydraMap(v0) },
-            reservationHistory = hydraList(json["reservationHistory"]).map { v0 -> hydraMap(v0) },
-        )
-    }
-}
-
-/** An object of the server contract. */
 data class HydraRobotLiveness(
     val schemaVersion: String,
     val staleAfterS: Long,
@@ -4875,26 +4852,6 @@ data class HydraServerConfig(
     }
 }
 
-/** An object of the server contract. */
-data class HydraServerConfigSaved(
-    val success: Boolean,
-    val appliesOnRestart: Boolean,
-) {
-    fun toJson(): Map<String, Any?> {
-        val jsonOut = LinkedHashMap<String, Any?>()
-        jsonOut["success"] = success
-        jsonOut["appliesOnRestart"] = appliesOnRestart
-        return jsonOut
-    }
-
-    companion object {
-        fun fromJson(json: Map<String, Any?>): HydraServerConfigSaved = HydraServerConfigSaved(
-            success = json["success"] as Boolean,
-            appliesOnRestart = json["appliesOnRestart"] as Boolean,
-        )
-    }
-}
-
 /** The identity this server presents to the services it calls: the switch (auth.serviceIdentity.enabled), whether JWT_SECRET can sign, and which services take the identity. Read-only; the switch is changed with PUT /api/admin/server-config. */
 data class HydraServiceIdentityStatus(
     val enabled: Boolean,
@@ -5270,6 +5227,34 @@ data class HydraUpdateItem(
             installed = json["installed"]?.let { v0 -> v0 as String },
             latest = json["latest"]?.let { v0 -> v0 as String },
             state = json["state"] as String,
+        )
+    }
+}
+
+/** An object of the server contract. */
+data class HydraUpdateManifestVerdict(
+    val accepted: Boolean,
+    val code: String,
+    /** The key that signed the manifest, or null when it carries no signature. */
+    val keyId: String?,
+    /** Whether the switch that refuses a manifest without an Ed25519 signature was on when the manifest was checked. */
+    val requireAsymmetricSignature: Boolean,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["accepted"] = accepted
+        jsonOut["code"] = code
+        jsonOut["key_id"] = keyId
+        jsonOut["require_asymmetric_signature"] = requireAsymmetricSignature
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraUpdateManifestVerdict = HydraUpdateManifestVerdict(
+            accepted = json["accepted"] as Boolean,
+            code = json["code"] as String,
+            keyId = json["key_id"]?.let { v0 -> v0 as String },
+            requireAsymmetricSignature = json["require_asymmetric_signature"] as Boolean,
         )
     }
 }
@@ -5666,6 +5651,12 @@ class HydraServerClient(private val transport: HydraTransport) {
         return HydraUpdateReport.fromJson(hydraMap(raw))
     }
 
+    /** POST /api/admin/updates/manifest/check (access: admin) */
+    suspend fun postAdminUpdatesManifestCheck(body: Map<String, Any?>): HydraUpdateManifestVerdict {
+        val raw = transport.send(HydraRequest("POST", "/api/admin/updates/manifest/check", emptyMap(), body, "admin"))
+        return HydraUpdateManifestVerdict.fromJson(hydraMap(raw))
+    }
+
     /** GET /api/anomaly/verdicts (access: user) */
     suspend fun getAnomalyVerdicts(verdict: String? = null, verify: String? = null): Unit {
         transport.send(HydraRequest("GET", "/api/anomaly/verdicts", queryOf(mapOf("verdict" to verdict, "verify" to verify)), null, "user"))
@@ -5821,12 +5812,6 @@ class HydraServerClient(private val transport: HydraTransport) {
         return Unit
     }
 
-    /** GET /api/developer-node/status (access: user) */
-    suspend fun getDeveloperNodeStatus(verify: String? = null): Unit {
-        transport.send(HydraRequest("GET", "/api/developer-node/status", queryOf(mapOf("verify" to verify)), null, "user"))
-        return Unit
-    }
-
     /** POST /api/device/login (access: public) */
     suspend fun postDeviceLogin(body: HydraPostDeviceLoginBody): HydraLoginResult {
         val raw = transport.send(HydraRequest("POST", "/api/device/login", emptyMap(), body.toJson(), "public"))
@@ -5926,12 +5911,6 @@ class HydraServerClient(private val transport: HydraTransport) {
     /** POST /api/ingest/dev-server/status (access: public) */
     suspend fun postIngestDevServerStatus(): Unit {
         transport.send(HydraRequest("POST", "/api/ingest/dev-server/status", emptyMap(), null, "public"))
-        return Unit
-    }
-
-    /** POST /api/ingest/developer-node/status (access: public) */
-    suspend fun postIngestDeveloperNodeStatus(): Unit {
-        transport.send(HydraRequest("POST", "/api/ingest/developer-node/status", emptyMap(), null, "public"))
         return Unit
     }
 
@@ -6424,6 +6403,7 @@ val HYDRA_CLIENT_OPERATIONS: List<String> = listOf(
     "putAdminServerConfig",
     "getAdminServiceIdentity",
     "getAdminUpdates",
+    "postAdminUpdatesManifestCheck",
     "getAnomalyVerdicts",
     "getAudit",
     "getBridges",
@@ -6449,7 +6429,6 @@ val HYDRA_CLIENT_OPERATIONS: List<String> = listOf(
     "getConnectorHubGateSettings",
     "postConnectorHubGateSettings",
     "getDevServerStatus",
-    "getDeveloperNodeStatus",
     "postDeviceLogin",
     "getDroidEstopSettings",
     "postDroidEstopSettings",
@@ -6467,7 +6446,6 @@ val HYDRA_CLIENT_OPERATIONS: List<String> = listOf(
     "getHydraInfo",
     "postInfoTicket",
     "postIngestDevServerStatus",
-    "postIngestDeveloperNodeStatus",
     "postIngestScenarioOutcome",
     "getIngestScenarioOutcomes",
     "postIntegrationsTestConnection",
