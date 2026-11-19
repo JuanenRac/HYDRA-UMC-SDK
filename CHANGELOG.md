@@ -2,11 +2,17 @@
 
 ## [Unreleased]
 
+## [0.7.4]
+
 - **The old routes of the developer node are gone from the contract:** `GET /api/developer-node/status` and `POST /api/ingest/developer-node/status`, which were kept for one version as deprecated aliases of `/api/dev-server/status` and `/api/ingest/dev-server/status`, are removed from the sources, the OpenAPI inventory, the route tables and the typed clients for TypeScript, Kotlin and Dart, the app fixtures and the stand-in server (which now refuses the old schema `developer-node-status/1` and answers 404 on the old paths); `tests/integration/test_fake_server.py` pins both. A server that still registers the old routes fails the comparison of its routes with the inventory until it drops them, and a service that still posts to the old path must move to `/api/ingest/dev-server/status`. The switch key `developerNode` of the ingest block of the security configuration is not renamed here.
 
 - **The inventory of answer shapes no longer carries `Reservation` and `ServerConfigSaved`:** nothing in the full inventory names them any more (the answers that used them spell their fields out), so they are dropped from `contracts/sources/server.shapes.json` and from the generated clients; `Reservation` stays in the typed slice, where it is still referenced. Servers drop the same two entries from their copy of the shapes file.
 
 - **A route to check an update manifest against the trusted keys of a server:** `POST /api/admin/updates/manifest/check` (administrator) takes an `UpdateManifest` and answers `UpdateManifestVerdict` (`accepted`, `code` of the signature rule, `key_id`, `require_asymmetric_signature`), so a screen can tell before anything is installed whether a manifest would pass; it changes nothing. A refused manifest still answers `200` with `accepted: false`; `400` is a body that is not an object and `503` a server with no list of trusted keys. The fields are `snake_case` on the wire, like the manifest itself.
+
+### Changed
+
+- Automated build version increment from 0.7.3.
 
 ## [0.7.3]
 
