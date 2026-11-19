@@ -255,11 +255,6 @@ private fun roundTripHydraReachable() {
     roundTrip("HydraReachable required only", mapOf<String, Any?>("reachable" to true), { HydraReachable.fromJson(it) }, { it.toJson() })
 }
 
-private fun roundTripHydraReservation() {
-    roundTrip("HydraReservation full", mapOf<String, Any?>("success" to true, "reservation" to mapOf<String, Any?>("key" to "value"), "reservationHistory" to listOf<Any?>(mapOf<String, Any?>("key" to "value"))), { HydraReservation.fromJson(it) }, { it.toJson() })
-    roundTrip("HydraReservation required only", mapOf<String, Any?>("success" to true, "reservationHistory" to listOf<Any?>(mapOf<String, Any?>("key" to "value"))), { HydraReservation.fromJson(it) }, { it.toJson() })
-}
-
 private fun roundTripHydraRobotLiveness() {
     roundTrip("HydraRobotLiveness full", mapOf<String, Any?>("schema_version" to "text", "stale_after_s" to 7L, "robots" to listOf<Any?>(mapOf<String, Any?>("controller_id" to "text", "robot_id" to 7L, "state" to "text", "last_update_utc" to "text", "age_s" to 7L, "source" to "text"))), { HydraRobotLiveness.fromJson(it) }, { it.toJson() })
     roundTrip("HydraRobotLiveness required only", mapOf<String, Any?>("schema_version" to "text", "stale_after_s" to 7L, "robots" to listOf<Any?>(mapOf<String, Any?>("controller_id" to "text", "robot_id" to 7L, "state" to "text"))), { HydraRobotLiveness.fromJson(it) }, { it.toJson() })
@@ -298,11 +293,6 @@ private fun roundTripHydraSelfUpdateStatus() {
 private fun roundTripHydraServerConfig() {
     roundTrip("HydraServerConfig full", mapOf<String, Any?>("port" to 7L, "pendingPort" to 7L, "extraKey" to "extra"), { HydraServerConfig.fromJson(it) }, { it.toJson() })
     roundTrip("HydraServerConfig required only", mapOf<String, Any?>("port" to 7L, "pendingPort" to 7L), { HydraServerConfig.fromJson(it) }, { it.toJson() })
-}
-
-private fun roundTripHydraServerConfigSaved() {
-    roundTrip("HydraServerConfigSaved full", mapOf<String, Any?>("success" to true, "appliesOnRestart" to true), { HydraServerConfigSaved.fromJson(it) }, { it.toJson() })
-    roundTrip("HydraServerConfigSaved required only", mapOf<String, Any?>("success" to true, "appliesOnRestart" to true), { HydraServerConfigSaved.fromJson(it) }, { it.toJson() })
 }
 
 private fun roundTripHydraServiceIdentityStatus() {
@@ -442,7 +432,6 @@ fun roundTripAll(): List<String> {
     roundTripHydraPushDeviceRemoved()
     roundTripHydraPushStatus()
     roundTripHydraReachable()
-    roundTripHydraReservation()
     roundTripHydraRobotLiveness()
     roundTripHydraRulConfig()
     roundTripHydraSafetyLimitsConfig()
@@ -451,7 +440,6 @@ fun roundTripAll(): List<String> {
     roundTripHydraSelfUpdateJob()
     roundTripHydraSelfUpdateStatus()
     roundTripHydraServerConfig()
-    roundTripHydraServerConfigSaved()
     roundTripHydraServiceIdentityStatus()
     roundTripHydraSettings()
     roundTripHydraStopAllResult()
@@ -471,4 +459,4 @@ fun roundTripAll(): List<String> {
     roundTripHydraWatchStatus()
     return failures.toList()
 }
-const val ROUND_TRIP_CLASSES: Int = 76
+const val ROUND_TRIP_CLASSES: Int = 74

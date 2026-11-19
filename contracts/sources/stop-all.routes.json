@@ -27,6 +27,10 @@
         "200": {
           "description": "Success. The body is documented in docs/REMOTE_API.md.",
           "shape": "GlobalStopReleased"
+        },
+        "500": {
+          "description": "The operation failed on the server. The body is documented in docs/REMOTE_API.md.",
+          "shape": "Error"
         }
       }
     }

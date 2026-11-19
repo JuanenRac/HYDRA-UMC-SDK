@@ -198,30 +198,6 @@
           }
         }
       },
-      "Reservation": {
-        "type": "object",
-        "required": [
-          "success",
-          "reservationHistory"
-        ],
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "reservation": {
-            "type": [
-              "object",
-              "null"
-            ]
-          },
-          "reservationHistory": {
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
-          }
-        }
-      },
       "StopAllResult": {
         "type": "object",
         "required": [
@@ -459,21 +435,6 @@
           }
         },
         "additionalProperties": true
-      },
-      "ServerConfigSaved": {
-        "type": "object",
-        "required": [
-          "success",
-          "appliesOnRestart"
-        ],
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "appliesOnRestart": {
-            "type": "boolean"
-          }
-        }
       },
       "Reachable": {
         "type": "object",
@@ -5344,6 +5305,16 @@
               }
             }
           },
+          "202": {
+            "description": "Accepted. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BridgeCommandAccepted"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
             "content": {
@@ -5956,6 +5927,16 @@
           },
           "503": {
             "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "507": {
+            "description": "Insufficient storage: the quota of the saved recordings is reached. The body is documented in docs/REMOTE_API.md.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7197,6 +7178,16 @@
           },
           "400": {
             "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10601,6 +10592,16 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "The operation failed on the server. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -12015,6 +12016,16 @@
           },
           "401": {
             "description": "Not signed in or token rejected. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict with the current state. The body is documented in docs/REMOTE_API.md.",
             "content": {
               "application/json": {
                 "schema": {

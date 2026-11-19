@@ -4323,29 +4323,6 @@ data class HydraReachable(
 }
 
 /** An object of the server contract. */
-data class HydraReservation(
-    val success: Boolean,
-    val reservation: Map<String, Any?>? = null,
-    val reservationHistory: List<Map<String, Any?>>,
-) {
-    fun toJson(): Map<String, Any?> {
-        val jsonOut = LinkedHashMap<String, Any?>()
-        jsonOut["success"] = success
-        if (reservation != null) jsonOut["reservation"] = reservation
-        jsonOut["reservationHistory"] = reservationHistory
-        return jsonOut
-    }
-
-    companion object {
-        fun fromJson(json: Map<String, Any?>): HydraReservation = HydraReservation(
-            success = json["success"] as Boolean,
-            reservation = json["reservation"]?.let { v0 -> hydraMap(v0) },
-            reservationHistory = hydraList(json["reservationHistory"]).map { v0 -> hydraMap(v0) },
-        )
-    }
-}
-
-/** An object of the server contract. */
 data class HydraRobotLiveness(
     val schemaVersion: String,
     val staleAfterS: Long,
@@ -4871,26 +4848,6 @@ data class HydraServerConfig(
             port = (json["port"] as Number).toLong(),
             pendingPort = json["pendingPort"]?.let { v0 -> (v0 as Number).toLong() },
             additionalProperties = hydraMap(json.filterKeys { it !in knownKeys }),
-        )
-    }
-}
-
-/** An object of the server contract. */
-data class HydraServerConfigSaved(
-    val success: Boolean,
-    val appliesOnRestart: Boolean,
-) {
-    fun toJson(): Map<String, Any?> {
-        val jsonOut = LinkedHashMap<String, Any?>()
-        jsonOut["success"] = success
-        jsonOut["appliesOnRestart"] = appliesOnRestart
-        return jsonOut
-    }
-
-    companion object {
-        fun fromJson(json: Map<String, Any?>): HydraServerConfigSaved = HydraServerConfigSaved(
-            success = json["success"] as Boolean,
-            appliesOnRestart = json["appliesOnRestart"] as Boolean,
         )
     }
 }

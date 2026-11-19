@@ -22,7 +22,7 @@ void _roundTrip<T>(List<String> failures, String label, Map<String, dynamic> exa
   }
 }
 
-const int roundTripClasses = 76;
+const int roundTripClasses = 74;
 
 /// Runs every round trip and returns the failures (empty when all pass).
 List<String> roundTripAll() {
@@ -125,8 +125,6 @@ List<String> roundTripAll() {
   _roundTrip<HydraPushStatus>(failures, 'HydraPushStatus required only', <String, dynamic>{'enabled': true, 'configured': true, 'problem': 'missing', 'devices': 7, 'sandbox': true, 'events': <String, dynamic>{'jobFinished': true, 'globalStop': true}}, HydraPushStatus.fromJson, (value) => value.toJson());
   _roundTrip<HydraReachable>(failures, 'HydraReachable full', <String, dynamic>{'reachable': true}, HydraReachable.fromJson, (value) => value.toJson());
   _roundTrip<HydraReachable>(failures, 'HydraReachable required only', <String, dynamic>{'reachable': true}, HydraReachable.fromJson, (value) => value.toJson());
-  _roundTrip<HydraReservation>(failures, 'HydraReservation full', <String, dynamic>{'success': true, 'reservation': <String, dynamic>{'key': 'value'}, 'reservationHistory': <dynamic>[<String, dynamic>{'key': 'value'}]}, HydraReservation.fromJson, (value) => value.toJson());
-  _roundTrip<HydraReservation>(failures, 'HydraReservation required only', <String, dynamic>{'success': true, 'reservationHistory': <dynamic>[<String, dynamic>{'key': 'value'}]}, HydraReservation.fromJson, (value) => value.toJson());
   _roundTrip<HydraRobotLiveness>(failures, 'HydraRobotLiveness full', <String, dynamic>{'schema_version': 'text', 'stale_after_s': 7, 'robots': <dynamic>[<String, dynamic>{'controller_id': 'text', 'robot_id': 7, 'state': 'text', 'last_update_utc': 'text', 'age_s': 7, 'source': 'text'}]}, HydraRobotLiveness.fromJson, (value) => value.toJson());
   _roundTrip<HydraRobotLiveness>(failures, 'HydraRobotLiveness required only', <String, dynamic>{'schema_version': 'text', 'stale_after_s': 7, 'robots': <dynamic>[<String, dynamic>{'controller_id': 'text', 'robot_id': 7, 'state': 'text'}]}, HydraRobotLiveness.fromJson, (value) => value.toJson());
   _roundTrip<HydraRulConfig>(failures, 'HydraRulConfig full', <String, dynamic>{'enabled': true, 'maxPoints': 7, 'timeoutMs': 7}, HydraRulConfig.fromJson, (value) => value.toJson());
@@ -143,8 +141,6 @@ List<String> roundTripAll() {
   _roundTrip<HydraSelfUpdateStatus>(failures, 'HydraSelfUpdateStatus required only', <String, dynamic>{'checkedAt': 'text', 'owner': 'text', 'rateLimited': true, 'items': <dynamic>[<String, dynamic>{'id': 'server', 'repo': 'text', 'installed': 'text', 'previous': 'text', 'latest': 'text', 'state': 'current', 'signedPackage': true}], 'applyEnabled': true, 'job': <String, dynamic>{'id': 'text', 'action': 'apply', 'component': 'server', 'state': 'checking', 'fromVersion': 'text', 'targetVersion': 'text', 'startedAt': 'text', 'updatedAt': 'text', 'error': 'no_release', 'detail': 'text', 'log': <dynamic>[<String, dynamic>{'at': 'text', 'step': 'checking', 'text': 'text'}], 'by': 'text'}}, HydraSelfUpdateStatus.fromJson, (value) => value.toJson());
   _roundTrip<HydraServerConfig>(failures, 'HydraServerConfig full', <String, dynamic>{'port': 7, 'pendingPort': 7, 'extraKey': 'extra'}, HydraServerConfig.fromJson, (value) => value.toJson());
   _roundTrip<HydraServerConfig>(failures, 'HydraServerConfig required only', <String, dynamic>{'port': 7, 'pendingPort': 7}, HydraServerConfig.fromJson, (value) => value.toJson());
-  _roundTrip<HydraServerConfigSaved>(failures, 'HydraServerConfigSaved full', <String, dynamic>{'success': true, 'appliesOnRestart': true}, HydraServerConfigSaved.fromJson, (value) => value.toJson());
-  _roundTrip<HydraServerConfigSaved>(failures, 'HydraServerConfigSaved required only', <String, dynamic>{'success': true, 'appliesOnRestart': true}, HydraServerConfigSaved.fromJson, (value) => value.toJson());
   _roundTrip<HydraServiceIdentityStatus>(failures, 'HydraServiceIdentityStatus full', <String, dynamic>{'enabled': true, 'source': 'env', 'locked': true, 'key': 'usable', 'state': 'presenting', 'services': <dynamic>[<String, dynamic>{'name': 'text', 'support': 'accepts'}], 'order': <dynamic>['server_first']}, HydraServiceIdentityStatus.fromJson, (value) => value.toJson());
   _roundTrip<HydraServiceIdentityStatus>(failures, 'HydraServiceIdentityStatus required only', <String, dynamic>{'enabled': true, 'source': 'env', 'locked': true, 'key': 'usable', 'state': 'presenting', 'services': <dynamic>[<String, dynamic>{'name': 'text', 'support': 'accepts'}], 'order': <dynamic>['server_first']}, HydraServiceIdentityStatus.fromJson, (value) => value.toJson());
   _roundTrip<HydraSettings>(failures, 'HydraSettings full', <String, dynamic>{'controllers': <dynamic>[<String, dynamic>{'key': 'value'}]}, HydraSettings.fromJson, (value) => value.toJson());

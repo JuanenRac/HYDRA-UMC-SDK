@@ -415,12 +415,6 @@ export interface Reachable {
   reachable: boolean;
 }
 
-export interface Reservation {
-  success: boolean;
-  reservation?: unknown;
-  reservationHistory: Record<string, unknown>[];
-}
-
 export interface RobotLiveness {
   schema_version: string;
   stale_after_s: number;
@@ -491,11 +485,6 @@ export interface ServerConfig {
   port: number;
   pendingPort: unknown;
   [other: string]: unknown;
-}
-
-export interface ServerConfigSaved {
-  success: boolean;
-  appliesOnRestart: boolean;
 }
 
 export interface ServiceIdentityStatus {

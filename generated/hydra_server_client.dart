@@ -5402,34 +5402,6 @@ class HydraReachable {
 }
 
 /// An object of the server contract.
-class HydraReservation {
-  const HydraReservation({
-    required this.success,
-    this.reservation,
-    required this.reservationHistory,
-  });
-
-  factory HydraReservation.fromJson(Map<String, dynamic> json) => HydraReservation(
-        success: json['success'] as bool,
-        reservation: json['reservation'] == null ? null : _hydraMap(json['reservation']),
-        reservationHistory: (json['reservationHistory'] as List).map((v0) => _hydraMap(v0)).toList(),
-      );
-
-  final bool success;
-  final Map<String, dynamic>? reservation;
-  final List<Map<String, dynamic>> reservationHistory;
-
-  Map<String, dynamic> toJson() {
-    final hydraOut = <String, dynamic>{};
-    hydraOut['success'] = success;
-    final hydraField1 = reservation;
-    if (hydraField1 != null) hydraOut['reservation'] = hydraField1;
-    hydraOut['reservationHistory'] = reservationHistory;
-    return hydraOut;
-  }
-}
-
-/// An object of the server contract.
 class HydraRobotLiveness {
   const HydraRobotLiveness({
     required this.schemaVersion,
@@ -6063,29 +6035,6 @@ class HydraServerConfig {
     final hydraOut = <String, dynamic>{...additionalProperties};
     hydraOut['port'] = port;
     hydraOut['pendingPort'] = pendingPort;
-    return hydraOut;
-  }
-}
-
-/// An object of the server contract.
-class HydraServerConfigSaved {
-  const HydraServerConfigSaved({
-    required this.success,
-    required this.appliesOnRestart,
-  });
-
-  factory HydraServerConfigSaved.fromJson(Map<String, dynamic> json) => HydraServerConfigSaved(
-        success: json['success'] as bool,
-        appliesOnRestart: json['appliesOnRestart'] as bool,
-      );
-
-  final bool success;
-  final bool appliesOnRestart;
-
-  Map<String, dynamic> toJson() {
-    final hydraOut = <String, dynamic>{};
-    hydraOut['success'] = success;
-    hydraOut['appliesOnRestart'] = appliesOnRestart;
     return hydraOut;
   }
 }

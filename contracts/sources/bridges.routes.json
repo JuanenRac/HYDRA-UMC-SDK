@@ -60,6 +60,10 @@
           "description": "Success. The body is documented in docs/REMOTE_API.md.",
           "shape": "BridgeCommandAccepted"
         },
+        "202": {
+          "description": "Accepted. The body is documented in docs/REMOTE_API.md.",
+          "shape": "BridgeCommandAccepted"
+        },
         "400": {
           "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
           "shape": "Error"

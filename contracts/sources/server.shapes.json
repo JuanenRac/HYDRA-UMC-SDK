@@ -197,30 +197,6 @@
         }
       }
     },
-    "Reservation": {
-      "type": "object",
-      "required": [
-        "success",
-        "reservationHistory"
-      ],
-      "properties": {
-        "success": {
-          "type": "boolean"
-        },
-        "reservation": {
-          "type": [
-            "object",
-            "null"
-          ]
-        },
-        "reservationHistory": {
-          "type": "array",
-          "items": {
-            "type": "object"
-          }
-        }
-      }
-    },
     "StopAllResult": {
       "type": "object",
       "required": [
@@ -458,21 +434,6 @@
         }
       },
       "additionalProperties": true
-    },
-    "ServerConfigSaved": {
-      "type": "object",
-      "required": [
-        "success",
-        "appliesOnRestart"
-      ],
-      "properties": {
-        "success": {
-          "type": "boolean"
-        },
-        "appliesOnRestart": {
-          "type": "boolean"
-        }
-      }
     },
     "Reachable": {
       "type": "object",

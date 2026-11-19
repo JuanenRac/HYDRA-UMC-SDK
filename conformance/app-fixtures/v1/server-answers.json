@@ -1387,6 +1387,16 @@
           "result": null
         }
       },
+      "202": {
+        "minimal": {
+          "accepted": false,
+          "result": null
+        },
+        "full": {
+          "accepted": false,
+          "result": null
+        }
+      },
       "400": {
         "minimal": {
           "error": "sample"
@@ -1673,6 +1683,14 @@
         }
       },
       "503": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      },
+      "507": {
         "minimal": {
           "error": "sample"
         },
@@ -2309,6 +2327,14 @@
         }
       },
       "400": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      },
+      "409": {
         "minimal": {
           "error": "sample"
         },
@@ -3825,6 +3851,14 @@
           "success": false,
           "announced": false
         }
+      },
+      "500": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
       }
     },
     "POST /api/system/bluetooth/pair": {
@@ -4381,6 +4415,14 @@
         }
       },
       "401": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      },
+      "409": {
         "minimal": {
           "error": "sample"
         },
