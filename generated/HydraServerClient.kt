@@ -5821,12 +5821,6 @@ class HydraServerClient(private val transport: HydraTransport) {
         return Unit
     }
 
-    /** GET /api/developer-node/status (access: user) */
-    suspend fun getDeveloperNodeStatus(verify: String? = null): Unit {
-        transport.send(HydraRequest("GET", "/api/developer-node/status", queryOf(mapOf("verify" to verify)), null, "user"))
-        return Unit
-    }
-
     /** POST /api/device/login (access: public) */
     suspend fun postDeviceLogin(body: HydraPostDeviceLoginBody): HydraLoginResult {
         val raw = transport.send(HydraRequest("POST", "/api/device/login", emptyMap(), body.toJson(), "public"))
@@ -5926,12 +5920,6 @@ class HydraServerClient(private val transport: HydraTransport) {
     /** POST /api/ingest/dev-server/status (access: public) */
     suspend fun postIngestDevServerStatus(): Unit {
         transport.send(HydraRequest("POST", "/api/ingest/dev-server/status", emptyMap(), null, "public"))
-        return Unit
-    }
-
-    /** POST /api/ingest/developer-node/status (access: public) */
-    suspend fun postIngestDeveloperNodeStatus(): Unit {
-        transport.send(HydraRequest("POST", "/api/ingest/developer-node/status", emptyMap(), null, "public"))
         return Unit
     }
 
@@ -6449,7 +6437,6 @@ val HYDRA_CLIENT_OPERATIONS: List<String> = listOf(
     "getConnectorHubGateSettings",
     "postConnectorHubGateSettings",
     "getDevServerStatus",
-    "getDeveloperNodeStatus",
     "postDeviceLogin",
     "getDroidEstopSettings",
     "postDroidEstopSettings",
@@ -6467,7 +6454,6 @@ val HYDRA_CLIENT_OPERATIONS: List<String> = listOf(
     "getHydraInfo",
     "postInfoTicket",
     "postIngestDevServerStatus",
-    "postIngestDeveloperNodeStatus",
     "postIngestScenarioOutcome",
     "getIngestScenarioOutcomes",
     "postIntegrationsTestConnection",

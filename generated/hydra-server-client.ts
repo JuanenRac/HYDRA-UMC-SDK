@@ -958,11 +958,6 @@ export class HydraServerClient {
     return this.transport({ method: "GET", path: "/api/dev-server/status", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<void>;
   }
 
-  /** GET /api/developer-node/status (access: user) */
-  getDeveloperNodeStatus(args?: { query?: { verify?: string } }): Promise<void> {
-    return this.transport({ method: "GET", path: "/api/developer-node/status", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<void>;
-  }
-
   /** POST /api/device/login (access: public) */
   postDeviceLogin(args: { body: { token: string } }): Promise<LoginResult> {
     return this.transport({ method: "POST", path: "/api/device/login", query: {}, headers: {}, body: args?.body, access: "public" }) as Promise<LoginResult>;
@@ -1046,11 +1041,6 @@ export class HydraServerClient {
   /** POST /api/ingest/dev-server/status (access: public) */
   postIngestDevServerStatus(): Promise<void> {
     return this.transport({ method: "POST", path: "/api/ingest/dev-server/status", query: {}, headers: {}, body: undefined, access: "public" }) as Promise<void>;
-  }
-
-  /** POST /api/ingest/developer-node/status (access: public) */
-  postIngestDeveloperNodeStatus(): Promise<void> {
-    return this.transport({ method: "POST", path: "/api/ingest/developer-node/status", query: {}, headers: {}, body: undefined, access: "public" }) as Promise<void>;
   }
 
   /** POST /api/ingest/scenario-outcome (access: user) */
@@ -1491,7 +1481,6 @@ export const HYDRA_CLIENT_OPERATIONS: readonly string[] = [
   "getConnectorHubGateSettings",
   "postConnectorHubGateSettings",
   "getDevServerStatus",
-  "getDeveloperNodeStatus",
   "postDeviceLogin",
   "getDroidEstopSettings",
   "postDroidEstopSettings",
@@ -1509,7 +1498,6 @@ export const HYDRA_CLIENT_OPERATIONS: readonly string[] = [
   "getHydraInfo",
   "postInfoTicket",
   "postIngestDevServerStatus",
-  "postIngestDeveloperNodeStatus",
   "postIngestScenarioOutcome",
   "getIngestScenarioOutcomes",
   "postIntegrationsTestConnection",

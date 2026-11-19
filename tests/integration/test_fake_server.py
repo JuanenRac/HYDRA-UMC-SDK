@@ -144,11 +144,11 @@ def test_the_feeds_of_the_sibling_services(server):
     status, answer = call(base, "POST", "/api/ingest/dev-server/status", doc, "node-token")
     assert status == 201 and answer["node_id"] == "dev-1"
     assert call(base, "POST", "/api/ingest/dev-server/status", {"schema": "other/1"}, "node-token")[0] == 400
-    # the old name still answers during the transition, with the old or the new schema
+    # the old name and the old schema are gone: the old path is not a route and the old schema is refused
     old = {"schema": "developer-node-status/1"}
-    assert call(base, "POST", "/api/ingest/developer-node/status", old, token)[0] == 401
-    assert call(base, "POST", "/api/ingest/developer-node/status", old, "node-token")[0] == 201
-    assert call(base, "POST", "/api/ingest/developer-node/status", doc, "node-token")[0] == 201
+    assert call(base, "POST", "/api/ingest/dev-server/status", old, "node-token")[0] == 400
+    assert call(base, "POST", "/api/ingest/developer-node/status", doc, token)[0] == 404
+    assert call(base, "GET", "/api/developer-node/status", None, token)[0] == 404
     # proposal verification
     body = {"proposal": {"key_id": "k1", "signature": "fake-valid", "robot_id": "1"}, "expected_robot_id": "1"}
     assert call(base, "POST", "/api/trajectory/proposals/verify", body, token)[0] == 503

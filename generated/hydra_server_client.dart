@@ -7159,11 +7159,6 @@ class HydraServerClient {
     await _transport(HydraRequest('GET', '/api/dev-server/status', queryOf({'verify': verify}), null, 'user'));
   }
 
-  /// GET /api/developer-node/status (access: user)
-  Future<void> getDeveloperNodeStatus({String? verify}) async {
-    await _transport(HydraRequest('GET', '/api/developer-node/status', queryOf({'verify': verify}), null, 'user'));
-  }
-
   /// POST /api/device/login (access: public)
   Future<HydraLoginResult> postDeviceLogin({required HydraPostDeviceLoginBody body}) async {
     final raw = await _transport(HydraRequest('POST', '/api/device/login', const <String, String>{}, body.toJson(), 'public'));
@@ -7262,11 +7257,6 @@ class HydraServerClient {
   /// POST /api/ingest/dev-server/status (access: public)
   Future<void> postIngestDevServerStatus() async {
     await _transport(HydraRequest('POST', '/api/ingest/dev-server/status', const <String, String>{}, null, 'public'));
-  }
-
-  /// POST /api/ingest/developer-node/status (access: public)
-  Future<void> postIngestDeveloperNodeStatus() async {
-    await _transport(HydraRequest('POST', '/api/ingest/developer-node/status', const <String, String>{}, null, 'public'));
   }
 
   /// POST /api/ingest/scenario-outcome (access: user)
@@ -7774,7 +7764,6 @@ const List<String> hydraClientOperations = [
   'getConnectorHubGateSettings',
   'postConnectorHubGateSettings',
   'getDevServerStatus',
-  'getDeveloperNodeStatus',
   'postDeviceLogin',
   'getDroidEstopSettings',
   'postDroidEstopSettings',
@@ -7792,7 +7781,6 @@ const List<String> hydraClientOperations = [
   'getHydraInfo',
   'postInfoTicket',
   'postIngestDevServerStatus',
-  'postIngestDeveloperNodeStatus',
   'postIngestScenarioOutcome',
   'getIngestScenarioOutcomes',
   'postIntegrationsTestConnection',

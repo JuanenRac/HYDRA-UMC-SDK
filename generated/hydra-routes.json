@@ -678,18 +678,6 @@
       ]
     },
     {
-      "method": "GET",
-      "path": "/api/developer-node/status",
-      "access": "user",
-      "group": "feeds",
-      "query": [
-        "verify"
-      ],
-      "statuses": [
-        "200"
-      ]
-    },
-    {
       "method": "POST",
       "path": "/api/device/login",
       "access": "public",
@@ -918,18 +906,6 @@
     {
       "method": "POST",
       "path": "/api/ingest/dev-server/status",
-      "access": "public",
-      "group": "feeds",
-      "query": [],
-      "statuses": [
-        "201",
-        "400",
-        "503"
-      ]
-    },
-    {
-      "method": "POST",
-      "path": "/api/ingest/developer-node/status",
       "access": "public",
       "group": "feeds",
       "query": [],
