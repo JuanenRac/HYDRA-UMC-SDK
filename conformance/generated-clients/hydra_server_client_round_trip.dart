@@ -22,7 +22,7 @@ void _roundTrip<T>(List<String> failures, String label, Map<String, dynamic> exa
   }
 }
 
-const int roundTripClasses = 74;
+const int roundTripClasses = 75;
 
 /// Runs every round trip and returns the failures (empty when all pass).
 List<String> roundTripAll() {
@@ -163,6 +163,8 @@ List<String> roundTripAll() {
   _roundTrip<HydraTotpStatus>(failures, 'HydraTotpStatus required only', <String, dynamic>{'enabled': true, 'recoveryLeft': 7}, HydraTotpStatus.fromJson, (value) => value.toJson());
   _roundTrip<HydraUpdateItem>(failures, 'HydraUpdateItem full', <String, dynamic>{'name': 'text', 'family': 'text', 'installed': 'text', 'latest': 'text', 'state': 'current'}, HydraUpdateItem.fromJson, (value) => value.toJson());
   _roundTrip<HydraUpdateItem>(failures, 'HydraUpdateItem required only', <String, dynamic>{'name': 'text', 'family': 'text', 'installed': 'text', 'latest': 'text', 'state': 'current'}, HydraUpdateItem.fromJson, (value) => value.toJson());
+  _roundTrip<HydraUpdateManifestVerdict>(failures, 'HydraUpdateManifestVerdict full', <String, dynamic>{'accepted': true, 'code': 'ok', 'key_id': 'text', 'require_asymmetric_signature': true}, HydraUpdateManifestVerdict.fromJson, (value) => value.toJson());
+  _roundTrip<HydraUpdateManifestVerdict>(failures, 'HydraUpdateManifestVerdict required only', <String, dynamic>{'accepted': true, 'code': 'ok', 'key_id': 'text', 'require_asymmetric_signature': true}, HydraUpdateManifestVerdict.fromJson, (value) => value.toJson());
   _roundTrip<HydraUpdateReport>(failures, 'HydraUpdateReport full', <String, dynamic>{'checkedAt': 'text', 'owner': 'text', 'rateLimited': true, 'items': <dynamic>[<String, dynamic>{'name': 'text', 'family': 'text', 'installed': 'text', 'latest': 'text', 'state': 'current'}]}, HydraUpdateReport.fromJson, (value) => value.toJson());
   _roundTrip<HydraUpdateReport>(failures, 'HydraUpdateReport required only', <String, dynamic>{'checkedAt': 'text', 'owner': 'text', 'rateLimited': true, 'items': <dynamic>[<String, dynamic>{'name': 'text', 'family': 'text', 'installed': 'text', 'latest': 'text', 'state': 'current'}]}, HydraUpdateReport.fromJson, (value) => value.toJson());
   _roundTrip<HydraUsbDevices>(failures, 'HydraUsbDevices full', <String, dynamic>{'devices': <dynamic>[<String, dynamic>{'key': 'value'}]}, HydraUsbDevices.fromJson, (value) => value.toJson());

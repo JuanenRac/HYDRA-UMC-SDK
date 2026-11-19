@@ -3106,6 +3106,45 @@
           }
         },
         "additionalProperties": true
+      },
+      "UpdateManifestVerdict": {
+        "type": "object",
+        "required": [
+          "accepted",
+          "code",
+          "key_id",
+          "require_asymmetric_signature"
+        ],
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "legacy",
+              "downgrade_refused",
+              "malformed",
+              "bad_signature",
+              "unknown_key",
+              "key_revoked",
+              "key_not_yet_valid",
+              "key_expired"
+            ]
+          },
+          "key_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The key that signed the manifest, or null when it carries no signature."
+          },
+          "require_asymmetric_signature": {
+            "type": "boolean",
+            "description": "Whether the switch that refuses a manifest without an Ed25519 signature was on when the manifest was checked."
+          }
+        }
       }
     }
   },
@@ -5109,6 +5148,65 @@
             }
           }
         ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/admin/updates/manifest/check": {
+      "post": {
+        "tags": [
+          "updates"
+        ],
+        "summary": "POST /api/admin/updates/manifest/check",
+        "description": "Requires a signed-in account with the admin role. Checks an UpdateManifest against the list of trusted public keys of this server and says whether it would be accepted; it changes nothing.",
+        "x-access": "admin",
+        "responses": {
+          "200": {
+            "description": "The verdict. A manifest that is refused still answers 200 with accepted false and the code of the refusal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateManifestVerdict"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The body is not an object. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not configured or unavailable. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "An UpdateManifest (schema update-manifest of the contracts)."
+              }
+            }
+          }
+        },
         "security": [
           {
             "bearerAuth": []

@@ -350,6 +350,11 @@ private fun roundTripHydraUpdateItem() {
     roundTrip("HydraUpdateItem required only", mapOf<String, Any?>("name" to "text", "family" to "text", "installed" to "text", "latest" to "text", "state" to "current"), { HydraUpdateItem.fromJson(it) }, { it.toJson() })
 }
 
+private fun roundTripHydraUpdateManifestVerdict() {
+    roundTrip("HydraUpdateManifestVerdict full", mapOf<String, Any?>("accepted" to true, "code" to "ok", "key_id" to "text", "require_asymmetric_signature" to true), { HydraUpdateManifestVerdict.fromJson(it) }, { it.toJson() })
+    roundTrip("HydraUpdateManifestVerdict required only", mapOf<String, Any?>("accepted" to true, "code" to "ok", "key_id" to "text", "require_asymmetric_signature" to true), { HydraUpdateManifestVerdict.fromJson(it) }, { it.toJson() })
+}
+
 private fun roundTripHydraUpdateReport() {
     roundTrip("HydraUpdateReport full", mapOf<String, Any?>("checkedAt" to "text", "owner" to "text", "rateLimited" to true, "items" to listOf<Any?>(mapOf<String, Any?>("name" to "text", "family" to "text", "installed" to "text", "latest" to "text", "state" to "current"))), { HydraUpdateReport.fromJson(it) }, { it.toJson() })
     roundTrip("HydraUpdateReport required only", mapOf<String, Any?>("checkedAt" to "text", "owner" to "text", "rateLimited" to true, "items" to listOf<Any?>(mapOf<String, Any?>("name" to "text", "family" to "text", "installed" to "text", "latest" to "text", "state" to "current"))), { HydraUpdateReport.fromJson(it) }, { it.toJson() })
@@ -451,6 +456,7 @@ fun roundTripAll(): List<String> {
     roundTripHydraTotpEnrolment()
     roundTripHydraTotpStatus()
     roundTripHydraUpdateItem()
+    roundTripHydraUpdateManifestVerdict()
     roundTripHydraUpdateReport()
     roundTripHydraUsbDevices()
     roundTripHydraUserList()
@@ -459,4 +465,4 @@ fun roundTripAll(): List<String> {
     roundTripHydraWatchStatus()
     return failures.toList()
 }
-const val ROUND_TRIP_CLASSES: Int = 74
+const val ROUND_TRIP_CLASSES: Int = 75

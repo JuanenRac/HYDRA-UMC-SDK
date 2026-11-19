@@ -41,6 +41,7 @@ const List<HydraRoute> hydraRoutes = <HydraRoute>[
   HydraRoute('PUT', '/api/admin/server-config', 'admin', 'admin', <String>[], <String>['200', '400', '500']),
   HydraRoute('GET', '/api/admin/service-identity', 'admin', 'admin', <String>[], <String>['200']),
   HydraRoute('GET', '/api/admin/updates', 'admin', 'updates', <String>['refresh'], <String>['200', '404', '503']),
+  HydraRoute('POST', '/api/admin/updates/manifest/check', 'admin', 'updates', <String>[], <String>['200', '400', '503']),
   HydraRoute('GET', '/api/anomaly/verdicts', 'user', 'feeds', <String>['verdict', 'verify'], <String>['200', '400']),
   HydraRoute('GET', '/api/audit', 'admin', 'audit', <String>['afterSeq', 'format', 'limit', 'robotId', 'type', 'verify'], <String>['200', '404']),
   HydraRoute('GET', '/api/bridges', 'user', 'bridges', <String>[], <String>['200', '404']),

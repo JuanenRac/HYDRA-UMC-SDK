@@ -363,6 +363,18 @@
       ]
     },
     {
+      "method": "POST",
+      "path": "/api/admin/updates/manifest/check",
+      "access": "admin",
+      "group": "updates",
+      "query": [],
+      "statuses": [
+        "200",
+        "400",
+        "503"
+      ]
+    },
+    {
       "method": "GET",
       "path": "/api/anomaly/verdicts",
       "access": "user",

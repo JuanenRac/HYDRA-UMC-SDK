@@ -570,6 +570,15 @@ export interface UpdateItem {
   state: "current" | "behind" | "ahead" | "unknown";
 }
 
+export interface UpdateManifestVerdict {
+  accepted: boolean;
+  code: "ok" | "legacy" | "downgrade_refused" | "malformed" | "bad_signature" | "unknown_key" | "key_revoked" | "key_not_yet_valid" | "key_expired";
+  /** The key that signed the manifest, or null when it carries no signature. */
+  key_id: unknown;
+  /** Whether the switch that refuses a manifest without an Ed25519 signature was on when the manifest was checked. */
+  require_asymmetric_signature: boolean;
+}
+
 export interface UpdateReport {
   checkedAt: unknown;
   owner: string;
@@ -815,6 +824,11 @@ export class HydraServerClient {
   /** GET /api/admin/updates (access: admin) */
   getAdminUpdates(args?: { query?: { refresh?: string } }): Promise<UpdateReport> {
     return this.transport({ method: "GET", path: "/api/admin/updates", query: queryOf(args?.query), headers: {}, body: undefined, access: "admin" }) as Promise<UpdateReport>;
+  }
+
+  /** POST /api/admin/updates/manifest/check (access: admin) */
+  postAdminUpdatesManifestCheck(args: { body: Record<string, unknown> }): Promise<UpdateManifestVerdict> {
+    return this.transport({ method: "POST", path: "/api/admin/updates/manifest/check", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<UpdateManifestVerdict>;
   }
 
   /** GET /api/anomaly/verdicts (access: user) */
@@ -1445,6 +1459,7 @@ export const HYDRA_CLIENT_OPERATIONS: readonly string[] = [
   "putAdminServerConfig",
   "getAdminServiceIdentity",
   "getAdminUpdates",
+  "postAdminUpdatesManifestCheck",
   "getAnomalyVerdicts",
   "getAudit",
   "getBridges",

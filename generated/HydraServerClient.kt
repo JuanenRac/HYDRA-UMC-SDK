@@ -5231,6 +5231,34 @@ data class HydraUpdateItem(
     }
 }
 
+/** An object of the server contract. */
+data class HydraUpdateManifestVerdict(
+    val accepted: Boolean,
+    val code: String,
+    /** The key that signed the manifest, or null when it carries no signature. */
+    val keyId: String?,
+    /** Whether the switch that refuses a manifest without an Ed25519 signature was on when the manifest was checked. */
+    val requireAsymmetricSignature: Boolean,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["accepted"] = accepted
+        jsonOut["code"] = code
+        jsonOut["key_id"] = keyId
+        jsonOut["require_asymmetric_signature"] = requireAsymmetricSignature
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraUpdateManifestVerdict = HydraUpdateManifestVerdict(
+            accepted = json["accepted"] as Boolean,
+            code = json["code"] as String,
+            keyId = json["key_id"]?.let { v0 -> v0 as String },
+            requireAsymmetricSignature = json["require_asymmetric_signature"] as Boolean,
+        )
+    }
+}
+
 /** The installed version of each program set against its newest published release. It reports; it never installs anything. */
 data class HydraUpdateReport(
     val checkedAt: String?,
@@ -5621,6 +5649,12 @@ class HydraServerClient(private val transport: HydraTransport) {
     suspend fun getAdminUpdates(refresh: String? = null): HydraUpdateReport {
         val raw = transport.send(HydraRequest("GET", "/api/admin/updates", queryOf(mapOf("refresh" to refresh)), null, "admin"))
         return HydraUpdateReport.fromJson(hydraMap(raw))
+    }
+
+    /** POST /api/admin/updates/manifest/check (access: admin) */
+    suspend fun postAdminUpdatesManifestCheck(body: Map<String, Any?>): HydraUpdateManifestVerdict {
+        val raw = transport.send(HydraRequest("POST", "/api/admin/updates/manifest/check", emptyMap(), body, "admin"))
+        return HydraUpdateManifestVerdict.fromJson(hydraMap(raw))
     }
 
     /** GET /api/anomaly/verdicts (access: user) */
@@ -6369,6 +6403,7 @@ val HYDRA_CLIENT_OPERATIONS: List<String> = listOf(
     "putAdminServerConfig",
     "getAdminServiceIdentity",
     "getAdminUpdates",
+    "postAdminUpdatesManifestCheck",
     "getAnomalyVerdicts",
     "getAudit",
     "getBridges",

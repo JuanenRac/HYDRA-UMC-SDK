@@ -1303,6 +1303,38 @@
         }
       }
     },
+    "POST /api/admin/updates/manifest/check": {
+      "200": {
+        "minimal": {
+          "accepted": false,
+          "code": "ok",
+          "key_id": "sample",
+          "require_asymmetric_signature": false
+        },
+        "full": {
+          "accepted": false,
+          "code": "ok",
+          "key_id": "sample",
+          "require_asymmetric_signature": false
+        }
+      },
+      "400": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      },
+      "503": {
+        "minimal": {
+          "error": "sample"
+        },
+        "full": {
+          "error": "sample"
+        }
+      }
+    },
     "GET /api/anomaly/verdicts": {
       "400": {
         "minimal": {

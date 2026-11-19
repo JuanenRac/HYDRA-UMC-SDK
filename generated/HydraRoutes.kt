@@ -34,6 +34,7 @@ val HYDRA_ROUTES: List<HydraRoute> = listOf(
     HydraRoute("PUT", "/api/admin/server-config", "admin", "admin", listOf(), listOf("200", "400", "500")),
     HydraRoute("GET", "/api/admin/service-identity", "admin", "admin", listOf(), listOf("200")),
     HydraRoute("GET", "/api/admin/updates", "admin", "updates", listOf("refresh"), listOf("200", "404", "503")),
+    HydraRoute("POST", "/api/admin/updates/manifest/check", "admin", "updates", listOf(), listOf("200", "400", "503")),
     HydraRoute("GET", "/api/anomaly/verdicts", "user", "feeds", listOf("verdict", "verify"), listOf("200", "400")),
     HydraRoute("GET", "/api/audit", "admin", "audit", listOf("afterSeq", "format", "limit", "robotId", "type", "verify"), listOf("200", "404")),
     HydraRoute("GET", "/api/bridges", "user", "bridges", listOf(), listOf("200", "404")),

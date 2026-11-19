@@ -6496,6 +6496,39 @@ class HydraUpdateItem {
   }
 }
 
+/// An object of the server contract.
+class HydraUpdateManifestVerdict {
+  const HydraUpdateManifestVerdict({
+    required this.accepted,
+    required this.code,
+    required this.keyId,
+    required this.requireAsymmetricSignature,
+  });
+
+  factory HydraUpdateManifestVerdict.fromJson(Map<String, dynamic> json) => HydraUpdateManifestVerdict(
+        accepted: json['accepted'] as bool,
+        code: json['code'] as String,
+        keyId: json['key_id'] == null ? null : json['key_id'] as String,
+        requireAsymmetricSignature: json['require_asymmetric_signature'] as bool,
+      );
+
+  final bool accepted;
+  final String code;
+  /// The key that signed the manifest, or null when it carries no signature.
+  final String? keyId;
+  /// Whether the switch that refuses a manifest without an Ed25519 signature was on when the manifest was checked.
+  final bool requireAsymmetricSignature;
+
+  Map<String, dynamic> toJson() {
+    final hydraOut = <String, dynamic>{};
+    hydraOut['accepted'] = accepted;
+    hydraOut['code'] = code;
+    hydraOut['key_id'] = keyId;
+    hydraOut['require_asymmetric_signature'] = requireAsymmetricSignature;
+    return hydraOut;
+  }
+}
+
 /// The installed version of each program set against its newest published release. It reports; it never installs anything.
 class HydraUpdateReport {
   const HydraUpdateReport({
@@ -6957,6 +6990,12 @@ class HydraServerClient {
   Future<HydraUpdateReport> getAdminUpdates({String? refresh}) async {
     final raw = await _transport(HydraRequest('GET', '/api/admin/updates', queryOf({'refresh': refresh}), null, 'admin'));
     return HydraUpdateReport.fromJson(_hydraMap(raw));
+  }
+
+  /// POST /api/admin/updates/manifest/check (access: admin)
+  Future<HydraUpdateManifestVerdict> postAdminUpdatesManifestCheck({required Map<String, dynamic> body}) async {
+    final raw = await _transport(HydraRequest('POST', '/api/admin/updates/manifest/check', const <String, String>{}, body, 'admin'));
+    return HydraUpdateManifestVerdict.fromJson(_hydraMap(raw));
   }
 
   /// GET /api/anomaly/verdicts (access: user)
@@ -7688,6 +7727,7 @@ const List<String> hydraClientOperations = [
   'putAdminServerConfig',
   'getAdminServiceIdentity',
   'getAdminUpdates',
+  'postAdminUpdatesManifestCheck',
   'getAnomalyVerdicts',
   'getAudit',
   'getBridges',

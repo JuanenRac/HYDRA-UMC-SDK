@@ -42,6 +42,7 @@ export const HYDRA_ROUTES: readonly HydraRoute[] = [
   { method: "PUT", path: "/api/admin/server-config", access: "admin", group: "admin", query: [], statuses: ["200", "400", "500"] },
   { method: "GET", path: "/api/admin/service-identity", access: "admin", group: "admin", query: [], statuses: ["200"] },
   { method: "GET", path: "/api/admin/updates", access: "admin", group: "updates", query: ["refresh"], statuses: ["200", "404", "503"] },
+  { method: "POST", path: "/api/admin/updates/manifest/check", access: "admin", group: "updates", query: [], statuses: ["200", "400", "503"] },
   { method: "GET", path: "/api/anomaly/verdicts", access: "user", group: "feeds", query: ["verdict", "verify"], statuses: ["200", "400"] },
   { method: "GET", path: "/api/audit", access: "admin", group: "audit", query: ["afterSeq", "format", "limit", "robotId", "type", "verify"], statuses: ["200", "404"] },
   { method: "GET", path: "/api/bridges", access: "user", group: "bridges", query: [], statuses: ["200", "404"] },
