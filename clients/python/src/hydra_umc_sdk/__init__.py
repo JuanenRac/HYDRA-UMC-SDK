@@ -49,6 +49,7 @@ from .pose import FRAMES as POSE_FRAMES, Pose, Quaternion, pose_from_dict, pose_
 from .scenario import ScenarioComparison, compare_runs
 from .model_weights import ANY_WEIGHT_SUFFIXES, COMPILED_MODEL_SUFFIXES, contains_model_artifact
 from .confirmation_proof import proof_message, sign_confirmation_proof, validate_confirmation_proof, verify_confirmation_proof
+from .manifest_signing import KeyListError, ManifestVerdict, TrustedKey, keys_from_json, sign_manifest, verify_manifest
 from .production_event import production_event_fields, validate_production_event
 from .command_lifecycle import COMMAND_STATES, command_state_from_operation, is_terminal_state, validate_command_lifecycle_event, validate_state_transition
 from .mcu_errors import MCU_ERROR_CODES, RECOVERY_ACTIONS, McuErrorCode, default_mcu_error_action, describe_mcu_error, is_known_mcu_error
@@ -137,6 +138,12 @@ __all__ = [
     "sign_confirmation_proof",
     "verify_confirmation_proof",
     "proof_message",
+    "KeyListError",
+    "ManifestVerdict",
+    "TrustedKey",
+    "keys_from_json",
+    "sign_manifest",
+    "verify_manifest",
     "validate_production_event",
     "COMMAND_STATES",
     "MCU_ERROR_CODES",
