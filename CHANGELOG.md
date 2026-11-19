@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.7.3]
+
 - **The update manifest has a signature rule, a list of trusted keys with rotation and a switch (`hydra_umc_sdk.manifest_signing`, `docs/MANIFEST_SIGNING.md`):** `verify_manifest` checks the Ed25519 signature that the `UpdateManifest` schema already names, over the canonical JSON of the manifest without `signature`, against a list of public keys (`keys_from_json`) where each key is `current`, `next`, `retired` or `revoked` and has a validity window, so a key can be rotated with a grace period and withdrawn at once. A signature that is present is always checked; a manifest without one passes as `legacy` while `require_asymmetric_signature` is off (the default) and is refused as `downgrade_refused` when it is on. The verifier is plain RFC 8032 in the standard library, `sign_manifest` is for tests and tools, and `conformance/fixtures/v1/manifest-signing-vectors.json` gives every consumer the same 18 cases (good, bad, rotated, expired, revoked, downgrade).
 
 - **The README names three shared pieces and counts the contracts right:** `cell_state_source` (one reader of the state of a cell), `zone_occupancy` (the occupancy message with its optional `known` field) and the TLS fingerprint kept for each server in the Flutter settings are described in the features, the contracts are counted as forty-one, and the test counts are current. The README and its seven translations are regenerated.
@@ -9,6 +11,10 @@
 - **One shared reader of the state of a cell (`hydra_umc_sdk.cell_state_source`):** a bridge reads `READY`, `INHIBITED`, `FAULT` or `SAFE_STOP` from a fixed word, from a small file that must be fresh, or from the signed verdict of the safety zones service (a file or an HTTP address; HMAC-SHA256 with a shared key, or Ed25519 with the public key; fresh timestamp, counter that never goes back). Whatever cannot be trusted reads as `SAFE_STOP`, `describe()` says which source answered so a bridge can report `cell_source`, and `config_from_environment(name)` returns nothing when no source is set so a bridge keeps the behaviour it had.
 - **The occupancy message of the safety zones has a reader with an optional `known` field (`hydra_umc_sdk.zone_occupancy`):** `{"occupied": [...], "observed_at": ms, "known": false}` says that the emitter could not see the zones, so the empty list is not read as free. A message without `known` reads as before, a stamp more than two seconds in the future is refused, and any field outside the contract makes the message unreadable.
 - **The Flutter TLS settings keep a fingerprint for each server and do not offer plain HTTP to a pinned server (`clients/dart_app_common`):** `pinnedFingerprints` maps `host:port` to its fingerprint (two self-signed servers can both be trusted), `createHttpClient` and `createClient` take the host and port to use the fingerprint of that server, and `TlsPrefsCore.load` can move the single fingerprint of older versions to the last server while leaving the old key stored. `allowPlainWithPin` (off by default) is the switch that lets a pinned server be reached without TLS; without it `plainAllowedFor` is false for any host that has a fingerprint outside this machine.
+
+### Changed
+
+- Automated build version increment from 0.7.2.
 
 ## [0.7.2]
 
