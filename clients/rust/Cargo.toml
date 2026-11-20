@@ -6,7 +6,7 @@ description = "Rust reference client for HYDRA-UMC-SDK: hand-written types plus 
 license = "GPL-3.0-or-later"
 
 [dependencies]
-jsonschema = "0.60"
+jsonschema = "0.61"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.11"
