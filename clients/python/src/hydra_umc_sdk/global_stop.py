@@ -22,8 +22,19 @@ The state lives in this process: it is read again from the broker (the message i
 `ready_key_file`; the same key the server signs with, at least 32 characters, mode 600) a `SAFE_STOP` is still always obeyed, signed or not, but a `READY` ends a stop
 only when it is signed with that key and newer than the last signed announcement the bridge accepted. The announcement carries `issued_at_ms` and `signature`, the
 HMAC-SHA256 (64 lowercase hexadecimal digits) of `hydra-umc-global-stop-v1`, a newline, the topic, a newline and the other fields as JSON with sorted keys, no
-spaces and ASCII escapes. The message is retained, so it carries no expiry; the memory of the newest one lives in the process, so a bridge that was just started
-cannot tell an old signed `READY` that somebody published again from the current one. Without a key file everything behaves as before.
+spaces and ASCII escapes. The message is retained, so it carries no expiry. Without a key file everything behaves as before.
+
+**The mark on disk.** With a key file the guard also keeps on disk the `issued_at_ms` of the newest signed announcement it accepted and of the signed `READY` in
+force, so an old signed `READY` published again after a restart ends nothing. The file is `HYDRA_UMC_<name>_GLOBAL_STOP_STATE_FILE` (`ready_state_file`); without
+one it is in `$STATE_DIRECTORY` (systemd), else in `$XDG_STATE_HOME/hydra-umc` or `~/.local/state/hydra-umc`. It is written atomically and carries a MAC made with
+the key. Everything doubtful leaves the machine still:
+
+* a file that cannot be read, is damaged, altered, or made for another topic or key: nothing moves, whatever the broker says, until an operator removes the file and
+  restarts the bridge;
+* a file that cannot be written: a `READY` is not accepted (a `SAFE_STOP` is obeyed as always);
+* a file that says the bridge was stopped: it starts stopped.
+
+A file that does not exist is a first start. In a container keep it on a volume, or the memory does not survive the container.
 """
 
 from __future__ import annotations
@@ -33,6 +44,7 @@ import hmac
 import json
 import os
 import re
+import tempfile
 import threading
 import time
 from collections.abc import Mapping
@@ -49,7 +61,76 @@ STATE_UNVERIFIED = "UNVERIFIED"  # a READY that is not signed as asked, heard be
 SIGNING_DOMAIN = b"hydra-umc-global-stop-v1"
 _SIGNATURE = re.compile(r"[0-9a-f]{64}")
 
+MARK_DOMAIN = b"hydra-umc-global-stop-mark-v1"
+_MARK_FIELDS = {"version", "topic", "newest_signed_ms", "ready_signed_ms", "mac"}
+_MAX_MARK_BYTES = 4096
+
 _TRUE = {"1", "true", "yes", "on"}
+
+
+def default_state_file(topic: str, key_file: str) -> str:
+    """Where the mark is kept when no file is named: one per topic and key file, in the state folder of the service or of its user."""
+    base = os.environ.get("STATE_DIRECTORY", "").split(os.pathsep if os.name != "posix" else ":")[0].strip()
+    if not base:
+        home = os.environ.get("XDG_STATE_HOME", "").strip() or os.path.join(os.path.expanduser("~"), ".local", "state")
+        base = os.path.join(home, "hydra-umc")
+    name = hashlib.sha256(f"{topic}\n{os.path.abspath(key_file)}".encode("utf-8", "surrogateescape")).hexdigest()[:16]
+    return os.path.join(base, f"global-stop-{name}.json")
+
+
+def _mark_mac(body: Mapping[str, object], key: bytes) -> str:
+    raw = json.dumps({name: value for name, value in body.items() if name != "mac"}, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("ascii")
+    return hmac.new(key, MARK_DOMAIN + b"\n" + raw, hashlib.sha256).hexdigest()
+
+
+def _read_mark(path: str, topic: str, key: bytes) -> tuple[int, int | None] | None:
+    """(newest signed, signed READY in force or None); None when there is no file. ValueError for anything that cannot be trusted."""
+    try:
+        with open(path, "rb") as handle:
+            raw = handle.read(_MAX_MARK_BYTES + 1)
+    except FileNotFoundError:
+        return None
+    except OSError as error:
+        raise ValueError(f"cannot be read ({type(error).__name__})") from error
+    try:
+        body = json.loads(raw) if len(raw) <= _MAX_MARK_BYTES else None
+    except (ValueError, RecursionError) as error:
+        raise ValueError("is damaged") from error
+    if not isinstance(body, dict) or set(body) != _MARK_FIELDS or body["version"] != 1:
+        raise ValueError("is damaged")
+    mac = body["mac"]
+    if not isinstance(mac, str) or not _SIGNATURE.fullmatch(mac) or not hmac.compare_digest(_mark_mac(body, key), mac):
+        raise ValueError("was altered or made with another key")
+    newest, ready = body["newest_signed_ms"], body["ready_signed_ms"]
+    if body["topic"] != topic:
+        raise ValueError("was made for another topic")
+    if type(newest) is not int or newest < -1 or not (ready is None or (type(ready) is int and 0 <= ready <= newest)):
+        raise ValueError("is damaged")
+    return newest, ready
+
+
+def _write_mark(path: str, topic: str, key: bytes, newest: int, ready: int | None) -> None:
+    """Writes the mark so that a power cut leaves the old file or the new one, never half of one. OSError when it cannot."""
+    body: dict[str, object] = {"version": 1, "topic": topic, "newest_signed_ms": newest, "ready_signed_ms": ready}
+    body["mac"] = _mark_mac(body, key)
+    folder = os.path.dirname(os.path.abspath(path))
+    os.makedirs(folder, mode=0o700, exist_ok=True)
+    descriptor, temporary = tempfile.mkstemp(prefix=".global-stop-", suffix=".tmp", dir=folder)
+    try:
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(json.dumps(body, sort_keys=True).encode("ascii") + b"\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.remove(temporary)
+    if os.name == "posix":
+        directory = os.open(folder, os.O_RDONLY)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
 
 
 def _signature(topic: str, payload: Mapping[str, object], key: bytes) -> str:
@@ -85,12 +166,13 @@ def verified_issued_at(topic: str, payload: Mapping[str, object], key: bytes) ->
 @dataclass(frozen=True)
 class GlobalStopSettings:
     """`enabled` is the switch (off by default); `topic` is where the server announces; `strict` also refuses before the first message; with `ready_key_file` only a
-    signed `READY` ends a stop."""
+    signed `READY` ends a stop, and `ready_state_file` names the file of the mark that survives a restart (a default one without it)."""
 
     enabled: bool = False
     topic: str = DEFAULT_TOPIC
     strict: bool = False
     ready_key_file: str | None = None
+    ready_state_file: str | None = None
 
     def __post_init__(self) -> None:
         topic = self.topic
@@ -100,13 +182,14 @@ class GlobalStopSettings:
 
 def settings_from_environment(name: str) -> GlobalStopSettings:
     """`HYDRA_UMC_<name>_GLOBAL_STOP` (1 switches it on), `..._GLOBAL_STOP_TOPIC`, `..._GLOBAL_STOP_STRICT` (1 also refuses before the first message) and
-    `..._GLOBAL_STOP_KEY_FILE` (only a `READY` signed with the key of that file ends a stop)."""
+    `..._GLOBAL_STOP_KEY_FILE` (only a `READY` signed with the key of that file ends a stop) and `..._GLOBAL_STOP_STATE_FILE` (the mark on disk)."""
     base = f"HYDRA_UMC_{name}_GLOBAL_STOP"
     enabled = os.environ.get(base, "").strip().lower() in _TRUE
     topic = os.environ.get(f"{base}_TOPIC", "").strip() or DEFAULT_TOPIC
     strict = os.environ.get(f"{base}_STRICT", "").strip().lower() in _TRUE
     key_file = os.environ.get(f"{base}_KEY_FILE", "").strip() or None
-    return GlobalStopSettings(enabled, topic, strict, key_file)
+    state_file = os.environ.get(f"{base}_STATE_FILE", "").strip() or None
+    return GlobalStopSettings(enabled, topic, strict, key_file, state_file)
 
 
 class GlobalStopGuard:
@@ -125,6 +208,41 @@ class GlobalStopGuard:
         self._state = STATE_UNKNOWN
         self._newest_signed = -1  # issued_at_ms of the newest signed announcement accepted
         self._ready_signed: int | None = None  # issued_at_ms of the signed READY that is in force
+        self._restored_ready: int | None = None  # the signed READY that was in force before a restart: the same one may be delivered again
+        self._saved: tuple[int, int | None] | None = None  # what the file holds
+        self._broken = ""  # why the file of the mark cannot be trusted (nothing moves then)
+        self._unsaved = False  # a READY was refused because the mark could not be written
+        self._state_file = self.settings.ready_state_file
+        if self._state_file is None and key is not None and self.settings.ready_key_file:
+            self._state_file = default_state_file(self.settings.topic, self.settings.ready_key_file)
+        if key is not None and self._state_file:
+            self._restore(self._state_file, key)
+
+    def _restore(self, path: str, key: bytes) -> None:
+        try:
+            mark = _read_mark(path, self.settings.topic, key)
+        except ValueError as error:
+            self._broken = f"the memory of the last signed release ({path}) {error}"
+            self._state = STATE_UNVERIFIED
+            return
+        if mark is None:
+            return
+        self._saved = mark
+        self._newest_signed, self._restored_ready = mark
+        if self._restored_ready is None:
+            self._state = STATE_UNVERIFIED  # it was stopped when it last knew: only a newer signed READY ends that
+
+    def _remember(self, newest: int, ready: int | None) -> bool:
+        """Writes the mark when it changed; False when it could not."""
+        if self._key is None or not self._state_file or self._saved == (newest, ready):
+            return True
+        try:
+            _write_mark(self._state_file, self.settings.topic, self._key, newest, ready)
+        except OSError:
+            self._saved = None
+            return False
+        self._saved = (newest, ready)
+        return True
 
     @classmethod
     def from_environment(cls, name: str) -> "GlobalStopGuard":
@@ -161,16 +279,28 @@ class GlobalStopGuard:
         if self._key is not None and isinstance(body, dict):
             signed_at = verified_issued_at(self.settings.topic, body, self._key)
         with self._lock:
+            if self._broken:  # a stop is still recorded; nothing ends it until the file is dealt with
+                if state != STATE_READY:
+                    self._state = state
+                return self._state
             if self._key is not None and state == STATE_READY:
-                fresh = signed_at is not None and (signed_at > self._newest_signed or (self._state == STATE_READY and signed_at == self._ready_signed))
+                again = (self._state == STATE_READY and signed_at == self._ready_signed) or signed_at == self._restored_ready
+                fresh = signed_at is not None and (signed_at > self._newest_signed or again)
                 if not fresh:
                     # it ends nothing: a stop stays a stop, a release in force stays; with nothing known yet the bridge stays still
                     if self._state not in (STATE_READY, STATE_SAFE_STOP):
                         self._state = STATE_UNVERIFIED
                     return self._state
-                self._ready_signed = signed_at
-            if signed_at is not None:
-                self._newest_signed = max(self._newest_signed, signed_at)
+            newest = self._newest_signed if signed_at is None else max(self._newest_signed, signed_at)
+            ready = signed_at if state == STATE_READY else None
+            saved = self._remember(newest, ready)
+            self._unsaved = not saved and state == STATE_READY
+            if self._unsaved:  # a release that cannot be remembered is not believed
+                if self._state not in (STATE_READY, STATE_SAFE_STOP):
+                    self._state = STATE_UNVERIFIED
+                return self._state
+            self._ready_signed, self._restored_ready = ready, None
+            self._newest_signed = newest
             self._state = state
         return state
 
@@ -179,7 +309,9 @@ class GlobalStopGuard:
         if not self.settings.enabled:
             return False
         with self._lock:
-            state = self._state
+            state, broken = self._state, self._broken
+        if broken:
+            return True
         if state == STATE_READY:
             return False
         if state == STATE_UNKNOWN:
@@ -187,6 +319,10 @@ class GlobalStopGuard:
         return True
 
     def reason(self) -> str:
+        if self._broken:
+            return f"{self._broken} - nothing moves until an operator removes the file and restarts the bridge"
+        if self._unsaved:
+            return f"the signed release could not be remembered in {self._state_file} - nothing moves until the file can be written and the server announces READY again"
         state = self.state
         if state == STATE_UNKNOWN:
             return "the global stop state is not known yet - nothing moves until the server announces READY"

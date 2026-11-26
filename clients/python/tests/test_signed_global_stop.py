@@ -10,9 +10,11 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from hydra_umc_sdk.confirmation_proof import load_confirmation_key, proof_identifier, verify_confirmation_proof
-from hydra_umc_sdk.global_stop import STATE_READY, STATE_SAFE_STOP, STATE_UNVERIFIED, GlobalStopGuard, GlobalStopSettings, settings_from_environment, sign_announcement
+from hydra_umc_sdk.global_stop import (STATE_READY, STATE_SAFE_STOP, STATE_UNVERIFIED, GlobalStopGuard, GlobalStopSettings, default_state_file,
+                                       settings_from_environment, sign_announcement)
 from hydra_umc_sdk.signed_commands import CommandSigningError
 from hydra_umc_sdk.validation import ContractValidationError
 
@@ -26,6 +28,98 @@ def message(state, at=None, key=KEY, topic=SETTINGS.topic):
     if at is not None:
         body = sign_announcement(topic, body, key, now_ms=at)
     return json.dumps(body).encode()
+
+
+class ReadyMark(unittest.TestCase):
+    """The mark on disk: an old signed READY stays old after a restart, and anything doubtful leaves the machine still."""
+
+    def setUp(self):
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        self.folder = Path(folder.name)
+        self.path = self.folder / "state" / "mark.json"
+
+    def guard(self, path=None, key=KEY, topic=SETTINGS.topic):
+        return GlobalStopGuard(GlobalStopSettings(True, topic, ready_state_file=str(path or self.path)), key=key)
+
+    def test_an_old_release_is_refused_after_a_restart_and_the_current_one_is_accepted(self):
+        first = self.guard()
+        first.observe(message("READY", 100))
+        first.observe(message("SAFE_STOP", 150))
+        first.observe(message("READY", 200))
+        second = self.guard()
+        second.observe(message("READY", 100))
+        self.assertTrue(second.blocks())
+        self.assertEqual(second.observe(message("READY", 200)), STATE_READY)  # the retained message that was in force
+        self.assertFalse(second.blocks())
+
+    def test_a_bridge_that_was_stopped_starts_stopped(self):
+        first = self.guard()
+        first.observe(message("READY", 100))
+        first.observe(message("SAFE_STOP"))  # unsigned: still remembered
+        second = self.guard()
+        self.assertTrue(second.blocks())
+        second.observe(message("READY", 100))
+        self.assertTrue(second.blocks())
+        self.assertEqual(second.observe(message("READY", 101)), STATE_READY)
+
+    def test_a_stop_heard_after_a_restart_cancels_the_restored_release(self):
+        self.guard().observe(message("READY", 100))
+        second = self.guard()
+        second.observe(message("SAFE_STOP"))
+        second.observe(message("READY", 100))
+        self.assertEqual(second.state, STATE_SAFE_STOP)
+
+    def test_a_damaged_altered_or_foreign_mark_keeps_everything_still(self):
+        self.guard().observe(message("READY", 100))
+        good = self.path.read_bytes()
+        for content in (b"", b"not json", good[:-10], good.replace(b"100", b"1"), b"[1]"):
+            self.path.write_bytes(content)
+            guard = self.guard()
+            self.assertTrue(guard.blocks(), content)
+            guard.observe(message("READY", 500))
+            self.assertTrue(guard.blocks(), content)
+            self.assertIn("removes the file", guard.reason())
+            self.assertEqual(self.path.read_bytes(), content)  # left for the operator to look at
+        self.path.write_bytes(good)
+        self.assertTrue(self.guard(topic="other/safety/estop").blocks())
+        self.assertTrue(self.guard(key=b"x" * 32).blocks())
+        self.path.unlink()
+        self.assertFalse(self.guard().blocks())  # no file: a first start
+
+    def test_a_release_that_cannot_be_written_is_not_believed(self):
+        blocker = self.folder / "a-file"
+        blocker.write_bytes(b"x")
+        guard = self.guard(path=blocker / "mark.json")
+        guard.observe(message("READY", 100))
+        self.assertTrue(guard.blocks())
+        self.assertIn("could not be remembered", guard.reason())
+        guard.observe(message("SAFE_STOP", 101))
+        self.assertEqual(guard.state, STATE_SAFE_STOP)
+
+    def test_writing_leaves_no_temporary_file(self):
+        guard = self.guard()
+        for at in (1, 2, 3):
+            guard.observe(message("READY", at))
+        self.assertEqual([p.name for p in self.path.parent.iterdir()], ["mark.json"])
+
+    def test_a_key_file_gives_a_default_mark_in_the_state_folder_and_the_environment_names_one(self):
+        key_file = self.folder / "stop.key"
+        key_file.write_bytes(KEY)
+        os.chmod(key_file, 0o600)
+        settings = GlobalStopSettings(True, ready_key_file=str(key_file))
+        with mock.patch.dict(os.environ, {"STATE_DIRECTORY": str(self.folder / "service")}):
+            default = default_state_file(settings.topic, str(key_file))
+            GlobalStopGuard(settings).observe(message("READY", 100))
+        self.assertEqual(Path(default).parent, self.folder / "service")
+        self.assertTrue(Path(default).is_file())
+        with mock.patch.dict(os.environ, {"HYDRA_UMC_T_GLOBAL_STOP_STATE_FILE": str(self.path)}):
+            self.assertEqual(settings_from_environment("T").ready_state_file, str(self.path))
+
+    def test_without_a_key_nothing_is_written(self):
+        guard = GlobalStopGuard(GlobalStopSettings(True, ready_state_file=str(self.path)))
+        guard.observe(message("READY"))
+        self.assertFalse(self.path.exists())
 
 
 class SignedAnnouncement(unittest.TestCase):
