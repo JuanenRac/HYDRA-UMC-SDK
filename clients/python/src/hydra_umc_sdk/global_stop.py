@@ -113,10 +113,10 @@ class GlobalStopGuard:
     """Thread safe: the network thread feeds `observe()`, the command lanes ask `blocks()`."""
 
     def __init__(self, settings: GlobalStopSettings | None = None, *, key: bytes | None = None) -> None:
-        """`key` replaces the key of `ready_key_file`. A switch that is on with a key file that cannot be used raises `CommandSigningError`: the bridge does not start
-        believing it is protected."""
+        """`key` replaces the key of `ready_key_file`. A key file that cannot be used raises `CommandSigningError`: the bridge does not start believing it is
+        protected."""
         self.settings = settings if settings is not None else GlobalStopSettings()
-        if key is None and self.settings.enabled and self.settings.ready_key_file:
+        if key is None and self.settings.ready_key_file:  # also with the switch off: a bridge may switch it on later
             key = load_key(self.settings.ready_key_file)
         if key is not None and len(key) < MIN_KEY_CHARS:
             raise CommandSigningError(f"the global stop key must have at least {MIN_KEY_CHARS} characters")

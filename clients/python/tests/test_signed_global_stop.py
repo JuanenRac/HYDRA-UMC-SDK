@@ -61,6 +61,17 @@ class SignedAnnouncement(unittest.TestCase):
         self.assertTrue(guard.blocks())
         self.assertIn("signed", guard.reason())
 
+    def test_the_key_is_there_when_the_switch_is_turned_on_later(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "stop.key"
+            path.write_bytes(KEY)
+            os.chmod(path, 0o600)
+            guard = GlobalStopGuard(GlobalStopSettings(False, ready_key_file=str(path)))
+        guard.settings = GlobalStopSettings(True, ready_key_file=str(path))
+        guard.observe(message("SAFE_STOP"))
+        guard.observe(message("READY"))
+        self.assertTrue(guard.blocks())
+
     def test_without_a_key_nothing_changes(self):
         guard = GlobalStopGuard(SETTINGS)
         guard.observe(message("SAFE_STOP"))
