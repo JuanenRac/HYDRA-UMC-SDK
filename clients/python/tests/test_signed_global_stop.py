@@ -88,14 +88,21 @@ class ReadyMark(unittest.TestCase):
         self.assertFalse(self.guard().blocks())  # no file: a first start
 
     def test_a_release_that_cannot_be_written_is_not_believed(self):
-        blocker = self.folder / "a-file"
-        blocker.write_bytes(b"x")
-        guard = self.guard(path=blocker / "mark.json")
+        guard = self.guard()
+        # the write itself fails (a full or read-only disk), the same way on every system
+        with mock.patch("tempfile.mkstemp", side_effect=PermissionError("read only")):
+            guard.observe(message("READY", 100))
+            self.assertTrue(guard.blocks())
+            self.assertIn("could not be remembered", guard.reason())
+            guard.observe(message("SAFE_STOP", 101))
+            self.assertEqual(guard.state, STATE_SAFE_STOP)
+
+    def test_a_mark_that_cannot_be_read_keeps_everything_still(self):
+        self.path.mkdir(parents=True)  # a folder where the file should be
+        guard = self.guard()
         guard.observe(message("READY", 100))
         self.assertTrue(guard.blocks())
-        self.assertIn("could not be remembered", guard.reason())
-        guard.observe(message("SAFE_STOP", 101))
-        self.assertEqual(guard.state, STATE_SAFE_STOP)
+        self.assertIn("cannot be read", guard.reason())
 
     def test_writing_leaves_no_temporary_file(self):
         guard = self.guard()
