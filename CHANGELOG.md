@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- **The key of the signed release is read even when the switch starts off,** so a bridge that turns the global stop on later (a remote setting) asks for a signed `READY` too.
 - **The flash route carries the header of format 2:** `POST /api/hardware/canota/flash` declares `header` (the `<image>.hdr2`, 128 hexadecimal digits), or `rollback_counter` and `key_id`, which the flashing service of the boards needs.
 - **A signed release of the global stop (`hydra_umc_sdk.global_stop`):** with a key file (`HYDRA_UMC_<name>_GLOBAL_STOP_KEY_FILE` or `ready_key_file`) a `SAFE_STOP` is obeyed as always and a `READY` ends a stop only when it is signed with the key (`issued_at_ms`, `signature`) and newer than the last signed announcement. Off without a key file. Shared vectors: `conformance/fixtures/v1/global-stop-signing-vectors.json`.
 - **What the confirmation proof names, and its key:** `subject_id` is the machine the action is for and `action_id` the trajectory fingerprint or the spoken request id; `proof_identifier` and `load_confirmation_key` are the shared helpers, with vectors in `conformance/fixtures/v1/confirmation-proof-vectors.json`.
