@@ -376,6 +376,16 @@
     },
     {
       "method": "GET",
+      "path": "/api/admin/watch/release-notice",
+      "access": "admin",
+      "group": "watch",
+      "query": [],
+      "statuses": [
+        "200"
+      ]
+    },
+    {
+      "method": "GET",
       "path": "/api/anomaly/verdicts",
       "access": "user",
       "group": "feeds",
@@ -806,8 +816,11 @@
       "query": [
         "downgrade_from",
         "hardware_id",
+        "header",
+        "key_id",
         "min_bootloader",
         "relay",
+        "rollback_counter",
         "signature",
         "slot",
         "target",
@@ -1759,6 +1772,17 @@
         "404",
         "502",
         "503"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/watch/release-notice",
+      "access": "user",
+      "group": "watch",
+      "query": [],
+      "statuses": [
+        "200",
+        "400"
       ]
     },
     {

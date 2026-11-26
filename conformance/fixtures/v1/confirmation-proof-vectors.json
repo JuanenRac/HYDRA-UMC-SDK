@@ -1,0 +1,32 @@
+{
+  "format": "hydra-confirmation-proof/1",
+  "key": "vector-key-0123456789abcdef0123456789abcdef",
+  "identifiers": {
+    "ana@example.com": "sha256:8e43ca37701228e74983efdbd0cff5c16b3b1e5d4e29a7c05626d4d25",
+    "robot-1": "robot-1"
+  },
+  "proofs": [
+    {
+      "schema_version": "1.0",
+      "kind": "approval",
+      "action_id": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "subject_id": "robot-1",
+      "operator": "ana",
+      "approved_at_ms": 1700000000000,
+      "expires_at_ms": 1700000010000,
+      "approval_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "signature": "40455c91e510cecef1a7f2705b206587cb7211b464862ce8a35c1fe500048477"
+    },
+    {
+      "schema_version": "1.0",
+      "kind": "voice",
+      "action_id": "turn-42",
+      "subject_id": "installation",
+      "operator": "sha256:8e43ca37701228e74983efdbd0cff5c16b3b1e5d4e29a7c05626d4d25",
+      "approved_at_ms": 1700000000000,
+      "expires_at_ms": 1700000010000,
+      "approval_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "signature": "6d353d430780ae4a8d56cc6e062cd934998f0813b870e69887059f49fda5a281"
+    }
+  ]
+}

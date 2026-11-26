@@ -380,6 +380,16 @@ private fun roundTripHydraVoiceReply() {
     roundTrip("HydraVoiceReply required only", mapOf<String, Any?>("type" to "assistant_reply", "requestId" to "text", "text" to "text", "level" to "text", "speak" to true, "requiresConfirmation" to true), { HydraVoiceReply.fromJson(it) }, { it.toJson() })
 }
 
+private fun roundTripHydraWatchReleaseNoticeList() {
+    roundTrip("HydraWatchReleaseNoticeList full", mapOf<String, Any?>("devices" to listOf<Any?>(mapOf<String, Any?>("device_id" to "text", "platform" to "android", "username" to "text", "notifies_watch" to true, "updated_at" to "text"))), { HydraWatchReleaseNoticeList.fromJson(it) }, { it.toJson() })
+    roundTrip("HydraWatchReleaseNoticeList required only", mapOf<String, Any?>("devices" to listOf<Any?>(mapOf<String, Any?>("device_id" to "text", "platform" to "android", "username" to "text", "notifies_watch" to true, "updated_at" to "text"))), { HydraWatchReleaseNoticeList.fromJson(it) }, { it.toJson() })
+}
+
+private fun roundTripHydraWatchReleaseNoticeSaved() {
+    roundTrip("HydraWatchReleaseNoticeSaved full", mapOf<String, Any?>("saved" to true), { HydraWatchReleaseNoticeSaved.fromJson(it) }, { it.toJson() })
+    roundTrip("HydraWatchReleaseNoticeSaved required only", mapOf<String, Any?>("saved" to true), { HydraWatchReleaseNoticeSaved.fromJson(it) }, { it.toJson() })
+}
+
 private fun roundTripHydraWatchStatus() {
     roundTrip("HydraWatchStatus full", mapOf<String, Any?>("type" to "system_status", "headline" to "text", "detail" to "text", "level" to "NOMINAL", "speak" to true), { HydraWatchStatus.fromJson(it) }, { it.toJson() })
     roundTrip("HydraWatchStatus required only", mapOf<String, Any?>("type" to "system_status", "headline" to "text", "detail" to "text", "level" to "NOMINAL", "speak" to true), { HydraWatchStatus.fromJson(it) }, { it.toJson() })
@@ -462,7 +472,9 @@ fun roundTripAll(): List<String> {
     roundTripHydraUserList()
     roundTripHydraVoiceConfirmResult()
     roundTripHydraVoiceReply()
+    roundTripHydraWatchReleaseNoticeList()
+    roundTripHydraWatchReleaseNoticeSaved()
     roundTripHydraWatchStatus()
     return failures.toList()
 }
-const val ROUND_TRIP_CLASSES: Int = 75
+const val ROUND_TRIP_CLASSES: Int = 77

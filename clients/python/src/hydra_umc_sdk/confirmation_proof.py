@@ -10,6 +10,11 @@ acts. The layer that acts calls `verify_confirmation_proof` with the action it i
 exactly that action and subject passes. The schema alone proves nothing, because it cannot check a signature, so a consumer never acts on `validate` alone.
 
 The signature is HMAC-SHA256 over a message made of length-prefixed parts (`<bytes>:<text>`), so no two different proofs can build the same message.
+
+**What the fields name.** `subject_id` is the machine the action is for, as the layer that acts knows it: the robot id of a trajectory; for a spoken command, the robot
+it names, or the id of the installation when it names none. `action_id` is the fingerprint of a trajectory, or the request id of a spoken command. A name that does
+not fit the identifier pattern is replaced by `proof_identifier`. **The key** is a file of one line of at least 32 characters, mode 600 (`load_confirmation_key`),
+one per `kind`, shared by the layer that records that kind and the layer that acts; it is not the key of the proposals, of the commands or of the global stop.
 """
 
 from __future__ import annotations
@@ -21,6 +26,7 @@ import time
 from typing import Any
 
 from .contract_rules import check_fields, identifier, one_of, require_object, whole
+from .signed_commands import CommandSigningError, load_key
 from .validation import ContractValidationError
 
 KINDS = ("approval", "voice")
@@ -30,7 +36,23 @@ _REQUIRED = ("schema_version", "kind", "action_id", "subject_id", "operator", "a
 _OPTIONAL = ("approval_id",)
 _APPROVAL_ID = re.compile(r"[0-9a-f]{32}")
 _SIGNATURE = re.compile(r"[0-9a-f]{64}")
+_IDENTIFIER = re.compile(r"[A-Za-z0-9._:-]{1,64}")
 _TAG = "hydra-umc-confirmation-proof-v1"
+
+
+def proof_identifier(text: str) -> str:
+    """`text` when it fits the identifier of a proof, else `sha256:` and the first 57 hexadecimal digits of its SHA-256 (an operator written as an e-mail address)."""
+    if not isinstance(text, str) or not text:
+        raise ContractValidationError("an identifier of a proof cannot be empty")
+    return text if _IDENTIFIER.fullmatch(text) else "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()[:57]
+
+
+def load_confirmation_key(path: str) -> bytes:
+    """The key of a proof from its file (the rules of the key of a signed command: one line, at least 32 characters, not readable by others)."""
+    try:
+        return load_key(path)
+    except CommandSigningError as error:
+        raise ContractValidationError(str(error).replace("command key", "confirmation key")) from error
 
 
 def validate_confirmation_proof(payload: dict[str, Any]) -> None:

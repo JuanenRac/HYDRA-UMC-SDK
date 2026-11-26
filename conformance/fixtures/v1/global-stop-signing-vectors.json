@@ -1,0 +1,47 @@
+{
+  "format": "hydra-global-stop-signing/1",
+  "key": "vector-key-0123456789abcdef0123456789abcdef",
+  "topic": "hydra/swarm/safety/estop",
+  "vectors": [
+    {
+      "name": "stop",
+      "payload": {
+        "schema_version": "1.0",
+        "state": "SAFE_STOP",
+        "source": "hydra-umc-server",
+        "timestamp_utc": "2023-11-14T22:13:20.000Z",
+        "reason": "global stop"
+      },
+      "issued_at_ms": 1700000000000,
+      "signed": {
+        "schema_version": "1.0",
+        "state": "SAFE_STOP",
+        "source": "hydra-umc-server",
+        "timestamp_utc": "2023-11-14T22:13:20.000Z",
+        "reason": "global stop",
+        "issued_at_ms": 1700000000000,
+        "signature": "a6234cdc3d2cc073e3cda57fabf2ff619883c6b2c3833e44e2125b0f9c91b8c3"
+      }
+    },
+    {
+      "name": "ready",
+      "payload": {
+        "schema_version": "1.0",
+        "state": "READY",
+        "source": "hydra-umc-server",
+        "timestamp_utc": "2023-11-14T22:13:20.000Z",
+        "reason": "released by José 🔒 "
+      },
+      "issued_at_ms": 1700000000001,
+      "signed": {
+        "schema_version": "1.0",
+        "state": "READY",
+        "source": "hydra-umc-server",
+        "timestamp_utc": "2023-11-14T22:13:20.000Z",
+        "reason": "released by José 🔒 ",
+        "issued_at_ms": 1700000000001,
+        "signature": "59270d06558512c3a3b5e033191aa58bab6ed0ab0ceb7a3cfb0f21db143638c4"
+      }
+    }
+  ]
+}

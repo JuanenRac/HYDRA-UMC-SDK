@@ -3378,6 +3378,29 @@ data class HydraPostVoiceTurnBody(
 }
 
 /** An object of the server contract. */
+data class HydraPostWatchReleaseNoticeBody(
+    val deviceId: String,
+    val platform: String,
+    val notifiesWatch: Boolean,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["device_id"] = deviceId
+        jsonOut["platform"] = platform
+        jsonOut["notifies_watch"] = notifiesWatch
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraPostWatchReleaseNoticeBody = HydraPostWatchReleaseNoticeBody(
+            deviceId = json["device_id"] as String,
+            platform = json["platform"] as String,
+            notifiesWatch = json["notifies_watch"] as Boolean,
+        )
+    }
+}
+
+/** An object of the server contract. */
 data class HydraPtzResult(
     val ok: Boolean,
 ) {
@@ -5415,6 +5438,69 @@ data class HydraVoiceReply(
 }
 
 /** An object of the server contract. */
+data class HydraWatchReleaseNoticeList(
+    val devices: List<HydraWatchReleaseNoticeListDevicesItem>,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["devices"] = devices.map { v0 -> v0.toJson() }
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraWatchReleaseNoticeList = HydraWatchReleaseNoticeList(
+            devices = hydraList(json["devices"]).map { v0 -> HydraWatchReleaseNoticeListDevicesItem.fromJson(hydraMap(v0)) },
+        )
+    }
+}
+
+/** An object of the server contract. */
+data class HydraWatchReleaseNoticeListDevicesItem(
+    val deviceId: String,
+    val platform: String,
+    val username: String,
+    val notifiesWatch: Boolean,
+    val updatedAt: String,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["device_id"] = deviceId
+        jsonOut["platform"] = platform
+        jsonOut["username"] = username
+        jsonOut["notifies_watch"] = notifiesWatch
+        jsonOut["updated_at"] = updatedAt
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraWatchReleaseNoticeListDevicesItem = HydraWatchReleaseNoticeListDevicesItem(
+            deviceId = json["device_id"] as String,
+            platform = json["platform"] as String,
+            username = json["username"] as String,
+            notifiesWatch = json["notifies_watch"] as Boolean,
+            updatedAt = json["updated_at"] as String,
+        )
+    }
+}
+
+/** An object of the server contract. */
+data class HydraWatchReleaseNoticeSaved(
+    val saved: Boolean,
+) {
+    fun toJson(): Map<String, Any?> {
+        val jsonOut = LinkedHashMap<String, Any?>()
+        jsonOut["saved"] = saved
+        return jsonOut
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>): HydraWatchReleaseNoticeSaved = HydraWatchReleaseNoticeSaved(
+            saved = json["saved"] as Boolean,
+        )
+    }
+}
+
+/** An object of the server contract. */
 data class HydraWatchStatus(
     val type: String,
     val headline: String,
@@ -5657,6 +5743,12 @@ class HydraServerClient(private val transport: HydraTransport) {
         return HydraUpdateManifestVerdict.fromJson(hydraMap(raw))
     }
 
+    /** GET /api/admin/watch/release-notice (access: admin) */
+    suspend fun getAdminWatchReleaseNotice(): HydraWatchReleaseNoticeList {
+        val raw = transport.send(HydraRequest("GET", "/api/admin/watch/release-notice", emptyMap(), null, "admin"))
+        return HydraWatchReleaseNoticeList.fromJson(hydraMap(raw))
+    }
+
     /** GET /api/anomaly/verdicts (access: user) */
     suspend fun getAnomalyVerdicts(verdict: String? = null, verify: String? = null): Unit {
         transport.send(HydraRequest("GET", "/api/anomaly/verdicts", queryOf(mapOf("verdict" to verdict, "verify" to verify)), null, "user"))
@@ -5861,8 +5953,8 @@ class HydraServerClient(private val transport: HydraTransport) {
     }
 
     /** POST /api/hardware/canota/flash (access: admin) */
-    suspend fun postHardwareCanotaFlash(body: ByteArray, tier: String? = null, slot: String? = null, relay: String? = null, hardwareId: String? = null, versionMajor: String? = null, versionMinor: String? = null, versionPatch: String? = null, signature: String? = null, downgradeFrom: String? = null, target: String? = null, minBootloader: String? = null): HydraCanotaFlash {
-        val raw = transport.send(HydraRequest("POST", "/api/hardware/canota/flash", queryOf(mapOf("tier" to tier, "slot" to slot, "relay" to relay, "hardware_id" to hardwareId, "version_major" to versionMajor, "version_minor" to versionMinor, "version_patch" to versionPatch, "signature" to signature, "downgrade_from" to downgradeFrom, "target" to target, "min_bootloader" to minBootloader)), body, "admin", contentType = "application/octet-stream"))
+    suspend fun postHardwareCanotaFlash(body: ByteArray, tier: String? = null, slot: String? = null, relay: String? = null, hardwareId: String? = null, versionMajor: String? = null, versionMinor: String? = null, versionPatch: String? = null, signature: String? = null, downgradeFrom: String? = null, target: String? = null, minBootloader: String? = null, header: String? = null, rollbackCounter: String? = null, keyId: String? = null): HydraCanotaFlash {
+        val raw = transport.send(HydraRequest("POST", "/api/hardware/canota/flash", queryOf(mapOf("tier" to tier, "slot" to slot, "relay" to relay, "hardware_id" to hardwareId, "version_major" to versionMajor, "version_minor" to versionMinor, "version_patch" to versionPatch, "signature" to signature, "downgrade_from" to downgradeFrom, "target" to target, "min_bootloader" to minBootloader, "header" to header, "rollback_counter" to rollbackCounter, "key_id" to keyId)), body, "admin", contentType = "application/octet-stream"))
         return HydraCanotaFlash.fromJson(hydraMap(raw))
     }
 
@@ -6352,6 +6444,12 @@ class HydraServerClient(private val transport: HydraTransport) {
         return HydraVoiceReply.fromJson(hydraMap(raw))
     }
 
+    /** POST /api/watch/release-notice (access: user) */
+    suspend fun postWatchReleaseNotice(body: HydraPostWatchReleaseNoticeBody): HydraWatchReleaseNoticeSaved {
+        val raw = transport.send(HydraRequest("POST", "/api/watch/release-notice", emptyMap(), body.toJson(), "user"))
+        return HydraWatchReleaseNoticeSaved.fromJson(hydraMap(raw))
+    }
+
     /** GET /api/watch/system-status (access: user) */
     suspend fun getWatchSystemStatus(): Unit {
         transport.send(HydraRequest("GET", "/api/watch/system-status", emptyMap(), null, "user"))
@@ -6404,6 +6502,7 @@ val HYDRA_CLIENT_OPERATIONS: List<String> = listOf(
     "getAdminServiceIdentity",
     "getAdminUpdates",
     "postAdminUpdatesManifestCheck",
+    "getAdminWatchReleaseNotice",
     "getAnomalyVerdicts",
     "getAudit",
     "getBridges",
@@ -6512,6 +6611,7 @@ val HYDRA_CLIENT_OPERATIONS: List<String> = listOf(
     "getVoiceChain",
     "postVoiceConfirm",
     "postVoiceTurn",
+    "postWatchReleaseNotice",
     "getWatchSystemStatus",
     "getHealth",
     "getMetrics",

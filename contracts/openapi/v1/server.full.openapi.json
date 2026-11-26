@@ -3145,6 +3145,59 @@
             "description": "Whether the switch that refuses a manifest without an Ed25519 signature was on when the manifest was checked."
           }
         }
+      },
+      "WatchReleaseNoticeSaved": {
+        "type": "object",
+        "required": [
+          "saved"
+        ],
+        "properties": {
+          "saved": {
+            "type": "boolean"
+          }
+        }
+      },
+      "WatchReleaseNoticeList": {
+        "type": "object",
+        "required": [
+          "devices"
+        ],
+        "properties": {
+          "devices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "device_id",
+                "platform",
+                "username",
+                "notifies_watch",
+                "updated_at"
+              ],
+              "properties": {
+                "device_id": {
+                  "type": "string"
+                },
+                "platform": {
+                  "type": "string",
+                  "enum": [
+                    "android",
+                    "ios"
+                  ]
+                },
+                "username": {
+                  "type": "string"
+                },
+                "notifies_watch": {
+                  "type": "boolean"
+                },
+                "updated_at": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -5203,6 +5256,33 @@
                 "type": "object",
                 "additionalProperties": true,
                 "description": "An UpdateManifest (schema update-manifest of the contracts)."
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/admin/watch/release-notice": {
+      "get": {
+        "tags": [
+          "watch"
+        ],
+        "summary": "GET /api/admin/watch/release-notice",
+        "description": "Requires a signed-in account with the admin role. What the phones said about telling their watch of a newer release.",
+        "x-access": "admin",
+        "responses": {
+          "200": {
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WatchReleaseNoticeList"
+                }
               }
             }
           }
@@ -7411,6 +7491,33 @@
             "in": "query",
             "required": false,
             "description": "The oldest bootloader that may take the image (major.minor.patch).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "header",
+            "in": "query",
+            "required": false,
+            "description": "The 64-byte header of format 2 the image was signed with (<image>.hdr2), 128 hexadecimal digits. Give it, or rollback_counter and key_id, never both.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rollback_counter",
+            "in": "query",
+            "required": false,
+            "description": "The rollback counter the image was signed with (whole number, 0 to 4294967295), when no header is given; it goes with key_id.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "key_id",
+            "in": "query",
+            "required": false,
+            "description": "The id of the signing key, 16 hexadecimal digits, when no header is given; it goes with rollback_counter.",
             "schema": {
               "type": "string"
             }
@@ -12773,6 +12880,73 @@
                   "locale": {},
                   "requestId": {},
                   "subject": {}
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/watch/release-notice": {
+      "post": {
+        "tags": [
+          "watch"
+        ],
+        "summary": "POST /api/watch/release-notice",
+        "description": "Requires a signed-in account (bearer token). A phone says whether it tells its watch about a newer release of the app. Information only: the server changes nothing on the phone or the watch.",
+        "x-access": "user",
+        "responses": {
+          "200": {
+            "description": "Success. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WatchReleaseNoticeSaved"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. The body is documented in docs/REMOTE_API.md.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "device_id",
+                  "platform",
+                  "notifies_watch"
+                ],
+                "properties": {
+                  "device_id": {
+                    "type": "string"
+                  },
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "android",
+                      "ios"
+                    ]
+                  },
+                  "notifies_watch": {
+                    "type": "boolean"
+                  }
                 }
               }
             }

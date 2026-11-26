@@ -622,6 +622,14 @@ export interface VoiceReply {
   confirmationValiditySeconds?: number;
 }
 
+export interface WatchReleaseNoticeList {
+  devices: ({ device_id: string; platform: "android" | "ios"; username: string; notifies_watch: boolean; updated_at: string })[];
+}
+
+export interface WatchReleaseNoticeSaved {
+  saved: boolean;
+}
+
 export interface WatchStatus {
   type: unknown;
   headline: string;
@@ -831,6 +839,11 @@ export class HydraServerClient {
     return this.transport({ method: "POST", path: "/api/admin/updates/manifest/check", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<UpdateManifestVerdict>;
   }
 
+  /** GET /api/admin/watch/release-notice (access: admin) */
+  getAdminWatchReleaseNotice(): Promise<WatchReleaseNoticeList> {
+    return this.transport({ method: "GET", path: "/api/admin/watch/release-notice", query: {}, headers: {}, body: undefined, access: "admin" }) as Promise<WatchReleaseNoticeList>;
+  }
+
   /** GET /api/anomaly/verdicts (access: user) */
   getAnomalyVerdicts(args?: { query?: { verdict?: string; verify?: string } }): Promise<void> {
     return this.transport({ method: "GET", path: "/api/anomaly/verdicts", query: queryOf(args?.query), headers: {}, body: undefined, access: "user" }) as Promise<void>;
@@ -1002,7 +1015,7 @@ export class HydraServerClient {
   }
 
   /** POST /api/hardware/canota/flash (access: admin) */
-  postHardwareCanotaFlash(args: { query?: { tier?: string; slot?: string; relay?: string; hardware_id?: string; version_major?: string; version_minor?: string; version_patch?: string; signature?: string; downgrade_from?: string; target?: string; min_bootloader?: string }; body: Uint8Array }): Promise<CanotaFlash> {
+  postHardwareCanotaFlash(args: { query?: { tier?: string; slot?: string; relay?: string; hardware_id?: string; version_major?: string; version_minor?: string; version_patch?: string; signature?: string; downgrade_from?: string; target?: string; min_bootloader?: string; header?: string; rollback_counter?: string; key_id?: string }; body: Uint8Array }): Promise<CanotaFlash> {
     return this.transport({ method: "POST", path: "/api/hardware/canota/flash", query: queryOf(args?.query), headers: {}, body: args?.body, access: "admin", contentType: "application/octet-stream" }) as Promise<CanotaFlash>;
   }
 
@@ -1411,6 +1424,11 @@ export class HydraServerClient {
     return this.transport({ method: "POST", path: "/api/voice/turn", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<VoiceReply>;
   }
 
+  /** POST /api/watch/release-notice (access: user) */
+  postWatchReleaseNotice(args: { body: { device_id: string; platform: "android" | "ios"; notifies_watch: boolean } }): Promise<WatchReleaseNoticeSaved> {
+    return this.transport({ method: "POST", path: "/api/watch/release-notice", query: {}, headers: {}, body: args?.body, access: "user" }) as Promise<WatchReleaseNoticeSaved>;
+  }
+
   /** GET /api/watch/system-status (access: user) */
   getWatchSystemStatus(): Promise<void> {
     return this.transport({ method: "GET", path: "/api/watch/system-status", query: {}, headers: {}, body: undefined, access: "user" }) as Promise<void>;
@@ -1460,6 +1478,7 @@ export const HYDRA_CLIENT_OPERATIONS: readonly string[] = [
   "getAdminServiceIdentity",
   "getAdminUpdates",
   "postAdminUpdatesManifestCheck",
+  "getAdminWatchReleaseNotice",
   "getAnomalyVerdicts",
   "getAudit",
   "getBridges",
@@ -1568,6 +1587,7 @@ export const HYDRA_CLIENT_OPERATIONS: readonly string[] = [
   "getVoiceChain",
   "postVoiceConfirm",
   "postVoiceTurn",
+  "postWatchReleaseNotice",
   "getWatchSystemStatus",
   "getHealth",
   "getMetrics",

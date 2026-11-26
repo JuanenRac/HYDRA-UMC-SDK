@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+- **The flash route carries the header of format 2:** `POST /api/hardware/canota/flash` declares `header` (the `<image>.hdr2`, 128 hexadecimal digits), or `rollback_counter` and `key_id`, which the flashing service of the boards needs.
+- **A signed release of the global stop (`hydra_umc_sdk.global_stop`):** with a key file (`HYDRA_UMC_<name>_GLOBAL_STOP_KEY_FILE` or `ready_key_file`) a `SAFE_STOP` is obeyed as always and a `READY` ends a stop only when it is signed with the key (`issued_at_ms`, `signature`) and newer than the last signed announcement. Off without a key file. Shared vectors: `conformance/fixtures/v1/global-stop-signing-vectors.json`.
+- **What the confirmation proof names, and its key:** `subject_id` is the machine the action is for and `action_id` the trajectory fingerprint or the spoken request id; `proof_identifier` and `load_confirmation_key` are the shared helpers, with vectors in `conformance/fixtures/v1/confirmation-proof-vectors.json`.
+- **The phones can say whether they tell their watch about a newer release:** `POST /api/watch/release-notice` and `GET /api/admin/watch/release-notice`, with the answers `WatchReleaseNoticeSaved` and `WatchReleaseNoticeList`.
+
 ## [0.7.4]
 
 - **The old routes of the developer node are gone from the contract:** `GET /api/developer-node/status` and `POST /api/ingest/developer-node/status`, which were kept for one version as deprecated aliases of `/api/dev-server/status` and `/api/ingest/dev-server/status`, are removed from the sources, the OpenAPI inventory, the route tables and the typed clients for TypeScript, Kotlin and Dart, the app fixtures and the stand-in server (which now refuses the old schema `developer-node-status/1` and answers 404 on the old paths); `tests/integration/test_fake_server.py` pins both. A server that still registers the old routes fails the comparison of its routes with the inventory until it drops them, and a service that still posts to the old path must move to `/api/ingest/dev-server/status`. The switch key `developerNode` of the ingest block of the security configuration is not renamed here.
