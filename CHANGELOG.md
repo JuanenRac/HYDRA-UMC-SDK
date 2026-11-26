@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The signed release of the global stop is remembered across restarts:** with a key file the guard keeps on disk, written atomically and with a MAC of the key, the newest signed announcement it accepted and the `READY` in force, so an old signed `READY` published again after a restart ends nothing. A mark that is damaged, altered or made for another topic or key keeps the machine still until an operator removes it; a mark that cannot be written means the `READY` is not believed; a bridge that was stopped starts stopped. The file is `HYDRA_UMC_<name>_GLOBAL_STOP_STATE_FILE` (`ready_state_file`), by default in the state folder of the service.
+
 ## [0.7.5] - Format 2 flash records, a signed release of the global stop, confirmation proof names and the watch release notice
 
 - **The key of the signed release is read even when the switch starts off,** so a bridge that turns the global stop on later (a remote setting) asks for a signed `READY` too.
