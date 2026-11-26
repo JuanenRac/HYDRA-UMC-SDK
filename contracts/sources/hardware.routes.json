@@ -130,6 +130,33 @@
           "schema": {
             "type": "string"
           }
+        },
+        {
+          "name": "header",
+          "in": "query",
+          "required": false,
+          "description": "The 64-byte header of format 2 the image was signed with (<image>.hdr2), 128 hexadecimal digits. Give it, or rollback_counter and key_id, never both.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "rollback_counter",
+          "in": "query",
+          "required": false,
+          "description": "The rollback counter the image was signed with (whole number, 0 to 4294967295), when no header is given; it goes with key_id.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "key_id",
+          "in": "query",
+          "required": false,
+          "description": "The id of the signing key, 16 hexadecimal digits, when no header is given; it goes with rollback_counter.",
+          "schema": {
+            "type": "string"
+          }
         }
       ],
       "relays_query": true,

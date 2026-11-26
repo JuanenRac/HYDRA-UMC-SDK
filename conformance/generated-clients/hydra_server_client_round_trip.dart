@@ -22,7 +22,7 @@ void _roundTrip<T>(List<String> failures, String label, Map<String, dynamic> exa
   }
 }
 
-const int roundTripClasses = 75;
+const int roundTripClasses = 77;
 
 /// Runs every round trip and returns the failures (empty when all pass).
 List<String> roundTripAll() {
@@ -175,6 +175,10 @@ List<String> roundTripAll() {
   _roundTrip<HydraVoiceConfirmResult>(failures, 'HydraVoiceConfirmResult required only', <String, dynamic>{'type': 'confirmation_result', 'status': 'confirmed', 'verified': true}, HydraVoiceConfirmResult.fromJson, (value) => value.toJson());
   _roundTrip<HydraVoiceReply>(failures, 'HydraVoiceReply full', <String, dynamic>{'type': 'assistant_reply', 'requestId': 'text', 'text': 'text', 'level': 'text', 'speak': true, 'requiresConfirmation': true, 'visualState': 'text', 'intent': <String, dynamic>{'key': 'value'}, 'interpretation': <String, dynamic>{'key': 'value'}, 'messageCode': 'text', 'messageParams': <String, dynamic>{'key': 'value'}, 'textLanguage': 'text', 'confirmationToken': 'text', 'confirmationValiditySeconds': 1.5}, HydraVoiceReply.fromJson, (value) => value.toJson());
   _roundTrip<HydraVoiceReply>(failures, 'HydraVoiceReply required only', <String, dynamic>{'type': 'assistant_reply', 'requestId': 'text', 'text': 'text', 'level': 'text', 'speak': true, 'requiresConfirmation': true}, HydraVoiceReply.fromJson, (value) => value.toJson());
+  _roundTrip<HydraWatchReleaseNoticeList>(failures, 'HydraWatchReleaseNoticeList full', <String, dynamic>{'devices': <dynamic>[<String, dynamic>{'device_id': 'text', 'platform': 'android', 'username': 'text', 'notifies_watch': true, 'updated_at': 'text'}]}, HydraWatchReleaseNoticeList.fromJson, (value) => value.toJson());
+  _roundTrip<HydraWatchReleaseNoticeList>(failures, 'HydraWatchReleaseNoticeList required only', <String, dynamic>{'devices': <dynamic>[<String, dynamic>{'device_id': 'text', 'platform': 'android', 'username': 'text', 'notifies_watch': true, 'updated_at': 'text'}]}, HydraWatchReleaseNoticeList.fromJson, (value) => value.toJson());
+  _roundTrip<HydraWatchReleaseNoticeSaved>(failures, 'HydraWatchReleaseNoticeSaved full', <String, dynamic>{'saved': true}, HydraWatchReleaseNoticeSaved.fromJson, (value) => value.toJson());
+  _roundTrip<HydraWatchReleaseNoticeSaved>(failures, 'HydraWatchReleaseNoticeSaved required only', <String, dynamic>{'saved': true}, HydraWatchReleaseNoticeSaved.fromJson, (value) => value.toJson());
   _roundTrip<HydraWatchStatus>(failures, 'HydraWatchStatus full', <String, dynamic>{'type': 'system_status', 'headline': 'text', 'detail': 'text', 'level': 'NOMINAL', 'speak': true}, HydraWatchStatus.fromJson, (value) => value.toJson());
   _roundTrip<HydraWatchStatus>(failures, 'HydraWatchStatus required only', <String, dynamic>{'type': 'system_status', 'headline': 'text', 'detail': 'text', 'level': 'NOMINAL', 'speak': true}, HydraWatchStatus.fromJson, (value) => value.toJson());
   return failures;

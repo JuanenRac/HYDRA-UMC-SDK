@@ -17,31 +17,80 @@ Off by default: with the switch off the bridge does not even subscribe to the to
   before it knows the state of the installation).
 
 The state lives in this process: it is read again from the broker (the message is retained) after every reconnect.
+
+**Signed announcements.** Anyone who may publish on the topic could say `READY` and end a stop. With a key file (`HYDRA_UMC_<name>_GLOBAL_STOP_KEY_FILE`, or
+`ready_key_file`; the same key the server signs with, at least 32 characters, mode 600) a `SAFE_STOP` is still always obeyed, signed or not, but a `READY` ends a stop
+only when it is signed with that key and newer than the last signed announcement the bridge accepted. The announcement carries `issued_at_ms` and `signature`, the
+HMAC-SHA256 (64 lowercase hexadecimal digits) of `hydra-umc-global-stop-v1`, a newline, the topic, a newline and the other fields as JSON with sorted keys, no
+spaces and ASCII escapes. The message is retained, so it carries no expiry; the memory of the newest one lives in the process, so a bridge that was just started
+cannot tell an old signed `READY` that somebody published again from the current one. Without a key file everything behaves as before.
 """
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 import json
 import os
+import re
 import threading
+import time
+from collections.abc import Mapping
 from dataclasses import dataclass
+
+from .signed_commands import MIN_KEY_CHARS, CommandSigningError, load_key
 
 DEFAULT_TOPIC = "hydra/swarm/safety/estop"
 STATE_UNKNOWN = "UNKNOWN"
 STATE_READY = "READY"
 STATE_SAFE_STOP = "SAFE_STOP"
 STATE_UNREADABLE = "UNREADABLE"
+STATE_UNVERIFIED = "UNVERIFIED"  # a READY that is not signed as asked, heard before any state that could be trusted
+SIGNING_DOMAIN = b"hydra-umc-global-stop-v1"
+_SIGNATURE = re.compile(r"[0-9a-f]{64}")
 
 _TRUE = {"1", "true", "yes", "on"}
 
 
+def _signature(topic: str, payload: Mapping[str, object], key: bytes) -> str:
+    body = {name: value for name, value in payload.items() if name != "signature"}
+    raw = json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False).encode("ascii")
+    return hmac.new(key, SIGNING_DOMAIN + b"\n" + topic.encode("utf-8") + b"\n" + raw, hashlib.sha256).hexdigest()
+
+
+def sign_announcement(topic: str, payload: Mapping[str, object], key: bytes, *, now_ms: int | None = None) -> dict[str, object]:
+    """A copy of `payload` with `issued_at_ms` and `signature` added for `topic`: what the layer that announces the stop publishes when it has a key."""
+    if not isinstance(topic, str) or not topic:
+        raise CommandSigningError("an announcement is signed for a topic")
+    if len(key) < MIN_KEY_CHARS:
+        raise CommandSigningError(f"the global stop key must have at least {MIN_KEY_CHARS} characters")
+    signed = {name: value for name, value in payload.items() if name != "signature"}
+    signed["issued_at_ms"] = int(time.time() * 1000) if now_ms is None else now_ms
+    signed["signature"] = _signature(topic, signed, key)
+    return signed
+
+
+def verified_issued_at(topic: str, payload: Mapping[str, object], key: bytes) -> int | None:
+    """`issued_at_ms` of an announcement signed with `key` for `topic`; None when it is unsigned, signed otherwise or altered."""
+    issued, signature = payload.get("issued_at_ms"), payload.get("signature")
+    if type(issued) is not int or issued < 0 or not isinstance(signature, str) or not _SIGNATURE.fullmatch(signature):
+        return None
+    try:
+        expected = _signature(topic, payload, key)
+    except (TypeError, ValueError):
+        return None
+    return issued if hmac.compare_digest(expected, signature) else None
+
+
 @dataclass(frozen=True)
 class GlobalStopSettings:
-    """`enabled` is the switch (off by default); `topic` is where the server announces; `strict` also refuses before the first message."""
+    """`enabled` is the switch (off by default); `topic` is where the server announces; `strict` also refuses before the first message; with `ready_key_file` only a
+    signed `READY` ends a stop."""
 
     enabled: bool = False
     topic: str = DEFAULT_TOPIC
     strict: bool = False
+    ready_key_file: str | None = None
 
     def __post_init__(self) -> None:
         topic = self.topic
@@ -50,21 +99,32 @@ class GlobalStopSettings:
 
 
 def settings_from_environment(name: str) -> GlobalStopSettings:
-    """`HYDRA_UMC_<name>_GLOBAL_STOP` (1 switches it on), `..._GLOBAL_STOP_TOPIC` and `..._GLOBAL_STOP_STRICT` (1 also refuses before the first message)."""
+    """`HYDRA_UMC_<name>_GLOBAL_STOP` (1 switches it on), `..._GLOBAL_STOP_TOPIC`, `..._GLOBAL_STOP_STRICT` (1 also refuses before the first message) and
+    `..._GLOBAL_STOP_KEY_FILE` (only a `READY` signed with the key of that file ends a stop)."""
     base = f"HYDRA_UMC_{name}_GLOBAL_STOP"
     enabled = os.environ.get(base, "").strip().lower() in _TRUE
     topic = os.environ.get(f"{base}_TOPIC", "").strip() or DEFAULT_TOPIC
     strict = os.environ.get(f"{base}_STRICT", "").strip().lower() in _TRUE
-    return GlobalStopSettings(enabled, topic, strict)
+    key_file = os.environ.get(f"{base}_KEY_FILE", "").strip() or None
+    return GlobalStopSettings(enabled, topic, strict, key_file)
 
 
 class GlobalStopGuard:
     """Thread safe: the network thread feeds `observe()`, the command lanes ask `blocks()`."""
 
-    def __init__(self, settings: GlobalStopSettings | None = None) -> None:
+    def __init__(self, settings: GlobalStopSettings | None = None, *, key: bytes | None = None) -> None:
+        """`key` replaces the key of `ready_key_file`. A switch that is on with a key file that cannot be used raises `CommandSigningError`: the bridge does not start
+        believing it is protected."""
         self.settings = settings if settings is not None else GlobalStopSettings()
+        if key is None and self.settings.enabled and self.settings.ready_key_file:
+            key = load_key(self.settings.ready_key_file)
+        if key is not None and len(key) < MIN_KEY_CHARS:
+            raise CommandSigningError(f"the global stop key must have at least {MIN_KEY_CHARS} characters")
+        self._key = key
         self._lock = threading.Lock()
         self._state = STATE_UNKNOWN
+        self._newest_signed = -1  # issued_at_ms of the newest signed announcement accepted
+        self._ready_signed: int | None = None  # issued_at_ms of the signed READY that is in force
 
     @classmethod
     def from_environment(cls, name: str) -> "GlobalStopGuard":
@@ -84,7 +144,8 @@ class GlobalStopGuard:
             return self._state
 
     def observe(self, payload: bytes) -> str:
-        """One message of the announcement topic; returns the state it leaves the guard in. Anything but a clear `READY` is a stop."""
+        """One message of the announcement topic; returns the state it leaves the guard in. Anything but a clear `READY` is a stop; with a key, a `READY` counts only
+        when it is signed and newer than the last signed announcement (or is the one already in force, delivered again)."""
         state = STATE_UNREADABLE
         try:
             body = json.loads(payload)
@@ -96,7 +157,20 @@ class GlobalStopGuard:
                 state = STATE_READY
             elif declared == STATE_SAFE_STOP:
                 state = STATE_SAFE_STOP
+        signed_at = None
+        if self._key is not None and isinstance(body, dict):
+            signed_at = verified_issued_at(self.settings.topic, body, self._key)
         with self._lock:
+            if self._key is not None and state == STATE_READY:
+                fresh = signed_at is not None and (signed_at > self._newest_signed or (self._state == STATE_READY and signed_at == self._ready_signed))
+                if not fresh:
+                    # it ends nothing: a stop stays a stop, a release in force stays; with nothing known yet the bridge stays still
+                    if self._state not in (STATE_READY, STATE_SAFE_STOP):
+                        self._state = STATE_UNVERIFIED
+                    return self._state
+                self._ready_signed = signed_at
+            if signed_at is not None:
+                self._newest_signed = max(self._newest_signed, signed_at)
             self._state = state
         return state
 
@@ -116,6 +190,8 @@ class GlobalStopGuard:
         state = self.state
         if state == STATE_UNKNOWN:
             return "the global stop state is not known yet - nothing moves until the server announces READY"
+        if state == STATE_UNVERIFIED:
+            return "the global stop release is not signed as this bridge asks - nothing moves until the server announces a signed READY"
         if state == STATE_UNREADABLE:
             return "the global stop announcement could not be read - nothing moves until the server announces READY"
         return "global stop active (SAFE_STOP) - nothing moves until the server announces READY"
