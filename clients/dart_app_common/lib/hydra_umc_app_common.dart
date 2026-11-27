@@ -23,6 +23,7 @@ export 'src/hydra_api_core.dart';
 export 'src/hydra_state.dart';
 export 'src/http_transport.dart';
 export 'src/hydra_websocket.dart';
+export 'src/language_prefs.dart';
 export 'src/listen_only_gate.dart';
 export 'src/pairing_link.dart';
 export 'src/prefs.dart';
