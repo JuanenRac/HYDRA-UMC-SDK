@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- **One shared keeper of the chosen language for the Flutter apps (`clients/dart_app_common`):** `LanguagePrefsCore` saves, removes and reads the language under the key the apps already use, and ignores a language the app does not ship. The apps can drop their two identical copies when they take the next release of the SDK.
 - **The identity key file and the MQTT password file accept a byte order mark:** `tools/canonical/server_identity.py` kept the mark of a file saved as "UTF-8 with BOM" in the signing key, so every token of the server was refused. The mark is dropped now and nothing else changes: a file in another encoding is refused at start with a message that quotes nothing of the key, and the minimum length is counted without the mark. `HYDRA_MQTT_PASSWORD_FILE` follows the same rule.
 
 ## [0.7.6] - The signed release of the global stop is remembered across restarts
