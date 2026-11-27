@@ -104,6 +104,35 @@ class KeyTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 IDENTITY.load_identity_key(str(Path(folder, "missing.key")))
 
+    def test_a_byte_order_mark_is_not_part_of_the_key(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder, "bom.key")
+            path.write_bytes(bytes((0xEF, 0xBB, 0xBF)) + KEY + bytes((13, 10)))
+            self.assertEqual(IDENTITY.load_identity_key(str(path)), KEY)
+            token = make_token(good_claims())
+            self.assertEqual(IDENTITY.verify_token(token, IDENTITY.load_identity_key(str(path))).username, "ana")
+            # the mark does not count towards the minimum length
+            path.write_bytes(bytes((0xEF, 0xBB, 0xBF)) + b"k" * (IDENTITY.MIN_KEY_LENGTH - 1))
+            with self.assertRaises(ValueError):
+                IDENTITY.load_identity_key(str(path))
+
+    def test_another_encoding_is_refused_and_the_message_quotes_nothing_of_the_key(self) -> None:
+        contents = {
+            "utf-16 with a mark": KEY.decode().encode("utf-16"),
+            "utf-16 without a mark": KEY.decode().encode("utf-16-le"),
+            "latin-1": KEY + bytes((0xE9,)),
+        }
+        with tempfile.TemporaryDirectory() as folder:
+            for label, data in contents.items():
+                with self.subTest(label):
+                    path = Path(folder, "other.key")
+                    path.write_bytes(data)
+                    with self.assertRaises(ValueError) as caught:
+                        IDENTITY.load_identity_key(str(path))
+                    self.assertNotIsInstance(caught.exception, UnicodeError)
+                    self.assertIn("not UTF-8 text", str(caught.exception))
+                    self.assertNotIn("0x", str(caught.exception))
+
     def test_off_unless_a_file_is_named(self) -> None:
         self.assertIsNone(IDENTITY.identity_key_from(None, {}))
         self.assertIsNone(IDENTITY.identity_key_from("", {IDENTITY.ENV_IDENTITY_KEY_FILE: "  "}))
