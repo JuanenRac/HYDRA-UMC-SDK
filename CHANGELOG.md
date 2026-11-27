@@ -4,6 +4,7 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The contract of the model catalog is a fixture both editors check:** `conformance/fixtures/v1/catalog-submit.json` holds what is sent to log in, to submit a model and to download one.
 - **A repository can record which text of each shared tool it holds:** `tools/sync_repo_tools.py --lock` writes `tools/shared_tools.lock.json`, and `--check` names a copy that changed or disappeared since its lock (`TOOL_LOCKS`), including the family files it otherwise only groups. Repositories without a lock are judged as before. Test added.
 
 ## [0.7.7] - A waiting ABORT is never dropped, shared tools and byte order marks
