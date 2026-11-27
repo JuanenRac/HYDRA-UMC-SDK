@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- **The shared tools read the output of processes as UTF-8:** `tools/canonical/status_lights.py` and `universal_readme_check.py` name the encoding of what they read, and the README layout check is the same text as in the other families again; every repository takes the new copies.
 - **The identity key file and the MQTT password file accept a byte order mark:** `tools/canonical/server_identity.py` kept the mark of a file saved as "UTF-8 with BOM" in the signing key, so every token of the server was refused. The mark is dropped now and nothing else changes: a file in another encoding is refused at start with a message that quotes nothing of the key, and the minimum length is counted without the mark. `HYDRA_MQTT_PASSWORD_FILE` follows the same rule.
 
 ## [0.7.6] - The signed release of the global stop is remembered across restarts
