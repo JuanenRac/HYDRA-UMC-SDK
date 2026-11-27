@@ -1,5 +1,7 @@
 # Changelog
 
+All notable changes to this project are documented here.
+
 ## [Unreleased]
 
 - **One shared keeper of the chosen language for the Flutter apps (`clients/dart_app_common`):** `LanguagePrefsCore` saves, removes and reads the language under the key the apps already use, and ignores a language the app does not ship. The apps can drop their two identical copies when they take the next release of the SDK.
@@ -481,14 +483,6 @@
 - **The shared tools sync also carries `tools/universal_readme_check.py`** (one canonical copy in `tools/canonical/`), so every repository has the same README check.
 - The shared bridge dispatcher publishes an answer with the QoS the bridge gave it (an answer without one stays at QoS 0), so a bridge can ask for QoS 1 on its results.
 
-## [0.3.7]
-
-### Changed
-
-- Automated build version increment from 0.3.6.
-
-All notable changes to this project are documented here.
-
 ## [0.3.7] - A shared phase coordinator and a shared GRBL serial link
 
 - **A shared phase coordinator** (`hydra_umc_sdk.phase_coordinator`): the mapping of a job phase onto a named action, the parameter checks, the fail-closed gate, the actions that are always forwarded to reach a safe state, and the static action vocabulary, once, for the UAV, AMR and droid bridges. The gate is unchanged. Tests in `test_phase_coordinator.py`.
@@ -510,6 +504,10 @@ All notable changes to this project are documented here.
 - **OpenAPI.** `server.openapi.json` (now 1.2.0) describes the seven routes, the `X-Controller-Id` parameter, the `Reservation`, claim, arming and safety-limit schemas, the `code` of error answers, and `403` and the three conflict codes on `command`. New `server.full.openapi.json` is a copy of the openapi the server generates from its routes; the typed slice never invents a route it lacks.
 - New `docs/SERVER_CLIENT.md`, a note in `CONTRACTS.md` and `CONFORMANCE.md`, and a line in the eight READMEs.
 - Building no longer changes the version; raising it is the explicit `bump` command (`python tools/hydra_project_tool.py bump`). The build scripts only report the version they built, and CI fails if a build script runs a bump.
+
+### Changed
+
+- Automated build version increment from 0.3.6.
 
 ## [0.3.6] - The bridge gate fails closed, and the bridges share one MQTT transport
 
