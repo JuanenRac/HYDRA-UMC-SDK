@@ -21,6 +21,7 @@ Pure standard library. Neither piece decides anything about safety: the gate (`e
 from __future__ import annotations
 
 import json
+import logging
 import sqlite3
 import threading
 import time
@@ -30,6 +31,7 @@ from typing import Callable, Mapping
 from .bridge_contract import BridgeError, BridgeJob, job_from_dict
 from .signed_commands import CommandVerifier
 
+_LOG = logging.getLogger(__name__)
 DEFAULT_TTL_SECONDS = 24 * 3600
 IN_DOUBT_POLICIES = ("consult", "refuse")
 KEY_SEPARATOR = "\x1f"
@@ -50,6 +52,7 @@ class IdempotencyStore:
             raise ValueError("ttl_seconds and max_entries must be positive")
         self._ttl = float(ttl_seconds)
         self._max = int(max_entries)
+        self._evicted = 0
         self._clock = clock
         self._lock = threading.Lock()
         self._db = sqlite3.connect(path or ":memory:", check_same_thread=False, isolation_level=None, timeout=5.0)
@@ -112,6 +115,11 @@ class IdempotencyStore:
             row = self._db.execute("SELECT result FROM keys WHERE k = ?", (key,)).fetchone()
         return row[0] if row else None
 
+    @property
+    def evicted(self) -> int:
+        """Keys forgotten since the start because the store was full, before their time was up: a repeat of one of them is taken for new."""
+        return self._evicted
+
     def __len__(self) -> int:
         with self._lock:
             return int(self._db.execute("SELECT COUNT(*) FROM keys").fetchone()[0])
@@ -120,7 +128,10 @@ class IdempotencyStore:
         self._db.execute("DELETE FROM keys WHERE at < ?", (now - self._ttl,))
         count = int(self._db.execute("SELECT COUNT(*) FROM keys").fetchone()[0])
         if count >= self._max:
-            self._db.execute("DELETE FROM keys WHERE k IN (SELECT k FROM keys ORDER BY at ASC LIMIT ?)", (count - self._max + 1,))
+            cursor = self._db.execute("DELETE FROM keys WHERE k IN (SELECT k FROM keys ORDER BY at ASC LIMIT ?)", (count - self._max + 1,))
+            if not self._evicted:
+                _LOG.warning("the idempotency store is full (%d keys): the oldest are forgotten before their time", self._max)
+            self._evicted += max(cursor.rowcount, 0)
 
 
 @dataclass(frozen=True)
