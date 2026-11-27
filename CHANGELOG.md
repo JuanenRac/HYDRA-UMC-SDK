@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **The identity key file and the MQTT password file accept a byte order mark:** `tools/canonical/server_identity.py` kept the mark of a file saved as "UTF-8 with BOM" in the signing key, so every token of the server was refused. The mark is dropped now and nothing else changes: a file in another encoding is refused at start with a message that quotes nothing of the key, and the minimum length is counted without the mark. `HYDRA_MQTT_PASSWORD_FILE` follows the same rule.
+
 ## [0.7.6] - The signed release of the global stop is remembered across restarts
 
 - **The signed release of the global stop is remembered across restarts:** with a key file the guard keeps on disk, written atomically and with a MAC of the key, the newest signed announcement it accepted and the `READY` in force, so an old signed `READY` published again after a restart ends nothing. A mark that is damaged, altered or made for another topic or key keeps the machine still until an operator removes it; a mark that cannot be written means the `READY` is not believed; a bridge that was stopped starts stopped. The file is `HYDRA_UMC_<name>_GLOBAL_STOP_STATE_FILE` (`ready_state_file`), by default in the state folder of the service.
