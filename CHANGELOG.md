@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## [Unreleased]
+## [0.7.7] - A waiting ABORT is never dropped, shared tools and byte order marks
 
 - **The contract of the model catalog is a fixture both editors check:** `conformance/fixtures/v1/catalog-submit.json` holds what is sent to log in, to submit a model and to download one.
 - **A full bridge queue never drops an ABORT, and a full idempotency store says so:** `MessageDispatcher` takes `never_drop` (by default a `cmd/job` of phase ABORT), so with `max_queue` set an abort that is waiting is not cancelled by newer commands; `IdempotencyStore.evicted` counts the keys forgotten because the store was full, with one warning.
