@@ -327,3 +327,26 @@ class FingerprintTests(WorkspaceFixture):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SharedToolLockTests(unittest.TestCase):
+    def test_a_lock_names_a_copy_changed_by_hand_and_a_missing_one_and_ignores_unlocked_repositories(self):
+        with tempfile.TemporaryDirectory() as folder:
+            workspace = Path(folder)
+            for name in ("HYDRA-UMC-A", "HYDRA-UMC-B"):
+                (workspace / name / "tools").mkdir(parents=True)
+                (workspace / name / "hydra-umc.project.json").write_text("{}", encoding="utf-8")
+                (workspace / name / "tools" / "ci_validate.py").write_bytes(b"one\n")
+                (workspace / name / "tools" / "_doc_policy.py").write_bytes(b"two\n")
+            self.assertEqual(SYNC.lock_drift(workspace), ([], 0))
+            self.assertEqual(len(SYNC.write_locks(workspace)), 2)
+            self.assertEqual(SYNC.write_locks(workspace), [])
+            self.assertEqual(SYNC.lock_drift(workspace), ([], 2))
+            # other line endings are the same text
+            (workspace / "HYDRA-UMC-A" / "tools" / "ci_validate.py").write_bytes(b"one\r\n")
+            self.assertEqual(SYNC.lock_drift(workspace), ([], 2))
+            (workspace / "HYDRA-UMC-A" / "tools" / "ci_validate.py").write_bytes(b"edited\n")
+            (workspace / "HYDRA-UMC-B" / "tools" / "_doc_policy.py").unlink()
+            drift, locked = SYNC.lock_drift(workspace)
+            self.assertEqual(locked, 2)
+            self.assertEqual(drift, ["HYDRA-UMC-A/tools/ci_validate.py (changed since the lock)", "HYDRA-UMC-B/tools/_doc_policy.py (in the lock and missing)"])
