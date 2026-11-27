@@ -24,6 +24,7 @@ handling and the header and banner of the launcher scripts have their own script
 
     python tools/sync_repo_tools.py --check       # report, exit 1 on drift of a canonical file
     python tools/sync_repo_tools.py               # rewrite the canonical files
+    python tools/sync_repo_tools.py --lock        # and record in each repository which text of each shared file it holds
     python tools/sync_repo_tools.py --all --check # also the three other scripts, in check mode
     python tools/sync_repo_tools.py --workspace DIR  # another folder holding the repositories
 
@@ -496,10 +497,65 @@ def cross_family_drift(workspace: Path) -> tuple[list[str], str]:
     return drift, ""
 
 
+# The lock of the shared tools of a repository: which text of each copy it holds, so a copy changed by hand or left behind is named. The
+# family files are in it too: `--check` only reports those by family, and this is what says that one of them moved on its own.
+LOCK_FILE = "tools/shared_tools.lock.json"
+LOCKED_EXTRA = ("tools/ci_validate.py", "tools/build_test.py", "tools/_doc_policy.py", "tools/_readme_parity.py")
+
+
+def _digest(path: Path) -> str:
+    return hashlib.sha256(read_text(path)[0].rstrip(NL).encode("utf-8")).hexdigest()
+
+
+def lock_of(repo: Path, canonical_dir: Path = CANONICAL_DIR) -> dict:
+    """The lock a repository would have with the files it holds now."""
+    names = [relative for relative, _ in canonical_items(canonical_dir)] + list(LOCKED_EXTRA)
+    names += [targets[repo.name] for targets in PER_REPOSITORY_FILES.values() if repo.name in targets]
+    return {"schema": 1, "files": {name: _digest(repo / name) for name in sorted(set(names)) if (repo / name).is_file()}}
+
+
+def write_locks(workspace: Path, canonical_dir: Path = CANONICAL_DIR) -> list[str]:
+    """Write the lock of every repository; returns the ones that changed."""
+    changed: list[str] = []
+    for repo in repos(workspace):
+        target = repo / LOCK_FILE
+        text = json.dumps(lock_of(repo, canonical_dir), indent=2) + NL
+        current, newline = read_text(target) if target.is_file() else ("", NL)
+        if current == text:
+            continue
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(text.replace(NL, newline).encode("utf-8"))
+        changed.append(f"{repo.name}/{LOCK_FILE}")
+    return changed
+
+
+def lock_drift(workspace: Path) -> tuple[list[str], int]:
+    """(files that are not the ones their lock names, how many repositories have a lock). A repository without a lock is not judged."""
+    drift: list[str] = []
+    locked = 0
+    for repo in repos(workspace):
+        path = repo / LOCK_FILE
+        if not path.is_file():
+            continue
+        locked += 1
+        try:
+            files = json.loads(path.read_text(encoding="utf-8"))["files"].items()
+        except (OSError, ValueError, KeyError, AttributeError):
+            drift.append(f"{repo.name}/{LOCK_FILE} cannot be read")
+            continue
+        for name, wanted in files:
+            if not (repo / name).is_file():
+                drift.append(f"{repo.name}/{name} (in the lock and missing)")
+            elif _digest(repo / name) != wanted:
+                drift.append(f"{repo.name}/{name} (changed since the lock)")
+    return drift, locked
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--check", action="store_true", help="write nothing; exit 1 on drift of a canonical file")
     parser.add_argument("--all", action="store_true", help="also run the other three sync scripts")
+    parser.add_argument("--lock", action="store_true", help=f"after rewriting, write {LOCK_FILE} in every repository (ignored with --check)")
     parser.add_argument("--workspace", type=Path, default=SDK_ROOT.parent)
     args = parser.parse_args(argv)
     workspace = args.workspace.resolve()
@@ -525,6 +581,9 @@ def main(argv: list[str] | None = None) -> int:
         for line in rewritten:
             print("rewritten: " + line)
         print(f"CANONICAL_TOOLS=WRITTEN repositories={len(repos(workspace))}")
+        if args.lock:
+            for line in write_locks(workspace):
+                print("locked: " + line)
     for relative, canonical_name in UNIFIED_FILES:
         _, adapted = unified_status(workspace, CANONICAL_DIR, relative, canonical_name)
         print(f"{relative}: {len(adapted)} repositories keep an adaptation of their own: " + ", ".join(adapted))
@@ -535,6 +594,13 @@ def main(argv: list[str] | None = None) -> int:
         print("differs from the pins of the baseline action: " + line)
     print(f"LINT_PINS={'FAIL' if pins else 'PASS'} drift={len(pins)}")
     if args.check and pins:
+        status = 1
+
+    moved, locked = lock_drift(workspace)
+    for line in moved:
+        print("differs from its lock: " + line)
+    print(f"TOOL_LOCKS={'FAIL' if moved else 'PASS'} drift={len(moved)} locked={locked}")
+    if args.check and moved:
         status = 1
 
     cross, skipped = cross_family_drift(workspace)

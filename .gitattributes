@@ -12,3 +12,6 @@
 CHANGELOG.md merge=union
 CHANGELOG_*.md merge=union
 CHANGELOG.*.md merge=union
+
+# compared byte for byte with the copies of the two model editors
+conformance/fixtures/v1/catalog-submit.json -text

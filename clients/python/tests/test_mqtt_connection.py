@@ -44,6 +44,19 @@ class SettingsFromEnvTests(unittest.TestCase):
             settings_from_env({"HYDRA_MQTT_USERNAME": "u", "HYDRA_MQTT_PASSWORD_FILE": "/does/not/exist"})
         self.assertIn("HYDRA_MQTT_PASSWORD_FILE", str(caught.exception))
 
+    def test_a_password_file_with_a_byte_order_mark_and_one_in_another_encoding(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = os.path.join(folder, "password")
+            environment = {"HYDRA_MQTT_USERNAME": "b", "HYDRA_MQTT_PASSWORD_FILE": path}
+            with open(path, "wb") as handle:
+                handle.write(bytes((0xEF, 0xBB, 0xBF)) + b"from-file" + bytes((13, 10)))
+            self.assertEqual(settings_from_env(environment).password, "from-file")
+            with open(path, "wb") as handle:
+                handle.write("from-file".encode("utf-16"))
+            with self.assertRaises(ValueError) as caught:
+                settings_from_env(environment)
+            self.assertIn("not UTF-8 text", str(caught.exception))
+
     def test_a_password_alone_is_refused_when_applying(self):
         class Client:
             def username_pw_set(self, *args):

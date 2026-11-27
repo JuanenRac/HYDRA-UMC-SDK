@@ -20,6 +20,7 @@ The paho client is imported lazily and can be passed in, so every line here is t
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import random
@@ -202,6 +203,18 @@ def connect_with_retry(
     ) from last_error
 
 
+def is_abort_job(suffix: str, payload: bytes) -> bool:
+    """True for a `cmd/job` message whose phase is ABORT: it only ever stops things, so a full queue never drops it."""
+    if suffix != "cmd/job":
+        return False
+    try:
+        body = json.loads(payload)
+    except (ValueError, RecursionError):
+        return False
+    phase = body.get("phase") if isinstance(body, dict) else None
+    return isinstance(phase, str) and phase.strip().upper() == "ABORT"
+
+
 class _Lane:
     """One worker thread plus the futures that have not started yet, so the oldest can be dropped when the lane is bounded."""
 
@@ -209,17 +222,22 @@ class _Lane:
         self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix=thread_name_prefix)
         self._max_queue = max_queue
         self._futures: deque[Future[None]] = deque()
+        self._kept: set[Future[None]] = set()  # waiting commands that a full queue never drops
         self._lock = threading.Lock()
         self.dropped = 0
 
-    def submit(self, function: Callable[..., None], *arguments: object) -> None:
+    def submit(self, function: Callable[..., None], *arguments: object, keep: bool = False) -> None:
         with self._lock:
-            self._futures.append(self._executor.submit(function, *arguments))
+            future = self._executor.submit(function, *arguments)
+            self._futures.append(future)
+            if keep:
+                self._kept.add(future)
+            self._kept = {kept for kept in self._kept if not kept.done()}
             while self._futures and self._futures[0].done():
                 self._futures.popleft()
             if self._max_queue is None:
                 return
-            waiting = [future for future in self._futures if not future.running() and not future.done()]
+            waiting = [future for future in self._futures if not future.running() and not future.done() and future not in self._kept]
             for future in waiting[: max(0, len(waiting) - self._max_queue)]:
                 if future.cancel():
                     self.dropped += 1
@@ -242,6 +260,7 @@ class MessageDispatcher:
 
     * `max_queue`: how many ordinary commands may wait behind the one that is running. When a new one arrives with the queue full, the OLDEST waiting command is dropped
       (the newest state of the world wins) and counted in `stats()["dropped"]`. The stop lane is never bounded or dropped: a stop must always get through.
+      A waiting command that `never_drop(suffix, payload)` accepts is neither dropped nor counted against the limit; by default that is a `cmd/job` of phase ABORT.
     * `max_payload_bytes`: a payload bigger than this is refused before it is queued, logged and counted in `stats()["oversized"]`. Stop verbs are exempt.
     """
 
@@ -253,7 +272,9 @@ class MessageDispatcher:
         *,
         max_queue: Optional[int] = None,
         max_payload_bytes: Optional[int] = None,
+        never_drop: Callable[[str, bytes], bool] = is_abort_job,
     ) -> None:
+        self._never_drop = never_drop
         if max_queue is not None and (type(max_queue) is not int or max_queue < 1):
             raise ValueError("max_queue must be a whole number of 1 or more, or None for no limit")
         if max_payload_bytes is not None and (type(max_payload_bytes) is not int or max_payload_bytes < 1):
@@ -277,7 +298,10 @@ class MessageDispatcher:
             self._oversized += 1
             _LOG.warning("refused %s: payload of %d bytes is over the limit of %d", topic, len(payload), self._max_payload_bytes)
             return
-        (self._stop_lane if is_stop else self._lane).submit(self._handle, client, topic, payload)
+        if is_stop:
+            self._stop_lane.submit(self._handle, client, topic, payload)
+        else:
+            self._lane.submit(self._handle, client, topic, payload, keep=self._never_drop(suffix, payload))
 
     def stats(self) -> dict[str, int]:
         """Counters since the start: commands dropped from a full queue, payloads refused as oversized, and commands waiting now."""

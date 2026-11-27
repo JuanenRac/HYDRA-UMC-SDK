@@ -45,10 +45,12 @@ def settings_from_env(env: Optional[Mapping[str, str]] = None) -> MqttConnection
     password_file = (source.get("HYDRA_MQTT_PASSWORD_FILE") or "").strip()
     if password is None and password_file:
         try:
-            with open(password_file, encoding="utf-8") as handle:
+            with open(password_file, encoding="utf-8-sig") as handle:  # a byte order mark is not part of the password
                 password = handle.read().rstrip("\r\n") or None
         except OSError as error:
             raise ValueError(f"HYDRA_MQTT_PASSWORD_FILE could not be read ({password_file}): {error}") from error
+        except UnicodeDecodeError:
+            raise ValueError(f"HYDRA_MQTT_PASSWORD_FILE could not be read ({password_file}): it is not UTF-8 text") from None
     ca = (source.get("HYDRA_MQTT_TLS_CA") or "").strip() or None
     cert = (source.get("HYDRA_MQTT_TLS_CERT") or "").strip() or None
     key = (source.get("HYDRA_MQTT_TLS_KEY") or "").strip() or None
