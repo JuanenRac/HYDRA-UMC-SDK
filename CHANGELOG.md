@@ -2,9 +2,12 @@
 
 All notable changes to this project are documented here.
 
-## [0.7.7] - A waiting ABORT is never dropped, shared tools and byte order marks
+## [Unreleased]
 
 - **The contract of the model catalog is a fixture both editors check:** `conformance/fixtures/v1/catalog-submit.json` holds what is sent to log in, to submit a model and to download one.
+
+## [0.7.7] - A waiting ABORT is never dropped, shared tools and byte order marks
+
 - **A full bridge queue never drops an ABORT, and a full idempotency store says so:** `MessageDispatcher` takes `never_drop` (by default a `cmd/job` of phase ABORT), so with `max_queue` set an abort that is waiting is not cancelled by newer commands; `IdempotencyStore.evicted` counts the keys forgotten because the store was full, with one warning.
 - **The shared tools read the output of processes as UTF-8:** `tools/canonical/status_lights.py` and `universal_readme_check.py` name the encoding of what they read, and the README layout check is the same text as in the other families again; every repository takes the new copies.
 - **One shared keeper of the chosen language for the Flutter apps (`clients/dart_app_common`):** `LanguagePrefsCore` saves, removes and reads the language under the key the apps already use, and ignores a language the app does not ship. The apps can drop their two identical copies when they take the next release of the SDK.
