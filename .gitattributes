@@ -15,3 +15,5 @@ CHANGELOG.*.md merge=union
 
 # compared byte for byte with the copies of the two model editors
 conformance/fixtures/v1/catalog-submit.json -text
+# compared byte for byte with the copies of the job-dispatcher and the orchestrator
+conformance/fixtures/v1/job-dispatcher-hold.json -text

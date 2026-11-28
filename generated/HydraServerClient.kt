@@ -987,6 +987,10 @@ data class HydraFleetUpdateReport(
     val requireSignedTags: Boolean,
     val disk: HydraFleetUpdateReportDisk,
     val services: List<HydraFleetUpdateRow>,
+    val helper: String? = null,
+    /** Root helper only: the identifier of this look, empty when the helper gave none that is valid. */
+    val planId: String? = null,
+    val totpRequired: Boolean? = null,
 ) {
     fun toJson(): Map<String, Any?> {
         val jsonOut = LinkedHashMap<String, Any?>()
@@ -1001,6 +1005,9 @@ data class HydraFleetUpdateReport(
         jsonOut["requireSignedTags"] = requireSignedTags
         jsonOut["disk"] = disk.toJson()
         jsonOut["services"] = services.map { v0 -> v0.toJson() }
+        if (helper != null) jsonOut["helper"] = helper
+        if (planId != null) jsonOut["planId"] = planId
+        if (totpRequired != null) jsonOut["totpRequired"] = totpRequired
         return jsonOut
     }
 
@@ -1017,6 +1024,9 @@ data class HydraFleetUpdateReport(
             requireSignedTags = json["requireSignedTags"] as Boolean,
             disk = HydraFleetUpdateReportDisk.fromJson(hydraMap(json["disk"])),
             services = hydraList(json["services"]).map { v0 -> HydraFleetUpdateRow.fromJson(hydraMap(v0)) },
+            helper = json["helper"]?.let { v0 -> v0 as String },
+            planId = json["planId"]?.let { v0 -> v0 as String },
+            totpRequired = json["totpRequired"]?.let { v0 -> v0 as Boolean },
         )
     }
 }
@@ -1062,6 +1072,8 @@ data class HydraFleetUpdateRow(
     val needMb: Long? = null,
     val unitRestored: Boolean? = null,
     val log: List<HydraFleetUpdateRowLogItem>,
+    /** Root helper only: the version kept to go back to. */
+    val previous: String? = null,
 ) {
     fun toJson(): Map<String, Any?> {
         val jsonOut = LinkedHashMap<String, Any?>()
@@ -1084,6 +1096,7 @@ data class HydraFleetUpdateRow(
         if (needMb != null) jsonOut["needMb"] = needMb
         if (unitRestored != null) jsonOut["unitRestored"] = unitRestored
         jsonOut["log"] = log.map { v0 -> v0.toJson() }
+        if (previous != null) jsonOut["previous"] = previous
         return jsonOut
     }
 
@@ -1108,6 +1121,7 @@ data class HydraFleetUpdateRow(
             needMb = json["needMb"]?.let { v0 -> (v0 as Number).toLong() },
             unitRestored = json["unitRestored"]?.let { v0 -> v0 as Boolean },
             log = hydraList(json["log"]).map { v0 -> HydraFleetUpdateRowLogItem.fromJson(hydraMap(v0)) },
+            previous = json["previous"]?.let { v0 -> v0 as String },
         )
     }
 }
@@ -2125,11 +2139,17 @@ data class HydraPostAdminDeviceTokensBody(
 data class HydraPostAdminFleetUpdateApplyBody(
     val services: List<String>? = null,
     val confirm: Boolean,
+    /** Root helper only: the identifier of the look the user saw (left out: the one of the report). */
+    val planId: String? = null,
+    /** Root helper only: the one-time code, required while the report says totpRequired. */
+    val code: String? = null,
 ) {
     fun toJson(): Map<String, Any?> {
         val jsonOut = LinkedHashMap<String, Any?>()
         if (services != null) jsonOut["services"] = services
         jsonOut["confirm"] = confirm
+        if (planId != null) jsonOut["planId"] = planId
+        if (code != null) jsonOut["code"] = code
         return jsonOut
     }
 
@@ -2137,6 +2157,8 @@ data class HydraPostAdminFleetUpdateApplyBody(
         fun fromJson(json: Map<String, Any?>): HydraPostAdminFleetUpdateApplyBody = HydraPostAdminFleetUpdateApplyBody(
             services = json["services"]?.let { v0 -> hydraList(v0).map { v1 -> v1 as String } },
             confirm = json["confirm"] as Boolean,
+            planId = json["planId"]?.let { v0 -> v0 as String },
+            code = json["code"]?.let { v0 -> v0 as String },
         )
     }
 }
@@ -2145,11 +2167,20 @@ data class HydraPostAdminFleetUpdateApplyBody(
 data class HydraPostAdminFleetUpdateResumeBody(
     val service: String,
     val confirm: Boolean,
+    /** Root helper only: the identifier of the look the user saw (left out: the one of the report). */
+    val planId: String? = null,
+    /** Root helper only: the one-time code, required while the report says totpRequired. */
+    val code: String? = null,
+    /** Root helper only: go back to the version kept (`previous`) instead of taking the program up. */
+    val rollback: Boolean? = null,
 ) {
     fun toJson(): Map<String, Any?> {
         val jsonOut = LinkedHashMap<String, Any?>()
         jsonOut["service"] = service
         jsonOut["confirm"] = confirm
+        if (planId != null) jsonOut["planId"] = planId
+        if (code != null) jsonOut["code"] = code
+        if (rollback != null) jsonOut["rollback"] = rollback
         return jsonOut
     }
 
@@ -2157,6 +2188,9 @@ data class HydraPostAdminFleetUpdateResumeBody(
         fun fromJson(json: Map<String, Any?>): HydraPostAdminFleetUpdateResumeBody = HydraPostAdminFleetUpdateResumeBody(
             service = json["service"] as String,
             confirm = json["confirm"] as Boolean,
+            planId = json["planId"]?.let { v0 -> v0 as String },
+            code = json["code"]?.let { v0 -> v0 as String },
+            rollback = json["rollback"]?.let { v0 -> v0 as Boolean },
         )
     }
 }
@@ -2588,6 +2622,7 @@ data class HydraPostLogoutBody(
 
 /** An object of the server contract. */
 data class HydraPostModelsSubmitBody(
+    val attribution: Any? = null,
     val category: Any? = null,
     val meshFiles: Any? = null,
     val name: Any? = null,
@@ -2597,6 +2632,7 @@ data class HydraPostModelsSubmitBody(
 ) {
     fun toJson(): Map<String, Any?> {
         val jsonOut = LinkedHashMap<String, Any?>()
+        if (attribution != null) jsonOut["attribution"] = attribution
         if (category != null) jsonOut["category"] = category
         if (meshFiles != null) jsonOut["meshFiles"] = meshFiles
         if (name != null) jsonOut["name"] = name
@@ -2608,6 +2644,7 @@ data class HydraPostModelsSubmitBody(
 
     companion object {
         fun fromJson(json: Map<String, Any?>): HydraPostModelsSubmitBody = HydraPostModelsSubmitBody(
+            attribution = json["attribution"],
             category = json["category"],
             meshFiles = json["meshFiles"],
             name = json["name"],

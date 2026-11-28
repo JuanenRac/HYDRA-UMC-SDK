@@ -4,6 +4,9 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The contract of the update of the whole device carries the confirmation of the root helper:** `POST /api/admin/fleet-update/apply` and `/resume` declare `planId` and `code`, `/resume` also `rollback`, and the report declares `helper`, `planId`, `totpRequired` and, per program, `previous`. The generated clients and the OpenAPI document are regenerated.
+- **A submitted model declares `attribution`** (`contracts/sources/models.routes.json`), as the server already accepts it.
+- **The global hold of the job dispatcher is a fixture two programs check:** `conformance/fixtures/v1/job-dispatcher-hold.json`.
 - **The contract of the model catalog is a fixture both editors check:** `conformance/fixtures/v1/catalog-submit.json` holds what is sent to log in, to submit a model and to download one.
 - **A repository can record which text of each shared tool it holds:** `tools/sync_repo_tools.py --lock` writes `tools/shared_tools.lock.json`, and `--check` names a copy that changed or disappeared since its lock (`TOOL_LOCKS`), including the family files it otherwise only groups. Repositories without a lock are judged as before. Test added.
 
