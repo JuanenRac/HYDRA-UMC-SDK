@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## [Unreleased]
+## [0.7.8] - Root helper confirmation, model attribution, dispatcher hold and a lock of the shared tools
 
 - **The contract of the update of the whole device carries the confirmation of the root helper:** `POST /api/admin/fleet-update/apply` and `/resume` declare `planId` and `code`, `/resume` also `rollback`, and the report declares `helper`, `planId`, `totpRequired` and, per program, `previous`. The generated clients and the OpenAPI document are regenerated.
 - **A submitted model declares `attribution`** (`contracts/sources/models.routes.json`), as the server already accepts it.
