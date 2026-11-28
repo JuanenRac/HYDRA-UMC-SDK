@@ -48,6 +48,16 @@
                   "enum": [
                     true
                   ]
+                },
+                "planId": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{32}$",
+                  "description": "Root helper only: the identifier of the look the user saw (left out: the one of the report)."
+                },
+                "code": {
+                  "type": "string",
+                  "pattern": "^[0-9]{6}$",
+                  "description": "Root helper only: the one-time code, required while the report says totpRequired."
                 }
               }
             }
@@ -127,6 +137,20 @@
                   "enum": [
                     true
                   ]
+                },
+                "planId": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{32}$",
+                  "description": "Root helper only: the identifier of the look the user saw (left out: the one of the report)."
+                },
+                "code": {
+                  "type": "string",
+                  "pattern": "^[0-9]{6}$",
+                  "description": "Root helper only: the one-time code, required while the report says totpRequired."
+                },
+                "rollback": {
+                  "type": "boolean",
+                  "description": "Root helper only: go back to the version kept (`previous`) instead of taking the program up."
                 }
               }
             }

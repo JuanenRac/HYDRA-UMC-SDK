@@ -228,6 +228,10 @@ export interface FleetUpdateReport {
   requireSignedTags: boolean;
   disk: { rootFreeMb: unknown; workspaceFreeMb: unknown };
   services: FleetUpdateRow[];
+  helper?: "root";
+  /** Root helper only: the identifier of this look, empty when the helper gave none that is valid. */
+  planId?: string;
+  totpRequired?: boolean;
 }
 
 export interface FleetUpdateRow {
@@ -250,6 +254,8 @@ export interface FleetUpdateRow {
   needMb?: unknown;
   unitRestored?: unknown;
   log: { at: string; text: string }[];
+  /** Root helper only: the version kept to go back to. */
+  previous?: string;
 }
 
 export interface FleetUpdateStatus {
@@ -725,7 +731,7 @@ export class HydraServerClient {
   }
 
   /** POST /api/admin/fleet-update/apply (access: admin) */
-  postAdminFleetUpdateApply(args: { body: { services?: string[]; confirm: true } }): Promise<FleetUpdateStatus> {
+  postAdminFleetUpdateApply(args: { body: { services?: string[]; confirm: true; planId?: string; code?: string } }): Promise<FleetUpdateStatus> {
     return this.transport({ method: "POST", path: "/api/admin/fleet-update/apply", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<FleetUpdateStatus>;
   }
 
@@ -735,7 +741,7 @@ export class HydraServerClient {
   }
 
   /** POST /api/admin/fleet-update/resume (access: admin) */
-  postAdminFleetUpdateResume(args: { body: { service: string; confirm: true } }): Promise<FleetUpdateStatus> {
+  postAdminFleetUpdateResume(args: { body: { service: string; confirm: true; planId?: string; code?: string; rollback?: boolean } }): Promise<FleetUpdateStatus> {
     return this.transport({ method: "POST", path: "/api/admin/fleet-update/resume", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<FleetUpdateStatus>;
   }
 
@@ -1090,7 +1096,7 @@ export class HydraServerClient {
   }
 
   /** POST /api/models/submit (access: admin) */
-  postModelsSubmit(args?: { body?: { category?: unknown; meshFiles?: unknown; name?: unknown; overwrite?: unknown; urdfFilename?: unknown; urdfXml?: unknown } }): Promise<ModelSubmitted> {
+  postModelsSubmit(args?: { body?: { attribution?: unknown; category?: unknown; meshFiles?: unknown; name?: unknown; overwrite?: unknown; urdfFilename?: unknown; urdfXml?: unknown } }): Promise<ModelSubmitted> {
     return this.transport({ method: "POST", path: "/api/models/submit", query: {}, headers: {}, body: args?.body, access: "admin" }) as Promise<ModelSubmitted>;
   }
 
